@@ -118,7 +118,9 @@ oci-bv          blockvolume.csi.oraclecloud.com   Delete          WaitForFirstCo
 </span></code></pre></div></li>
 <li>
 <p>생성 결과</p>
-<p>아래와 같이 정상적으로 PV 요청에 따라 PV가 생성되고, 테스트 앱로 구동된 것을 볼 수 있습니다.</p>
+<ul>
+<li>아래와 같이 정상적으로 PV 요청에 따라 PV가 생성되고, 테스트 앱로 구동된 것을 볼 수 있습니다.</li>
+</ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:persistent-volume <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f csi-bvs-pvc.yaml 
 persistentvolumeclaim/csi-bvs-pvc created
 oke_admin@cloudshell:persistent-volume <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f nginx-deployment-bvs-pvc.yaml 
@@ -129,7 +131,23 @@ csi-14f32977-eaf6-4eaa-87bd-7c736ec43a52   50Gi       RWO            Delete     
 oke_admin@cloudshell:persistent-volume <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
 NAME                             READY   STATUS    RESTARTS   AGE
 nginx-bvs-pvc-7b574c9c5c-vdp7c   1/1     Running   <span class="m">0</span>          118s
-</code></pre></div></li>
+</code></pre></div><ul>
+<li>
+<p>Block Volume
+OCI 서비스 콘솔에서 Storage &gt; Block Volumes 화면에서 보면 아래와 같이 PV용 Block Volume 만들어 졌으며, 특정 Worker Node에 부착된 걸 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211113225233091.png" alt='image-20211113225233091' />
+</p>
+</li>
+</ul>
+</li>
 <li>
 <p>테스트</p>
 <ul>
@@ -144,7 +162,7 @@ root@nginx-bvs-pvc-7b574c9c5c-vdp7c:/#
 </code></pre></div></li>
 <li>
 <p>POD 삭제 후 재생성</p>
-<p>Persistent Volume이 유지되는 것을 확인하기 위해 기존 POD를 삭제하고 재생성되도록 합니다. 이때 RWO 모드라 Multi-Attach error가 발생하면서 기존 POD가 삭제되었다는 것을 인지하는 데 시간이 걸리므로 약간 기다립니다.</p>
+<p>Persistent Volume이 유지되는 것을 확인하기 위해 기존 POD를 삭제하고 재생성되도록 합니다. 이때 RWO 모드라 다른 Node에 POD가 생성되는 경우, Multi-Attach error가 일시적으로 발생합니다. 기존 POD가 삭제되었다는 것을 인지하는 데 시간이 걸리며, 조금 지난 후에 POD가 다시 재생성됩니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:persistent-volume <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
 NAME                             READY   STATUS    RESTARTS   AGE
 nginx-bvs-pvc-7b574c9c5c-vdp7c   1/1     Running   <span class="m">0</span>          6m53s
@@ -160,8 +178,7 @@ nginx-bvs-pvc-7b574c9c5c-vrptl   1/1     Running   <span class="m">0</span>     
 <li>
 <p>신규 POD에서 Persistent Volume 확인</p>
 <p>앞서 변경한 파일을 신규 POD에서 다시 조회해 보면 기존 내용이 남아 있는 걸 확인할 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:persistent-volume <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl <span class="nb">exec</span> -it nginx-bvs-pvc-7b574c9c5c-vrptl cat /usr/share/nginx/html/hello_world.txt
-kubectl <span class="nb">exec</span> <span class="o">[</span>POD<span class="o">]</span> <span class="o">[</span>COMMAND<span class="o">]</span> is DEPRECATED and will be removed in a future version. Use kubectl <span class="nb">exec</span> <span class="o">[</span>POD<span class="o">]</span> -- <span class="o">[</span>COMMAND<span class="o">]</span> instead.
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:persistent-volume <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl <span class="nb">exec</span> -it nginx-bvs-pvc-7b574c9c5c-vrptl -- cat /usr/share/nginx/html/hello_world.txt
 Hello PV
 </code></pre></div></li>
 </ul>

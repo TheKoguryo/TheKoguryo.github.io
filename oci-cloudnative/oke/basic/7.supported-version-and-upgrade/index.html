@@ -241,7 +241,7 @@ NAME          STATUS   ROLES   AGE     VERSION
 </li>
 </ol>
 <h3 id="worker-node-업그레이드---in-place-업그레이드">Worker Node 업그레이드 - in-place 업그레이드</h3>
-<p>OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. Node Pool 업그레이드 -&gt; Node 추가 -&gt; 기존 Node 삭제 순으로 업그레이드 합니다.</p>
+<p>OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. in-place 업그레이드 방식은 Node Pool 업그레이드 -&gt; 기존 Node Drain &gt; POD 이동 확인 -&gt; 기존 Node VM 종료 순으로 업그레이드 합니다.</p>
 <h4 id="node-pool-업그레이드">Node Pool 업그레이드</h4>
 <ol>
 <li>
@@ -413,8 +413,149 @@ NAME          STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS
 10.0.10.170   Ready    node    23m     v1.20.11   10.0.10.170   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
 </code></pre></div></li>
 </ol>
-<h3 id="worker-node-업그레이드---in-place-업그레이드-1">Worker Node 업그레이드 - in-place 업그레이드</h3>
-<p>&hellip;</p>
+<h3 id="worker-node-업그레이드---out-of-place-업그레이드">Worker Node 업그레이드 - out-of-place 업그레이드</h3>
+<p>OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. out-of-place 업그레이드 방식은 업그레이드 버전의 Node Pool 신규 생성 -&gt; 기존 Node Pool의 모든 노드 Drain -&gt; 기존 Node Pool 삭제 순으로 업그레이드 합니다.</p>
+<h4 id="새-버전의-node-pool-만들기">새 버전의 Node Pool 만들기</h4>
+<ol>
+<li>
+<p>OKE 클러스터 상세 페이지로 이동합니다.</p>
+</li>
+<li>
+<p><strong>Resources</strong> &gt; <strong>Node Pools</strong> 로 이동합니다.</p>
+</li>
+<li>
+<p>그림과 같이 기존 버전의 Node Pool이 있는 상태에서 신규 Node Pool 추가를 위해 <strong>Add Node Pool</strong>을 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211114190748738.png" alt='image-20211114190748738' />
+</p>
+</li>
+<li>
+<p>신규 Node Pool 정보를 입력하여 생성합니다.</p>
+<ul>
+<li>Name</li>
+<li>Version: 새 버전 선택</li>
+<li>Shape: Node VM 유형</li>
+<li>Number of nodes: 노드 수</li>
+<li>Placement Configuration
+<ul>
+<li>Node가 위치할 AD, Subnet</li>
+</ul>
+</li>
+<li>Add an SSH key: Node VM에 SSH 접속시 사용할 키의 Private Key</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211114192329684.png" alt='image-20211114192329684' />
+</p>
+</li>
+<li>
+<p>추가 된 Node Pool을 OCI 서비스 콘솔 확인할 수 있습니다.</p>
+</li>
+</ol>
+<h4 id="기존-node-pool의-모든-노드-drain">기존 Node Pool의 모든 노드 Drain</h4>
+<ol>
+<li>
+<p>구동 중인 앱들이 기존 Node Pool에서 동작하고 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
+NAME                             READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
+nginx-bvs-pvc-7b574c9c5c-8jj2d   1/1     Running   <span class="m">0</span>          18m   10.244.0.134   10.0.10.29    &lt;none&gt;           &lt;none&gt;
+nginx-fss-pvc-9fb98454f-2jbp8    1/1     Running   <span class="m">0</span>          18m   10.244.0.5     10.0.10.242   &lt;none&gt;           &lt;none&gt;
+nginx-fss-pvc-9fb98454f-nwqfd    1/1     Running   <span class="m">0</span>          19m   10.244.1.5     10.0.10.61    &lt;none&gt;           &lt;none&gt;
+nginx-fss-pvc-9fb98454f-twx4h    1/1     Running   <span class="m">0</span>          18m   10.244.1.6     10.0.10.61    &lt;none&gt;           &lt;none&gt;
+oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
+NAME          STATUS   ROLES   AGE     VERSION    NAME
+10.0.10.242   Ready    node    71m     v1.19.12   pool1
+10.0.10.29    Ready    node    71m     v1.19.12   pool1
+10.0.10.61    Ready    node    71m     v1.19.12   pool1
+10.0.10.12    Ready    node    4m25s   v1.20.11   pool2
+10.0.10.126   Ready    node    4m48s   v1.20.11   pool2
+10.0.10.191   Ready    node    4m42s   v1.20.11   pool2
+</code></pre></div></li>
+<li>
+<p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets</code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.242 --ignore-daemonsets
+node/10.0.10.242 already cordoned
+WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-l62xw, kube-system/kube-flannel-ds-7dv8l, kube-system/kube-proxy-zv4ks, kube-system/proxymux-client-24nmv
+evicting pod kube-system/coredns-c5d4bf466-wv8fb
+evicting pod default/nginx-fss-pvc-9fb98454f-2jbp8
+evicting pod kube-system/coredns-c5d4bf466-h5rrm
+pod/coredns-c5d4bf466-wv8fb evicted
+pod/nginx-fss-pvc-9fb98454f-2jbp8 evicted
+pod/coredns-c5d4bf466-h5rrm evicted
+node/10.0.10.242 evicted
+</code></pre></div></li>
+<li>
+<p>아래와 같이 242번 노드가 컨테이너 스케줄링에서 제외된 것을 볼 수 있습니다. POD가 다른 Node로 다 이동한 걸 확인후 다음 작업으로 진행합니다.</p>
+<pre tabindex="0"><code>oke_admin@cloudshell:file-storage (ap-seoul-1)$ kubectl get nodes -L name --sort-by=.metadata.labels.name
+NAME          STATUS                     ROLES   AGE     VERSION    NAME
+10.0.10.242   Ready,SchedulingDisabled   node    76m     v1.19.12   pool1
+10.0.10.29    Ready                      node    76m     v1.19.12   pool1
+10.0.10.61    Ready                      node    76m     v1.19.12   pool1
+10.0.10.12    Ready                      node    9m15s   v1.20.11   pool2
+10.0.10.126   Ready                      node    9m38s   v1.20.11   pool2
+10.0.10.191   Ready                      node    9m32s   v1.20.11   pool2
+oke_admin@cloudshell:file-storage (ap-seoul-1)$ kubectl get pod -o wide
+NAME                             READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
+nginx-bvs-pvc-7b574c9c5c-8jj2d   1/1     Running   0          22m   10.244.0.134   10.0.10.29    &lt;none&gt;           &lt;none&gt;
+nginx-fss-pvc-9fb98454f-5k8wg    1/1     Running   0          57s   10.244.3.2     10.0.10.126   &lt;none&gt;           &lt;none&gt;
+nginx-fss-pvc-9fb98454f-nwqfd    1/1     Running   0          23m   10.244.1.5     10.0.10.61    &lt;none&gt;           &lt;none&gt;
+nginx-fss-pvc-9fb98454f-twx4h    1/1     Running   0          22m   10.244.1.6     10.0.10.61    &lt;none&gt;           &lt;none&gt;
+</code></pre></li>
+<li>
+<p>나머지 기존 Node Pool에 있는 Node들도 drain합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
+NAME          STATUS                     ROLES   AGE   VERSION    NAME
+10.0.10.242   Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
+10.0.10.29    Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
+10.0.10.61    Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
+10.0.10.12    Ready                      node    11m   v1.20.11   pool2
+10.0.10.126   Ready                      node    12m   v1.20.11   pool2
+10.0.10.191   Ready                      node    12m   v1.20.11   pool2
+</code></pre></div></li>
+</ol>
+<h4 id="기존-node-pool-삭제">기존 Node Pool 삭제</h4>
+<ol>
+<li>
+<p>기존 Node Pool에 있는 모든 Node들이 drain되어 더이상 사용되지 않습니다.</p>
+</li>
+<li>
+<p>OCI 서비스 콘솔에서 OKE 클러스터 상세페이지로 이동합니다.</p>
+</li>
+<li>
+<p>Resources &gt; Node Pools로 이동하여 기존 Node Pool을 삭제합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211114201115821.png" alt='image-20211114201115821' />
+</p>
+</li>
+<li>
+<p>업그레이드가 완료되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
+NAME          STATUS   ROLES   AGE   VERSION    NAME
+10.0.10.12    Ready    node    18m   v1.20.11   pool2
+10.0.10.126   Ready    node    19m   v1.20.11   pool2
+10.0.10.191   Ready    node    19m   v1.20.11   pool2
+</code></pre></div></li>
+</ol>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>

@@ -43,6 +43,226 @@
 </div>
 <div class="content-container">
 <main><h1 id="132-로컬-환경에서-클러스터-연결하기">1.3.2 로컬 환경에서 클러스터 연결하기</h1>
+<h2 id="oci-cli-설치-및-환경-구성">OCI CLI 설치 및 환경 구성</h2>
+<h3 id="oci-cli-설치">OCI CLI 설치</h3>
+<p>공식 문서를 참고하여 OCI OCI를 설치합니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm">https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm</a></li>
+</ul>
+<p>Oracle Linux 기준 예시</p>
+<ol>
+<li>
+<p>설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">bash -c <span class="s2">&#34;</span><span class="k">$(</span>curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh<span class="k">)</span><span class="s2">&#34;</span>
+</code></pre></div></li>
+<li>
+<p>설치 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oci --version
+</code></pre></div></li>
+</ol>
+<h3 id="oci-cli-config-file설정">OCI CLI Config File설정</h3>
+<ol>
+<li>
+<p>설정을 위해 필요한 정보 사전 확인</p>
+<ul>
+<li>
+<p>user OCID</p>
+<p>오른쪽 위 사용자 Profle에서 <strong>User Settings</strong> 클릭 후 사용자 OCID 확인
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211116104945841.png" alt='image-20211116104945841' />
+</p>
+<ul>
+<li>
+<p>Tenancy OCID</p>
+<p>오른쪽 위 사용자 Profle에서 <strong>Tenancy</strong> 클릭 후 Tenancy OCID 확인
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211116105225581.png" alt='image-20211116105225581' />
+</p>
+</li>
+<li>
+<p>Region: 사용할 Region</p>
+</li>
+<li>
+<p>API Signing Key: 여기서는 편의상 새로운 Private Key, Public Key를 생성하는 것으로 선택하겠습니다.</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>setup config 실행</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oci setup config
+</code></pre></div><ul>
+<li>실행 예시</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ oci setup config
+    This <span class="nb">command</span> provides a walkthrough of creating a valid CLI config file.
+...
+Enter a location <span class="k">for</span> your config <span class="o">[</span>/home/opc/.oci/config<span class="o">]</span>:
+Enter a user OCID: ocid1.user.oc1..aaaaaaaazo6ilmezdaeozjcmsu6rcxnf5sjz2fau76kpdjvsbbakhqtw75sq
+Enter a tenancy OCID: ocid1.tenancy.oc1..aaaaaaaamd5zq7ohrxkmcsai23pp634k6i2eymnznv4d6ur7n5n4qj7jfhoq
+Enter a region by index or name<span class="o">(</span>e.g.
+1: ap-chiyoda-1, 2: ap-chuncheon-1, 3: ap-hyderabad-1, 4: ap-ibaraki-1, 5: ap-melbourne-1,
+6: ap-mumbai-1, 7: ap-osaka-1, 8: ap-seoul-1, 9: ap-singapore-1, 10: ap-sydney-1,
+11: ap-tokyo-1, 12: ca-montreal-1, 13: ca-toronto-1, 14: eu-amsterdam-1, 15: eu-frankfurt-1,
+16: eu-marseille-1, 17: eu-zurich-1, 18: il-jerusalem-1, 19: me-dubai-1, 20: me-jeddah-1,
+21: sa-santiago-1, 22: sa-saopaulo-1, 23: sa-vinhedo-1, 24: uk-cardiff-1, 25: uk-gov-cardiff-1,
+26: uk-gov-london-1, 27: uk-london-1, 28: us-ashburn-1, 29: us-gov-ashburn-1, 30: us-gov-chicago-1,
+31: us-gov-phoenix-1, 32: us-langley-1, 33: us-luke-1, 34: us-phoenix-1, 35: us-sanjose-1<span class="o">)</span>: <span class="m">8</span>
+Do you want to generate a new API Signing RSA key pair? <span class="o">(</span>If you decline you will be asked to supply the path to an existing key.<span class="o">)</span> <span class="o">[</span>Y/n<span class="o">]</span>:
+Enter a directory <span class="k">for</span> your keys to be created <span class="o">[</span>/home/opc/.oci<span class="o">]</span>:
+Enter a name <span class="k">for</span> your key <span class="o">[</span>oci_api_key<span class="o">]</span>:
+Public key written to: /home/opc/.oci/oci_api_key_public.pem
+Enter a passphrase <span class="k">for</span> your private key <span class="o">(</span>empty <span class="k">for</span> no passphrase<span class="o">)</span>:
+Private key written to: /home/opc/.oci/oci_api_key.pem
+Fingerprint: a0:e1:fe:79:22:22:f0:b5:6b:29:72:5f:5d:b6:22:32
+Config written to /home/opc/.oci/config
+
+
+    If you haven<span class="s1">&#39;t already uploaded your API Signing public key through the
+</span><span class="s1">    console, follow the instructions on the page linked below in the section
+</span><span class="s1">    &#39;</span>How to upload the public key<span class="err">&#39;</span>:
+
+        https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#How2
+</code></pre></div></li>
+</ol>
+<h3 id="api-public-key-등록">API Public Key 등록</h3>
+<ol>
+<li>
+<p>OCI Config File에 등록한 사용자 상세 페이지로 이동</p>
+</li>
+<li>
+<p>왼쪽 아래 Resources에서 API Keys 선택</p>
+</li>
+<li>
+<p><strong>Add Public Key</strong> 클릭</p>
+</li>
+</ol>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211116110408621.png" alt='image-20211116110408621' />
+</p>
+<ol start="4">
+<li>oci setup config 실행 후 생성된 API Public Key 확인</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ cat ~/.oci/oci_api_key_public.pem
+-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAycclV86OzQ+x6I13HEbe
+...
+gCO1GdLyJNS08Zv1uiW6j1IYIszrmr6XK482Vf3r48u8ZkFgBBlsPjU03R9H1x52
+dwIDAQAB
+-----END PUBLIC KEY-----
+</code></pre></div><ol start="5">
+<li>
+<p>생성된 API Public Key 내용을 API Key 추가
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211116110943015.png" alt='image-20211116110943015' />
+</p>
+</li>
+<li>
+<p>OCI CLI를 위한 API Public Key 등록 완료
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211116111152150.png" alt='image-20211116111152150' />
+</p>
+</li>
+</ol>
+<h3 id="연결-확인">연결 확인</h3>
+<ol>
+<li>
+<p>다시 리눅스 호스트로 돌아가 <code>oci os ns get</code>을 실행하여 연결 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ oci os ns get
+<span class="o">{</span>
+  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnrlxx3w0wgq&#34;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ol>
+<h2 id="kubectl-cli-설치-및-환경-구성">kubectl CLI 설치 및 환경 구성</h2>
+<h3 id="kubectl-cli-설치">kubectl CLI 설치</h3>
+<p>공식 문서를 참고하여 kubectl OCI를 설치합니다.</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/">https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/</a></li>
+</ul>
+<p>Linux 기준 예시</p>
+<ol>
+<li>
+<p>설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -LO <span class="s2">&#34;https://dl.k8s.io/release/</span><span class="k">$(</span>curl -L -s https://dl.k8s.io/release/stable.txt<span class="k">)</span><span class="s2">/bin/linux/amd64/kubectl&#34;</span>
+
+sudo install -o root -g root -m <span class="m">0755</span> kubectl /usr/local/bin/kubectl
+</code></pre></div></li>
+</ol>
+<h3 id="kubeconfig-파일-생성하기">kubeconfig 파일 생성하기</h3>
+<ol>
+<li>
+<p>생성한 OKE 클러스터 상세 페이지에서 Access Cluster를 클릭합니다.</p>
+</li>
+<li>
+<p>Local Access 를 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211116120651734.png" alt='image-20211116120651734' />
+</p>
+</li>
+<li>
+<p>PRIVATE_ENDPOINT</p>
+<p>Kubernetes API 접근도 Private IP를 통해서 할 때 사용합니다. PRIVATE_ENDPOINT, 즉 Private IP로 접근을 해야 하므로, bastion host 등 내부 IP로 접근이 가능한 서버에서 수행할 때 사용합니다.</p>
+<ul>
+<li>bastion host는  외부에서 SSH로 접근 가능하게 22 포트 오픈이 필요하며, 내부적으로는 OKE 클러스터의 Kubernetes API 및 Worker Nodes 들에 접근이 가능해야 합니다.</li>
+<li>kubeconfig 파일 생성 및 클러스터에 접속 확인</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ oci ce cluster create-kubeconfig --cluster-id ocid1.cluster.oc1.ap-seoul-1.aaaaaaaair2g7crtxvgchbrfkvf5dz6j7ncrjepinzm2infw6cjy33uzxhyq --file <span class="nv">$HOME</span>/.kube/config --region ap-seoul-1 --token-version 2.0.0  --kube-endpoint PRIVATE_ENDPOINT
+New config written to the Kubeconfig file /home/opc/.kube/config
+<span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ kubectl cluster-info
+Kubernetes control plane is running at https://10.0.0.4:6443
+CoreDNS is running at https://10.0.0.4:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use <span class="s1">&#39;kubectl cluster-info dump&#39;</span>.
+</code></pre></div></li>
+<li>
+<p>PUBLIC_ENDPOINT</p>
+<p>Kubernetes API 접근도 Public IP를 통해서 할 때 사용합니다. OKE 클러스터 생성시 Kubernetes API에 Public IP를 부여한 경우에 사용 가능한 방법입니다. 실제 kubeconfig 파일 생성하는 명령(oci ce cluster crate-kubeconfig ~~)은 마지막 옵션값인 PUBLIC_ENPOINT이외는 동일한 명령합니다.</p>
+</li>
+</ol>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
@@ -159,6 +379,7 @@
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/basic/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/basic/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
 </ul>
   
 </li>

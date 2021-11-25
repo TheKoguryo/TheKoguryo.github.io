@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>1.4 앱 배포 및 Load Balancer 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.89.2" />
+<link href="https://thekoguryo.github.io/oci-cloudnativeindex.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/4.deploy-docker-hub-image-with-lb/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">Version 2021.11.13</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="https://thekoguryo.github.io">Home</a></li>
+<li ><a href="/oci-cloudnative/">OCI Cloud Native</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1 id="14-앱-배포-및-load-balancer-사용하기">1.4 앱 배포 및 Load Balancer 사용하기</h1>
+<h2 id="docker-hub-이미지-테스트">Docker Hub 이미지 테스트</h2>
+<ol>
+<li>
+<p>가장 흔한 형태인 Public Container Registry에 이미지를 가져와서 OKE 클러스터에 배포를 해봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create deployment nginx-docker-hub --image<span class="o">=</span>nginx:latest
+</code></pre></div></li>
+<li>
+<p>배포 결과를 확인해보면 정상적으로 배포된 것을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl create deployment nginx-docker-hub --image<span class="o">=</span>nginx:latest
+deployment.apps/nginx-docker-hub created
+oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get all
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/nginx-docker-hub-78b9999646-xgtjp   1/1     Running   <span class="m">0</span>          17s
+
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
+service/kubernetes   ClusterIP   10.96.0.1    &lt;none&gt;        443/TCP   130m
+
+NAME                               READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/nginx-docker-hub   1/1     <span class="m">1</span>            <span class="m">1</span>           19s
+
+NAME                                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/nginx-docker-hub-78b9999646   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       20s
+</code></pre></div></li>
+</ol>
+<h2 id="load-balancer-테스트">Load Balancer 테스트</h2>
+<h3 id="load-balancer-서비스-사용하기">Load Balancer 서비스 사용하기</h3>
+<ol>
+<li>
+<p>클라이언트 서비스를 위해 LoadBalancer Type으로 서비스를 생성합니다.</p>
+</li>
+<li>
+<p>서비스 생성 결과를 확인하면 아래와 같이 LoadBalancer 타입으로 생성되어 Public IP가 할당 된 것을 볼 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl expose deployment nginx-docker-hub --port <span class="m">80</span> --type LoadBalancer --name nginx-docker-hub-svc
+service/nginx-docker-hub-svc exposed
+oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get svc
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+kubernetes             ClusterIP      10.96.0.1      &lt;none&gt;          443/TCP        135m
+nginx-docker-hub-svc   LoadBalancer   10.96.44.184   152.67.200.29   80:30610/TCP   49s
+</code></pre></div></li>
+<li>
+<p>서비스 주소인 Public IP로 접속하면, 연결되는 것을 볼 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ curl http://152.67.200.29
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;title&gt;Welcome to nginx!&lt;/title&gt;
+&lt;style&gt;
+html <span class="o">{</span> color-scheme: light dark<span class="p">;</span> <span class="o">}</span>
+body <span class="o">{</span> width: 35em<span class="p">;</span> margin: <span class="m">0</span> auto<span class="p">;</span>
+font-family: Tahoma, Verdana, Arial, sans-serif<span class="p">;</span> <span class="o">}</span>
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+&lt;p&gt;If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.&lt;/p&gt;
+
+&lt;p&gt;For online documentation and support please refer to
+&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">&#34;http://nginx.org/&#34;</span>&gt;nginx.org&lt;/a&gt;.&lt;br/&gt;
+Commercial support is available at
+&lt;a <span class="nv">href</span><span class="o">=</span><span class="s2">&#34;http://nginx.com/&#34;</span>&gt;nginx.com&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Thank you <span class="k">for</span> using nginx.&lt;/em&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div></li>
+</ol>
+<h3 id="oci-service-console에서-load-balancer-확인하기">OCI Service Console에서 Load Balancer 확인하기</h3>
+<ol>
+<li>
+<p>콘솔에서 <strong>Networking</strong> &gt; <strong>Load Balancer</strong> 로 이동합니다. OKE 클러스터가 있는 Compartment로 이동합니다.</p>
+</li>
+<li>
+<p>아래 그림과 같이 kubernetes 상에 생성된 서비스와 <strong>동일한 Public IP</strong>로 Load Balancer가 생성된 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108172024352.png" alt='image-20211108172024352' />
+</p>
+</li>
+<li>
+<p>Load Balancer 이름을 클릭하여 상세 화면으로 이동합니다.</p>
+</li>
+<li>
+<p>상세화면에서 좌측 하단 <strong>Resources</strong> &gt; <strong>Listeners</strong>로 이동합니다.</p>
+<p>kubernetes에서 Load Balancer 생성시 지정한 <strong>80 포트로 Listen</strong> 하고 있는 걸 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108172754176.png" alt='image-20211108172754176' />
+</p>
+</li>
+<li>
+<p><strong>Resources</strong> &gt; <strong>Backend Set</strong>으로 이동합니다. 생성된 Backend Set을 클릭하여 상세화면으로 이동합니다.</p>
+</li>
+<li>
+<p>좌측 하단 Resources &gt; Backends로 이동합니다.</p>
+<p>세 개의 백엔드 노드의 30610 포트로 부하 분산하는 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108173041096.png" alt='image-20211108173041096' />
+</p>
+</li>
+<li>
+<p>다시 터미널로 이동하여 서비스와 노드 정보를 조회합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get svc
+kubectl get nodes -o wide
+</code></pre></div><ul>
+<li>
+<p>조회결과</p>
+<p>조회 해보면 OCI Load Balancer 가 Worker Nodes 3개로, 각 노드의 Node Port인 30610으로 부하 분산 되는 것을 알 수 있습니다. 이처럼 kubernetes에서 Load Balancer Type 서비스를 생성하면, OCI Load Balancer와 연동되어 자동으로 자원이 생성됩니다.</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get svc
+NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+kubernetes             ClusterIP      10.96.0.1      &lt;none&gt;          443/TCP        160m
+nginx-docker-hub-svc   LoadBalancer   10.96.44.184   152.67.200.29   80:30610/TCP   25m
+oke_admin@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get nodes -o wide
+NAME         STATUS   ROLES   AGE    VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                  KERNEL-VERSION                    CONTAINER-RUNTIME
+10.0.10.11   Ready    node    155m   v1.20.11   10.0.10.11    &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+10.0.10.44   Ready    node    155m   v1.20.11   10.0.10.44    &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+10.0.10.73   Ready    node    155m   v1.20.11   10.0.10.73    &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+</code></pre></div></li>
+</ol>
+<h3 id="oci-service-console에서-security-list-확인하기">OCI Service Console에서 Security List 확인하기</h3>
+<ol>
+<li>
+<p>콘솔에서 <strong>Networking</strong> &gt; <strong>Virtual Cloud Networks</strong> 로 이동합니다. OKE 클러스터가 있는 Compartment로 이동합니다.</p>
+</li>
+<li>
+<p>OKE 클러스터가 사용하는 VCN으로 이동합니다.</p>
+</li>
+<li>
+<p>Subnet을 보면 그림과 같이, 3개의 서브넷이 있습니다.</p>
+<ul>
+<li>oke-k8sApiEndpoint-subnet~~: Kubernetes API Endpoint를 위한 서브넷</li>
+<li>oke-svclbsubnet-~~: Load Balancer가 사용하는 서브넷</li>
+<li>oke-nodesubnet-~~: Worker Node 들이 사용하는 서브넷</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108174312909.png" alt='image-20211108174312909' />
+</p>
+</li>
+<li>
+<p>Resources &gt; Security Lists로 이동하면, 위 3개의 서브넷이 사용하는 3개의 Security List가 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108174606492.png" alt='image-20211108174606492' />
+</p>
+</li>
+<li>
+<p>Load Balancer용 서브넷 확인</p>
+<p>먼저 oke-svclbsubnet-~~ 의 상세화면으로 이동합니다. Ingress/Egress Rule을 확인해 보면, 외부에서 80 포트로 수신하고, Worker Node들의 Node Port인 30610로 송신할 수 있도록 자동으로 추가된 것을 볼수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108174928963.png" alt='image-20211108174928963' />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108174946851.png" alt='image-20211108174946851' />
+</p>
+</li>
+<li>
+<p>다시 VCN 상세 화면으로 이동하여, Worker Nodes용 서브넷을 확인합니다.</p>
+<p>OCI Load Balancer에서 Node Port: 30610으로 요청을 수신할 수 있도록 자동으로 규칙이 추가된 것을 볼수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211108175115098.png" alt='image-20211108175115098' />
+</p>
+</li>
+<li>
+<p>위와 같이 OKE 클러스터에 kubernetes 명령으로 Load Balancer 서비스 타입을 생성하면, 그에 따라 OCI Load Balancer가 생성되고, 관련 Security List에도 등록되는 것을 알 수 있습니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+
+ <div class="edit-meta">Last updated on 8 Nov 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/3.access-cluster/2.local-access/" title="1.3.2 로컬 환경에서 클러스터 연결하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.3.2 로컬 환경에서 클러스터 연결하기</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/5.deploy-ocir-image/" title="1.5 OCIR 이미지 사용하기">Next - 1.5 OCIR 이미지 사용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io/oci-cloudnative/search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/">
+    Oracle Cloud Native Services
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="sub-menu">
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/">
+    1. OKE(Oracle Container Engine for Kubernetes) 기초
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/oke-basic/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/devops/2.configure-devops/">2.2 DevOps 구성 및 프로젝트 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/cloud-native/devops/1.devops/">2.1 OCI DevOps 서비스 소개</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/copy-code-button.js"></script></div>
+</body>
+</html>

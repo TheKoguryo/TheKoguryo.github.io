@@ -17,7 +17,8 @@ let fuseOptions = {
     {name:"title",weight:0.8},
     {name:"tags",weight:0.5},
     {name:"categories",weight:0.5},
-    {name:"contents",weight:0.4}
+    {name:"contents",weight:0.4},
+    {name:"lastmod",weight:0.4}
   ]
 };
 
@@ -47,11 +48,8 @@ function executeSearch(searchQuery) {
     let fuse = new Fuse(data, fuseOptions);
     let result = fuse.search(searchQuery);
 
-    console.log(result);
-
     // Remove Duplicate
     result = uniqByKeepFirst(result, it => it.item.permalink);
-    console.log(result);
 
     // Sort
     //result.sort((a, b) => a.item.permalink.localeCompare(b.item.permalink));
@@ -139,6 +137,7 @@ function populateResults(result){
     frag.querySelector(".search_summary").setAttribute("id", "summary-" + key);
     frag.querySelector(".search_link").setAttribute("href", value.item.permalink);
     frag.querySelector(".search_title").textContent = value.item.title;
+    frag.querySelector(".search_lastmod").textContent = value.item.lastmod.substring(0,10).replaceAll('-', '/');  
     frag.querySelector(".search_snippet").textContent = decoded;
     let tags = value.item.tags;
     if (tags) {

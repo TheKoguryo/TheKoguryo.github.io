@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3.2 Helm Chart Repostory로 사용하기 - TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</title>
+<meta name="generator" content="Hugo 0.89.2" />
+<link href="https://thekoguryo.github.io/oci-cloudnativeindex.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci-cloudnative/ocir/2.helm-chart/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</h1>
+
+ <span class="version">Version 2021.12.01</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="https://thekoguryo.github.io">Home</a></li>
+<li ><a href="/oci-cloudnative/">Oracle Cloud Native</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1 id="32-helm-chart-repostory로-사용하기">3.2 Helm Chart Repostory로 사용하기</h1>
+<p>OCIR은OCI(Open Container Initiative) Registry로 Helm 3에서는 현재 OCI Registry를 실험적(<em>experimental</em>)인 기능으로 지원하고 있습니다.</p>
+<ul>
+<li><a href="https://helm.sh/docs/topics/registries/">https://helm.sh/docs/topics/registries/</a></li>
+</ul>
+<h2 id="helm-cli-환경-준비">Helm CLI 환경 준비</h2>
+<ol>
+<li>
+<p>helm cli를 사용할 Cloud Shell 또는 작업환경에 접속합니다.</p>
+</li>
+<li>
+<p>helm cli 3.7 설치</p>
+<p>OCI Registry인 OCIR에 차트를 등록하기 위해서는 helm 3.7에서 제공하는 helm push 명령을 사용해야 원활히 됩니다. 문서 작성일 기준으로 현재 Cloud Shell에 기본 설치된 helm cli 버전은 3.5.4 여서 3.7을 추가 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">wget https://get.helm.sh/helm-v3.7.1-linux-amd64.tar.gz
+tar -zxvf helm-v3.7.1-linux-amd64.tar.gz linux-amd64/helm
+mv linux-amd64/helm ~/.local/bin/
+</code></pre></div></li>
+<li>
+<p>.bashrc의 PATH에 등록</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/.local/bin:<span class="nv">$HOME</span>/bin:<span class="nv">$PATH</span>
+</code></pre></div></li>
+<li>
+<p>OCI Support 활성화</p>
+<p>helm cli에서 OCI Registry 지원은 실험적 기능으로 사용을 위해 다음 환경변수를 설정이 필요합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">HELM_EXPERIMENTAL_OCI</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div></li>
+</ol>
+<h2 id="helm-chart-생성후-등록하기">Helm Chart 생성후 등록하기</h2>
+<h3 id="샘플-차트-만들기">샘플 차트 만들기</h3>
+<p><a href="https://helm.sh/docs/chart_template_guide/getting_started/">Helm Chart Template Guide</a> 예제를 따라 만든 샘플 차트를</p>
+<p>OCIR 등록 해봅니다.</p>
+<ol>
+<li>
+<p>테스트를 위해 차트를 만듭니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:helm <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm create mychart
+Creating mychart
+</code></pre></div></li>
+<li>
+<p>차트 작성</p>
+<p>생성된 차트는 nginx를 배포하는 샘플 차트입니다. 실제 차트 작성을 위해서는 앱에 맞게 수정하겠지만, 지금은 배포 테스트로 수정없이 그냥 사용합니다.</p>
+</li>
+<li>
+<p>차트 패키징</p>
+<p><code>helm package</code> 명령으로 패키징합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:helm <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nb">cd</span> mychart
+oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm package .
+Successfully packaged chart and saved it to: /home/oke_admin/works/helm/mychart/mychart-0.1.0.tgz
+oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ ls
+charts  Chart.yaml  mychart-0.1.0.tgz  templates  values.yaml
+</code></pre></div></li>
+</ol>
+<h3 id="ocir-로그인-및-helm-chart-push">OCIR 로그인 및 Helm Chart Push</h3>
+<p>OCIR에 docker cli로 로그인 할때와 동일하게 사용자와 Auth Token을 사용해 로그인합니다. 이전 내용을 참고합니다.</p>
+<ol>
+<li>
+<p>앞서 생성한 Auth Token을 통해 Cloud Shell 또는 접속 환경에서 helm cli로 로그인 합니다.</p>
+<ul>
+<li>OCIR 주소: <code>&lt;region-key&gt;.ocir.io</code>
+<ul>
+<li>region-key: 서울 Region은 ap-seoul-1 또는 icn</li>
+<li>전체 Region 정보: <a href="https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability">Availability by Region</a></li>
+</ul>
+</li>
+<li>username:
+<ul>
+<li><code>&lt;tenancy-namespace&gt;/&lt;username&gt;</code> 형식</li>
+<li>Username: OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명을 사용합니다.
+<ol>
+<li>Oracle Identity Cloud Service상의 유저: <code>&lt;tenancy-namespace&gt;/oracleidentitycloudservice/&lt;username&gt;</code></li>
+<li>OCI Local 유저: <code>&lt;tenancy-namespace&gt;/&lt;username&gt;</code></li>
+</ol>
+</li>
+<li>tenancy-namespace: 앞서 Repository 생성시 확인한 tenancy-namespace 또는 Cloud Shell에서 <code>oci os ns get</code>으로 확인 가능</li>
+</ul>
+</li>
+<li>Password: 앞서 생성한 로그인할 유저의 Auth Token</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ oci os ns get
+<span class="o">{</span>
+  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnrlxx3w0wgq&#34;</span>
+<span class="o">}</span>
+oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm registry login -u cnrlxx3w0wgq/oke-admin ap-seoul-1.ocir.io
+Password: 
+Login Succeeded
+</code></pre></div></li>
+<li>
+<p>Helm Chart Push</p>
+<ul>
+<li>OCIR에 생성한 Repository로 Push 하기 위해 아래 형식 Push 하면 됩니다. 그러면 repo-prefix/ 을 포함하여 repository 가 생성됩니다.
+<ul>
+<li><code>&lt;region-key&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;repo-prefix&gt;</code></li>
+</ul>
+</li>
+<li>mychart 예시</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm push ./mychart-0.1.0.tgz oci://ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm
+Pushed: ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm/mychart:0.1.0
+Digest: sha256:842486615ee4398001092a9b2f931320add0ecd13885e039427ce6f7926b493b
+</code></pre></div></li>
+<li>
+<p>OCIR 확인</p>
+<p>OCI 서비스 콘솔에서 OCIR을 보면 Push한 차트가 정상적으로 등록된 것을 알 수 있습니다. 예제는 편의상 root compartment로 push 하였습니다.</p>
+<ul>
+<li>하위 compartment로 push하는 경우 사전에 repository를 만들어야 합니다. 예, helm/mychart repository를 push 전에 만들것</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211203233622254.png" alt='image-20211203233622254' />
+</p>
+</li>
+</ol>
+<h3 id="helm-chart를-oke-클러스터에-배포하기">Helm Chart를 OKE 클러스터에 배포하기</h3>
+<ol>
+<li>
+<p>Cloud Shell 또는 작업 환경에 접속합니다.</p>
+</li>
+<li>
+<p>등록한 Chart로 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">helm install mychart oci://ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm/mychart --version 0.1.0
+</code></pre></div></li>
+<li>
+<p>배포 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm install mychart oci://ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm/mychart --version 0.1.0 --set service.type<span class="o">=</span>LoadBalancer
+NAME: mychart
+LAST DEPLOYED: Fri Dec  <span class="m">3</span> 15:17:51 <span class="m">2021</span>
+NAMESPACE: default
+STATUS: deployed
+REVISION: <span class="m">1</span>
+NOTES:
+1. Get the application URL by running these commands:
+     NOTE: It may take a few minutes <span class="k">for</span> the LoadBalancer IP to be available.
+           You can watch the status of by running <span class="s1">&#39;kubectl get --namespace default svc -w mychart&#39;</span>
+  <span class="nb">export</span> <span class="nv">SERVICE_IP</span><span class="o">=</span><span class="k">$(</span>kubectl get svc --namespace default mychart --template <span class="s2">&#34;{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}&#34;</span><span class="k">)</span>
+  <span class="nb">echo</span> http://<span class="nv">$SERVICE_IP</span>:80
+oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get all
+NAME                           READY   STATUS    RESTARTS   AGE
+pod/mychart-76677cc888-rl4v6   1/1     Running   <span class="m">0</span>          55s
+
+NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+service/kubernetes   ClusterIP      10.96.0.1       &lt;none&gt;          443/TCP        32m
+service/mychart      LoadBalancer   10.96.198.136   146.56.152.14   80:30926/TCP   56s
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mychart   1/1     <span class="m">1</span>            <span class="m">1</span>           56s
+
+NAME                                 DESIRED   CURRENT   READY   AGE
+replicaset.apps/mychart-76677cc888   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       55s
+</code></pre></div></li>
+<li>
+<p>배포 앱 접속 확인</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211204002053830.png" alt='image-20211204002053830' />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+
+ <div class="edit-meta">Last updated on 3 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/ocir/1.scan-image/" title="3.1 컨테이너 이미지 스캔"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.1 컨테이너 이미지 스캔</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/ocir/1.scan-image/" title="3.1 컨테이너 이미지 스캔">Next - 3.1 컨테이너 이미지 스캔 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io/oci-cloudnative/search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 이용한 Spring Boot 앱을 OKE에 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/ocir/">
+    3. OCIR(Oracle Cloud Infrastructure Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/copy-code-button.js"></script></div>
+</body>
+</html>

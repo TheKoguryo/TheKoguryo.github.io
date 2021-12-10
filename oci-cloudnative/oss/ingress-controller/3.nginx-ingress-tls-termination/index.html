@@ -224,8 +224,9 @@ replicaset.apps/cert-manager-webhook-7b86bc6578     <span class="m">1</span>    
 <li>
 <p>Let&rsquo;s Encrypt Staging Issuer 설정</p>
 <p><a href="https://cert-manager.io/docs/tutorials/acme/example/staging-issuer.yaml">https://cert-manager.io/docs/tutorials/acme/example/staging-issuer.yaml</a> 파일에서 <strong>email 부분만 본인 것으로 수정</strong>하여 반영합니다.</p>
+<p>네임스페이스에만 사용되는  Issuer가 아닌 전체 쿠버네티스 클러스터에 사용하기 위해 ClusterIssuer 유형을 사용합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">cert-manager.io/v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Issuer</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterIssuer</span><span class="w">
 </span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">letsencrypt-staging</span><span class="w">
 </span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
@@ -262,7 +263,7 @@ issuer.cert-manager.io/letsencrypt-staging created
 <p>ingress 설정 YAML(<code>tls-termination-cert-manager.yaml</code>)을 작성합니다.</p>
 <ul>
 <li><strong>문서 작성일 기준 (STAGING) Doctored Durian Root CA의 만료로 인해 staging issuer 사용시에도 유효하지 않은 인증서라고 나올 수 있습니다.</strong> cert manager issuer는 production issuer를 사용하겠습니다. 대신 production issuer는 생성을 반복할 경우 limit에 걸릴 수 있습니다.</li>
-<li>cert-manager.io/issuer: 방금 생성한 letsencrypt-staging 설정</li>
+<li>cert-manager.io/cluster-issuer: 방금 생성한 letsencrypt-staging 설정, issuer가 아닌 cluster-issuer를 사용합니다.</li>
 <li>spec.tls 하위에 tls 저장할 저장소 이름 및 발급받아 사용할 도메인 이름을 지정합니다</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
@@ -271,7 +272,7 @@ issuer.cert-manager.io/letsencrypt-staging created
 </span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-tls-termination-cert-manager</span><span class="w">
 </span><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
-</span><span class="w">    </span><span class="nt">cert-manager.io/issuer</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;letsencrypt-staging&#34;</span><span class="w">
+</span><span class="w">    </span><span class="nt">cert-manager.io/cluster-issuer</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;letsencrypt-staging&#34;</span><span class="w">
 </span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">tls</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span>- <span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-thekoguryo-ml-tls</span><span class="w">
@@ -469,7 +470,7 @@ ingress-thekoguryo-ml-tls   True    ingress-thekoguryo-ml-tls   16m
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
  <div class="edit-meta">Last updated on 7 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/2.nginx-ingress-host/" title="4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/" title="4.1.1 NGINX Ingress Controller 사용하기">Next - 4.1.1 NGINX Ingress Controller 사용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/" title="4.2 Logging - EFK">Next - 4.2 Logging - EFK <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -653,6 +654,29 @@ ingress-thekoguryo-ml-tls   True    ingress-thekoguryo-ml-tls   16m
 <li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
 </ul>
   
 </li>

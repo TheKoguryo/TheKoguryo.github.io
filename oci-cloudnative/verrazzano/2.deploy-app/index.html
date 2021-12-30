@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기 - TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</title>
+<meta name="generator" content="Hugo 0.89.2" />
+<link href="https://thekoguryo.github.io/oci-cloudnativeindex.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</h1>
+
+ <span class="version">Version 2021.12.01</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="https://thekoguryo.github.io">Home</a></li>
+<li ><a href="/oci-cloudnative/">Oracle Cloud Native</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1 id="62-open-application-model-이해-및-예제-애플리케이션-배포하기">6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기</h1>
+<p>참고</p>
+<ul>
+<li><a href="https://verrazzano.io/latest/docs/guides/app-deployment/application-deployment-guide/">https://verrazzano.io/latest/docs/guides/app-deployment/application-deployment-guide/</a></li>
+</ul>
+<h2 id="open-application-model">Open Application Model</h2>
+<p>Open Application Model(OAM)은 컨테이너 또는 오케스트레이터 또는 인프라 보다는 개발자가 애플리케이션에 집중할 수 있도록 하고자 하는 모델입니다. 애플리케이션을 쿠버네티스상의 컨테이너로 배포하기 위해서 배포 외에도 모니터링, 트래픽 처리 등 추가 설정을 위해 여러가지 자원들을 배포해야 하고 그에 따른 YAML 파일들을 정의해야 합니다. 이 부분을 개발자는 애플리케이션에 초점을 맞추고, 운영, 관리 등을 위해 필요한 많은 부분은 템플릿 등을 통해 표준화하는 것을 지향하고 있습니다. <a href="https://github.com/oam-dev/spec">Open Application Model</a>은 현재 0.3 까지 나왔으며, Verrazzano에서는 <a href="https://github.com/oam-dev/spec/tree/v0.2.1">Open Application Model 0.2.1</a>을 기반으로 하고 있어 최신 버전과 약간의 문법 차이가 있습니다.</p>
+<h3 id="주요-컨셉">주요 컨셉</h3>
+<ul>
+<li>
+<p><a href="https://verrazzano.io/latest/docs/concepts/verrazzanooam/">https://verrazzano.io/latest/docs/concepts/verrazzanooam/</a></p>
+<p>
+
+<img class="img-fluid2" src="https://verrazzano.io/latest/docs/concepts/oam-app.svg" alt='OAM five core concepts' />
+</p>
+</li>
+<li>
+<p>Component: 하나의 애플리케이션, 쉽게 컨테이너 앱라고 생각하면 될 것 같습니다. 이 컴포넌트에는 유형이 있을 수 있고, Verrazzano에서는 Helidon 프레임워크를 통해 개발한 앱이냐, WebLogic 앱이냐, Coherence 서버냐 등이 있을 것이고, 그 유형에 따라 배포시나 모니터링시의 특성이 있을 것입니다. 그래서 Component에서 어떤 Workload 타입인지를 지정하게 됩니다.</p>
+</li>
+<li>
+<p>Workload: 어떤 타입인지 표시하는 것으로, WorkloadDefinition을 통해 정의할 수 있으며, VerrazzanoHelidonWorkload, VerrazzanoWebLogicWorkload 등 사전에 Verrazzano에서 정의한 유형 또는 Deployment, ConfigMap 등등 Kubernetes의 기본 자원형태을 그대로 사용 할 도 있습니다.</p>
+</li>
+<li>
+<p>Application Configuration: 하나의 애플리케이션을 뜻하여, 여러 Component를 포함하게 됩니다. 하나의 컨테이너 앱에 관련된 설정을 가진 형태이거나, 여러 컨터이너를 Component로 가진 패키징된 앱의 형태일 수도 있습니다.</p>
+</li>
+<li>
+<p>Trait: 하나의 Component에 운영, 모니터링 등의 필요에 의해 추가 설정하는 사항입니다. 사이트의 문서 예제에서 보면, 메트릭 수집 설정, Ingress 설정 등이 일반적인 예로 쓰입니다.</p>
+</li>
+<li>
+<p>Scope: 여러 Component에 대한 한번에 설정하는 사항입니다.</p>
+</li>
+</ul>
+<h2 id="helidon-예제-애플리케이션-배포하기">Helidon 예제 애플리케이션 배포하기</h2>
+<p>Helidon 프레임워크를 사용해서 개발한 Java 애플리케이션을 배포하는 예제를 통해 Open Application Model을 사용해서 Verrazzano에서 배포하는 것을 확인해 봅니다. Java로 개발하여 컨테이너 이미지까지 빌드하는 방법은 어렵지 않으니, 그 이후에 Verrazzano 배포하는 부분을 확인해 봅니다.</p>
+<p>예제 애플리케이션: Helidon 샘플로, REST API로 /greet 로 요청하면, 환영 메시지가 오는 간단한 컨테이너 애플리케이션</p>
+<h3 id="component-작성">Component 작성</h3>
+<ol>
+<li>
+<p>Verrazzano에서 사용하는 Kubernetes CRD인 Component를 정의합니다.</p>
+<ul>
+<li>spec.workload: Component의 Workload를 정의합니다.</li>
+<li>spec.workload.kind: 일반유형이 아닌 Helidon 기반 컨테이너를 위해 Verrazzano가 사전에 정의한 VerrazzanoHelidonWorkload Workload Definition을 선택</li>
+<li>spec.workload.spec: VerrazzanoHelidonWorkload의 스펙으로 Kubernetes Deployment 스펙을 그대로 사용
+<ul>
+<li><a href="https://verrazzano.io/latest/docs/reference/api/oam/workloads/#verrazzanohelidonworkload">https://verrazzano.io/latest/docs/reference/api/oam/workloads/#verrazzanohelidonworkload</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Component</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-component</span><span class="w">
+</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">workload</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oam.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VerrazzanoHelidonWorkload</span><span class="w">
+</span><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-workload</span><span class="w">
+</span><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
+</span><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">deploymentTemplate</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-deployment</span><span class="w">
+</span><span class="w">        </span><span class="nt">podSpec</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-container</span><span class="w">
+</span><span class="w">              </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;ghcr.io/verrazzano/example-helidon-greet-app-v1:0.1.10-3-20201016220428-56fb4d4&#34;</span><span class="w">
+</span><span class="w">              </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span>- <span class="nt">containerPort</span><span class="p">:</span><span class="w"> </span><span class="m">8080</span><span class="w">
+</span><span class="w">                  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http</span><span class="w">
+</span></code></pre></div></li>
+</ol>
+<h3 id="application-configuration-작성">Application Configuration 작성</h3>
+<ol>
+<li>
+<p>Verrazzano에서 사용하는 Kubernetes CRD인 Application Configuration을 정의합니다.</p>
+<ul>
+<li>spec.components.componentName: 방금 정의한 Component인 hello-helidon-component을 뜻합니다. spec.components 아래에 여러 Component가 추가될 수 있는 것을 알 수 있습니다.</li>
+<li>spec.components.traits.trait: 대상 Component에 운영, 관리상 추가할 부분을 정의합니다. 현재 IngressTrait, LoggingTrait, MetricsTrait를 제공하고 있습니다.
+<ul>
+<li><a href="https://verrazzano.io/latest/docs/reference/api/oam/ingresstrait/">https://verrazzano.io/latest/docs/reference/api/oam/ingresstrait/</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ApplicationConfiguration</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-appconf</span><span class="w">
+</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
+</span><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l">v1.0.0</span><span class="w">
+</span><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Hello Helidon application&#34;</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-component</span><span class="w">
+</span><span class="w">      </span><span class="nt">traits</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">trait</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oam.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w">            </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">MetricsTrait</span><span class="w">
+</span><span class="w">            </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span><span class="nt">scraper</span><span class="p">:</span><span class="w"> </span><span class="l">verrazzano-system/vmi-system-prometheus-0</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">trait</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oam.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w">            </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">IngressTrait</span><span class="w">
+</span><span class="w">            </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon-ingress</span><span class="w">
+</span><span class="w">            </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span>- <span class="nt">paths</span><span class="p">:</span><span class="w">
+</span><span class="w">                    </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/greet&#34;</span><span class="w">
+</span><span class="w">                      </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></code></pre></div></li>
+</ol>
+<h3 id="애플리케이션-배포">애플리케이션 배포</h3>
+<ol>
+<li>
+<p>namespace 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create namespace hello-helidon
+kubectl label namespace hello-helidon verrazzano-managed<span class="o">=</span><span class="nb">true</span> istio-injection<span class="o">=</span>enabled
+</code></pre></div></li>
+<li>
+<p>Component 배포</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
+</code></pre></div></li>
+<li>
+<p>Application Configuration 배포</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-app.yaml
+</code></pre></div></li>
+<li>
+<p>배포된 앱의 istio를 통해 등록된 ingress DNS 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get gateway hello-helidon-hello-helidon-appconf-gw <span class="se">\
+</span><span class="se"></span>    -n hello-helidon <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.servers[0].hosts[0]}&#39;</span>
+</code></pre></div></li>
+<li>
+<p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get gateway hello-helidon-hello-helidon-appconf-gw <span class="se">\
+</span><span class="se"></span>&gt;     -n hello-helidon <span class="se">\
+</span><span class="se"></span>&gt;     -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.servers[0].hosts[0]}&#39;</span>
+hello-helidon-appconf.hello-helidon.myenv.thekoguryo.ml
+</code></pre></div></li>
+<li>
+<p>애플리케이션 테스트</p>
+<p>확인된 https://{ingress DNS 주소}/greet 주소로 정상 호출되는 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229123211182.png" alt='image-20211229123211182' />
+</p>
+</li>
+</ol>
+<h2 id="모니터링">모니터링</h2>
+<h3 id="verrazzano-콘솔">Verrazzano 콘솔</h3>
+<ol>
+<li>
+<p>Verrazzano Console에 로그인합니다.</p>
+<p>예, <a href="https://verrazzano.myenv.thekoguryo.ml">https://verrazzano.myenv.thekoguryo.ml</a></p>
+<ul>
+<li>접속 유저: verrazzano</li>
+<li>암호: 설치시 초기화한 암호</li>
+</ul>
+</li>
+<li>
+<p>왼쪽 Resources 항목에서 Application과 Component 항목에서 배포된 앱 정보를 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229131428942.png" alt='image-20211229131428942' />
+</p>
+</li>
+</ol>
+<h3 id="로그-모니터링elasticsearch--kibana">로그 모니터링(Elasticsearch / Kibana)</h3>
+<ol>
+<li>
+<p>Verrazzano 콘솔에서 Kibana 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p>
+</li>
+<li>
+<p><strong>내비게이션 메뉴</strong>에서 <strong>Stack Management</strong>를 선택합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229131928208.png" alt='image-20211229131928208' />
+</p>
+</li>
+<li>
+<p><strong>Index Pattern</strong> &gt; <strong>+ Create index pattern</strong> 을 클릭합니다.</p>
+</li>
+<li>
+<p>가능한 패턴에 예제앱을 위해 추가한 namespace를 포함하여 여러 소스가 보입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229132243789.png" alt='image-20211229132243789' />
+</p>
+</li>
+<li>
+<p>표현식을 사용해도 되지만, 여기서는 예제 namespace 이름을 패턴 이름으로 입력합니다. 예, verrazzano-namespace-hello-helidon</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229132532627.png" alt='image-20211229132532627' />
+</p>
+</li>
+<li>
+<p>Time field로 @timestamp 선택</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229132611953.png" alt='image-20211229132611953' />
+</p>
+</li>
+<li>
+<p>추가완료</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229132745498.png" alt='image-20211229132745498' />
+</p>
+</li>
+<li>
+<p><strong>내비게이션 메뉴</strong>에서 <strong>Kibana</strong> &gt; <strong>Discover</strong> 메뉴로 이동합니다.</p>
+</li>
+<li>
+<p>생성한 인덱스 패턴에 대해 수집된 로그, 대상 namespace 상의 전체 수집된 로그가 보입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229135258744.png" alt='image-20211229135258744' />
+</p>
+</li>
+<li>
+<p>필터 적용후 정확하게 로그를 확인할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl logs -n hello-helidon hello-helidon-deployment-c4d7859-nqt7l -c hello-helidon-container
+...
+2021.12.29 03:22:44 INFO io.helidon.microprofile.server.ServerCdiExtension Thread<span class="o">[</span>main,5,main<span class="o">]</span>: Server started on http://localhost:8080 <span class="o">(</span>and all other host addresses<span class="o">)</span> in <span class="m">3075</span> milliseconds <span class="o">(</span>since JVM startup<span class="o">)</span>.
+http://localhost:8080/greet
+2021.12.29 03:22:44 INFO io.helidon.common.HelidonFeatures Thread<span class="o">[</span>features-thread,5,main<span class="o">]</span>: Helidon MP 2.3.2 features: <span class="o">[</span>CDI, Config, Fault Tolerance, Health, JAX-RS, Metrics, Open API, REST Client, Security, Server, Tracing<span class="o">]</span>
+</code></pre></div><p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229141547400.png" alt='image-20211229141547400' />
+</p>
+</li>
+</ol>
+<h3 id="메트릭-모니터링prometheus--grafana">메트릭 모니터링(Prometheus / Grafana)</h3>
+<ol>
+<li>
+<p>Verrazzano 콘솔에서 Grafana 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p>
+</li>
+<li>
+<p><strong>내비게이션 메뉴</strong>에서 <strong>Dashboard</strong> &gt; <strong>Manage</strong>를 선택합니다.</p>
+</li>
+<li>
+<p>기본 제공하고 있는 대쉬보드 중에 Helidon 대쉬보드를 선택합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229142135880.png" alt='image-20211229142135880' />
+</p>
+</li>
+<li>
+<p>Helidon 대쉬보드에서 앞서 배포한 앱의 상태를 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229142544655.png" alt='image-20211229142544655' />
+</p>
+</li>
+</ol>
+<h3 id="서비스-메쉬-모니터링kiali">서비스 메쉬 모니터링(Kiali)</h3>
+<ol>
+<li>
+<p>Verrazzano 콘솔에서 Kiali 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p>
+</li>
+<li>
+<p>왼쪽 메뉴에서 Graph를 클릭합니다.</p>
+</li>
+<li>
+<p>대상 Namespace를 선택하면, 아래와 같이 상호 호출 관계를 볼 수 있습니다. 단일 서비스로 구성된 예제로 간단히 보입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229143004928.png" alt='image-20211229143004928' />
+</p>
+</li>
+</ol>
+<h2 id="추가-참고사항">추가 참고사항</h2>
+<ol>
+<li>
+<p>오픈소스 클라이언트 툴인 octant를 ApplicationConfiguration과 관계되 자원을 확인하였습니다.</p>
+<ul>
+<li>ApplicationConfiguration과 Component에서 직접 명시한 내용 자원에 추가하여 Deployment(하위 포함), Service, istio Gateway, Virtual Service가 배포되는 것을 확인할 수 있습니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211229144023152.png" alt='image-20211229144023152' />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+
+ <div class="edit-meta">Last updated on 28 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/" title="6.1 Verrazzano 설치"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 6.1 Verrazzano 설치</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/" title="6.1 Verrazzano 설치">Next - 6.1 Verrazzano 설치 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io/oci-cloudnative/search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 이용한 Spring Boot 앱을 OKE에 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/ocir/">
+    3. OCIR(Oracle Cloud Infrastructure Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/copy-code-button.js"></script></div>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>6.1 Verrazzano 설치 - TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</title>
+<meta name="generator" content="Hugo 0.89.2" />
+<link href="https://thekoguryo.github.io/oci-cloudnativeindex.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</h1>
+
+ <span class="version">Version 2021.12.01</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="https://thekoguryo.github.io">Home</a></li>
+<li ><a href="/oci-cloudnative/">Oracle Cloud Native</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1 id="61-kubernetes-클러스터에-verrazzano-설치하기">6.1 Kubernetes 클러스터에 Verrazzano 설치하기</h1>
+<h2 id="쿠버네티스-클러스터-준비">쿠버네티스 클러스터 준비</h2>
+<p>Verrazzano는 Kubernetes Operator 방식을 사용하여 쿠버네티스 클러스터에 설치하는 방식입니다. 즉 설치할 쿠버네티스 클러스터가 필요합니다. 여기서는 OKE 클러스터 기준으로 진행합니다.</p>
+<h3 id="container-engine-for-kubernetes-oke-클러스터-준비">Container Engine for Kubernetes (OKE) 클러스터 준비</h3>
+<p>Quick Create 모드로 OKE 클러스터를 기본 설정으로 생성합니다.</p>
+<ul>
+<li>Verrazzano 상의 모든 컴포넌트와 예제 애플리케이션을 배포하기 위해 충분한 용량의 환경을 준비합니다.
+<ul>
+<li>Shape: <em>VM.Standard2.4</em> 이상 또는 <em>VM.Standard.E2.4</em> 이상</li>
+<li>Number of nodes: <em>3</em>개 이상</li>
+<li>OKE 버전: 1.19
+<ul>
+<li>1.20, 1.21에서는 FluentD 파서 이슈로 Kibana 동작을 위한 추가 작업이 필요합니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="verrazzano-설치">Verrazzano 설치</h2>
+<ol>
+<li>Cloud Shell 또는 작업환경에서 kubectl로 생성한 OKE 클러스터에 접속합니다.</li>
+</ol>
+<h3 id="verrazzano-platform-operator-설치">Verrazzano platform operator 설치</h3>
+<ol>
+<li>
+<p>Verrazzano platform operator 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://github.com/verrazzano/verrazzano/releases/download/v1.1.0/operator.yaml
+</code></pre></div></li>
+<li>
+<p>설치 완료될때 까지 기다립니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl -n verrazzano-install rollout status deployment/verrazzano-platform-operator
+</code></pre></div></li>
+<li>
+<p>successfully rolled out가 뜨고 설치가 잘 됐는지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl -n verrazzano-install get pods
+</code></pre></div></li>
+</ol>
+<h3 id="verrazzano-설치---oci-dns--lets-encrypt-사용">Verrazzano 설치 - OCI DNS &amp; Let&rsquo;s Encrypt 사용</h3>
+<p>설치시 dev, prod, managed-cluster 프로파일 중에 고를 수 있습니다. 여기서는 dev 프로파일을 사용합니다. 자세한 사항은 <a href="https://verrazzano.io/latest/docs/setup/install/profiles/">설치 프로파일</a> 페이지를 참고하세요. 기본 프로파일로 설치하면 Self-Signed 인증서와 무료 와일드 카드 도메인(nip.io, sslip.io)을 사용하게 됩니다. 원하는 도메인과 인증서를 사용하기 위해서 OCI DNS와 Let&rsquo;s Encrypt를 사용하는 방법을 확인해 봅니다.</p>
+<p>참고</p>
+<ul>
+<li><a href="https://verrazzano.io/latest/docs/setup/install/customizing/dns/">https://verrazzano.io/latest/docs/setup/install/customizing/dns/</a></li>
+<li><a href="https://verrazzano.io/latest/docs/setup/install/customizing/certificates/">https://verrazzano.io/latest/docs/setup/install/customizing/certificates/</a></li>
+</ul>
+<h4 id="oci-dns-zone-생성">OCI DNS Zone 생성</h4>
+<p>소유하고 있는 도메인을 OCI DNS에 Zone으로 등록합니다.</p>
+<h4 id="oci-api-secret-생성">OCI API Secret 생성</h4>
+<p>대상 쿠버네티스 클러스터에 API Private 정보를 Secret 정보로 등록합니다. 여기서는 OCI CLI가 이미 설정된 경우는 가정해 Verrazzano helper script를 통해 secret을 만듭니다.</p>
+<ol>
+<li>
+<p>helper scrpt 다운로드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl <span class="se">\
+</span><span class="se"></span>    -o ./create_oci_config_secret.sh <span class="se">\
+</span><span class="se"></span>    https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/platform-operator/scripts/install/create_oci_config_secret.sh
+</code></pre></div></li>
+<li>
+<p>KUBECONFIG 환경변수 설정 및 스크립트 실행</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">chmod +x create_oci_config_secret.sh
+<span class="nb">export</span> <span class="nv">KUBECONFIG</span><span class="o">=</span>~/.kube/config
+
+./create_oci_config_secret.sh
+</code></pre></div></li>
+<li>
+<p>실행 예시 및 결과 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ chmod +x create_oci_config_secret.sh
+<span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ <span class="nb">export</span> <span class="nv">KUBECONFIG</span><span class="o">=</span>~/.kube/config
+<span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$
+<span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ ./create_oci_config_secret.sh
+secret/oci created
+<span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ kubectl get secret oci -n verrazzano-install
+NAME   TYPE     DATA   AGE
+oci    Opaque   <span class="m">1</span>      35s
+<span class="o">[</span>opc@bastion-host ~<span class="o">]</span>$ kubectl get secret oci -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&#34;{.data[&#39;oci\.yaml&#39;]}&#34;</span> -n verrazzano-install <span class="p">|</span> base64 -d
+auth:
+  region: ap-seoul-1
+  tenancy: ocid1.tenancy.oc1..aaaaaaaa~~~
+  user: ocid1.user.oc1..aaaaaaaa~~~
+  key: <span class="p">|</span>
+    -----BEGIN PRIVATE KEY-----
+    MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCbKoBbV+xIDgeA
+    ...
+    K2jAF6UJZ/+BBKkHRXHSxoI<span class="o">=</span>
+    -----END PRIVATE KEY-----
+  fingerprint: 99:c9:87:~~~
+</code></pre></div></li>
+</ol>
+<h4 id="letsencrypt-인증서">LetsEncrypt 인증서</h4>
+<h4 id="verrazzano-설치-1">Verrazzano 설치</h4>
+<ol>
+<li>
+<p>설치 yaml 샘플 다운로드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl <span class="se">\
+</span><span class="se"></span>    -o ./install-oci.yaml <span class="se">\
+</span><span class="se"></span>    https://raw.githubusercontent.com/verrazzano/verrazzano/release-1.1/platform-operator/config/samples/install-oci.yaml
+</code></pre></div></li>
+<li>
+<p>install-oci.yaml 파일 업데이트</p>
+<ul>
+<li>spec.environmentName: 설치된 환경에 대한 이름. myenv이고, zonename이 example.com인 경우 ingress 도메인이 myenv.example.com로 됨.</li>
+<li>spec.components.dns.oci.ociConfigSecret: oci, 앞서 생성한 secret name</li>
+<li>spec.components.dns.oci.dnsZoneCompartmentOCID: OCI DNS Zone으로 동록한 Zone이 있는 Compartment의 OCID</li>
+<li>spec.components.dns.oci.dnsZoneOCID: OCI DNS Zone으로 동록한 Zone의 OCID</li>
+<li>spec.components.dns.oci.dnsZoneName: OCI DNS Zone으로 동록한 Zone의 이름, 예, example.com</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">install.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Verrazzano</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-verrazzano</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">environmentName</span><span class="p">:</span><span class="w"> </span><span class="l">myenv</span><span class="w">
+</span><span class="w">  </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="l">prod</span><span class="w">
+</span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">certManager</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">certificate</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">acme</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l">letsEncrypt</span><span class="w">
+</span><span class="w">          </span><span class="nt">emailAddress</span><span class="p">:</span><span class="w"> </span><span class="l">thekoguryo@gmail.com</span><span class="w">
+</span><span class="w">    </span><span class="nt">dns</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">oci</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="nt">ociConfigSecret</span><span class="p">:</span><span class="w"> </span><span class="l">oci</span><span class="w">
+</span><span class="w">        </span><span class="nt">dnsZoneCompartmentOCID</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaa~~~</span><span class="w">
+</span><span class="w">        </span><span class="nt">dnsZoneOCID</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.dns-zone.oc1..7974~~~</span><span class="w">
+</span><span class="w">        </span><span class="nt">dnsZoneName</span><span class="p">:</span><span class="w"> </span><span class="l">thekoguryo.ml</span><span class="w">
+</span><span class="w">    </span><span class="nt">ingress</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">LoadBalancer</span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>install-oci.yaml 배포</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f install-oci.yaml
+</code></pre></div></li>
+<li>
+<p>설치 완료 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl <span class="nb">wait</span> <span class="se">\
+</span><span class="se"></span>    --timeout<span class="o">=</span>20m <span class="se">\
+</span><span class="se"></span>    --for<span class="o">=</span><span class="nv">condition</span><span class="o">=</span>InstallComplete verrazzano/my-verrazzano
+</code></pre></div></li>
+<li>
+<p>로그 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl logs -n verrazzano-install <span class="se">\
+</span><span class="se"></span>    -f <span class="k">$(</span>kubectl get pod <span class="se">\
+</span><span class="se"></span>    -n verrazzano-install <span class="se">\
+</span><span class="se"></span>    -l <span class="nv">app</span><span class="o">=</span>verrazzano-platform-operator <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&#34;{.items[0].metadata.name}&#34;</span><span class="k">)</span> <span class="p">|</span> grep <span class="s1">&#39;&#34;operation&#34;:&#34;install&#34;&#39;</span>
+</code></pre></div></li>
+<li>
+<p>설치시 추가 확인</p>
+<ul>
+<li>OCI Trial로 인한 자원 부족 문제인지도 확인합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get events --sort-by<span class="o">=</span>.metadata.creationTimestamp -A
+</code></pre></div><ul>
+<li>
+<p>keycloak 에러</p>
+<p>아래 오류가 발생하고, OCI DNS Zone에 keycloak 레코드만 없는 경우, 매뉴얼하게 입력해 줍니다. 예, keycloak.myenv.thekoguryo.ml</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get events --sort-by<span class="o">=</span>.metadata.creationTimestamp -n keycloak
+...
+86s         Warning   Unhealthy           pod/keycloak-0                          Readiness probe failed: Get <span class="s2">&#34;http://10.244.1.34:15021/healthz/ready&#34;</span>: dial tcp 10.244.1.34:15021: connect: connection refused
+56s         Warning   Unhealthy           pod/keycloak-0                          Startup probe failed: Get <span class="s2">&#34;http://10.244.1.34:15020/app-health/keycloak/startupz&#34;</span>: context deadline exceeded <span class="o">(</span>Client.Timeout exceeded <span class="k">while</span> awaiting headers<span class="o">)</span>
+
+</code></pre></div></li>
+</ol>
+<h2 id="verrazzano-설치-정보-확인">Verrazzano 설치 정보 확인</h2>
+<ol>
+<li>
+<p>Console 주소 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get verrazzano -o yaml
+</code></pre></div></li>
+<li>
+<p>결과 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">  status:
+...
+    instance:
+      consoleUrl: https://verrazzano.myenv.thekoguryo.ml
+      elasticUrl: https://elasticsearch.vmi.system.myenv.thekoguryo.ml
+      grafanaUrl: https://grafana.vmi.system.myenv.thekoguryo.ml
+      keyCloakUrl: https://keycloak.myenv.thekoguryo.ml
+      kialiUrl: https://kiali.vmi.system.myenv.thekoguryo.ml
+      kibanaUrl: https://kibana.vmi.system.myenv.thekoguryo.ml
+      prometheusUrl: https://prometheus.vmi.system.myenv.thekoguryo.ml
+      rancherUrl: https://rancher.myenv.thekoguryo.ml
+    state: Ready
+    version: 1.1.0
+</code></pre></div></li>
+</ol>
+<h3 id="verrazzano-유저-암호-변경">Verrazzano 유저 암호 변경</h3>
+<h4 id="keycloak에서-암호-변경">KeyCloak에서 암호 변경</h4>
+<ol>
+<li>
+<p>Verrazzano 관리자 유저(유저명: verrazzano)는 KeyCloak을 통해 관리되며 Single Sign-On(SSO)이 설정되어 있어, Verrazzano Console, Elasticsearch, Grafana, KeyCloak, Kiali, Kibana, Prometheus의 사용자를 KeyCloak을 통해 관리합니다.</p>
+</li>
+<li>
+<p><code>verrazzano</code> 유저의 초기 난수 암호는 kubernetes에서 확인이 가능하나, KeyCloak에서 변경 할 수 있습니다.</p>
+</li>
+<li>
+<p>KeyCloack(예, <a href="https://keycloak.myenv.thekoguryo.ml">https://keycloak.myenv.thekoguryo.ml</a>)에 접속하여 Administration Console로 이동합니다.</p>
+</li>
+<li>
+<p>KeyCloak Admin으로 로그인합니다.</p>
+<ul>
+<li>
+<p>KeyCloak admin user: keycloakadmin</p>
+</li>
+<li>
+<p>KeyCloak admin password: 다음 명령으로 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get secret <span class="se">\
+</span><span class="se"></span>    --namespace keycloak keycloak-http <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">={</span>.data.password<span class="o">}</span> <span class="p">|</span> base64 <span class="se">\
+</span><span class="se"></span>    --decode<span class="p">;</span> <span class="nb">echo</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>왼쪽 메뉴에서 <strong>Manage</strong> &gt; <strong>Users</strong> 로 이동합니다.</p>
+</li>
+<li>
+<p><strong>View all users</strong>를 클릭하여 verrazzano 유저를 찾아, ID를 클릭합니다.</p>
+</li>
+<li>
+<p>암호 변경을 위해 <strong>Credentials</strong> 탭을 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Temporary</strong>는 <strong>OFF</strong>로 하고, 새 암호를 입력하고, <strong>Reset Password</strong>를 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211227145216154.png" alt='image-20211227145216154' />
+</p>
+</li>
+<li>
+<p>팝업이 뜨면 다시한번 Reset Password를 클릭합니다.</p>
+</li>
+</ol>
+<h4 id="kubernetes-secret에-반영">Kubernetes Secret에 반영</h4>
+<ol>
+<li>
+<p>새 암호를 base64로 인코딩합니다.</p>
+<p>예)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> -n <span class="s1">&#39;MyNewPwd&#39;</span> <span class="p">|</span> base64
+</code></pre></div></li>
+<li>
+<p>verrazzano가 설치된 kubernetes의 secret을 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl edit secret verrazzano -n verrazzano-system
+</code></pre></div></li>
+</ol>
+<h3 id="콘솔-로그인">콘솔 로그인</h3>
+<ol>
+<li>
+<p>Verrazzano Console에 로그인합니다.</p>
+<p>예, <a href="https://verrazzano.myenv.thekoguryo.ml">https://verrazzano.myenv.thekoguryo.ml</a></p>
+</li>
+<li>
+<p>System Telemetry 영역에 있는 툴은 SSO 구성이 되어 해당 링크로 verrazzano 유저로 접속할 수 있습니다.</p>
+<ul>
+<li>Kibana: 로그 모니터링</li>
+<li>Grafana: 메트릭 모니터링</li>
+<li>Promethues: 메트릭 수집</li>
+<li>Elasticsearch: 로그 수집</li>
+<li>Kiali: istio 서비스 메쉬 모니터링</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211228190921064.png" alt='image-20211228190921064' />
+</p>
+</li>
+<li>
+<p>KeyCloak: 유저 관리</p>
+<ul>
+<li>Admin 유저(KeyCloak Admin) 접속은 앞서와 동일합니다.</li>
+<li>해당 링크를 클릭하면 KeyCloak 일반유저인 verrazzano 유저로 로그인 가능합니다.</li>
+</ul>
+</li>
+<li>
+<p>Rancher: Kubernetes 모니터링</p>
+<ul>
+<li>
+<p>화면에 보이는 URL로 접속합니다.</p>
+</li>
+<li>
+<p>User: admin</p>
+</li>
+<li>
+<p>Password: 다음 명령으로 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get secret <span class="se">\
+</span><span class="se"></span>    --namespace cattle-system rancher-admin-secret <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">={</span>.data.password<span class="o">}</span> <span class="p">|</span> base64 <span class="se">\
+</span><span class="se"></span>    --decode<span class="p">;</span> <span class="nb">echo</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ol>
+<br>
+<br>
+<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+
+ <div class="edit-meta">Last updated on 28 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/" title="6. Verrazzano 사용하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 6. Verrazzano 사용하기</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/" title="6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기">Next - 6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io/oci-cloudnative/search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 이용한 Spring Boot 앱을 OKE에 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/ocir/">
+    3. OCIR(Oracle Cloud Infrastructure Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="sub-menu">
+<li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/copy-code-button.js"></script></div>
+</body>
+</html>

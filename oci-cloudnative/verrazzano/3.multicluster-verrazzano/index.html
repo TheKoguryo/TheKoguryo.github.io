@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>6.3 Multicluster Verrazzano 설치하기 - TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</title>
+<meta name="generator" content="Hugo 0.89.2" />
+<link href="https://thekoguryo.github.io/oci-cloudnativeindex.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/3.multicluster-verrazzano/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/oci-cloudnative/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그 | Oracle Cloud Native</h1>
+
+ <span class="version">Version 2021.12.01</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="https://thekoguryo.github.io">Home</a></li>
+<li ><a href="/oci-cloudnative/">Oracle Cloud Native</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1 id="63-multicluster-verrazzano-설치하기">6.3 Multicluster Verrazzano 설치하기</h1>
+<h2 id="verrazzano-설치">Verrazzano 설치</h2>
+<h3 id="admin-cluster에-verrazzano-설치">admin-cluster에 Verrazzano 설치</h3>
+<p>단일 클러스터 환경에 Verrazzano는 설치하는 것과 동일하게 설치합니다. <strong>dev</strong> 또는 <strong>prod</strong> <strong>프로파일</strong>로 설치합니다. 다만, 설치 yaml 파일(예, install-oci.yaml)에 mananged-cluster와 구분하기 위해 환경 이름을 지정합니다.</p>
+<ul>
+<li>
+<p>예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">environmentName</span><span class="p">:</span><span class="w"> </span><span class="l">admin</span><span class="w">
+</span><span class="w">  </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="l">dev</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span></code></pre></div></li>
+</ul>
+<h3 id="managed-cluster에-verrazzano-설치">managed-cluster에 Verrazzano 설치</h3>
+<p>단일 클러스터 환경에 Verrazzano는 설치하는 것과 동일하게 설치합니다. <strong>managed-cluster 프로파일</strong>로 설치합니다. 다만, 설치 yaml 파일(예, install-oci.yaml)에 mananged-cluster와 구분하기 위해 환경 이름을 지정합니다.</p>
+<ul>
+<li>
+<p>예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">environmentName</span><span class="p">:</span><span class="w"> </span><span class="l">mc-1</span><span class="w">
+</span><span class="w">  </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span></code></pre></div></li>
+</ul>
+<ol>
+<li>
+<p>설치 결과 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get verrazzano my-verrazzano -o yaml
+</code></pre></div></li>
+<li>
+<p>결과 예시</p>
+<ul>
+<li>managed-cluster 프로파일로 Managed Cluster를 위한 컴포넌트만 설치됩니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">  status:
+    components:
+      cert-manager:
+      ...
+    instance:
+      consoleUrl: https://verrazzano.mc-1.thekoguryo.ml
+      prometheusUrl: https://prometheus.vmi.system.mc-1.thekoguryo.ml
+    state: Ready
+    version: 1.1.0
+</code></pre></div></li>
+</ol>
+<h2 id="managed-cluster-등록하기">Managed Cluster 등록하기</h2>
+<h3 id="준비-단계">준비 단계</h3>
+<h4 id="admin-cluster-설정">Admin Cluster 설정</h4>
+<ol>
+<li>
+<p>Context 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl config use-context admin-cluster
+Switched to context <span class="s2">&#34;admin-cluster&#34;</span>.
+$ kubectl config get-contexts
+CURRENT   NAME                CLUSTER               AUTHINFO           NAMESPACE
+*         admin-cluster       cluster-cbrgetu5uwa   user-cbrgetu5uwa
+          managed-cluster-1   cluster-cpcnsgcmqsq   user-cpcnsgcmqsq
+          managed-cluster-2   cluster-cvoyziqrrzq   user-cvoyziqrrzq
+</code></pre></div></li>
+<li>
+<p>API Server 주소 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl cluster-info
+Kubernetes control plane is running at https://129.154.60.75:6443
+</code></pre></div></li>
+<li>
+<p>확인한 주소로 ConfigMap 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f <span class="s">&lt;&lt;EOF -
+</span><span class="s">apiVersion: v1
+</span><span class="s">kind: ConfigMap
+</span><span class="s">metadata:
+</span><span class="s">  name: verrazzano-admin-cluster
+</span><span class="s">  namespace: verrazzano-mc
+</span><span class="s">data:
+</span><span class="s">  server: &#34;https://129.154.60.75:6443&#34;
+</span><span class="s">EOF</span>
+</code></pre></div></li>
+</ol>
+<h3 id="등록-단계---letsencrypt-staging-기준">등록 단계 - LetsEncrypt staging 기준</h3>
+<p>Admin Verrazzano와 Managed Cluster간에 https로 통신을 합니다. 알려진 CA 인증서 외에, Self-Signed 인증서, Let&rsquo;s Encrypt Staging을 사용하는 경우 Admin Cluster와 Managed Cluster 간의 원활한 통신을 위해 Managed Cluster의 CA 인증서를 Admin Cluster에 등록해 주는 절차가 필요합니다. 관련 절차는 아래 문서를 참조합니다.</p>
+<ul>
+<li>필요시 관련 문서 참조 - <a href="https://verrazzano.io/latest/docs/setup/install/multicluster/#prerequisites">https://verrazzano.io/latest/docs/setup/install/multicluster/#prerequisites</a></li>
+</ul>
+<p>※ Let&rsquo;s Encrypt Staging의 경우 DST Root CA의 만료로 인해 관련 업데이트하지 않는 클라이언트 환경으로 인해 추가적인 작업이 더 필요합니다.</p>
+<ul>
+<li>Let&rsquo;s Encrypt Staging
+<ul>
+<li><a href="https://letsencrypt.org/docs/staging-environment/">https://letsencrypt.org/docs/staging-environment/</a></li>
+</ul>
+</li>
+</ul>
+<h4 id="admin-cluster-설정-1">Admin Cluster 설정</h4>
+<ol>
+<li>
+<p>Context 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl config use-context admin-cluster
+</code></pre></div></li>
+<li>
+<p>LetsEncrypt staging CA 등록</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># (STAGING) Artificial Apricot R3</span>
+curl -O https://letsencrypt.org/certs/staging/letsencrypt-stg-int-r3.pem
+<span class="c1"># (STAGING) Pretend Pear X1</span>
+curl -O https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem
+<span class="nv">MGD_CA_CERT</span><span class="o">=</span><span class="k">$(</span>cat *.pem<span class="k">)</span>
+<span class="nb">echo</span> <span class="nv">$MGD_CA_CERT</span>
+
+kubectl create secret generic <span class="s2">&#34;ca-secret-managed-cluster-1&#34;</span> <span class="se">\
+</span><span class="se"></span>  -n verrazzano-mc <span class="se">\
+</span><span class="se"></span>  --from-literal<span class="o">=</span><span class="nv">cacrt</span><span class="o">=</span><span class="s2">&#34;</span><span class="nv">$MGD_CA_CERT</span><span class="s2">&#34;</span> <span class="se">\
+</span><span class="se"></span>  --dry-run<span class="o">=</span>client <span class="se">\
+</span><span class="se"></span>  -o yaml &gt; ca-secret-managed-cluster-1.yaml
+
+kubectl apply -f ca-secret-managed-cluster-1.yaml
+</code></pre></div></li>
+<li>
+<p>Managed Cluster로 등록</p>
+<ul>
+<li>등록 클러스터 이름이 managed-cluster-1 인 경우</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f <span class="s">&lt;&lt;EOF -
+</span><span class="s">apiVersion: clusters.verrazzano.io/v1alpha1
+</span><span class="s">kind: VerrazzanoManagedCluster
+</span><span class="s">metadata:
+</span><span class="s">  name: managed-cluster-1
+</span><span class="s">  namespace: verrazzano-mc
+</span><span class="s">spec:
+</span><span class="s">  description: &#34;VerrazzanoManagedCluster object&#34;
+</span><span class="s">  caSecret: ca-secret-managed-cluster-1
+</span><span class="s">EOF</span>
+</code></pre></div></li>
+<li>
+<p>등록 대기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl <span class="nb">wait</span> --for<span class="o">=</span><span class="nv">condition</span><span class="o">=</span>Ready <span class="se">\
+</span><span class="se"></span>    vmc managed-cluster-1 -n verrazzano-mc
+</code></pre></div></li>
+<li>
+<p>Managed Cluster용 등록 파일 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get secret verrazzano-cluster-managed-cluster-1-manifest <span class="se">\
+</span><span class="se"></span>    -n verrazzano-mc <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">={</span>.data.yaml<span class="o">}</span> <span class="p">|</span> base64 --decode &gt; managed-cluster-1-register.yaml
+</code></pre></div></li>
+</ol>
+<h4 id="managed-cluster-설정">Managed Cluster 설정</h4>
+<ol>
+<li>
+<p>Context 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl config use-context managed-cluster-1
+</code></pre></div></li>
+<li>
+<p>등록</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f managed-cluster-1-register.yaml
+</code></pre></div></li>
+<li>
+<p>등록 결과</p>
+<p>Managed Cluster를 Admin Cluster에 등록하게 되면, Managed Cluster에서 주기적으로 Admin Cluster에 앞서 VerrazzanoManagedCluster 유형으로 등록한 자원(managed-cluster-1)의 상태를 주기적으로 업데이트 하게 됩니다.</p>
+</li>
+<li>
+<p>ranch agent 오류 확인</p>
+<p>아래와 같이 x509: certificate signed by unknown authority 인증서 오류로 인해 POD가 기동하지 않습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get pod -n cattle-system
+NAME                                    READY   STATUS             RESTARTS   AGE
+cattle-cluster-agent-5dd4dd9594-v9tf8   0/1     CrashLoopBackOff   <span class="m">3</span>          2m8s
+<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl logs -n cattle-system cattle-cluster-agent-5dd4dd9594-v9tf8
+...
+INFO: https://rancher.admin.thekoguryo.ml/ping is accessible
+...
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Certificate details from https://rancher.admin.thekoguryo.ml&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Certificate #0 (https://rancher.admin.thekoguryo.ml)&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Subject: CN=*.admin.thekoguryo.ml&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Issuer: CN=(STAGING) Artificial Apricot R3,O=(STAGING) Let&#39;s Encrypt,C=US&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;IsCA: false&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;DNS Names: [*.admin.thekoguryo.ml]&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;IPAddresses: &lt;none&gt;&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;NotBefore: 2022-01-04 04:52:39 +0000 UTC&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;NotAfter: 2022-04-04 04:52:38 +0000 UTC&#34;</span>
+..
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Certificate #1 (https://rancher.admin.thekoguryo.ml)&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Subject: CN=(STAGING) Artificial Apricot R3,O=(STAGING) Let&#39;s Encrypt,C=US&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Issuer: CN=(STAGING) Pretend Pear X1,O=(STAGING) Internet Security Research Group,C=US&#34;</span>
+...
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Certificate #2 (https://rancher.admin.thekoguryo.ml)&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Subject: CN=(STAGING) Pretend Pear X1,O=(STAGING) Internet Security Research Group,C=US&#34;</span>
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>info <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Issuer: CN=(STAGING) Doctored Durian Root CA X3,O=(STAGING) Internet Security Research Group,C=US&#34;</span>
+...
+<span class="nv">time</span><span class="o">=</span><span class="s2">&#34;2022-01-04T06:03:57Z&#34;</span> <span class="nv">level</span><span class="o">=</span>fatal <span class="nv">msg</span><span class="o">=</span><span class="s2">&#34;Certificate chain is not complete, please check if all needed intermediate certificates are included in the server certificate (in the correct order) and if the cacerts setting in Rancher either contains the correct CA certificate (in the case of using self signed certificates) or is empty (in the case of using a certificate signed by a recognized CA). Certificate information is displayed above. error: Get \&#34;https://rancher.admin.thekoguryo.ml\&#34;: x509: certificate signed by unknown authority&#34;</span>
+</code></pre></div></li>
+<li>
+<p>cattle-cluster-agent를 수정하여 반영합니다.</p>
+<ul>
+<li>
+<p>수정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl edit deploy cattle-cluster-agent -n cattle-system
+</code></pre></div></li>
+<li>
+<p>추가 사항</p>
+<p>initContainer를 통해 별도로 새 인증서를 다운로드 받아 공유 볼륨을 통해 cluster-register 컨테이너에 전달합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">env</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span><span class="l">...</span><span class="w">
+</span><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cluster-register</span><span class="w">
+</span><span class="w">        </span><span class="l">...</span><span class="w">
+</span><span class="w">        </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/cattle-credentials</span><span class="w">
+</span><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cattle-credentials</span><span class="w">
+</span><span class="w">          </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/etc/pki/tls/certs/</span><span class="w">
+</span><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">certs</span><span class="w">
+</span><span class="w">      </span><span class="nt">initContainers</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">prepare-to-fix-ca-expire</span><span class="w">
+</span><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">ghcr.io/verrazzano/rancher-agent:v2.5.9-20211209021347-2e57ce2a4</span><span class="w">
+</span><span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="l">/bin/sh</span><span class="w">
+</span><span class="w">        </span>- -<span class="l">c</span><span class="w">
+</span><span class="w">        </span>- <span class="p">|</span><span class="sd">
+</span><span class="sd">          echo start
+</span><span class="sd">          curl -k https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem -o /etc/pki/ca-trust/source/anchors/letsencrypt-stg-root-x1.pem
+</span><span class="sd">          update-ca-trust
+</span><span class="sd">          cp /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /certs/ca-bundle.crt
+</span><span class="sd">          cp /etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt /certs/ca-bundle.trust.crt
+</span><span class="sd">          echo end</span><span class="w">          
+</span><span class="w">        </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/certs/</span><span class="w">
+</span><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">certs   </span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">cattle-credentials</span><span class="w">
+</span><span class="w">        </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span><span class="w">          </span><span class="nt">defaultMode</span><span class="p">:</span><span class="w"> </span><span class="m">320</span><span class="w">
+</span><span class="w">          </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">cattle-credentials-2b150a3</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">certs</span><span class="w">
+</span><span class="w">        </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
+</span><span class="w"></span><span class="l">status</span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>결과 재 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host tmp <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get pod -n cattle-system
+NAME                                    READY   STATUS    RESTARTS   AGE
+cattle-cluster-agent-6b785ffd86-vshsw   1/1     Running   <span class="m">0</span>          42s
+</code></pre></div></li>
+<li>
+<p>위 POD가 정상으로 기동해야 Admin Cluster의 Rancher에서 Managed Cluster가 Active 상태로 등록된 것을 확인할 수 있습니다.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="등록-결과-확인">등록 결과 확인</h4>
+<ol>
+<li>
+<p>admin cluster로 context 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl config use-context admin-cluster
+</code></pre></div></li>
+<li>
+<p>앞서 등록한 Managed Cluster 자원의 현재 상태 확인</p>
+<ul>
+<li>status.lastAgentConnectTime 값으로 마지막 연결된 시간을 통해 연결되었음을 확인합니다. managed-cluster-1의 apiUrl과 prometheusHost 주소도 등록된 것을 알 수 있습니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get vmc managed-cluster-1 -n verrazzano-mc -o yaml
+apiVersion: clusters.verrazzano.io/v1alpha1
+kind: VerrazzanoManagedCluster
+metadata:
+  ...
+spec:
+  ...
+status:
+  apiUrl: https://verrazzano.mc-1.thekoguryo.ml
+  conditions:
+  - lastTransitionTime: <span class="s2">&#34;2021-12-31T06:48:59Z&#34;</span>
+    message: Ready
+    status: <span class="s2">&#34;True&#34;</span>
+    type: Ready
+  lastAgentConnectTime: <span class="s2">&#34;2021-12-31T06:57:06Z&#34;</span>
+  prometheusHost: prometheus.vmi.system.mc-1.thekoguryo.ml
+  rancherRegistration:
+    message: Registration of managed cluster completed successfully
+    status: Completed
+  state: Active
+</code></pre></div></li>
+</ol>
+<h3 id="최종-확인">최종 확인</h3>
+<h4 id="promethus">Promethus</h4>
+<ol>
+<li>
+<p>Verrazzano Admin Cluster의 Prometheus로 접속합니다.</p>
+<ul>
+<li>예, <a href="https://prometheus.vmi.system.admin.thekoguryo.ml/">https://prometheus.vmi.system.admin.thekoguryo.ml/</a></li>
+</ul>
+</li>
+<li>
+<p>샘플 쿼리 node_disk_io_time_seconds_total 로 하면 그림과 같이 Verrazzano Managed Cluster의 메트릭 정보도 함께 조회됨을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220104153526614.png" alt='image-20220104153526614' />
+</p>
+</li>
+</ol>
+<h4 id="kibana">Kibana</h4>
+<ol>
+<li>
+<p>Verrazzano Admin Cluster의 Kibana로 접속합니다.</p>
+<ul>
+<li>예, <a href="https://kibana.vmi.system.admin.thekoguryo.ml/">https://kibana.vmi.system.admin.thekoguryo.ml/</a></li>
+</ul>
+</li>
+<li>
+<p>아직 배포된 앱이 없다면, 모든 Verrazzano Cluster에 있는 namespace 기준(예, cert-manager)로 인덱스 패턴을 생성합니다.</p>
+</li>
+<li>
+<p>선택 가능한 필드에서 cluster_name을 클릭합니다. 아래와 같이 Admin Cluster(local) 및 등록된 Managed Cluster에서도 로그를 가져오는 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220104155031875.png" alt='image-20220104155031875' />
+</p>
+</li>
+</ol>
+<h4 id="rancher">Rancher</h4>
+<ol>
+<li>
+<p>Verrazzano Admin Cluster의 Prometheus로 접속합니다.</p>
+<ul>
+<li>예, <a href="https://rancher.admin.thekoguryo.ml/">https://rancher.admin.thekoguryo.ml/</a></li>
+</ul>
+</li>
+<li>
+<p>아래와 같이 Managed Cluster가 정상적으로 등록된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220104154048440.png" alt='image-20220104154048440' />
+</p>
+</li>
+<li>
+<p>Explorer를 클릭하여 클러스터로 화면에서도 잘 보이는 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220104154208578.png" alt='image-20220104154208578' />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+
+ <div class="edit-meta">Last updated on 4 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/" title="6.2 Open Application Model 이해 및 애플리케이션 배포하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 6.2 Open Application Model 이해 및 애플리케이션 배포하기</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/4.deploy-app-to-multicluster/" title="6.4 Multicluster에 애플리케이션 배포하기">Next - 6.4 Multicluster에 애플리케이션 배포하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io/oci-cloudnative/search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/oci-cloudnative/js/copy-code-button.js"></script></div>
+</body>
+</html>

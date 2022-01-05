@@ -92,8 +92,12 @@
 <p>대상 쿠버네티스 클러스터에 API Private 정보를 Secret 정보로 등록합니다. 여기서는 OCI CLI가 이미 설정된 경우는 가정해 Verrazzano helper script를 통해 secret을 만듭니다.</p>
 <ol>
 <li>
-<p>helper scrpt 다운로드</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl <span class="se">\
+<p>helper script 다운로드</p>
+<ul>
+<li>홈이 아닌경우 실행시 Hang이 걸리는 것 같으니 홈에서 실행합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> ~
+curl <span class="se">\
 </span><span class="se"></span>    -o ./create_oci_config_secret.sh <span class="se">\
 </span><span class="se"></span>    https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/platform-operator/scripts/install/create_oci_config_secret.sh
 </code></pre></div></li>
@@ -128,7 +132,6 @@ auth:
   fingerprint: 99:c9:87:~~~
 </code></pre></div></li>
 </ol>
-<h4 id="letsencrypt-인증서">LetsEncrypt 인증서</h4>
 <h4 id="verrazzano-설치-1">Verrazzano 설치</h4>
 <ol>
 <li>
@@ -152,13 +155,14 @@ auth:
 </span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-verrazzano</span><span class="w">
 </span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
 </span><span class="w">  </span><span class="nt">environmentName</span><span class="p">:</span><span class="w"> </span><span class="l">myenv</span><span class="w">
-</span><span class="w">  </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="l">prod</span><span class="w">
+</span><span class="w">  </span><span class="nt">profile</span><span class="p">:</span><span class="w"> </span><span class="l">dev</span><span class="w">
 </span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">certManager</span><span class="p">:</span><span class="w">
 </span><span class="w">      </span><span class="nt">certificate</span><span class="p">:</span><span class="w">
 </span><span class="w">        </span><span class="nt">acme</span><span class="p">:</span><span class="w">
 </span><span class="w">          </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l">letsEncrypt</span><span class="w">
 </span><span class="w">          </span><span class="nt">emailAddress</span><span class="p">:</span><span class="w"> </span><span class="l">thekoguryo@gmail.com</span><span class="w">
+</span><span class="w">          </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">staging         </span><span class="w">
 </span><span class="w">    </span><span class="nt">dns</span><span class="p">:</span><span class="w">
 </span><span class="w">      </span><span class="nt">oci</span><span class="p">:</span><span class="w">
 </span><span class="w">        </span><span class="nt">ociConfigSecret</span><span class="p">:</span><span class="w"> </span><span class="l">oci</span><span class="w">
@@ -192,24 +196,13 @@ auth:
 <li>OCI Trial로 인한 자원 부족 문제인지도 확인합니다.</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get events --sort-by<span class="o">=</span>.metadata.creationTimestamp -A
-</code></pre></div><ul>
-<li>
-<p>keycloak 에러</p>
-<p>아래 오류가 발생하고, OCI DNS Zone에 keycloak 레코드만 없는 경우, 매뉴얼하게 입력해 줍니다. 예, keycloak.myenv.thekoguryo.ml</p>
-</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get events --sort-by<span class="o">=</span>.metadata.creationTimestamp -n keycloak
-...
-86s         Warning   Unhealthy           pod/keycloak-0                          Readiness probe failed: Get <span class="s2">&#34;http://10.244.1.34:15021/healthz/ready&#34;</span>: dial tcp 10.244.1.34:15021: connect: connection refused
-56s         Warning   Unhealthy           pod/keycloak-0                          Startup probe failed: Get <span class="s2">&#34;http://10.244.1.34:15020/app-health/keycloak/startupz&#34;</span>: context deadline exceeded <span class="o">(</span>Client.Timeout exceeded <span class="k">while</span> awaiting headers<span class="o">)</span>
-
 </code></pre></div></li>
 </ol>
 <h2 id="verrazzano-설치-정보-확인">Verrazzano 설치 정보 확인</h2>
 <ol>
 <li>
 <p>Console 주소 확인</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get verrazzano -o yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get verrazzano my-verrazzano -o yaml
 </code></pre></div></li>
 <li>
 <p>결과 예시</p>
@@ -350,7 +343,7 @@ auth:
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
  <div class="edit-meta">Last updated on 28 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/" title="6. Verrazzano 사용하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 6. Verrazzano 사용하기</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/" title="6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기">Next - 6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/" title="6.2 Open Application Model 이해 및 애플리케이션 배포하기">Next - 6.2 Open Application Model 이해 및 애플리케이션 배포하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -465,7 +458,7 @@ auth:
     </button>
   </a>
 <ul class="">
-<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 이용한 Spring Boot 앱을 OKE에 배포 자동화하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
 </ul>
   
 </li>
@@ -474,7 +467,7 @@ auth:
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci-cloudnative/ocir/">
-    3. OCIR(Oracle Cloud Infrastructure Registry) 컨테이너 레지스트리
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -653,7 +646,9 @@ auth:
   </a>
 <ul class="sub-menu">
 <li class="active"><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 예제 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 </ul>
   
 </li>

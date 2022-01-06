@@ -73,7 +73,7 @@ kubectl label namespace hello-helidon verrazzano-managed<span class="o">=</span>
 <li>
 <p>멀티 클러스터를 위해 namespace를 생성(즉, Project를 생성)</p>
 <ul>
-<li>애플리케이션이 배포될 멀티클러스터에 걸쳐있는 namespace를 관리하기 위해서 VerrazzanoProject 유형을 제공합니다. Admin Cluster에 다음 명령을 수행하면, Admin Cluster 및 대상 Managed Cluster에 해당 namespace가 생성됩니다.</li>
+<li>애플리케이션이 배포될 멀티클러스터에 걸쳐있는 namespace를 관리하기 위해서 VerrazzanoProject 유형을 제공합니다. Admin Cluster에 다음 명령을 수행하면, Admin Cluster 및 대상 Managed Cluster에 해당 namespace가 생성되면 verrazzano에서 관리하게 됩니다.</li>
 <li>아래 설정을 admin-cluster에 배포합니다.</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">clusters.verrazzano.io/v1alpha1</span><span class="w">
@@ -161,20 +161,20 @@ kubectl apply -f mc-hello-helidon-app.yaml
 <li>
 <p>배포결과</p>
 <p>admin-cluster에 Componet와 Application을 배포하면, 아래 결과에서 보듯이 placement로 지정한 클러스터에 배포되는 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
 component.core.oam.dev/hello-helidon-component created
-<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f mc-hello-helidon-app.yaml
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f mc-hello-helidon-app.yaml
 multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf created
-<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
 NAME                                                                                AGE
 multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   11m
 
 NAME                                             WORKLOAD-KIND               AGE
 component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   17m
 
-<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
 Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
-<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
 NAME                                                                                AGE
 multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   11m
 
@@ -184,9 +184,9 @@ component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   11m
 NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           11m
 
-<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
 Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
-<span class="o">[</span>opc@bastion-host t <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
 No resources found in hello-helidon namespace.
 </code></pre></div></li>
 <li>
@@ -285,6 +285,49 @@ hello-helidon-appconf.hello-helidon.mc-1.thekoguryo.ml
 <img class="img-fluid1" src="../images/image-20220105182115650.png" alt='image-20220105182115650' />
 </p>
 </li>
+</ol>
+<h2 id="helidon-예제-애플리케이션-배포-변경">Helidon 예제 애플리케이션 배포 변경</h2>
+<h3 id="애플리케이션-배포-위치-변경">애플리케이션 배포 위치 변경</h3>
+<ol>
+<li>
+<p>placement 항목을 통해 클러스터 위치를 변경할 수 있습니다. 변경할 placement 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># patch.yaml</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">placement</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">clusters</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-2</span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>배포 위치 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl patch MultiClusterApplicationConfiguration hello-helidon-appconf <span class="se">\
+</span><span class="se"></span>    -n hello-helidon <span class="se">\
+</span><span class="se"></span>    --type merge <span class="se">\
+</span><span class="se"></span>    --patch <span class="s2">&#34;</span><span class="k">$(</span>cat patch.yaml<span class="k">)</span><span class="s2">&#34;</span>
+</code></pre></div></li>
+<li>
+<p>배포결과 확인</p>
+<p>앞서 managed-cluster-1에 배포되어 있던 앱이 managed-cluster-2로 위치가 변경된 것을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl patch MultiClusterApplicationConfiguration hello-helidon-appconf <span class="se">\
+</span><span class="se"></span>&gt;     -n hello-helidon <span class="se">\
+</span><span class="se"></span>&gt;     --type merge <span class="se">\
+</span><span class="se"></span>&gt;     --patch <span class="s2">&#34;</span><span class="k">$(</span>cat patch.yaml<span class="k">)</span><span class="s2">&#34;</span>
+multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf patched
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
+Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+No resources found in hello-helidon namespace.
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
+Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
+<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+NAME                                                                                AGE
+multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   3m25s
+
+NAME                                             WORKLOAD-KIND               AGE
+component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   2m26s
+
+NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           2m22s
+</code></pre></div></li>
 </ol>
 <br>
 <br>

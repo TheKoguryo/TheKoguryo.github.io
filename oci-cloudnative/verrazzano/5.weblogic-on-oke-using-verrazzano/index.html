@@ -283,11 +283,11 @@ drwxrwxr-x. <span class="m">4</span> opc opc    <span class="m">67</span> Jan  <
 <ol>
 <li>
 <p><a href="https://github.com/oracle/weblogic-image-tool/releases">WebLogic Image Tool</a>을 아래와 같은 명령으로 다운 받아 설치 합니다.</p>
-<pre tabindex="0"><code>curl -OL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -OL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip
 unzip imagetool.zip
-cd imagetool
-export WIT_HOME=$(pwd)
-</code></pre></li>
+<span class="nb">cd</span> imagetool
+<span class="nb">export</span> <span class="nv">WIT_HOME</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+</code></pre></div></li>
 <li>
 <p>WIT를 통해 컨테이너 이미지를 생성합니다. 툴을 사용하기 위해서는 앞서 다운 받은 WebLogic 설치 Zip 파일과 JDK  설치 파일이 필요합니다.</p>
 <ul>
@@ -405,55 +405,55 @@ tododomain-weblogic-credentials        Opaque                                <sp
 </li>
 <li>
 <p>아래와 같이 다운로드 받은 YAML 파일을 배포합니다.</p>
-<pre tabindex="0"><code>[opc@bastion-host v8o (⎈ |managed-cluster-1:default)]$ kubectl apply -f mysql-oam.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host v8o <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl apply -f mysql-oam.yaml
 component.core.oam.dev/todo-mysql-service created
 component.core.oam.dev/todo-mysql-deployment created
 component.core.oam.dev/todo-mysql-configmap created
-[opc@bastion-host v8o (⎈ |managed-cluster-1:default)]$ kubectl get component -n tododomain
+<span class="o">[</span>opc@bastion-host v8o <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get component -n tododomain
 NAME                    WORKLOAD-KIND   AGE
 todo-mysql-configmap    ConfigMap       13s
 todo-mysql-deployment   Deployment      13s
 todo-mysql-service      Service         13s
-</code></pre></li>
+</code></pre></div></li>
 </ol>
 <h5 id="verrazzano-배포용-application-configuration설정-업데이트">Verrazzano 배포용 application configuration설정 업데이트</h5>
 <ol>
 <li>
 <p>v8o/vz-application.yaml에 component 3개 추가</p>
-<pre tabindex="0"><code>apiVersion: core.oam.dev/v1alpha2
-kind: ApplicationConfiguration
-metadata:
-  name: tododomain-appconf
-  ...
-spec:
-  components:
-    - componentName: tododomain-domain
-      ...
-    - componentName: tododomain-configmap
-    - componentName: todo-mysql-service
-    - componentName: todo-mysql-deployment
-    - componentName: todo-mysql-configmap    
-</code></pre></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ApplicationConfiguration</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-appconf</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-domain</span><span class="w">
+</span><span class="w">      </span><span class="l">...</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-configmap</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">todo-mysql-service</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">todo-mysql-deployment</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">todo-mysql-configmap    </span><span class="w">
+</span></code></pre></div></li>
 <li>
 <p>v8o/vz-application.yaml에 Data Source의 URL 업데이트</p>
-<pre tabindex="0"><code>apiVersion: core.oam.dev/v1alpha2
-kind: Component
-metadata:
-  name: tododomain-configmap
-  ...
-spec:
-  workload:
-    ...
-    data:
-      wdt_jdbc.yaml: |
-        resources:
-          JDBCSystemResource:
-            'tododb':
-              JdbcResource:
-                JDBCDriverParams:
-                  # This is the URL of the database used by the WebLogic Server application
-                  URL: &quot;jdbc:mysql://mysql.tododomain.svc.cluster.local:3306/tododb&quot;
-</code></pre></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Component</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-configmap</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">workload</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="l">...</span><span class="w">
+</span><span class="w">    </span><span class="nt">data</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">wdt_jdbc.yaml</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span><span class="sd">        resources:
+</span><span class="sd">          JDBCSystemResource:
+</span><span class="sd">            &#39;tododb&#39;:
+</span><span class="sd">              JdbcResource:
+</span><span class="sd">                JDBCDriverParams:
+</span><span class="sd">                  # This is the URL of the database used by the WebLogic Server application
+</span><span class="sd">                  URL: &#34;jdbc:mysql://mysql.tododomain.svc.cluster.local:3306/tododb&#34;</span><span class="w">        
+</span></code></pre></div></li>
 </ol>
 <h5 id="애플리케이션todo-애플리케이션--mysql-배포">애플리케이션(ToDo 애플리케이션 + MySQL) 배포</h5>
 <ol>
@@ -482,24 +482,24 @@ component.core.oam.dev/tododomain-configmap created
 </span></code></pre></div></li>
 <li>
 <p>배포가 완료되고 POD가 기동됩니다.</p>
-<pre tabindex="0"><code>$ kubectl get pod -n tododomain
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get pod -n tododomain
 NAME                     READY   STATUS    RESTARTS   AGE
-mysql-7bfb67d9f8-gn4qc   2/2     Running   0          5m35s
-tododomain-adminserver   4/4     Running   0          3m16s
-</code></pre></li>
+mysql-7bfb67d9f8-gn4qc   2/2     Running   <span class="m">0</span>          5m35s
+tododomain-adminserver   4/4     Running   <span class="m">0</span>          3m16s
+</code></pre></div></li>
 <li>
 <p>istio상의 애플리케이션 주소를 확인합니다.</p>
-<pre tabindex="0"><code>kubectl get gateway tododomain-tododomain-appconf-gw \
-    -n tododomain \
-    -o jsonpath={.spec.servers[0].hosts[0]}; echo
-</code></pre><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get gateway tododomain-tododomain-appconf-gw <span class="se">\
+</span><span class="se"></span>    -n tododomain <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">={</span>.spec.servers<span class="o">[</span>0<span class="o">]</span>.hosts<span class="o">[</span>0<span class="o">]}</span><span class="p">;</span> <span class="nb">echo</span>
+</code></pre></div><ul>
 <li>
 <p>결과 예시</p>
-<pre tabindex="0"><code>$ kubectl get gateway tododomain-tododomain-appconf-gw \
-&gt;     -n tododomain \
-&gt;     -o jsonpath={.spec.servers[0].hosts[0]}; echo
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get gateway tododomain-tododomain-appconf-gw <span class="se">\
+</span><span class="se"></span>&gt;     -n tododomain <span class="se">\
+</span><span class="se"></span>&gt;     -o <span class="nv">jsonpath</span><span class="o">={</span>.spec.servers<span class="o">[</span>0<span class="o">]</span>.hosts<span class="o">[</span>0<span class="o">]}</span><span class="p">;</span> <span class="nb">echo</span>
 tododomain-appconf.tododomain.thekoguryo.ml
-</code></pre></li>
+</code></pre></div></li>
 </ul>
 </li>
 <li>
@@ -522,31 +522,31 @@ tododomain-appconf.tododomain.thekoguryo.ml
 <ul>
 <li>
 <p>vz-application.yaml을 아래와 같이 - path: &ldquo;/console&rdquo; 포함 2줄을 추가하고 다시 배포(kubectl apply -f vz-application.yaml)합니다.</p>
-<pre tabindex="0"><code>...
-apiVersion: core.oam.dev/v1alpha2
-kind: ApplicationConfiguration
-metadata:
-  name: tododomain-appconf
-  ...
-spec:
-  components:
-    - componentName: tododomain-domain
-      traits:
-        - trait:
-            ...
-        - trait:
-            apiVersion: oam.verrazzano.io/v1alpha1
-            kind: IngressTrait
-            spec:
-              rules:
-                - paths:
-                    # application todo
-                    - path: &quot;/todo&quot;
-                      pathType: Prefix
-                    - path: &quot;/console&quot;
-                      pathType: Prefix
-...
-</code></pre></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">...</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ApplicationConfiguration</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-appconf</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-domain</span><span class="w">
+</span><span class="w">      </span><span class="nt">traits</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">trait</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="l">...</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">trait</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oam.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w">            </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">IngressTrait</span><span class="w">
+</span><span class="w">            </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span>- <span class="nt">paths</span><span class="p">:</span><span class="w">
+</span><span class="w">                    </span><span class="c"># application todo</span><span class="w">
+</span><span class="w">                    </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/todo&#34;</span><span class="w">
+</span><span class="w">                      </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span><span class="w">                    </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/console&#34;</span><span class="w">
+</span><span class="w">                      </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span></code></pre></div></li>
 </ul>
 </li>
 <li>

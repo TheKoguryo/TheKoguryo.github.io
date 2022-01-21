@@ -3,7 +3,7 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>7.6 CloudBerry를 통한 파일 업로드 - TheKoguryo&#39;s 기술 블로그</title>
+<title>7.6 CloudBerry Explorer를 통한 파일 업로드 - TheKoguryo&#39;s 기술 블로그</title>
 <meta name="generator" content="Hugo 0.53" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter07/6/">
@@ -30,14 +30,13 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2019.06.03</span>
+ <span class="version">Version 2022.01.19</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/oci-cloudnative">Oracle Cloud Native</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://learn.oracle.com/ols/user-portal">Oracle Learning</a></li>
 <li ><a href="https://apexapps.oracle.com/pls/apex/dbpm/r/livelabs/livelabs-workshop-cards?session=117806365725385">Oracle LiveLabs</a></li>
@@ -45,22 +44,26 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h1>7.6 CloudBerry를 통한 파일 업로드</h1>
+<main>
 
-<p>Object Storage는 자체 API를 제공합니다. 또한 Amazon S3 호환 API를 제공하여, 기존 S3를 위한 클라이언트들을 그대로 사용할 수 있습니다. Cloud Berry는 아직 OCI Object Storage Native API를 지원하지 않아, CloudBerry Explorer for Amazon S3를 통해 접근할 수 있습니다.</p>
+<h2 id="7-6-cloudberry-explorer를-통한-파일-업로드">7.6 CloudBerry Explorer를 통한 파일 업로드</h2>
 
-<div class="panel panel-caution"><div class="panel-header">
-<h3><i class="fas fa-life-saver"></i> 필요한 IAM Policy</h3>
-</div><div class="panel-body">
-<p>CloudBerry가 Object Storage에 접근하게 되면, 먼저 Bucket 목록을 조회해서 가져오게 됩니다. 이를 위해  관련 권한이 필요합니다. 또한 Bucket을 생성하거나, 파일을 올리기 위해서는 그에 해당하는 권한이 필요합니다. IAM Policy를 통해 사용자가 속한 그룹에 사용할 권한을 부여합니다.<br><br>
-Allow group <em>&lt;group_name&gt;</em> to inspect buckets in compartment <em>&lt;compartment_name&gt;</em> <br>
-Allow group <em>&lt;group_name&gt;</em> to manage objects in compartment <em>&lt;compartment_name&gt;</em></p>
+<p>Object Storage는 자체 API를 제공합니다. 또한 Amazon S3 호환 API를 제공합니다. OCI CLI를 통해 다량, 대용량 파일을 업로드가 가능합니다. 여기서는 사용 가능한 GUI 툴 중인 CloudBerry Explorer를 사용해 봅니다.</p>
 
-</div>
-</div>
+<h3 id="cloudberry-explorer를-통한-파일-업로드">CloudBerry Explorer를 통한 파일 업로드</h3>
 
+<p>Object Storage는 자체 API를 제공합니다. 또한 Amazon S3 호환 API를 제공하여, 기존 S3를 위한 클라이언트들을 그대로 사용할 수 있습니다. 대표적인 Cloud Berry Explorer 툴이 있으며, Freeware Edition 및 PRO 버전을 제공하고 있습니다.</p>
 
-<h3 id="cloudberry를-통한-파일-업로드">CloudBerry를 통한 파일 업로드</h3>
+<ul>
+<li><a href="https://www.msp360.com/explorer.aspx">CloudBerry Explorer Freeware 다운로드</a></li>
+<li><a href="https://www.msp360.com/explorer/licensing.aspx">Explorer Free vs. Explorer PRO 기능 비교</a>
+
+<ul>
+<li>Free 버전은 최대 5GB 파일 사이즈까지 지원합니다.</li>
+</ul></li>
+</ul>
+
+<h3 id="cloudberry-explorer를-통한-파일-업로드-1">CloudBerry Explorer를 통한 파일 업로드</h3>
 
 <h4 id="step-1-bucket-생성">Step 1. Bucket 생성</h4>
 
@@ -74,124 +77,189 @@ Allow group <em>&lt;group_name&gt;</em> to manage objects in compartment <em>&lt
 
 <h4 id="step-2-api-접근-사용자-생성">Step 2. API 접근 사용자 생성</h4>
 
-<p><strong>API 통한 접근이라 정확한 권한 체크를 위해 별도로 진행하였습니다.</strong>
-1. 관리자로 OCI 콘솔에 로그인합니다.</p>
+<p><strong>API 통한 접근이라 정확한 권한 체크를 위해 별도 유저, 그룹을 만들어 테스트 하였습니다</strong></p>
 
 <ol>
-<li><p>API 접근 사용자 및 그룹을 생성하고 해당 그룹에 사용자를 추가합니다.</p></li>
+<li><p>관리자로 OCI 콘솔에 로그인합니다.</p></li>
+
+<li><p>Tool을 위해 그룹(ObjectStorageToolGroup) 및 API 접근 사용자(objectstoragetool)를 생성하고 해당 그룹에 사용자를 추가합니다.</p></li>
 
 <li><p>Policy 설정</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">Allow group &lt;group_name&gt;to inspect buckets in compartment &lt;compartment_name&gt;
-Allow group &lt;group_name&gt; to manage objects in compartment &lt;compartment_name&gt;</code></pre></div></li>
+
+<ul>
+<li>예, 이름: ObjectStorageToolPolicy
+<br /></li>
+</ul></li>
 </ol>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   Allow group &lt;group_name&gt; to inspect buckets in compartment &lt;compartment_name&gt;
+   Allow group &lt;group_name&gt; to manage objects in compartment &lt;compartment_name&gt;</code></pre></div>
+<h4 id="step-3-customer-secret-key-생성">Step 3. Customer Secret Key 생성</h4>
 
-<h4 id="step-3-amazon-s3-호환-api-key-생성">Step 3. Amazon S3 호환 API Key 생성</h4>
-
-<p>기존 <strong>Amazon S3 Compatibility API keys</strong>는 명칭은 <strong>Customer Secret Keys</strong>로 변경되었습니다. 기존 사용자는 참고하세요.<br></p>
+<p>OCI Object Storage에 연결하기 위해서는 Customer Secret Key가 필요합니다. (초기에는 Amazon S3 Compatibility API key라고도 했습니다.)</p>
 
 <ol>
-<li><p><strong>[접속할 사용자(api.user)]</strong> 로 OCI 콘솔에 로그인합니다.</p></li>
+<li><p>해당 유저(objectstoragetool)로 로그인해서 생성하거나, 관리자 계정으로 해당 유저에 대해서 생성합니다.</p></li>
 
-<li><p>오른쪽 제일 위에 있는 사용자 프로파일을 클릭합니다.
-<br><img src="../images/cloudberry_to_bucket1.png" alt="그림" /><br></p></li>
+<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Identity &amp; Security</strong> &gt;&gt; <strong>Identity</strong> &gt;&gt; <strong>Users</strong> 항목으로 이동합니다.</p></li>
 
-<li><p>왼쪽 Resources에서 <strong>[Customer Secret Keys]</strong> 선택</p></li>
+<li><p>해당 유저(objectstoragetool)의 상세 페이지로 이동합니다.</p></li>
 
-<li><p><strong>[Generate Secret Key]</strong> 클릭
-<br><img src="../images/cloudberry_to_bucket2.png" alt="그림" /><br></p></li>
+<li><p>왼쪽 아래 <strong>Resources</strong> &gt;&gt; <strong>Customer Secret Keys</strong>선택</p></li>
 
-<li><p>Key 이름을 입력하고 <strong>[Generate Secret Key]</strong> 클릭
-<br><img src="../images/cloudberry_to_bucket3.png" alt="그림" /><br></p></li>
-
-<li><p>생성된 키를 복사해 둡니다.<br>
-<strong>키를 잊어버리면, 재확인 불가하며, 재생성하여야 합니다. 반드시 복사해 둡니다.</strong>
-<br><img src="../images/cloudberry_to_bucket4.png" alt="그림" /><br></p></li>
-
-<li><p>Access Key도 복사해 둡니다.
-<br><img src="../images/cloudberry_to_bucket5.png" alt="그림" /><br></p></li>
+<li><p><strong>Generate Secret Key</strong> 클릭</p></li>
 </ol>
 
-<h4 id="step-4-cloudberry-explorer-for-amazon-s3-설치">Step 4. CloudBerry Explorer for Amazon S3 설치</h4>
+<p><img src="images/image-20220112181924470.png" alt="image-20220112181924470" /></p>
 
 <ol>
-<li><p>CloudBerry Explorer for Amazon S3를 내려받아 설치합니다.<br>
-<a href="https://www.cloudberrylab.com/download.aspx?prod=cbes3free">https://www.cloudberrylab.com/download.aspx?prod=cbes3free</a></p></li>
+<li>Key 이름을 입력하고 <strong>Generate Secret Key</strong> 클릭</li>
+</ol>
 
-<li><p>Tenancy 정보 확인
-OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화면으로 이동합니다.
-<br><img src="../images/cloudberry_to_bucket6.png" alt="그림" /><br></p></li>
+<p><img src="images/image-20220112182105256.png" alt="image-20220112182105256" /></p>
 
-<li><p>Tenancy 정보에서 <strong>[Object Storage Namespace]</strong>를 확인합니다.
-<br><img src="../images/cloudberry_to_bucket7.png" alt="그림" /><br></p></li>
+<ol>
+<li>생성된 키를 복사해 둡니다.</li>
+</ol>
 
-<li><p>CloudBerry Explorer for Amazon S3을 실행합니다.</p></li>
+<p><strong>키를 잊어버리면, 재확인 불가하며, 재생성하여야 합니다. 반드시 복사해 둡니다.</strong></p>
 
-<li><p>File &gt; Add New Account 클릭
-<br><img src="../images/cloudberry_to_bucket9.png" alt="그림" /><br></p></li>
+<p><img src="images/image-20220112182156430.png" alt="image-20220112182156430" /></p>
 
-<li><p>S3 Compatible 유형 선택
-<br><img src="../images/cloudberry_to_bucket10.png" alt="그림" /><br></p></li>
+<ol>
+<li>Access Key도 복사해 둡니다.</li>
+</ol>
 
+<p><img src="images/image-20220112182307982.png" alt="image-20220112182307982" /></p>
+
+<h4 id="step-4-cloudberry-explorer-설치">Step 4. CloudBerry Explorer 설치</h4>
+
+<ol>
+<li><p>CloudBerry Explorer Freeware를 내려받아 설치합니다.</p>
+
+<ul>
+<li><a href="https://www.msp360.com/explorer.aspx">CloudBerry Explorer Freeware 다운로드</a></li>
+<li>테스트 버전: 6.2.1.8</li>
+</ul></li>
+
+<li><p>Tenancy 정보 확인</p></li>
+</ol>
+
+<p>OCI 콘솔 오른쪽 위의 사용자 프로필일 클릭하여 Tenancy 정보화면으로 이동합니다.</p>
+
+<p><img src="images/image-20220112182846308.png" alt="image-20220112182846308" /></p>
+
+<ol>
+<li>Tenancy 정보에서 <strong>Object Storage Namespace</strong>를 확인합니다.</li>
+</ol>
+
+<p><img src="images/image-20220112183043592.png" alt="image-20220112183043592" /></p>
+
+<ol>
+<li><p>CloudBerry Explorer Freeware를 실행합니다.</p></li>
+
+<li><p>File &gt; Add New Account 클릭</p></li>
+</ol>
+
+<p><img src="images/image-20220112183142476.png" alt="image-20220112183142476" /></p>
+
+<ol>
+<li>S3 Compatible 유형 선택</li>
+</ol>
+
+<p><img src="images/image-20220112183244941.png" alt="image-20220112183244941" /></p>
+
+<ol>
 <li><p>연결정보 설정</p>
 
 <ul>
 <li><strong>Display name</strong> : 원하는 이름을 입력</li>
-<li><strong>Service point</strong> : 테넌트이름.compat.objectstorage.리전이름.oraclecloud.com 형식으로 입력</li>
+<li><strong>Service point</strong> : <Object Storage Namespace>.compat.objectstorage.&lt;리전 키&gt;.oraclecloud.com 형식으로 입력
+
+<ul>
+<li>예, cnzdxxxxu9s8.compat.objectstorage.ap-seoul-1.oraclecloud.com</li>
+</ul></li>
 <li><strong>Access Key</strong> : 앞서 복사해둔 Customer Secret Key의 Access Key</li>
 <li><strong>Secret Key</strong> : Customer Secret Key 생성 후 복사해 둔 Secret Key</li>
-<li><strong>Signature version</strong> : &ldquo;4&rdquo; 선택
-<br><img src="../images/cloudberry_to_bucket11.png" alt="그림" /><br></li>
-</ul></li>
+<li><strong>Signature version</strong> : &ldquo;4&rdquo; 선택</li>
+</ul>
 
-<li><p>Test Connection을 클릭하여 연결 테스트
-<br><img src="../images/cloudberry_to_bucket12.png" alt="그림" /><br></p></li>
+<p><img src="images/image-20220112183554299.png" alt="image-20220112183554299" />r&gt;</p></li>
 
-<li><p>Account 연결 정도 등록 확인 후 Close</p></li>
-
-<li><p>연결 확인
-정상적인 연결 및 관련 IAM Policy가 있는 경우 아래와 같이 조회됩니다.
-<br><img src="../images/cloudberry_to_bucket13.png" alt="그림" /><br></p></li>
+<li><p>Test Connection을 클릭하여 연결 테스트</p></li>
 </ol>
 
-<h4 id="step-5-cloudberry-explorer-for-amazon-s3-파일-업로드">Step 5. CloudBerry Explorer for Amazon S3 파일 업로드</h4>
+<p><img src="images/image-20220112183719293.png" alt="image-20220112183719293" /></p>
 
 <ol>
-<li><p>우측 화면에서 올릴 대상 Bucket을 클릭합니다.
-<br><img src="../images/cloudberry_to_bucket14.png" alt="그림" /><br></p></li>
+<li><p>테스트가 완료되면, OK 클릭하여 Account 등록완료</p></li>
 
-<li><p>좌측 화면의 로컬 디스크에서 올릴 파일을 선택하고, Copy 메뉴를 클릭합니다.
-<br><img src="../images/cloudberry_to_bucket15.png" alt="그림" /><br></p></li>
-
-<li><p>업로드 내용을 확인하고 Yes 클릭
-<br><img src="../images/cloudberry_to_bucket16.png" alt="그림" /><br></p></li>
-
-<li><p>업로드가 완료되었습니다.
-<br><img src="../images/cloudberry_to_bucket17.png" alt="그림" /><br></p></li>
+<li><p>연결 확인</p></li>
 </ol>
+
+<p>오른쪽 창의 Source을 생성한 대상 Account로 선택하면 아래와 같이 Bucket 리스트가 보입니다. 보이지 않는 경우 IAM Policy가 적용되었는지 다시 확인합니다.</p>
+
+<p><img src="images/image-20220112184408342.png" alt="image-20220112184408342" /></p>
+
+<h4 id="step-5-cloudberry-explorer을-사용하여-파일-업로드">Step 5. CloudBerry Explorer을 사용하여 파일 업로드</h4>
+
+<ol>
+<li>우측 화면에서 올릴 대상 Bucket을 클릭합니다.</li>
+</ol>
+
+<p><img src="images/image-20220112205320139.png" alt="image-20220112205320139" /></p>
+
+<ol>
+<li>좌측 화면의 로컬 디스크에서 올릴 파일을 선택하고, Copy 메뉴를 클릭합니다.</li>
+</ol>
+
+<p><img src="images/image-20220112205356550.png" alt="image-20220112205356550" /></p>
+
+<ol>
+<li>업로드 내용을 확인하고 Yes 클릭</li>
+</ol>
+
+<p><img src="images/image-20220112205416964.png" alt="image-20220112205416964" /></p>
+
+<ol>
+<li>업로드가 완료되었습니다.</li>
+</ol>
+
+<p><img src="images/image-20220112205453660.png" alt="image-20220112205453660" /></p>
 
 <h4 id="step-6-object-storage-확인">Step 6. Object Storage 확인</h4>
 
 <ol>
-<li><p>OCI 콘솔에 Sandbox Compartment 사용자로 로그인합니다. api.user은 권한 제약이 있음.</p></li>
+<li><p>OCI 콘솔로 돌아가 테스트 중인 Object Storage Bucket으로 이동합니다.</p></li>
 
-<li><p>OCI Console에서 Bucket에 파일이 올라간 것을 확인할 수 있습니다.
-<br><img src="../images/cloudberry_to_bucket18.png" alt="그림" /><br></p></li>
-
-<li><p>폴더 안의 파일은 그림처럼 Object Name에 경로를 포함하는 형태로 자동으로 수정되었습니다.
-<br><img src="../images/cloudberry_to_bucket19.png" alt="그림" /><br></p></li>
+<li><p>OCI Console에서 Bucket에 파일이 올라간 것을 확인할 수 있습니다.</p></li>
 </ol>
+
+<p><img src="images/image-20220112205910660.png" alt="image-20220112205910660" /></p>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
- <div class="edit-meta">Last updated on 30 Dec 2018<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter07/5/" title="7.5 Public Bucket을 통한 정적 웹사이트 호스팅"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a>
+ <div class="edit-meta">Last updated on 12 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter07/5/" title="7.5 Public Bucket을 통한 정적 웹사이트 호스팅"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter07/7/" title="7.7 수명주기를 통한 Archive 설정하기">Next - 7.7 수명주기를 통한 Archive 설정하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
 <nav>
 <ul>
-<li class=""><a href="https://thekoguryo.github.io/">Home</a></li>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
 
 
 
@@ -210,7 +278,11 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -229,16 +301,20 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 IaaS 벤더간 서비스 매핑</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -257,14 +333,17 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 OCI Trial 계정 생성</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -283,8 +362,10 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 OCI Local 사용자 추가하기</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
@@ -306,7 +387,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
@@ -331,7 +414,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
@@ -360,7 +445,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
@@ -386,7 +473,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
@@ -414,7 +503,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
 </ul>
@@ -438,7 +529,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
@@ -464,7 +557,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
@@ -491,13 +586,15 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class="active"><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry를 통한 파일 업로드</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
 </ul>
   
@@ -520,12 +617,13 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 위한 Subnet, Security List 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 File System 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/5/">8.5 백업을 위한 Snapshot</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
 </ul>
   
 </li>
@@ -547,34 +645,13 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/2/">
-    9.2 Oracle Cloud Marketplace
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
-</ul>
   
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 OCI Marketplace</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/4/">9.4 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/5/">9.5 Custom Image Export/Import</a></li>
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
   
 </li>
@@ -596,7 +673,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
@@ -628,7 +707,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
 </ul>
   
@@ -651,7 +732,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
 
@@ -672,7 +755,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
 </ul>
@@ -699,7 +784,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
@@ -711,7 +798,7 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. OCI API 사용하기
+    14. Developer Tools 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -724,7 +811,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -743,7 +832,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -762,7 +853,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
@@ -776,7 +869,7 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage
+    14.1.2 Object Storage를 CLI로 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -789,7 +882,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
 </ul>
@@ -816,7 +911,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
@@ -845,7 +942,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
@@ -874,57 +973,11 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter16/">
-    16. VCN과 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter-appendix/">
-    부록
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 </ul>
   
 </li>
@@ -935,8 +988,8 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
 
 
 <li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    OCP(Oracle Cloud Platform)
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -949,7 +1002,347 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
-<ul class="">
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(OCI Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/ocp/">
+    Ocps
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
 
 
 
@@ -968,7 +1361,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
@@ -990,7 +1385,9 @@ OCI 콘솔 오른쪽 위의 사용자 메뉴를 클릭하여 Tenancy 정보화�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>

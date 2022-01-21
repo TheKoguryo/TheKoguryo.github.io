@@ -30,14 +30,13 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2019.06.03</span>
+ <span class="version">Version 2022.01.19</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/oci-cloudnative">Oracle Cloud Native</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://learn.oracle.com/ols/user-portal">Oracle Learning</a></li>
 <li ><a href="https://apexapps.oracle.com/pls/apex/dbpm/r/livelabs/livelabs-workshop-cards?session=117806365725385">Oracle LiveLabs</a></li>
@@ -45,80 +44,105 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h1>3.6.3 Block Volume에 연결하기</h1>
+<main>
 
-<h3 id="block-volume에-연결하기">Block Volume에 연결하기</h3>
+<h3 id="3-6-3-block-volume에-연결하기">3.6.3 Block Volume에 연결하기</h3>
 
 <p>Block Volume 장착 후에 iSCSI 연결을 설정해야 합니다. iscsiadm 명령으로 실행되며 실행해야 할 명령은 장착된 Block Volume에서 제공하므로 복사 후 그대로 실행하면 됩니다.</p>
 
 <ol>
-<li><p>Compute Instance에 SSH로 접속합니다.</p></li>
+<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다.  <strong>Compute</strong> &gt;&gt; <strong>Instances</strong> 항목으로 이동합니다.</p></li>
 
-<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>[Core Infrastructure]</strong> &gt;&gt; <strong>[Compute]</strong> &gt;&gt; <strong>[Instances]</strong> 항목으로 이동합니다.</p></li>
+<li><p>앞서 생성한 대상 <strong>Instance의 이름</strong>을 클릭합니다.</p></li>
 
-<li><p>앞서 생성한 대상 <strong>[Instance의 이름]</strong>을 클릭합니다.</p></li>
+<li><p>Instance 상세 페이지에서 왼쪽 아래의 <strong>Resources</strong> &gt;&gt; <strong>Attached block volumes</strong>을 클릭합니다.</p></li>
 
-<li><p>Instance 상세 페이지에서 왼쪽 아래의 <strong>[Resources]</strong> &gt;&gt; <strong>[Attached Block Volumes]</strong>을 클릭합니다.</p></li>
-
-<li><p>방금 장착한 Block Volume 옆에 있는 <strong>[액션 아이콘]</strong>을 클릭한 다음 <strong>[iSCSI Commands and Information]</strong>을 클릭합니다.
-<br><img src="../images/connect_block_volume1.png" alt="그림" /><br></p></li>
-
-<li><p>iSCSI Commands and Information 다이얼로그가 뜹니다. 장착한 Volume에 대한 IP와 Port를 확인할 수 있고, 장착 및 장착해제에 사용될 명령이 보입니다. 명령에는 IP, Port가 이미 입력되어 있으므로 복사해서 그대로 사용하면 됩니다.
-<br><img src="../images/connect_block_volume2.png" alt="그림" /><br></p></li>
-
-<li><p>Instance에 접속한 SSH로 접속합니다.</p></li>
-
-<li><p><strong>[Attach Commands]</strong>의 명령을 복사해서 SSH 세션에서 순서대로 하나씩 실행합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">oracle@ubuntu:~$ ssh -i privateKey opc@129.213.24.XX
-Last login: Fri Apr <span class="m">12</span> <span class="m">05</span>:17:50 <span class="m">2019</span> from <span class="m">223</span>.62.163.XX
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:b522ad4f-689c-4834-ab2c-025432f52362 -p <span class="m">169</span>.254.2.XX:3260
-New iSCSI node <span class="o">[</span>tcp:<span class="o">[</span><span class="nv">hw</span><span class="o">=</span>,ip<span class="o">=</span>,net_if<span class="o">=</span>,iscsi_if<span class="o">=</span>default<span class="o">]</span> <span class="m">169</span>.254.2.2,3260,-1 iqn.2015-12.com.oracleiaas:b522ad4f-689c-4834-ab2c-025432f52362<span class="o">]</span> added
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:b522ad4f-689c-4834-ab2c-025432f52362 -n node.startup -v automatic
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:b522ad4f-689c-4834-ab2c-025432f52362 -p <span class="m">169</span>.254.2.XX:3260 -l
-Logging in to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:b522ad4f-689c-4834-ab2c-025432f52362, portal: <span class="m">169</span>.254.2.XX,3260<span class="o">]</span> <span class="o">(</span>multiple<span class="o">)</span>
-Login to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:b522ad4f-689c-4834-ab2c-025432f52362, portal: <span class="m">169</span>.254.2.XX,3260<span class="o">]</span> successful.
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$</code></pre></div></li>
-
-<li><p>장착을 위한 iSCSI 명령을 모두 수행이 끝나면, 이제 Linux에서 하드 디스크처럼 사용할 때처럼 포맷 및 마운트 작업을 수행하면 됩니다. 먼저, 장착 여부를 확인하기 위해 다음 명령을 수행합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">$ sudo fdisk -l</code></pre></div>
-<ul>
-<li>/dev/sdb 디스크가 장착된 것을 확인 할 수 있습니다.</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo fdisk -l
-WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
-
-Disk /dev/sda: <span class="m">50</span>.0 GB, <span class="m">50010783744</span> bytes, <span class="m">97677312</span> sectors
-<span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
-Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
-I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
-Disk label type: gpt
-Disk identifier: 25ED4D03-6483-4B69-B009-FF3D32BF60BF
-
-
-<span class="c1">#         Start          End    Size  Type            Name</span>
-<span class="m">1</span>         <span class="m">2048</span>       <span class="m">411647</span>    200M  EFI System      EFI System Partition
-<span class="m">2</span>       <span class="m">411648</span>     <span class="m">17188863</span>      8G  Linux swap
-<span class="m">3</span>     <span class="m">17188864</span>     <span class="m">97675263</span>   <span class="m">38</span>.4G  Microsoft basic
-
-Disk /dev/sdb: <span class="m">1099</span>.5 GB, <span class="m">1099511627776</span> bytes, <span class="m">2147483648</span> sectors
-<span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
-Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
-I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
-
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$</code></pre></div></li>
+<li><p>방금 장착한 Block Volume 옆에 있는 <strong>액션 아이콘</strong>(<strong>우측 점 3개</strong>)을 클릭한 다음 <strong>iSCSI commands and information</strong>을 클릭합니다.</p></li>
 </ol>
+
+<p><img src="images/image-20220110162102923.png" alt="image-20220110162102923" /></p>
+
+<ol>
+<li>iSCSI commands and information 다이얼로그가 뜹니다. 장착한 Volume에 대한 IP와 Port를 확인할 수 있고, 장착 및 장착해제에 사용될 명령이 보입니다. 명령에는 IP, Port가 이미 입력되어 있으므로 복사해서 그대로 사용하면 됩니다.</li>
+</ol>
+
+<p>연결하기 위한 <strong>Connect</strong> 항목에 있는 명령을 복사합니다.</p>
+
+<p><img src="images/image-20220110162233402.png" alt="image-20220110162233402" /></p>
+
+<ol>
+<li><p>Attach한 Instance에 접속한 SSH로 접속합니다.</p></li>
+
+<li><p><strong>Connect Commands</strong>의 명령을 복사해서 SSH 세션에서 순서대로 하나씩 실행합니다.</p></li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
+   Last login: Mon Jan <span class="m">10</span> <span class="m">07</span>:24:34 <span class="m">2022</span> from <span class="m">223</span>.62.21.xx
+   <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p <span class="m">169</span>.254.2.3:3260
+   sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p <span class="m">169</span>.254.2.3:3260 -lNew iSCSI node <span class="o">[</span>tcp:<span class="o">[</span><span class="nv">hw</span><span class="o">=</span>,ip<span class="o">=</span>,net_if<span class="o">=</span>,iscsi_if<span class="o">=</span>default<span class="o">]</span> <span class="m">169</span>.254.2.3,3260,-1 iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec<span class="o">]</span> added
+   <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -n node.startup -v automatic
+   <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p <span class="m">169</span>.254.2.3:3260 -l
+   Logging in to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: <span class="m">169</span>.254.2.3,3260<span class="o">]</span> <span class="o">(</span>multiple<span class="o">)</span>
+   Login to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: <span class="m">169</span>.254.2.3,3260<span class="o">]</span> successful.</code></pre></div>
+<ol>
+<li>장착을 위한 iSCSI 명령을 모두 수행이 끝나면, 이제 Linux에서 하드 디스크처럼 사용할 때처럼 포맷 및 마운트 작업을 수행하면 됩니다. 먼저, 장착 여부를 확인하기 위해 다음 명령을 수행합니다.</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   sudo fdisk -l</code></pre></div>
+<ul>
+<li><p>실행결과</p>
+
+<ul>
+<li>아래쪽에 보면 Disk /dev/sdb가 장착된 것을 확인 할 수 있습니다.
+<br /></li>
+</ul>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"> <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo fdisk -l
+ WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+     
+ Disk /dev/sda: <span class="m">50</span>.0 GB, <span class="m">50010783744</span> bytes, <span class="m">97677312</span> sectors
+ <span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+ Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
+ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
+ Disk label type: gpt
+ Disk identifier: BBBA97C2-4E47-43B0-9059-2702FDB720E7
+     
+     
+ <span class="c1">#         Start          End    Size  Type            Name</span>
+  <span class="m">1</span>         <span class="m">2048</span>       <span class="m">411647</span>    200M  EFI System      EFI System Partition
+  <span class="m">2</span>       <span class="m">411648</span>     <span class="m">17188863</span>      8G  Linux swap
+  <span class="m">3</span>     <span class="m">17188864</span>     <span class="m">97675263</span>   <span class="m">38</span>.4G  Microsoft basic
+     
+ Disk /dev/sdb: <span class="m">53</span>.7 GB, <span class="m">53687091200</span> bytes, <span class="m">104857600</span> sectors
+ <span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+ Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
+ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes</code></pre></div>
+<ul>
+<li>아래쪽에 보면 Disk /dev/sdb가 장착된 것을 확인 할 수 있습니다.</li>
+</ul></li>
+</ul>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
- <div class="edit-meta">Last updated on 19 Dec 2018<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter03/6/2/" title="3.6.2 Block Volume을 Instance에 장착하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.6.2 Block Volume을 Instance에 장착하기</a>
+ <div class="edit-meta">Last updated on 10 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter03/6/2/" title="3.6.2 Block Volume을 Instance에 장착하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.6.2 Block Volume을 Instance에 장착하기</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter03/6/4/" title="3.6.4 Block Volume 포맷하기">Next - 3.6.4 Block Volume 포맷하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
 <nav>
 <ul>
-<li class=""><a href="https://thekoguryo.github.io/">Home</a></li>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
 
 
 
@@ -137,7 +161,11 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -156,16 +184,20 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 IaaS 벤더간 서비스 매핑</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -184,14 +216,17 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 OCI Trial 계정 생성</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -210,8 +245,10 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 OCI Local 사용자 추가하기</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
@@ -233,7 +270,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
@@ -258,7 +297,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
@@ -287,7 +328,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
@@ -313,7 +356,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
@@ -341,7 +386,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
 </ul>
@@ -365,7 +412,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
@@ -391,7 +440,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
@@ -418,13 +469,15 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry를 통한 파일 업로드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
 </ul>
   
@@ -447,12 +500,13 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 위한 Subnet, Security List 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 File System 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/5/">8.5 백업을 위한 Snapshot</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
 </ul>
   
 </li>
@@ -474,34 +528,13 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/2/">
-    9.2 Oracle Cloud Marketplace
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
-</ul>
   
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 OCI Marketplace</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/4/">9.4 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/5/">9.5 Custom Image Export/Import</a></li>
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
   
 </li>
@@ -523,7 +556,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
@@ -555,7 +590,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
 </ul>
   
@@ -578,7 +615,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
 
@@ -599,7 +638,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
 </ul>
@@ -626,7 +667,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
@@ -638,7 +681,7 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. OCI API 사용하기
+    14. Developer Tools 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -651,7 +694,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -670,7 +715,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -689,7 +736,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
@@ -703,7 +752,7 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage
+    14.1.2 Object Storage를 CLI로 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -716,7 +765,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
 </ul>
@@ -743,7 +794,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
@@ -772,7 +825,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
@@ -801,57 +856,11 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter16/">
-    16. VCN과 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter-appendix/">
-    부록
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 </ul>
   
 </li>
@@ -862,8 +871,8 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
 
 
 <li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    OCP(Oracle Cloud Platform)
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -876,7 +885,347 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
-<ul class="">
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(OCI Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/ocp/">
+    Ocps
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
 
 
 
@@ -895,7 +1244,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
@@ -917,7 +1268,9 @@ I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span 
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>

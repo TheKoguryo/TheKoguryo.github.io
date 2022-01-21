@@ -30,14 +30,13 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2019.06.03</span>
+ <span class="version">Version 2022.01.19</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/oci-cloudnative">Oracle Cloud Native</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://learn.oracle.com/ols/user-portal">Oracle Learning</a></li>
 <li ><a href="https://apexapps.oracle.com/pls/apex/dbpm/r/livelabs/livelabs-workshop-cards?session=117806365725385">Oracle LiveLabs</a></li>
@@ -45,219 +44,203 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h1>14.1.2.2 CLI를 통한 파일 업로드</h1>
+<main>
 
-<h3 id="object-관리-참고-페이지">Object 관리 참고 페이지</h3>
+<h4 id="14-1-2-2-cli를-통한-파일-업로드">14.1.2.2 CLI를 통한 파일 업로드</h4>
 
-<p>아래 페이지의 일부를 정리한 내용입니다. 전체 내용은 다음 링크를 참고하세요.<br>
-<a href="https://docs.cloud.oracle.com/iaas/Content/Object/Tasks/managingobjects.htm">https://docs.cloud.oracle.com/iaas/Content/Object/Tasks/managingobjects.htm</a></p>
+<ul>
+<li>아래 페이지의 일부를 정리한 내용입니다. 전체 내용은 다음 링크를 참고하세요.
 
-<h3 id="bucket상의-object-목록-조회">Bucket상의 Object 목록 조회</h3>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">oci os object list -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt;</code></pre></div>
-<h4 id="windows-실행예시">Windows 실행예시</h4>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">PS F:<span class="se">\F</span>orObjectStorage&gt; oci os object list -ns gse000XXXXX -bn ExampleBucket
-<span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">&#34;md5&#34;</span>: <span class="s2">&#34;InJm+Ou1NJL59cTsrXTC5g==&#34;</span>,
-      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;icons8-oracle-96.png&#34;</span>,
-      <span class="s2">&#34;size&#34;</span>: <span class="m">3074</span>,
-      <span class="s2">&#34;time-created&#34;</span>: <span class="s2">&#34;2018-12-26T07:50:06.732000+00:00&#34;</span>
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
-<span class="o">}</span>
-PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
-<div class="panel panel-notice"><div class="panel-header">
-<h3><i class="fas fa-life-saver"></i> 필요한 IAM Policy</h3>
-</div><div class="panel-body">
-<p>CLI로 Bucket에 업로드 하기 위해서는 관련 권한이 필요합니다. IAM Policy를 통해 사용자가 속한 그룹에 권한을 부여합니다.<br><br>
-Allow group <em>&lt;group_name&gt;</em> to manage objects in compartment <em>&lt;compartment_name&gt;</em></p>
+<ul>
+<li><a href="https://docs.cloud.oracle.com/iaas/Content/Object/Tasks/managingobjects.htm">https://docs.cloud.oracle.com/iaas/Content/Object/Tasks/managingobjects.htm</a></li>
+<li><a href="https://docs.oracle.com/en-us/iaas/tools/oci-cli/3.4.2/oci_cli_docs/cmdref/os/object/put.html">https://docs.oracle.com/en-us/iaas/tools/oci-cli/3.4.2/oci_cli_docs/cmdref/os/object/put.html</a></li>
+</ul></li>
+</ul>
 
-</div>
-</div>
+<ol>
+<li>Object Storage Namespace을 조회합니다.</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   oci os ns get</code></pre></div>
+<ol>
+<li>Bucket상의 Object 목록 조회</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   oci os object list -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt;</code></pre></div>
+<ul>
+<li><p>실행예시</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> PS D:<span class="se">\&gt;</span> oci os ns get
+ <span class="o">{</span>
+   <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnzdbcmqu9s8&#34;</span>
+ <span class="o">}</span>
+ PS D:<span class="se">\&gt;</span> oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
+ <span class="o">{</span>
+   <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
+ <span class="o">}</span></code></pre></div></li>
+</ul>
 
+<ol>
+<li>Bucket에 Object 업로드</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt;  --no-multipart</code></pre></div>
+<ul>
+<li><p>Windows 실행예시</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> PS D:<span class="se">\F</span>orObjectStorage&gt; dir
+     
+     디렉터리: D:<span class="se">\F</span>orObjectStorage
+     
+ Mode                 LastWriteTime         Length Name
+ ----                 -------------         ------ ----
+ d-----      <span class="m">2022</span>-01-12   오후 <span class="m">7</span>:01                images
+ -a----      <span class="m">2022</span>-01-12   오후 <span class="m">5</span>:27            <span class="m">152</span> index.html
+     
+ PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI --file index.html
+ <span class="o">{</span>
+   <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
+   <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 02:42:23 GMT&#34;</span>,
+   <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
+ <span class="o">}</span>
+ PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
+ <span class="o">{</span>
+   <span class="s2">&#34;data&#34;</span>: <span class="o">[</span>
+     <span class="o">{</span>
+       <span class="s2">&#34;archival-state&#34;</span>: null,
+       <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
+       <span class="s2">&#34;md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>,
+       <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;index.html&#34;</span>,
+       <span class="s2">&#34;size&#34;</span>: <span class="m">152</span>,
+       <span class="s2">&#34;storage-tier&#34;</span>: <span class="s2">&#34;Standard&#34;</span>,
+       <span class="s2">&#34;time-created&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>,
+       <span class="s2">&#34;time-modified&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>
+     <span class="o">}</span>
+   <span class="o">]</span>,
+   <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
+ <span class="o">}</span></code></pre></div></li>
+</ul>
 
-<h3 id="bucket에-object-업로드">Bucket에 Object 업로드</h3>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt;  --no-multipart</code></pre></div>
-<h4 id="windows-실행예시-1">Windows 실행예시</h4>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">PS F:<span class="se">\F</span>orObjectStorage&gt; oci os object put -ns gse000XXXXX -bn ExampleBucket --file index.html --no-multipart
-Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;7DE87169BA46EA3DE053C224C00AF439&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Wed, 26 Dec 2018 07:56:25 GMT&#34;</span>,
-  <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;MSXj81EkEsipQyJf68d3EA==&#34;</span>
-<span class="o">}</span>
-PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
-<h3 id="bucket에-object들-벌크-업로드">Bucket에 Object들 벌크 업로드</h3>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">oci os object bulk-upload -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --src-dir &lt;source_directory_location&gt; --no-multipart</code></pre></div>
-<h4 id="windows-실행예시-2">Windows 실행예시</h4>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">PS F:<span class="se">\F</span>orObjectStorage&gt; oci os object bulk-upload -ns gse000XXXXX -bn ExampleBucketForWeb --src-dir . --no-multipart
-Uploaded index.html  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;skipped-objects&#34;</span>: <span class="o">[]</span>,
-  <span class="s2">&#34;upload-failures&#34;</span>: <span class="o">{}</span>,
-  <span class="s2">&#34;uploaded-objects&#34;</span>: <span class="o">{</span>
-    <span class="s2">&#34;images/icons8-oracle-96.png&#34;</span>: <span class="o">{</span>
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;7DE922A33BB8E048E053821BC20A4302&#34;</span>,
-      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Wed, 26 Dec 2018 08:42:28 GMT&#34;</span>,
-      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;InJm+Ou1NJL59cTsrXTC5g==&#34;</span>
-    <span class="o">}</span>,
-    <span class="s2">&#34;index.html&#34;</span>: <span class="o">{</span>
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;7DE9BD0FBF4D70C8E053821BC20ADC40&#34;</span>,
-      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Wed, 26 Dec 2018 08:42:28 GMT&#34;</span>,
-      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;MSXj81EkEsipQyJf68d3EA==&#34;</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
-<h4 id="업로드-소스-폴더">업로드 소스 폴더</h4>
+<ol>
+<li>Bucket에 Object들 벌크 업로드</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   oci os object bulk-upload -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --src-dir &lt;source_directory_location&gt; --no-multipart</code></pre></div>
+<ul>
+<li><p>Windows 실행예시</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object bulk-upload -bn ExampleBucketForCLI --src-dir .
+ Uploaded images/icons8-oracle-96.png  <span class="o">[</span><span class="c1">####################################]  100%</span>
+ Uploaded index.html  <span class="o">[</span><span class="c1">####################################]  100%</span>
+     
+ <span class="o">{</span>
+   <span class="s2">&#34;skipped-objects&#34;</span>: <span class="o">[]</span>,
+   <span class="s2">&#34;upload-failures&#34;</span>: <span class="o">{}</span>,
+   <span class="s2">&#34;uploaded-objects&#34;</span>: <span class="o">{</span>
+     <span class="s2">&#34;images/icons8-oracle-96.png&#34;</span>: <span class="o">{</span>
+       <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;388a319c-b5d0-4a51-bacf-9d9fe84bc621&#34;</span>,
+       <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:04 GMT&#34;</span>,
+       <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;HkJF80OO/DlmKI7usBCg4Q==&#34;</span>
+     <span class="o">}</span>,
+     <span class="s2">&#34;index.html&#34;</span>: <span class="o">{</span>
+       <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;883369a7-4701-4bd9-8351-3fbaada61fbe&#34;</span>,
+       <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:05 GMT&#34;</span>,
+       <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
+     <span class="o">}</span>
+   <span class="o">}</span>
+ <span class="o">}</span></code></pre></div></li>
+</ul>
 
-<p><br><img src="../images/cli_bulkupload1.png" alt="그림" /><br></p>
+<ol>
+<li><p>결과 확인</p>
 
-<h4 id="업로드-된-objects">업로드 된 Objects</h4>
+<ul>
+<li>업로드 소스 폴더</li>
+</ul>
 
-<p>그림과 같이 하위 폴더에 있는 파일들은 Object 이름이 소스 폴더기준의 경로임을 확인할 수 있습니다.
-<br><img src="../images/cli_bulkupload2.png" alt="그림" /><br></p>
+<p><img src="images/image-20220118120850546.png" alt="image-20220118120850546" /></p>
 
-<p>폴더안의 파일은 그림처럼 Object Name에 경로를 포함하는 형태로 자동으로 업로드 되었습니다.<br>
-<strong>다만 cli로 업로드 된 파일은 application/octet-stream 타입임을 알 수 있습니다.</strong>
-<br><img src="../images/cli_bulkupload3.png" alt="그림" /><br></p>
+<ul>
+<li>업로드 된 Objects</li>
+</ul>
 
-<h3 id="multipart-업로드">Multipart 업로드</h3>
+<p>폴더안의 파일은 그림처럼 업로드 되었습니다. <strong>다만 cli로 업로드 된 파일은 application/octet-stream 타입임을 알 수 있습니다.</strong></p>
+
+<p><img src="images/image-20220118121005771.png" alt="image-20220118121005771" /></p>
+
+<p><img src="images/image-20220118121256838.png" alt="image-20220118121256838" /></p></li>
+</ol>
+
+<h5 id="multipart-업로드">Multipart 업로드</h5>
 
 <p>큰 사이즈의 파일, 예를 들어 Custom Image 파일을 업로드할 때 업로드 시간이 많이 걸리게 됩니다. 이런경우 단일 파일을 여러 파일로 나누어 병렬로 업로드 하면 더 빠르게 업로드 할 수 있습니다. 또한 전송시 네트워크 에러 발생시 에러난 파트별도 재시도를 하여 보다 안정적으로 큰 파일을 업로드 할 수 있습니다.</p>
 <div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt; --part-size &lt;upload_part_size_in_MB&gt; --parallel-upload-count &lt;maximum_number_parallel_uploads&gt;</code></pre></div>
-<h4 id="windows-실행예시-3">Windows 실행예시</h4>
+<ul>
+<li>Windows 실행예시</li>
+</ul>
 
-<p>100 MB 파일을 10 MB 단위로 나누어서 동시 5개로 업로드하는 예시</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">PS F:<span class="se">\F</span>orObjectStorage&gt; oci os object put -ns gse000XXXXX -bn ExampleBucket --file BigFile_100.zip --part-size <span class="m">10</span> --parallel-upload-count <span class="m">5</span>
-Upload ID: 5cc21475-c946-61fb-6061-73a8d5be1451
-Split file into <span class="m">10</span> parts <span class="k">for</span> upload.
-Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;7DFC142F4465DE46E053C224C00A0F2C&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Thu, 27 Dec 2018 07:01:27 GMT&#34;</span>,
-  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;NfwM4rkuqXc+6sK76HLLMw==-10&#34;</span>
-<span class="o">}</span>
-PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
-<h3 id="일반-업로드-multipart-업로드-비교">일반 업로드, Multipart 업로드 비교</h3>
+<p>2.28GB 파일을 100 MB 단위로 나누어서 동시 5개로 병렬로 업로드하는 예시로 3분 57초 걸림.</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">  PS D:<span class="se">\F</span>orObjectStorage&gt; date
+  
+  2022년 1월 18일 화요일 오후 <span class="m">12</span>:25:22
+  
+  
+  PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso --part-size <span class="m">100</span> --parallel-upload-count <span class="m">5</span>
+  Upload ID: 3b38b958-3010-4d6d-5e84-55d189b787cc
+  Split file into <span class="m">24</span> parts <span class="k">for</span> upload.
+  Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
+  <span class="o">{</span>
+    <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;2217a0e6-2ae3-4ae8-9507-03d2f36a38ec&#34;</span>,
+    <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:29:18 GMT&#34;</span>,
+    <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;mnHbvK3Eed2+o54P1P7VgA==-24&#34;</span>
+  <span class="o">}</span>
+  PS D:<span class="se">\F</span>orObjectStorage&gt; date
+  
+  2022년 1월 18일 화요일 오후 <span class="m">12</span>:29:19
+  
+  
+  PS D:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
+<ul>
+<li>결과확인</li>
+</ul>
 
-<p>클라이언트와 서버간 네트워크 상황에 따라 결과는 달라질 수 있습니다. 단순 참고용 결과입니다.</p>
+<p><img src="images/image-20220118123128191.png" alt="image-20220118123128191" /></p>
 
-<table>
-<thead>
-<tr>
-<th align="left">업로드 방식</th>
-<th align="left">파일 크기</th>
-<th align="left">Part Size</th>
-<th align="left">Parallel Upload Count</th>
-<th align="left">걸린시간</th>
-</tr>
-</thead>
+<ul>
+<li>참고사항</li>
+</ul>
 
-<tbody>
-<tr>
-<td align="left">일반 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">-</td>
-<td align="left">-</td>
-<td align="left">31초</td>
-</tr>
+<p>OCI CLI &ndash;no-multipart 옵션 설명에서 처럼 128MiB이상이면, 옵션이 없어도 기본적으로 다중 분할하여 업로드 됩니다.</p>
 
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">10 MB</td>
-<td align="left">1</td>
-<td align="left">33초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">10 MB</td>
-<td align="left">2</td>
-<td align="left">21초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">10 MB</td>
-<td align="left">3</td>
-<td align="left">15초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">10 MB</td>
-<td align="left">4</td>
-<td align="left">14초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">10 MB</td>
-<td align="left">5</td>
-<td align="left">13초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">20 MB</td>
-<td align="left">1</td>
-<td align="left">33초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">20 MB</td>
-<td align="left">2</td>
-<td align="left">20초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">20 MB</td>
-<td align="left">3</td>
-<td align="left">15초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">20 MB</td>
-<td align="left">4</td>
-<td align="left">16초</td>
-</tr>
-
-<tr>
-<td align="left">Multipart 업로드</td>
-<td align="left">100 MB</td>
-<td align="left">20 MB</td>
-<td align="left">5</td>
-<td align="left">13초</td>
-</tr>
-</tbody>
-</table>
-<br>
+<blockquote>
+<p>By default, files above 128 MiB will be transferred in multiple parts, then combined.</p>
+</blockquote>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">  PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso
+  Upload ID: 75e4106e-bf1f-ffd0-5630-c78b68b6168b
+  Split file into <span class="m">19</span> parts <span class="k">for</span> upload.
+  Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
+  <span class="o">{</span>
+    <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;cf5d681b-90a3-409c-b732-1e6c6028c046&#34;</span>,
+    <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:37:46 GMT&#34;</span>,
+    <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;eFqxsX7ROrZUQ0HrQYI/zw==-19&#34;</span>
+  <span class="o">}</span></code></pre></div><br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
- <div class="edit-meta">Last updated on 26 Dec 2018<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/1/2/1/" title="14.1.2.1 Object Storage를 위한 IAM Policy 설정"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.1.2.1 Object Storage를 위한 IAM Policy 설정</a>
+ <div class="edit-meta">Last updated on 18 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/1/2/1/" title="14.1.2.1 Object Storage를 위한 IAM Policy 설정"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.1.2.1 Object Storage를 위한 IAM Policy 설정</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter14/2/" title="14.2 Terraform">Next - 14.2 Terraform <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
 <nav>
 <ul>
-<li class=""><a href="https://thekoguryo.github.io/">Home</a></li>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
 
 
 
@@ -276,7 +259,11 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -295,16 +282,20 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 IaaS 벤더간 서비스 매핑</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -323,14 +314,17 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 OCI Trial 계정 생성</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -349,8 +343,10 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 OCI Local 사용자 추가하기</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
@@ -372,7 +368,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
@@ -397,7 +395,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
@@ -426,7 +426,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
@@ -452,7 +454,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
@@ -480,7 +484,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
 </ul>
@@ -504,7 +510,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
@@ -530,7 +538,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
@@ -557,13 +567,15 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry를 통한 파일 업로드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
 </ul>
   
@@ -586,12 +598,13 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 위한 Subnet, Security List 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 File System 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/5/">8.5 백업을 위한 Snapshot</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
 </ul>
   
 </li>
@@ -613,34 +626,13 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/2/">
-    9.2 Oracle Cloud Marketplace
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
-</ul>
   
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 OCI Marketplace</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/4/">9.4 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/5/">9.5 Custom Image Export/Import</a></li>
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
   
 </li>
@@ -662,7 +654,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
@@ -694,7 +688,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
 </ul>
   
@@ -717,7 +713,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
 
@@ -738,7 +736,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
 </ul>
@@ -765,7 +765,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
@@ -777,7 +779,7 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
 
 <li class="parent has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. OCI API 사용하기
+    14. Developer Tools 사용하기
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -790,7 +792,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 
 
 
@@ -809,7 +813,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 
 
 
@@ -828,7 +834,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
@@ -842,7 +850,7 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
 
 <li class="parent has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage
+    14.1.2 Object Storage를 CLI로 사용하기
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -855,7 +863,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
 </ul>
@@ -882,7 +892,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
@@ -911,7 +923,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
@@ -940,57 +954,11 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter16/">
-    16. VCN과 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter-appendix/">
-    부록
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 </ul>
   
 </li>
@@ -1001,8 +969,8 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
 
 
 <li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    OCP(Oracle Cloud Platform)
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -1015,7 +983,347 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
-<ul class="">
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(OCI Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/ocp/">
+    Ocps
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
 
 
 
@@ -1034,7 +1342,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
@@ -1056,7 +1366,9 @@ PS F:<span class="se">\F</span>orObjectStorage&gt;</code></pre></div>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>

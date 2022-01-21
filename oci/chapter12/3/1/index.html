@@ -30,14 +30,13 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2019.06.03</span>
+ <span class="version">Version 2022.01.19</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/oci-cloudnative">Oracle Cloud Native</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://learn.oracle.com/ols/user-portal">Oracle Learning</a></li>
 <li ><a href="https://apexapps.oracle.com/pls/apex/dbpm/r/livelabs/livelabs-workshop-cards?session=117806365725385">Oracle LiveLabs</a></li>
@@ -45,185 +44,208 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h1>12.3.1 Compute VM에 Grafana 설치</h1>
+<main>
 
-<h3 id="compute-instance-만들기">Compute Instance 만들기</h3>
+<h3 id="12-3-1-compute-vm에-grafana-설치">12.3.1 Compute VM에 Grafana 설치</h3>
+
+<h4 id="compute-instance-만들기">Compute Instance 만들기</h4>
 
 <ol>
 <li><p>Compute Instance 생성 화면으로 이동합니다.</p></li>
 
-<li><p>이미지 소스를 <strong>[Oracle Images]</strong> 목록에 있는 <strong>Oracle Cloud Developer Image</strong> 이미지로 선택합니다.<br>
+<li><p>이미지 소스를 <strong>Oracle Images</strong> 목록에 있는 <strong>Oracle Linux Cloud Developer Image</strong> 이미지로 선택합니다.<br>
 Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있습니다.
-<br><img src="../images/cloud_developer_image.png" alt="그림" /><br></p></li>
+<img src="images/image-20220117115909851.png" alt="image-20220117115909851" /></p></li>
 
 <li><p>Compute 인스턴스를 생성합니다.</p></li>
 
 <li><p>생성된 Compute 인스턴스의 OCID를 복사해 둡니다.</p></li>
 </ol>
 
-<h3 id="oci-cli-instance-principal-설정">OCI CLI - Instance Principal 설정</h3>
+<h4 id="oci-cli-instance-principal-설정">OCI CLI - Instance Principal 설정</h4>
 
 <p>Compute 인스턴스에서 추가 인증없이 OCI API를 사용하기 위해서는 Instance Principal을 설정해야 합니다. 그 절차는 Compute 인스턴스를 Dynamic Group에 추가하고 해당 Group에 권한을 주는 방식입니다.</p>
 
-<h4 id="dynamic-group-설정">Dynamic Group 설정</h4>
+<h5 id="dynamic-group-설정">Dynamic Group 설정</h5>
 
 <ol>
-<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>[Governance and Administration]</strong> &gt;&gt; <strong>[Identity]</strong> &gt;&gt; <strong>[Dynamic Groups]</strong>로 이동합니다.</p></li>
+<li>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Identity &amp; Security</strong> &gt;&gt; <strong>Identity</strong> &gt;&gt; <strong>Dynamic Groups</strong>로 이동합니다.</li>
+<li><strong>Create Dynamic Group</strong>을 클릭합니다.</li>
 
-<li><p><strong>[Create Dynamic Groups]</strong>을 클릭합니다.</p></li>
-
-<li><p><strong>Launch Rule Builder</strong>를 클릭하여 룰을 추가합니다.</p>
+<li><p>룰 작성 부분 오른쪽 <strong>Rule Builder</strong>를 클릭하여 툴을 통해 룰을 추가합니다.</p>
 
 <ul>
-<li>ATTRIBUTE: <strong>Match instances with ID</strong></li>
+<li>매칭 기준: Instance OCID</li>
 <li>VALUE: 복사해둔 Compute 인스턴스의 OCID
-<br><img src="../images/dynamic_group_1.png" alt="그림" /><br></li>
+<img src="images/image-20220117120626795.png" alt="image-20220117120626795" /></li>
 </ul></li>
 
-<li><p>NAME, DESCRIPTION을 입력하여 Dynamic Group을 생성합니다.
-<br><img src="../images/dynamic_group_2.png" alt="그림" /><br></p></li>
+<li><p>NAME, DESCRIPTION을 입력하여 Dynamic Group을 생성합니다.</p>
+
+<ul>
+<li>Name: 예, MyInstancePrincipleDynamicGroup</li>
+</ul>
+
+<p><img src="images/image-20220117120954288.png" alt="image-20220117120954288" /></p></li>
 </ol>
 
-<h4 id="policy-설정">Policy 설정</h4>
+<h5 id="policy-설정">Policy 설정</h5>
 
 <ol>
-<li><p><strong>[Identity]</strong> &gt;&gt; <strong>[Policies]</strong>로 이동합니다.</p></li>
+<li><p><strong>Identity &amp; Security</strong> &gt;&gt; <strong>Identity</strong> &gt;&gt; <strong>Policies</strong>로 이동합니다.</p></li>
 
-<li><p><strong>[Create Policy]</strong>을 클릭합니다.</p></li>
+<li><p><strong>Create Policy</strong>을 클릭합니다.</p></li>
 
-<li><p>다음 두 권한을 가지는 Policy를 생성합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">allow &lt;subject&gt; to <span class="nb">read</span> metrics in tenancy
-allow &lt;subject&gt; to <span class="nb">read</span> compartments in tenancy</code></pre></div></li>
-
-<li><p>Policy 생성화면
-<br><img src="../images/grafana_policy_1.png" alt="그림" /><br></p></li>
+<li><p>다음 두 권한을 가지는 Policy를 생성합니다.</p></li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   allow dynamic-group &lt;생성한 다이나믹 그룹&gt; to <span class="nb">read</span> metrics in tenancy
+   allow dynamic-group &lt;생성한 다이나믹 그룹&gt; to <span class="nb">read</span> compartments in tenancy</code></pre></div>
+<ol>
+<li>Policy 생성화면
+<img src="images/image-20220117121949263.png" alt="image-20220117121949263" /></li>
 </ol>
 
-<h4 id="oci-cli-접속-확인">OCI CLI 접속 확인</h4>
+<h5 id="oci-cli-접속-확인">OCI CLI 접속 확인</h5>
 
 <ol>
 <li><p>SSH로 앞서 생성한 Compute 인스턴스로 접속합니다.</p></li>
 
-<li><p>다음명령으로 Instance Principal 방식으로 접속합니다. OCI CLI config 파일을 설정하지 않았는데 접속되는 것을 확인 할 수 있습니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">oci os ns get --auth instance_principal</code></pre></div>
-<ul>
-<li>접속 예시</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell"><span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ oci os ns get --auth instance_principal
-<span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;thekoguryo&#34;</span>
-<span class="o">}</span>
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$</code></pre></div></li>
+<li><p>다음명령으로 Instance Principal 방식으로 접속합니다. OCI CLI config 파일을 설정하지 않았는데 접속되는 것을 확인 할 수 있습니다.</p></li>
 </ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   oci os ns get --auth instance_principal</code></pre></div>
+<ul>
+<li><p>접속 예시</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ oci os ns get --auth instance_principal
+ <span class="o">{</span>
+   <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;thekoguryo&#34;</span>
+ <span class="o">}</span>
+ <span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$</code></pre></div></li>
+</ul>
 
-<h3 id="grafana-설치">Grafana 설치</h3>
+<h4 id="grafana-설치">Grafana 설치</h4>
 
 <ol>
 <li><p>Compute 인스턴스에 접속하여 다음 명령들을 순서대로 실행하여 Grafana를 설치합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">&gt; wget https://dl.grafana.com/oss/release/grafana-6.1.3-1.x86_64.rpm
-&gt; sudo yum localinstall grafana-6.1.3-1.x86_64.rpm
-&gt; sudo systemctl start grafana-server
-&gt; sudo grafana-cli plugins install oci-datasource
-&gt; sudo firewall-cmd --permanent --add-port<span class="o">=</span><span class="m">3000</span>/tcp
-&gt; sudo firewall-cmd --reload
-&gt; sudo systemctl restart grafana-server</code></pre></div>
+
 <ul>
-<li>실행예시</li>
+<li>참고: <a href="https://grafana.com/grafana/download?edition=oss">https://grafana.com/grafana/download?edition=oss</a></li>
+<li>2022년 1월 기준 8.3.3, 8.2.7이 설치후 접속 오류가 발생하여 8.1.8을 설치하여 진행하였습니다.</li>
+</ul></li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   wget https://dl.grafana.com/oss/release/grafana-8.1.8-1.x86_64.rpm
+   sudo yum install -y grafana-8.1.8-1.x86_64.rpm
+   sudo systemctl start grafana-server
+   sudo grafana-cli plugins install oci-metrics-datasource
+   sudo firewall-cmd --permanent --add-port<span class="o">=</span><span class="m">3000</span>/tcp
+   sudo firewall-cmd --reload
+   sudo systemctl restart grafana-server</code></pre></div>
+<ul>
+<li><p>실행예시</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ wget https://dl.grafana.com/oss/release/grafana-8.1.8-1.x86_64.rpm
+ --2022-01-17 <span class="m">04</span>:40:23--  https://dl.grafana.com/oss/release/grafana-8.1.8-1.x86_64.rpm
+ Resolving dl.grafana.com <span class="o">(</span>dl.grafana.com<span class="o">)</span>... <span class="m">151</span>.101.54.217, 2a04:4e42:d::729
+ Connecting to dl.grafana.com <span class="o">(</span>dl.grafana.com<span class="o">)</span><span class="p">|</span><span class="m">151</span>.101.54.217<span class="p">|</span>:443... connected.
+ HTTP request sent, awaiting response... <span class="m">200</span> OK
+ Length: <span class="m">56048174</span> <span class="o">(</span>53M<span class="o">)</span> <span class="o">[</span>application/x-redhat-package-manager<span class="o">]</span>
+ Saving to: ‘grafana-8.1.8-1.x86_64.rpm’
+     
+ grafana-8.1.8-1.x86_64.rpm             <span class="m">100</span>%<span class="o">[===========================================================================</span>&gt;<span class="o">]</span>  <span class="m">53</span>.45M  <span class="m">15</span>.9MB/s    in <span class="m">4</span>.2s
+     
+ <span class="m">2022</span>-01-17 <span class="m">04</span>:40:28 <span class="o">(</span><span class="m">12</span>.6 MB/s<span class="o">)</span> - ‘grafana-8.1.8-1.x86_64.rpm’ saved <span class="o">[</span><span class="m">56048174</span>/56048174<span class="o">]</span>
+     
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ sudo yum install grafana-8.1.8-1.x86_64.rpm
+ Last metadata expiration check: <span class="m">0</span>:02:06 ago on Mon Jan <span class="m">17</span> <span class="m">04</span>:38:24 <span class="m">2022</span>.
+ Dependencies resolved.
+ <span class="o">===========================================================================================================================================================</span>
+  Package                             Architecture                       Version                             Repository                                <span class="nv">Size</span>
+ <span class="o">===========================================================================================================================================================</span>
+ Installing:
+  grafana                             x86_64                             <span class="m">8</span>.1.8-1                             @commandline                              <span class="m">53</span> M
+     
+ Transaction <span class="nv">Summary</span>
+ <span class="o">===========================================================================================================================================================</span>
+ Install  <span class="m">1</span> Package
+     
+ Total size: <span class="m">53</span> M
+ Installed size: <span class="m">178</span> M
+ Downloading Packages:
+ Running transaction check
+ Transaction check succeeded.
+ Running transaction <span class="nb">test</span>
+ Transaction <span class="nb">test</span> succeeded.
+ Running transaction
+   Preparing        :                                                                                                                                   <span class="m">1</span>/1
+   Installing       : grafana-8.1.8-1.x86_64                                                                                                            <span class="m">1</span>/1
+   Running scriptlet: grafana-8.1.8-1.x86_64                                                                                                            <span class="m">1</span>/1
+ <span class="c1">### NOT starting on installation, please execute the following statements to configure grafana to start automatically using systemd</span>
+  sudo /bin/systemctl daemon-reload
+  sudo /bin/systemctl <span class="nb">enable</span> grafana-server.service
+ <span class="c1">### You can start grafana-server by executing</span>
+  sudo /bin/systemctl start grafana-server.service
+     
+ POSTTRANS: Running script
+     
+   Verifying        : grafana-8.1.8-1.x86_64                                                                                                            <span class="m">1</span>/1
+     
+ Installed:
+   grafana-8.1.8-1.x86_64
+     
+ Complete!
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ sudo systemctl start grafana-server
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ sudo grafana-cli plugins install oci-metrics-datasource
+ ✔ Downloaded oci-metrics-datasource v3.0.0 zip successfully
+     
+ Please restart Grafana after installing plugins. Refer to Grafana documentation <span class="k">for</span> instructions <span class="k">if</span> necessary.
+     
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ sudo firewall-cmd --permanent --add-port<span class="o">=</span><span class="m">3000</span>/tcp
+ success
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ sudo firewall-cmd --reload
+ success
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$ sudo systemctl restart grafana-server
+ <span class="o">[</span>opc@grafana ~<span class="o">]</span>$</code></pre></div></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell"><span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ wget https://dl.grafana.com/oss/release/grafana-6.1.3-1.x86_64.rpm
---2019-04-10 <span class="m">01</span>:34:18--  https://dl.grafana.com/oss/release/grafana-6.1.3-1.x86_64.rpm
-Resolving dl.grafana.com <span class="o">(</span>dl.grafana.com<span class="o">)</span>... <span class="m">151</span>.101.202.217, 2a04:4e42:2f::729
-Connecting to dl.grafana.com <span class="o">(</span>dl.grafana.com<span class="o">)</span><span class="p">|</span><span class="m">151</span>.101.202.217<span class="p">|</span>:443... connected.
-HTTP request sent, awaiting response... <span class="m">200</span> OK
-Length: <span class="m">56360446</span> <span class="o">(</span>54M<span class="o">)</span> <span class="o">[</span>application/x-redhat-package-manager<span class="o">]</span>
-Saving to: ‘grafana-6.1.3-1.x86_64.rpm’
 
-<span class="m">100</span>%<span class="o">[===========================================================</span>&gt;<span class="o">]</span> <span class="m">56</span>,360,446  <span class="m">87</span>.4MB/s   in <span class="m">0</span>.6s
+<ol>
+<li><p>Grafana가 설치된 VM의 Security List의 Ingress에 3000번 포트를 개방합니다.</p></li>
 
-<span class="m">2019</span>-04-10 <span class="m">01</span>:34:19 <span class="o">(</span><span class="m">87</span>.4 MB/s<span class="o">)</span> - ‘grafana-6.1.3-1.x86_64.rpm’ saved <span class="o">[</span><span class="m">56360446</span>/56360446<span class="o">]</span>
-
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ sudo yum localinstall grafana-6.1.3-1.x86_64.rpm
-Loaded plugins: langpacks, priorities, ulninfo, versionlock
-Examining grafana-6.1.3-1.x86_64.rpm: grafana-6.1.3-1.x86_64
-Marking grafana-6.1.3-1.x86_64.rpm to be installed
-Resolving Dependencies
---&gt; Running transaction check
----&gt; Package grafana.x86_64 <span class="m">0</span>:6.1.3-1 will be installed
---&gt; Finished Dependency Resolution
-
-Dependencies <span class="nv">Resolved</span>
-
-<span class="o">=====================================================================================================</span>
-Package            Arch              Version               Repository                          <span class="nv">Size</span>
-<span class="o">=====================================================================================================</span>
-Installing:
-grafana            x86_64            <span class="m">6</span>.1.3-1               /grafana-6.1.3-1.x86_64            <span class="m">155</span> M
-
-Transaction <span class="nv">Summary</span>
-<span class="o">=====================================================================================================</span>
-Install  <span class="m">1</span> Package
-
-Total size: <span class="m">155</span> M
-Installed size: <span class="m">155</span> M
-Is this ok <span class="o">[</span>y/d/N<span class="o">]</span>: y
-Downloading packages:
-Running transaction check
-Running transaction <span class="nb">test</span>
-Transaction <span class="nb">test</span> succeeded
-Running transaction
-  Installing : grafana-6.1.3-1.x86_64                                                            <span class="m">1</span>/1
-<span class="c1">### NOT starting on installation, please execute the following statements to configure grafana to start automatically using systemd</span>
-sudo /bin/systemctl daemon-reload
-sudo /bin/systemctl <span class="nb">enable</span> grafana-server.service
-<span class="c1">### You can start grafana-server by executing</span>
-sudo /bin/systemctl start grafana-server.service
-POSTTRANS: Running script
-  Verifying  : grafana-6.1.3-1.x86_64                                                            <span class="m">1</span>/1
-
-Installed:
-  grafana.x86_64 <span class="m">0</span>:6.1.3-1
-
-Complete!
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ sudo systemctl start grafana-server
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ sudo grafana-cli plugins install oci-datasource
-installing oci-datasource @ <span class="m">1</span>.0.0
-from url: https://grafana.com/api/plugins/oci-datasource/versions/1.0.0/download
-into: /var/lib/grafana/plugins
-
-✔ Installed oci-datasource successfully
-
-Restart grafana after installing plugins . &lt;service grafana-server restart&gt;
-
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ sudo firewall-cmd --permanent --add-port<span class="o">=</span><span class="m">3000</span>/tcp
-success
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ sudo firewall-cmd --reload
-success
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$ sudo systemctl restart grafana-server
-<span class="o">[</span>opc@mygrafana ~<span class="o">]</span>$</code></pre></div></li>
-
-<li><p>Grafana 로그인<br>
-Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기본 접속 계정은 admin/admin 입니다.
-<br><img src="../images/grafana_1.png" alt="그림" /><br></p></li>
+<li><p>Grafana 로그인</p></li>
 </ol>
 
-<h3 id="참고-사이트">참고 사이트</h3>
+<p>Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기본 접속 계정은 admin/admin 입니다.</p>
+
+<h4 id="참고-사이트">참고 사이트</h4>
 
 <ul>
 <li><a href="https://grafana.com/blog/2019/02/25/oracle-cloud-infrastructure-as-a-data-source-for-grafana/">https://grafana.com/blog/2019/02/25/oracle-cloud-infrastructure-as-a-data-source-for-grafana/</a></li>
 <li><a href="https://blogs.oracle.com/cloudnative/data-source-grafana">https://blogs.oracle.com/cloudnative/data-source-grafana</a></li>
+<li><a href="https://grafana.com/grafana/plugins/oci-metrics-datasource/">https://grafana.com/grafana/plugins/oci-metrics-datasource/</a></li>
+<li><a href="https://github.com/oracle/oci-grafana-metrics/blob/master/docs/linux.md">https://github.com/oracle/oci-grafana-metrics/blob/master/docs/linux.md</a></li>
 </ul>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
- <div class="edit-meta">Last updated on 8 Apr 2019<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter12/3/" title="12.3 OCI Grafana Plugin"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 12.3 OCI Grafana Plugin</a>
+ <div class="edit-meta">Last updated on 17 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter12/3/" title="12.3 OCI Grafana Plugin"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 12.3 OCI Grafana Plugin</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter12/3/2/" title="12.3.2 Grafana 구성">Next - 12.3.2 Grafana 구성 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
 <nav>
 <ul>
-<li class=""><a href="https://thekoguryo.github.io/">Home</a></li>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
 
 
 
@@ -242,7 +264,11 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -261,16 +287,20 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 IaaS 벤더간 서비스 매핑</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -289,14 +319,17 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 OCI Trial 계정 생성</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -315,8 +348,10 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 OCI Local 사용자 추가하기</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
@@ -338,7 +373,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
@@ -363,7 +400,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
@@ -392,7 +431,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
@@ -418,7 +459,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
@@ -446,7 +489,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
 </ul>
@@ -470,7 +515,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
@@ -496,7 +543,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
@@ -523,13 +572,15 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry를 통한 파일 업로드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
 </ul>
   
@@ -552,12 +603,13 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 위한 Subnet, Security List 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 File System 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/5/">8.5 백업을 위한 Snapshot</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
 </ul>
   
 </li>
@@ -579,34 +631,13 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/2/">
-    9.2 Oracle Cloud Marketplace
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
-</ul>
   
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 OCI Marketplace</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/4/">9.4 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/5/">9.5 Custom Image Export/Import</a></li>
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
   
 </li>
@@ -628,7 +659,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
@@ -660,7 +693,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
 </ul>
   
@@ -683,7 +718,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
 
@@ -704,7 +741,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class="active"><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
 </ul>
@@ -731,7 +770,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
@@ -743,7 +784,7 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. OCI API 사용하기
+    14. Developer Tools 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -756,7 +797,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -775,7 +818,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -794,7 +839,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
@@ -808,7 +855,7 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage
+    14.1.2 Object Storage를 CLI로 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -821,7 +868,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
 </ul>
@@ -848,7 +897,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
@@ -877,7 +928,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
@@ -906,57 +959,11 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter16/">
-    16. VCN과 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter-appendix/">
-    부록
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 </ul>
   
 </li>
@@ -967,8 +974,8 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
 
 
 <li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    OCP(Oracle Cloud Platform)
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -981,7 +988,347 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
-<ul class="">
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(OCI Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/ocp/">
+    Ocps
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
 
 
 
@@ -1000,7 +1347,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
@@ -1022,7 +1371,9 @@ Grafana가 설치된 Compute 인스턴스에 3000포트로 접속합니다. 기�
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>

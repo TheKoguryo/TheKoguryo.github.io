@@ -30,14 +30,13 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2019.06.03</span>
+ <span class="version">Version 2022.01.19</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/oci-cloudnative">Oracle Cloud Native</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://learn.oracle.com/ols/user-portal">Oracle Learning</a></li>
 <li ><a href="https://apexapps.oracle.com/pls/apex/dbpm/r/livelabs/livelabs-workshop-cards?session=117806365725385">Oracle LiveLabs</a></li>
@@ -45,150 +44,168 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h1>14.1.1.1 Windows에서 OCI CLI 설치하기</h1>
+<main>
 
-<h3 id="cli-설치">CLI 설치</h3>
+<h4 id="14-1-1-1-windows에서-oci-cli-설치하기">14.1.1.1 Windows에서 OCI CLI 설치하기</h4>
 
 <ol>
 <li><p>관리자 모드로 PowerShell 실행</p></li>
 
-<li><p>PowerShell의 remote execution policy 구성을 위해 다음 명령 실행</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">Set-ExecutionPolicy RemoteSigned</code></pre></div>
+<li><p>PowerShell의 remote execution policy 구성을 위해 다음 명령 실행</p></li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   Set-ExecutionPolicy RemoteSigned</code></pre></div>
 <ul>
 <li>정책 변경을 위해 <strong>Y</strong> 응답</li>
-</ul></li>
+</ul>
 
-<li><p>설치 스크립트 실행을 위해 다음 실행</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">&#34;iex ((New-Object System.Net.WebClient).DownloadString(&#39;https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1&#39;))&#34;</span></code></pre></div>
+<ol>
+<li>설치 스크립트 실행을 위해 다음 실행</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">&#34;iex ((New-Object System.Net.WebClient).DownloadString(&#39;https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1&#39;))&#34;</span></code></pre></div>
 <ul>
-<li>Python 설치여부: <strong>Y</strong> 응답</li>
+<li>Python 설치여부: <strong>Y</strong> 응답
+
+<ul>
 <li>설치 경로에 대한 확인 후 설정</li>
 <li>CLI의 새 버전 업데이트 확인시 <strong>Y</strong> 응답</li>
 <li>PATH에 CLI 추가 요청시 <strong>Y</strong> 응답</li>
 </ul></li>
+</ul>
 
+<ol>
 <li><p>설치 후 현재 창에는 신규 등록한 PATH가 적용되지 않을 수 있으므로, 새로운 PowerShell을 열어 OCI CLI를 실행합니다.</p></li>
+
+<li><p>설치 예시</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt; Set-ExecutionPolicy RemoteSigned
+     
+ 실행 규칙 변경                                                                                           
+ 실행 정책은 신뢰하지 않는 스크립트로부터 사용자를 보호합니다. 실행 정책을 변경하면 about_Execution_Policies 도움말
+ 항목<span class="o">(</span>https://go.microsoft.com/fwlink/?LinkID<span class="o">=</span><span class="m">135170</span><span class="o">)</span>에 설명된 보안 위험에 노출될 수 있습니다. 실행 정책을
+ 변경하시겠습니까?
+ <span class="o">[</span>Y<span class="o">]</span> 예<span class="o">(</span>Y<span class="o">)</span>  <span class="o">[</span>A<span class="o">]</span> 모두 예<span class="o">(</span>A<span class="o">)</span>  <span class="o">[</span>N<span class="o">]</span> 아니요<span class="o">(</span>N<span class="o">)</span>  <span class="o">[</span>L<span class="o">]</span> 모두 아니요<span class="o">(</span>L<span class="o">)</span>  <span class="o">[</span>S<span class="o">]</span> 일시 중단<span class="o">(</span>S<span class="o">)</span>  <span class="o">[</span>?<span class="o">]</span> 도움말 <span class="o">(</span>기본값은 <span class="s2">&#34;N&#34;</span><span class="o">)</span>: Y
+ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt; powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">&#34;iex ((New-Object System.Net.WebClient).DownloadString(&#39;https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1&#39;))&#34;</span>
+     
+         ******************************************************************************
+         You have started the OCI CLI Installer in interactive mode. If you <span class="k">do</span> not wish
+         to run this in interactive mode, please include the -AcceptAllDefaults option.
+         If you have the script locally and would like to know more about
+         input options <span class="k">for</span> this script, <span class="k">then</span> you can run:
+         <span class="nb">help</span> .<span class="se">\i</span>nstall.ps1
+         If you would like to know more about input options <span class="k">for</span> this script, refer to:
+         https://github.com/oracle/oci-cli/blob/master/scripts/install/README.rst
+         ******************************************************************************
+ 자세한 정보 표시: No valid Python installation found.
+     
+ Python is required to run the CLI.
+ Install Python now? <span class="o">(</span>Entering <span class="s2">&#34;n&#34;</span> will <span class="nb">exit</span> the installation script<span class="o">)</span>
+ <span class="o">[</span>Y<span class="o">]</span> Yes  <span class="o">[</span>N<span class="o">]</span> No  <span class="o">[</span>?<span class="o">]</span> 도움말 <span class="o">(</span>기본값은 <span class="s2">&#34;Y&#34;</span><span class="o">)</span>: Y
+ 자세한 정보 표시: Downloading Python...
+ 자세한 정보 표시: Download Complete! Installer executable written to: C:<span class="se">\U</span>sers<span class="se">\t</span>hekoguryo<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp18AF.tmp.exe
+ 자세한 정보 표시: Installing Python to C:<span class="se">\U</span>sers<span class="se">\t</span>hekoguryo<span class="se">\P</span>ython...
+ 자세한 정보 표시: Successfully installed Python!
+ 자세한 정보 표시: Downloading install script to C:<span class="se">\U</span>sers<span class="se">\t</span>hekoguryo<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mpC089.tmp
+ 자세한 정보 표시: C:<span class="se">\U</span>sers<span class="se">\t</span>hekoguryo<span class="se">\P</span>ython False    False
+ 자세한 정보 표시: Using Python executable: C:<span class="se">\U</span>sers<span class="se">\t</span>hekoguryo<span class="se">\P</span>ython<span class="se">\p</span>ython.exe to run install script...
+ 자세한 정보 표시: Arguments to python script: <span class="s2">&#34;C:\Users\thekoguryo\AppData\Local\Temp\tmpC089.tmp&#34;</span>
+ -- Verifying Python version.
+ -- Python version <span class="m">3</span>.8.5 okay.
+     
+ <span class="o">===</span>&gt; In what directory would you like to place the install? <span class="o">(</span>leave blank to use <span class="s1">&#39;C:\Users\thekoguryo\lib\oracle-cli&#39;</span><span class="o">)</span>:
+ -- Creating directory <span class="s1">&#39;C:\Users\thekoguryo\lib\oracle-cli&#39;</span>.
+ -- We will install at <span class="s1">&#39;C:\Users\thekoguryo\lib\oracle-cli&#39;</span>.
+     
+ <span class="o">===</span>&gt; In what directory would you like to place the <span class="s1">&#39;oci.exe&#39;</span> executable? <span class="o">(</span>leave blank to use <span class="s1">&#39;C:\Users\thekoguryo\bin&#39;</span><span class="o">)</span>:
+ -- Creating directory <span class="s1">&#39;C:\Users\thekoguryo\bin&#39;</span>.
+ -- The executable will be in <span class="s1">&#39;C:\Users\thekoguryo\bin&#39;</span>.
+     
+ <span class="o">===</span>&gt; In what directory would you like to place the OCI scripts? <span class="o">(</span>leave blank to use <span class="s1">&#39;C:\Users\thekoguryo\bin\oci-cli-scripts&#39;</span><span class="o">)</span>:
+ -- Creating directory <span class="s1">&#39;C:\Users\thekoguryo\bin\oci-cli-scripts&#39;</span>.
+ -- The scripts will be in <span class="s1">&#39;C:\Users\thekoguryo\bin\oci-cli-scripts&#39;</span>.
+     
+ <span class="o">===</span>&gt; Currently supported optional packages are: <span class="o">[</span><span class="s1">&#39;db (will install cx_Oracle)&#39;</span><span class="o">]</span>
+ What optional CLI packages would you like to be installed <span class="o">(</span>comma separated names<span class="p">;</span> press enter <span class="k">if</span> you don<span class="s1">&#39;t need any optional packages)?:
+</span><span class="s1"> -- The optional packages installed will be &#39;&#39;.
+</span><span class="s1"> -- Trying to use python3 venv.
+</span><span class="s1"> -- Executing: [&#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>Python<span class="se">\\</span>python.exe<span class="s1">&#39;, &#39;</span>-m<span class="s1">&#39;, &#39;</span>venv<span class="s1">&#39;, &#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>lib<span class="se">\\</span>oracle-cli<span class="s1">&#39;]
+</span><span class="s1"> -- Executing: [&#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>lib<span class="se">\\</span>oracle-cli<span class="se">\\</span>Scripts<span class="se">\\</span>python.exe<span class="s1">&#39;, &#39;</span>-m<span class="s1">&#39;, &#39;</span>pip<span class="s1">&#39;, &#39;</span>install<span class="s1">&#39;, &#39;</span>--upgrade<span class="s1">&#39;, &#39;</span>pip<span class="s1">&#39;]
+</span><span class="s1"> Collecting pip
+</span><span class="s1">   Downloading pip-21.3.1-py3-none-any.whl (1.7 MB)
+</span><span class="s1">      |████████████████████████████████| 1.7 MB 6.8 MB/s
+</span><span class="s1"> Installing collected packages: pip
+</span><span class="s1">   Attempting uninstall: pip
+</span><span class="s1">     Found existing installation: pip 20.1.1
+</span><span class="s1">     Uninstalling pip-20.1.1:
+</span><span class="s1">       Successfully uninstalled pip-20.1.1
+</span><span class="s1"> Successfully installed pip-21.3.1
+</span><span class="s1"> -- Executing: [&#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>lib<span class="se">\\</span>oracle-cli<span class="se">\\</span>Scripts<span class="se">\\</span>pip<span class="s1">&#39;, &#39;</span>install<span class="s1">&#39;, &#39;</span>--cache-dir<span class="s1">&#39;, &#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>AppData<span class="se">\\</span>Local<span class="se">\\</span>Temp<span class="se">\\</span>tmp7z8s7qbi<span class="s1">&#39;, &#39;</span>wheel<span class="s1">&#39;, &#39;</span>--upgrade<span class="s1">&#39;]
+</span><span class="s1"> Collecting wheel
+</span><span class="s1">   Downloading wheel-0.37.1-py2.py3-none-any.whl (35 kB)
+</span><span class="s1"> Installing collected packages: wheel
+</span><span class="s1"> Successfully installed wheel-0.37.1
+</span><span class="s1"> -- Executing: [&#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>lib<span class="se">\\</span>oracle-cli<span class="se">\\</span>Scripts<span class="se">\\</span>pip<span class="s1">&#39;, &#39;</span>install<span class="s1">&#39;, &#39;</span>--cache-dir<span class="s1">&#39;, &#39;</span>C:<span class="se">\\</span>Users<span class="se">\\</span>thekoguryo<span class="se">\\</span>AppData<span class="se">\\</span>Local<span class="se">\\</span>Temp<span class="se">\\</span>tmp7z8s7qbi<span class="s1">&#39;, &#39;</span>oci_cli<span class="s1">&#39;, &#39;</span>--upgrade<span class="err">&#39;</span><span class="o">]</span>
+ Collecting oci_cli
+   Downloading oci_cli-3.4.2-py3-none-any.whl <span class="o">(</span><span class="m">23</span>.8 MB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">23</span>.8 MB <span class="m">6</span>.8 MB/s
+ Collecting cryptography&lt;<span class="o">=</span><span class="m">3</span>.4.7,&gt;<span class="o">=</span><span class="m">3</span>.2.1
+   Downloading cryptography-3.4.7-cp36-abi3-win_amd64.whl <span class="o">(</span><span class="m">1</span>.6 MB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">1</span>.6 MB ...
+ Collecting <span class="nv">pyOpenSSL</span><span class="o">==</span><span class="m">19</span>.1.0
+   Downloading pyOpenSSL-19.1.0-py2.py3-none-any.whl <span class="o">(</span><span class="m">53</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">53</span> kB <span class="m">955</span> kB/s
+ Collecting <span class="nv">click</span><span class="o">==</span><span class="m">7</span>.1.2
+   Downloading click-7.1.2-py2.py3-none-any.whl <span class="o">(</span><span class="m">82</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">82</span> kB <span class="m">5</span>.8 MB/s
+ Collecting six&gt;<span class="o">=</span><span class="m">1</span>.15.0
+   Downloading six-1.16.0-py2.py3-none-any.whl <span class="o">(</span><span class="m">11</span> kB<span class="o">)</span>
+ Collecting <span class="nv">oci</span><span class="o">==</span><span class="m">2</span>.54.0
+   Downloading oci-2.54.0-py2.py3-none-any.whl <span class="o">(</span><span class="m">12</span>.2 MB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">12</span>.2 MB <span class="m">6</span>.4 MB/s
+ Collecting arrow&gt;<span class="o">=</span><span class="m">1</span>.0.0
+   Downloading arrow-1.2.1-py3-none-any.whl <span class="o">(</span><span class="m">63</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">63</span> kB ...
+ Collecting <span class="nv">jmespath</span><span class="o">==</span><span class="m">0</span>.10.0
+   Downloading jmespath-0.10.0-py2.py3-none-any.whl <span class="o">(</span><span class="m">24</span> kB<span class="o">)</span>
+ Collecting pytz&gt;<span class="o">=</span><span class="m">2016</span>.10
+   Downloading pytz-2021.3-py2.py3-none-any.whl <span class="o">(</span><span class="m">503</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">503</span> kB <span class="m">6</span>.8 MB/s
+ Collecting certifi                                                                                                        Downloading certifi-2021.10.8-py2.py3-none-any.whl <span class="o">(</span><span class="m">149</span> kB<span class="o">)</span>                                                                <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">149</span> kB ...                                                                      Collecting PyYAML&lt;<span class="m">6</span>,&gt;<span class="o">=</span><span class="m">5</span>.4                                                                                                 Downloading PyYAML-5.4.1-cp38-cp38-win_amd64.whl <span class="o">(</span><span class="m">213</span> kB<span class="o">)</span>                                                                  <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">213</span> kB ...
+ Collecting <span class="nv">terminaltables</span><span class="o">==</span><span class="m">3</span>.1.0
+   Downloading terminaltables-3.1.0.tar.gz <span class="o">(</span><span class="m">12</span> kB<span class="o">)</span>
+   Preparing metadata <span class="o">(</span>setup.py<span class="o">)</span> ... <span class="k">done</span>
+ Collecting python-dateutil&lt;<span class="m">3</span>.0.0,&gt;<span class="o">=</span><span class="m">2</span>.5.3
+   Downloading python_dateutil-2.8.2-py2.py3-none-any.whl <span class="o">(</span><span class="m">247</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">247</span> kB ...
+ Collecting circuitbreaker&lt;<span class="m">2</span>.0.0,&gt;<span class="o">=</span><span class="m">1</span>.3.1
+   Downloading circuitbreaker-1.3.2.tar.gz <span class="o">(</span><span class="m">7</span>.9 kB<span class="o">)</span>
+   Preparing metadata <span class="o">(</span>setup.py<span class="o">)</span> ... <span class="k">done</span>
+ Collecting cffi&gt;<span class="o">=</span><span class="m">1</span>.12
+   Downloading cffi-1.15.0-cp38-cp38-win_amd64.whl <span class="o">(</span><span class="m">179</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">179</span> kB <span class="m">6</span>.4 MB/s
+ Collecting pycparser
+   Downloading pycparser-2.21-py2.py3-none-any.whl <span class="o">(</span><span class="m">118</span> kB<span class="o">)</span>
+      <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">118</span> kB <span class="m">6</span>.8 MB/s
+ Building wheels <span class="k">for</span> collected packages: terminaltables, circuitbreaker
+   Building wheel <span class="k">for</span> terminaltables <span class="o">(</span>setup.py<span class="o">)</span> ... <span class="k">done</span>
+   Created wheel <span class="k">for</span> terminaltables: <span class="nv">filename</span><span class="o">=</span>terminaltables-3.1.0-py3-none-any.whl <span class="nv">size</span><span class="o">=</span><span class="m">15355</span> <span class="nv">sha256</span><span class="o">=</span>a28562e8abfb78420764123ed4224e44167c5bc969996d1745bc5c1116b2d8b2
+   Stored in directory: c:<span class="se">\u</span>sers<span class="se">\t</span>hekoguryo<span class="se">\a</span>ppdata<span class="se">\l</span>ocal<span class="se">\t</span>emp<span class="se">\t</span>mp7z8s7qbi<span class="se">\w</span>heels<span class="se">\0</span><span class="m">8</span><span class="se">\8</span>f<span class="se">\5</span>f<span class="se">\2</span>53d0105a55bd84ee61ef0d37dbf70421e61e0cd70cef7c5e1
+   Building wheel <span class="k">for</span> circuitbreaker <span class="o">(</span>setup.py<span class="o">)</span> ... <span class="k">done</span>
+   Created wheel <span class="k">for</span> circuitbreaker: <span class="nv">filename</span><span class="o">=</span>circuitbreaker-1.3.2-py3-none-any.whl <span class="nv">size</span><span class="o">=</span><span class="m">6017</span> <span class="nv">sha256</span><span class="o">=</span>ac910cffc04f0ed6e90f2b65da6241bdaf9848fcf160dc03b1ec821db75600b8
+   Stored in directory: c:<span class="se">\u</span>sers<span class="se">\t</span>hekoguryo<span class="se">\a</span>ppdata<span class="se">\l</span>ocal<span class="se">\t</span>emp<span class="se">\t</span>mp7z8s7qbi<span class="se">\w</span>heels<span class="se">\9</span><span class="m">7</span><span class="se">\d</span><span class="m">2</span><span class="se">\3</span>d<span class="se">\8</span>ad7bff00d846a770cdc0ed208f0fae657c983e675d658c1d5
+ Successfully built terminaltables circuitbreaker
+ Installing collected packages: pycparser, cffi, six, cryptography, pytz, python-dateutil, pyOpenSSL, circuitbreaker, certifi, terminaltables, PyYAML, oci, jmespath, click, arrow, oci-cli
+ Successfully installed PyYAML-5.4.1 arrow-1.2.1 certifi-2021.10.8 cffi-1.15.0 circuitbreaker-1.3.2 click-7.1.2 cryptography-3.4.7 jmespath-0.10.0 oci-2.54.0 oci-cli-3.4.2 pyOpenSSL-19.1.0 pycparser-2.21 python-dateutil-2.8.2 pytz-2021.3 six-1.16.0 terminaltables-3.1.0
+     
+ <span class="o">===</span>&gt; Modify PATH to include the CLI and <span class="nb">enable</span> tab completion in PowerShell now? <span class="o">(</span>Y/n<span class="o">)</span>: Y
+ --
+ -- ** Close and re-open PowerShell to reload changes to your PATH **
+ -- In order to run the autocomplete script, you may also need to <span class="nb">set</span> your PowerShell execution policy to allow <span class="k">for</span> running <span class="nb">local</span> scripts <span class="o">(</span>as an Administrator run Set-ExecutionPolicy RemoteSigned in a PowerShell prompt<span class="o">)</span>
+ --
+ -- Installation successful.
+ -- Run the CLI with C:<span class="se">\U</span>sers<span class="se">\t</span>hekoguryo<span class="se">\b</span>in<span class="se">\o</span>ci.exe --help
+ 자세한 정보 표시: Successfully installed OCI CLI!
+ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code></pre></div></li>
 </ol>
-
-<h4 id="예시">예시</h4>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt; Set-ExecutionPolicy RemoteSigned
-
-실행 규칙 변경
-실행 정책은 신뢰하지 않는 스크립트로부터 사용자를 보호합니다. 실행 정책을 변경하면 about_Execution_Policies 도움말
-항목<span class="o">(</span>https://go.microsoft.com/fwlink/?LinkID<span class="o">=</span><span class="m">135170</span><span class="o">)</span>에 설명된 보안 위험에 노출될 수 있습니다. 실행 정책을
-변경하시겠습니까?
-<span class="o">[</span>Y<span class="o">]</span> 예<span class="o">(</span>Y<span class="o">)</span>  <span class="o">[</span>A<span class="o">]</span> 모두 예<span class="o">(</span>A<span class="o">)</span>  <span class="o">[</span>N<span class="o">]</span> 아니요<span class="o">(</span>N<span class="o">)</span>  <span class="o">[</span>L<span class="o">]</span> 모두 아니요<span class="o">(</span>L<span class="o">)</span>  <span class="o">[</span>S<span class="o">]</span> 일시 중단<span class="o">(</span>S<span class="o">)</span>  <span class="o">[</span>?<span class="o">]</span> 도움말 <span class="o">(</span>기본값은 <span class="s2">&#34;N&#34;</span><span class="o">)</span>: Y
-PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt; powershell -NoProfile -ExecutionPolicy Bypass -Command <span class="s2">&#34;iex ((New-Object System.Net.WebClient).D
-</span><span class="s2">ownloadString(&#39;https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1&#39;))&#34;</span>
-
-Python is required to run the CLI.
-Install Python now? <span class="o">(</span>Entering <span class="s2">&#34;n&#34;</span> will <span class="nb">exit</span> the installation script<span class="o">)</span>
-<span class="o">[</span>Y<span class="o">]</span> Yes  <span class="o">[</span>N<span class="o">]</span> No  <span class="o">[</span>?<span class="o">]</span> 도움말 <span class="o">(</span>기본값은 <span class="s2">&#34;Y&#34;</span><span class="o">)</span>: Y
--- Verifying Python version.
--- Python version <span class="m">3</span>.6.2 okay.
-
-<span class="o">===</span>&gt; In what directory would you like to place the install? <span class="o">(</span>leave blank to use <span class="s1">&#39;C:\Users\oracle\lib\oracle-cli&#39;</span><span class="o">)</span>:
--- Creating directory <span class="s1">&#39;C:\Users\oracle\lib\oracle-cli&#39;</span>.
--- We will install at <span class="s1">&#39;C:\Users\oracle\lib\oracle-cli&#39;</span>.
-
-<span class="o">===</span>&gt; In what directory would you like to place the <span class="s1">&#39;oci.exe&#39;</span> executable? <span class="o">(</span>leave blank to use <span class="s1">&#39;C:\Users\oracle\bin&#39;</span><span class="o">)</span>:
--- Creating directory <span class="s1">&#39;C:\Users\oracle\bin&#39;</span>.
--- The executable will be in <span class="s1">&#39;C:\Users\oracle\bin&#39;</span>.
-
-<span class="o">===</span>&gt; In what directory would you like to place the OCI scripts? <span class="o">(</span>leave blank to use <span class="s1">&#39;C:\Users\oracle\bin\oci-cli-scripts&#39;</span><span class="o">)</span>:
--- Creating directory <span class="s1">&#39;C:\Users\oracle\bin\oci-cli-scripts&#39;</span>.
--- The scripts will be in <span class="s1">&#39;C:\Users\oracle\bin\oci-cli-scripts&#39;</span>.
--- Downloading virtualenv package from https://github.com/pypa/virtualenv/archive/15.0.0.tar.gz.
--- Downloaded virtualenv package to C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\1</span><span class="m">5</span>.0.0.tar.gz.
--- Checksum of C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\1</span><span class="m">5</span>.0.0.tar.gz OK.
--- Extracting <span class="s1">&#39;C:\Users\oracle\AppData\Local\Temp\tmp7ufxqzj3\15.0.0.tar.gz&#39;</span> to <span class="s1">&#39;C:\Users\oracle\AppData\Local\Temp\tmp7ufxqzj3&#39;</span>.
--- Copying DLLs into virtualenv.
--- Copying C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\P</span>ython<span class="se">\p</span>ython3.dll to C:<span class="se">\O</span>racle<span class="se">\o</span>racle-cli<span class="se">\S</span>cripts
--- Copying C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\P</span>ython<span class="se">\p</span>ython36.dll to C:<span class="se">\O</span>racle<span class="se">\o</span>racle-cli<span class="se">\S</span>cripts
--- Copying C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\P</span>ython<span class="se">\v</span>cruntime140.dll to C:<span class="se">\O</span>racle<span class="se">\o</span>racle-cli<span class="se">\S</span>cripts
--- Executing: <span class="o">[</span><span class="s1">&#39;C:\\Users\\oracle\\Python\\python.exe&#39;</span>, <span class="s1">&#39;virtualenv.py&#39;</span>, <span class="s1">&#39;--python&#39;</span>, <span class="s1">&#39;C:\\Users\\oracle\\Python\\python.exe&#39;</span>, <span class="s1">&#39;C:\\Oracle\\oracle-cli&#39;</span><span class="o">]</span>
-Already using interpreter C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\P</span>ython<span class="se">\p</span>ython.exe
-Using base prefix <span class="s1">&#39;C:\\Users\\oracle\\Python&#39;</span>
-New python executable in C:<span class="se">\O</span>racle<span class="se">\o</span>racle-cli<span class="se">\S</span>cripts<span class="se">\p</span>ython.exe
-Installing setuptools, pip, wheel...done.
--- Executing: <span class="o">[</span><span class="s1">&#39;C:\\Oracle\\oracle-cli\\Scripts\\pip&#39;</span>, <span class="s1">&#39;install&#39;</span>, <span class="s1">&#39;--cache-dir&#39;</span>, <span class="s1">&#39;C:\\Users\\oracle\\AppData\\Local\\Temp\\tmp7ufxqzj3&#39;</span>, <span class="s1">&#39;oci_cli&#39;</span>, <span class="s1">&#39;--upgrade&#39;</span><span class="o">]</span>
-Collecting oci_cli
-  Downloading https://files.pythonhosted.org/packages/b0/05/edb582a14ad96757601e98f27ebf1a825c918bf745f197d177af2d6423a7/oci_cli-2.4.40-py2.py3-none-any.whl <span class="o">(</span><span class="m">2</span>.3MB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">2</span>.3MB <span class="m">5</span>.4MB/s
-Collecting <span class="nv">six</span><span class="o">==</span><span class="m">1</span>.11.0 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/67/4b/141a581104b1f6397bfa78ac9d43d8ad29a7ca43ea90a2d863fe3056e86a/six-1.11.0-py2.py3-none-any.whl
-Collecting <span class="nv">retrying</span><span class="o">==</span><span class="m">1</span>.3.3 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/44/ef/beae4b4ef80902f22e3af073397f079c96969c69b2c7d52a57ea9ae61c9d/retrying-1.3.3.tar.gz
-Collecting python-dateutil<span class="o">==</span><span class="m">2</span>.7.3 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/cf/f5/af2b09c957ace60dcfac112b669c45c8c97e32f94aa8b56da4c6d1682825/python_dateutil-2.7.3-py2.py3-none-any.whl <span class="o">(</span>211kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 215kB <span class="m">11</span>.7MB/s
-Collecting certifi <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/9f/e0/accfc1b56b57e9750eba272e24c4dddeac86852c2bebd1236674d7887e8a/certifi-2018.11.29-py2.py3-none-any.whl <span class="o">(</span>154kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 163kB <span class="m">10</span>.6MB/s
-Collecting <span class="nv">pytz</span><span class="o">==</span><span class="m">2016</span>.10 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/f5/fa/4a9aefc206aa49a4b5e0a72f013df1f471b4714cdbe6d78f0134feeeecdb/pytz-2016.10-py2.py3-none-any.whl <span class="o">(</span>483kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 491kB <span class="m">18</span>.8MB/s
-Collecting cx-Oracle<span class="o">==</span><span class="m">6</span>.2.1 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/0a/1f/f741fa005aec72b8278975a7d47c2ba9f305b5202fec5d15406da82f5d65/cx_Oracle-6.2.1-cp36-cp36m-win_amd64.whl <span class="o">(</span>159kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 163kB <span class="m">4</span>.8MB/s
-Collecting <span class="nv">jmespath</span><span class="o">==</span><span class="m">0</span>.9.3 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/b7/31/05c8d001f7f87f0f07289a5fc0fc3832e9a57f2dbd4d3b0fee70e0d51365/jmespath-0.9.3-py2.py3-none-any.whl
-Collecting <span class="nv">oci</span><span class="o">==</span><span class="m">2</span>.1.3 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/1d/35/61606bc5c885c13bd1d742d76cf6e8eac6a2733b33d65bc41fd3b6c9ff1b/oci-2.1.3-py2.py3-none-any.whl <span class="o">(</span><span class="m">1</span>.5MB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">1</span>.5MB 981kB/s
-Collecting <span class="nv">pyOpenSSL</span><span class="o">==</span><span class="m">17</span>.5.0 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/79/db/7c0cfe4aa8341a5fab4638952520d8db6ab85ff84505e12c00ea311c3516/pyOpenSSL-17.5.0-py2.py3-none-any.whl <span class="o">(</span>53kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 61kB <span class="m">1</span>.8MB/s
-Collecting <span class="nv">cryptography</span><span class="o">==</span><span class="m">2</span>.1.4 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/83/5d/87826c818f2a00e1c36e2bb4680bac68198501ba88d6fe56650aac4b314c/cryptography-2.1.4-cp36-cp36m-win_amd64.whl <span class="o">(</span><span class="m">1</span>.3MB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> <span class="m">1</span>.3MB <span class="m">2</span>.9MB/s
-Collecting <span class="nv">terminaltables</span><span class="o">==</span><span class="m">3</span>.1.0 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/9b/c4/4a21174f32f8a7e1104798c445dacdc1d4df86f2f26722767034e4de4bff/terminaltables-3.1.0.tar.gz
-Collecting httpsig-cffi<span class="o">==</span><span class="m">15</span>.0.0 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/93/f5/c9a213c0f906654c933f1192148d8aded2022678ad6bce8803d3300501c6/httpsig_cffi-15.0.0-py2.py3-none-any.whl
-Collecting <span class="nv">arrow</span><span class="o">==</span><span class="m">0</span>.10.0 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/54/db/76459c4dd3561bbe682619a5c576ff30c42e37c2e01900ed30a501957150/arrow-0.10.0.tar.gz <span class="o">(</span>86kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 92kB <span class="m">10</span>.2MB/s
-Collecting idna&lt;<span class="m">2</span>.7,&gt;<span class="o">=</span><span class="m">2</span>.5 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/27/cc/6dd9a3869f15c2edfab863b992838277279ce92663d334df9ecf5106f5c6/idna-2.6-py2.py3-none-any.whl <span class="o">(</span>56kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 61kB <span class="m">1</span>.9MB/s
-Collecting <span class="nv">click</span><span class="o">==</span><span class="m">6</span>.7 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/34/c1/8806f99713ddb993c5366c362b2f908f18269f8d792aff1abfd700775a77/click-6.7-py2.py3-none-any.whl <span class="o">(</span>71kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 71kB <span class="m">3</span>.9MB/s
-Collecting <span class="nv">configparser</span><span class="o">==</span><span class="m">3</span>.5.0 <span class="o">(</span>from oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/7c/69/c2ce7e91c89dc073eb1aa74c0621c3eefbffe8216b3f9af9d3885265c01c/configparser-3.5.0.tar.gz
-Collecting cffi&gt;<span class="o">=</span><span class="m">1</span>.7<span class="p">;</span> platform_python_implementation !<span class="o">=</span> <span class="s2">&#34;PyPy&#34;</span> <span class="o">(</span>from <span class="nv">cryptography</span><span class="o">==</span><span class="m">2</span>.1.4-&gt;oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/2f/85/a9184548ad4261916d08a50d9e272bf6f93c54f3735878fbfc9335efd94b/cffi-1.11.5-cp36-cp36m-win_amd64.whl <span class="o">(</span>166kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 174kB <span class="m">7</span>.1MB/s
-Collecting asn1crypto&gt;<span class="o">=</span><span class="m">0</span>.21.0 <span class="o">(</span>from <span class="nv">cryptography</span><span class="o">==</span><span class="m">2</span>.1.4-&gt;oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/ea/cd/35485615f45f30a510576f1a56d1e0a7ad7bd8ab5ed7cdc600ef7cd06222/asn1crypto-0.24.0-py2.py3-none-any.whl <span class="o">(</span>101kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 102kB <span class="m">9</span>.0MB/s
-Collecting pycparser <span class="o">(</span>from cffi&gt;<span class="o">=</span><span class="m">1</span>.7<span class="p">;</span> platform_python_implementation !<span class="o">=</span> <span class="s2">&#34;PyPy&#34;</span>-&gt;cryptography<span class="o">==</span><span class="m">2</span>.1.4-&gt;oci_cli<span class="o">)</span>
-  Downloading https://files.pythonhosted.org/packages/68/9e/49196946aee219aead1290e00d1e7fdeab8567783e83e1b9ab5585e6206a/pycparser-2.19.tar.gz <span class="o">(</span>158kB<span class="o">)</span>
-    <span class="m">100</span>% <span class="p">|</span>████████████████████████████████<span class="p">|</span> 163kB <span class="m">11</span>.6MB/s
-Building wheels <span class="k">for</span> collected packages: retrying, terminaltables, arrow, configparser, pycparser
-  Running setup.py bdist_wheel <span class="k">for</span> retrying ... <span class="k">done</span>
-  Stored in directory: C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\w</span>heels<span class="se">\d</span><span class="m">7</span><span class="se">\a</span><span class="m">9</span><span class="se">\3</span><span class="m">3</span><span class="se">\a</span>cc7b709e2a35caa7d4cae442f6fe6fbf2c43f80823d46460c
-  Running setup.py bdist_wheel <span class="k">for</span> terminaltables ... <span class="k">done</span>
-  Stored in directory: C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\w</span>heels<span class="se">\3</span><span class="m">0</span><span class="se">\6</span>b<span class="se">\5</span><span class="m">0</span><span class="se">\6</span>c75775b681fb36cdfac7f19799888ef9d8813aff9e379663e
-  Running setup.py bdist_wheel <span class="k">for</span> arrow ... <span class="k">done</span>
-  Stored in directory: C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\w</span>heels<span class="se">\c</span>e<span class="se">\4</span>f<span class="se">\9</span><span class="m">5</span><span class="se">\6</span>4541c7466fd88ffe72fda5164f8323c91d695c9a77072c574
-  Running setup.py bdist_wheel <span class="k">for</span> configparser ... <span class="k">done</span>
-  Stored in directory: C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\w</span>heels<span class="se">\a</span><span class="m">3</span><span class="se">\6</span><span class="m">1</span><span class="se">\7</span><span class="m">9</span><span class="se">\4</span>24ef897a2f3b14684a7de5d89e8600b460b89663e6ce9d17c
-  Running setup.py bdist_wheel <span class="k">for</span> pycparser ... <span class="k">done</span>
-  Stored in directory: C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\A</span>ppData<span class="se">\L</span>ocal<span class="se">\T</span>emp<span class="se">\t</span>mp7ufxqzj3<span class="se">\w</span>heels<span class="se">\f</span><span class="m">2</span><span class="se">\9</span>a<span class="se">\9</span><span class="m">0</span><span class="se">\d</span>e94f8556265ddc9d9c8b271b0f63e57b26fb1d67a45564511
-Successfully built retrying terminaltables arrow configparser pycparser
-Installing collected packages: six, retrying, python-dateutil, certifi, pytz, cx-Oracle, jmespath, idna, pycparser, cffi, asn1crypto, cryptography, pyOpenSSL, configparser, oci, terminaltables, httpsig-cffi, arrow, click, oci-cli
-Successfully installed arrow-0.10.0 asn1crypto-0.24.0 certifi-2018.11.29 cffi-1.11.5 click-6.7 configparser-3.5.0 cryptography-2.1.4 cx-Oracle-6.2.1 httpsig-cffi-15.0.0 idna-2.6 jmespath-0.9.3 oci-2.1.3 oci-cli-2.4.40 pyOpenSSL-17.5.0 pycparser-2.19 python-dateutil-2.7.3 pytz-2016.10 retrying-1.3.3 six-1.11.0 terminaltables-3.1.0
-
-<span class="o">===</span>&gt; Modify PATH to include the CLI and <span class="nb">enable</span> tab completion in PowerShell now? <span class="o">(</span>Y/n<span class="o">)</span>: Y
---
--- ** Close and re-open PowerShell to reload changes to your PATH **
--- In order to run the autocomplete script, you may also need to <span class="nb">set</span> your PowerShell execution policy to allow <span class="k">for</span> running <span class="nb">local</span> scripts <span class="o">(</span>as an Administrator run Set-ExecutionPolicy RemoteSigned in a PowerShell prompt<span class="o">)</span>
---
--- Installation successful.
--- Run the CLI with C:<span class="se">\U</span>sers<span class="se">\o</span>racle<span class="se">\b</span>in<span class="se">\o</span>ci.exe --help
-PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code></pre></div><br>
+<br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
@@ -199,7 +216,20 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
 </main><div class="sidebar">
 <nav>
 <ul>
-<li class=""><a href="https://thekoguryo.github.io/">Home</a></li>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
 
 
 
@@ -218,7 +248,11 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -237,16 +271,20 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 IaaS 벤더간 서비스 매핑</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -265,14 +303,17 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 OCI Trial 계정 생성</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -291,8 +332,10 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 OCI Local 사용자 추가하기</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
@@ -314,7 +357,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
@@ -339,7 +384,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
@@ -368,7 +415,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
@@ -394,7 +443,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
@@ -422,7 +473,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
 </ul>
@@ -446,7 +499,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
@@ -472,7 +527,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
@@ -499,13 +556,15 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry를 통한 파일 업로드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
 </ul>
   
@@ -528,12 +587,13 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 위한 Subnet, Security List 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 File System 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/5/">8.5 백업을 위한 Snapshot</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
 </ul>
   
 </li>
@@ -555,34 +615,13 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/2/">
-    9.2 Oracle Cloud Marketplace
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
-</ul>
   
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 OCI Marketplace</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/4/">9.4 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/5/">9.5 Custom Image Export/Import</a></li>
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
   
 </li>
@@ -604,7 +643,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
@@ -636,7 +677,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
 </ul>
   
@@ -659,7 +702,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
 
@@ -680,7 +725,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
 </ul>
@@ -707,7 +754,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
@@ -719,7 +768,7 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
 
 <li class="parent has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. OCI API 사용하기
+    14. Developer Tools 사용하기
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -732,7 +781,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 
 
 
@@ -751,7 +802,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 
 
 
@@ -770,7 +823,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
@@ -784,7 +839,7 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage
+    14.1.2 Object Storage를 CLI로 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -797,7 +852,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
 </ul>
@@ -824,7 +881,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
@@ -853,7 +912,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
@@ -882,57 +943,11 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter16/">
-    16. VCN과 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter-appendix/">
-    부록
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 </ul>
   
 </li>
@@ -943,8 +958,8 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
 
 
 <li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    OCP(Oracle Cloud Platform)
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -957,7 +972,347 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
-<ul class="">
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(OCI Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/ocp/">
+    Ocps
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
 
 
 
@@ -976,7 +1331,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
@@ -998,7 +1355,9 @@ PS C:<span class="se">\W</span>INDOWS<span class="se">\s</span>ystem32&gt;</code
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>

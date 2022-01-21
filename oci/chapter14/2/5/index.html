@@ -30,14 +30,13 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2019.06.03</span>
+ <span class="version">Version 2022.01.19</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/oci-cloudnative">Oracle Cloud Native</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://learn.oracle.com/ols/user-portal">Oracle Learning</a></li>
 <li ><a href="https://apexapps.oracle.com/pls/apex/dbpm/r/livelabs/livelabs-workshop-cards?session=117806365725385">Oracle LiveLabs</a></li>
@@ -45,220 +44,234 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h1>14.2.5 다중 환경을 위한 workspace 사용하기</h1>
+<main>
+
+<h3 id="14-2-5-다중-환경을-위한-workspace-사용하기">14.2.5 다중 환경을 위한 workspace 사용하기</h3>
 
 <p>OCI는 여러 Region을 제공하고 있습니다. 필요에 따라 동일 자원을 여러 Region에 한꺼번에 만들어야 하는 경우가 있습니다. 하지만 앞서 실습에서 잠깐 보았겠지만, terraform 설정이 실행되면 기본으로 해당 폴더에 terraform.tfstate로 상태를 관리하게되어 동일 Terraform 설정을 그대로 사용할 경우 상태파일이 충돌나서 원하는 데로 동작하지 않게 됩니다. Terraform 설정 폴더 자체를 통채로 복사해서 대상 Region 별로 사용해도 되지만, 관리가 번거롭게 됩니다. 그래서 Terraform에서는 workspace만 개념을 제공하고, 기본적으로 default workspace를 사용하게 됩니다.</p>
 
-<h3 id="terraform-configuration-파일">Terraform Configuration 파일</h3>
+<h4 id="terraform-configuration-파일">Terraform Configuration 파일</h4>
 
 <p>이전 실습에서 사용한 vcn 만들기 설정을 그대로 사용합니다.</p>
 
-<h3 id="workspace-만들기">Workspace 만들기</h3>
+<h4 id="workspace-만들기">Workspace 만들기</h4>
 
 <ul>
-<li>terraform workspace 구문
-
-<ul>
-<li>terraform workspace list : workspace 조회하기</li>
-<li>terraform workspace new {이름} : 새로운 workspace 만들기</li>
-<li>terraform workspace delete {이름} : 해당 worksapce 삭제하기</li>
-<li>terraform workspace select {이름} : 현재 workspace를 전환하기</li>
-</ul></li>
-<li>새로운 workspace를 만듭니다.</li>
+<li><p>terraform workspace 구문</p>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># workspace 조회하기</span>
+terraform workspace list
+    
+<span class="c1"># 새로운 workspace 만들기</span>
+terraform workspace new <span class="o">{</span>이름<span class="o">}</span>
+    
+<span class="c1"># 해당 worksapce 삭제하기</span>
+terraform workspace delete <span class="o">{</span>이름<span class="o">}</span>
+    
+<span class="c1"># 현재 workspace를 전환하기</span>
+terraform workspace <span class="k">select</span> <span class="o">{</span>이름<span class="o">}</span></code></pre></div></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform workspace list
-* default
 
+<ol>
+<li>새로운 workspace를 만듭니다.</li>
+</ol>
+<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   terraform workspace new ap-seoul-1
+   terraform workspace new ap-chuncheon-1</code></pre></div>
+<ul>
+<li><p>예시</p>
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform workspace new thekoguryo_us-phoenix-1
-Created and switched to workspace <span class="s2">&#34;thekoguryo_us-phoenix-1&#34;</span>!
+<p>```plain
+ [opc@bastion-host example_vcn]$ terraform workspace list</p>
 
-You<span class="s1">&#39;re now on a new, empty workspace. Workspaces isolate their state,
-</span><span class="s1">so if you run &#34;terraform plan&#34; Terraform will not see any existing state
-</span><span class="s1">for this configuration.
-</span><span class="s1">
-</span><span class="s1">D:\example_vcn_workspace&gt;terraform workspace new thekoguryo_eu-frankfurt-1
-</span><span class="s1">Created and switched to workspace &#34;thekoguryo_eu-frankfurt-1&#34;!
-</span><span class="s1">
-</span><span class="s1">You&#39;</span>re now on a new, empty workspace. Workspaces isolate their state,
-so <span class="k">if</span> you run <span class="s2">&#34;terraform plan&#34;</span> Terraform will not see any existing state
-<span class="k">for</span> this configuration.
+<ul>
+<li>default
+<br /></li>
+</ul>
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform workspace list
-default
-* thekoguryo_eu-frankfurt-1
-thekoguryo_us-phoenix-1
+<p>[opc@bastion-host example_vcn]$ terraform workspace new ap-seoul-1
+ Created and switched to workspace &ldquo;ap-seoul-1&rdquo;!</p>
 
+<p>You&rsquo;re now on a new, empty workspace. Workspaces isolate their state,
+ so if you run &ldquo;terraform plan&rdquo; Terraform will not see any existing state
+ for this configuration.
+ [opc@bastion-host example_vcn]$ terraform workspace new ap-chuncheon-1
+ Created and switched to workspace &ldquo;ap-chuncheon-1&rdquo;!</p>
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform workspace <span class="k">select</span> thekoguryo_us-phoenix-1
-Switched to workspace <span class="s2">&#34;thekoguryo_us-phoenix-1&#34;</span>.
+<p>You&rsquo;re now on a new, empty workspace. Workspaces isolate their state,
+ so if you run &ldquo;terraform plan&rdquo; Terraform will not see any existing state
+ for this configuration.
+ [opc@bastion-host example_vcn]$ terraform workspace list
+   default
+ * ap-chuncheon-1
+   ap-seoul-1</p>
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div>
-<h3 id="1번째-workspace-thekoguryo-us-phoenix-1에서-terraform-실행하기">1번째 workspace: thekoguryo_us-phoenix-1에서 terraform 실행하기</h3>
+<p>[opc@bastion-host example_vcn]$
+ ```</p></li>
+</ul>
+
+<h4 id="1번째-workspace-ap-seoul-1에서-terraform-실행하기">1번째 workspace: ap-seoul-1에서 terraform 실행하기</h4>
 
 <ol>
 <li><p>workspace를 먼저 전환하고 vcn을 만드는 terraform을 실행합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform workspace <span class="k">select</span> thekoguryo_us-phoenix-1
-Switched to workspace <span class="s2">&#34;thekoguryo_us-phoenix-1&#34;</span>.
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform apply -var<span class="o">=</span><span class="s2">&#34;region=us-phoenix-1&#34;</span>
+<p>```Shell
+[opc@bastion-host example_vcn]$ terraform workspace select ap-seoul-1
+Switched to workspace &ldquo;ap-seoul-1&rdquo;.
+[opc@bastion-host example_vcn]$ terraform apply -var=&ldquo;region=ap-seoul-1&rdquo;</p>
 
-An execution plan has been generated and is shown below.
-Resource actions are indicated with the following symbols:
-+create
+<p>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:</p>
 
-Terraform will perform the following actions:
+<ul>
+<li>create
+<br /></li>
+</ul>
 
-+oci_core_virtual_network.vcn1
-    id:                       &lt;computed&gt;
-    cidr_block:               <span class="s2">&#34;10.0.0.0/16&#34;</span>
-    compartment_id:           <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaatz24wcxhliq6egof4odfayzysfbj3yksdmhcava7ambc2w2dcshq&#34;</span>
-    default_dhcp_options_id:  &lt;computed&gt;
-    default_route_table_id:   &lt;computed&gt;
-    default_security_list_id: &lt;computed&gt;
-    display_name:             <span class="s2">&#34;vcn1&#34;</span>
-    dns_label:                <span class="s2">&#34;vcn1&#34;</span>
-    freeform_tags.%:          &lt;computed&gt;
-    state:                    &lt;computed&gt;
-    time_created:             &lt;computed&gt;
-    vcn_domain_name:          &lt;computed&gt;
+<p>Terraform will perform the following actions:</p>
 
+<p># oci_core_virtual_network.vcn1 will be created
+  + resource &ldquo;oci_core_virtual_network&rdquo; &ldquo;vcn1&rdquo; {
+      + cidr_block               = &ldquo;10.0.0.0/16&rdquo;
+      + cidr_blocks              = (known after apply)
+      + compartment_id           = &ldquo;ocid1.compartment.oc1..aaaaaaaa54ryitndueosfezrxvxvcuosutofi2d6f53rbgwz2dpqrgeci7lq&rdquo;
+      + default_dhcp_options_id  = (known after apply)
+      + default_route_table_id   = (known after apply)
+      + default_security_list_id = (known after apply)
+      + defined_tags             = (known after apply)
+      + display_name             = &ldquo;vcn1&rdquo;
+      + dns_label                = &ldquo;vcn1&rdquo;
+      + freeform_tags            = (known after apply)
+      + id                       = (known after apply)
+      + ipv6cidr_blocks          = (known after apply)
+      + is_ipv6enabled           = (known after apply)
+      + state                    = (known after apply)
+      + time_created             = (known after apply)
+      + vcn_domain_name          = (known after apply)
+    }</p>
 
-Plan: <span class="m">1</span> to add, <span class="m">0</span> to change, <span class="m">0</span> to destroy.
+<p>Plan: 1 to add, 0 to change, 0 to destroy.</p>
 
-Do you want to perform these actions in workspace <span class="s2">&#34;thekoguryo_us-phoenix-1&#34;</span>?
-Terraform will perform the actions described above.
-Only <span class="s1">&#39;yes&#39;</span> will be accepted to approve.
+<p>Changes to Outputs:
+  + vcn1_ocid = [
+      + (known after apply),
+    ]</p>
 
-Enter a value: yes
+<p>Do you want to perform these actions in workspace &ldquo;ap-seoul-1&rdquo;?
+  Terraform will perform the actions described above.
+  Only &lsquo;yes&rsquo; will be accepted to approve.</p>
 
-oci_core_virtual_network.vcn1: Creating...
-cidr_block:               <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;10.0.0.0/16&#34;</span>
-compartment_id:           <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaatz24wcxhliq6egof4odfayzysfbj3yksdmhcava7ambc2w2dcshq&#34;</span>
-default_dhcp_options_id:  <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-default_route_table_id:   <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-default_security_list_id: <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-display_name:             <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;vcn1&#34;</span>
-dns_label:                <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;vcn1&#34;</span>
-freeform_tags.%:          <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-state:                    <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-time_created:             <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-vcn_domain_name:          <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-oci_core_virtual_network.vcn1: Creation <span class="nb">complete</span> after 2s <span class="o">(</span>ID: ocid1.vcn.oc1.phx.aaaaaaaa5ysdjaugi2xs7blhs4hfyg5hpy4udgpfqlyvb4meuzfuyxzhfkuq<span class="o">)</span>
+<p>Enter a value: yes</p>
 
-Apply complete! Resources: <span class="m">1</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
+<p>oci_core_virtual_network.vcn1: Creating&hellip;
+oci_core_virtual_network.vcn1: Creation complete after 1s [id=ocid1.vcn.oc1.ap-seoul-1.amaaaaaavsea7yiamf4ktoajkby4sh45zx4e52cwscm6xljilibl5o3prpkq]</p>
 
-Outputs:
+<p>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</p>
 
-<span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
-    ocid1.vcn.oc1.phx.aaaaaaaa5ysdjaugi2xs7blhs4hfyg5hpy4udgpfqlyvb4meuzfuyxzhfkuq
-<span class="o">]</span>
+<p>Outputs:</p>
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;    </code></pre></div></li>
+<p>vcn1_ocid = [
+  &ldquo;ocid1.vcn.oc1.ap-seoul-1.amaaaaaavsea7yiamf4ktoajkby4sh45zx4e52cwscm6xljilibl5o3prpkq&rdquo;,
+]
+[opc@bastion-host example_vcn]$</p></li>
 
-<li><p>결과 확인<br>
-OCI 콘솔에서 us-pheonix-1 Region으로 변경하면 VCN이 생성된 것을 확인할 수 있습니다.
-<br><img src="../images/created_vcn_phx_1.png" alt="그림" /><br></p></li>
+<li><p>결과 확인</p></li>
 </ol>
 
-<h3 id="2번째-workspace-thekoguryo-eu-frankfrut-1에서-terraform-실행하기">2번째 workspace: thekoguryo_eu-frankfrut-1에서 terraform 실행하기</h3>
+<p>OCI 콘솔에서 서울 Region으로 변경하면 VCN이 생성된 것을 확인할 수 있습니다.</p>
+
+<p><img src="images/image-20220118215349370.png" alt="image-20220118215349370" /></p>
+
+<h3 id="2번째-workspace-ap-chuncheon-1에서-terraform-실행하기">2번째 workspace: ap-chuncheon-1에서 terraform 실행하기</h3>
 
 <ol>
 <li><p>동일한 위치에서 workspace를 먼저 전환하고 vcn을 만드는 terraform을 동일하게 실행합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform workspace <span class="k">select</span> thekoguryo_eu-frankfurt-1
-Switched to workspace <span class="s2">&#34;thekoguryo_eu-frankfurt-1&#34;</span>.
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;terraform apply -var<span class="o">=</span><span class="s2">&#34;region=eu-frankfurt-1&#34;</span>
+<p>```Shell
+[opc@bastion-host example_vcn]$ terraform workspace select ap-chuncheon-1
+Switched to workspace &ldquo;ap-chuncheon-1&rdquo;.
+[opc@bastion-host example_vcn]$ terraform apply -var=&ldquo;region=ap-chuncheon-1&rdquo;</p>
 
-An execution plan has been generated and is shown below.
-Resource actions are indicated with the following symbols:
-+create
+<p>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:</p>
 
-Terraform will perform the following actions:
+<ul>
+<li>create
+<br /></li>
+</ul>
 
-+oci_core_virtual_network.vcn1
-    id:                       &lt;computed&gt;
-    cidr_block:               <span class="s2">&#34;10.0.0.0/16&#34;</span>
-    compartment_id:           <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaatz24wcxhliq6egof4odfayzysfbj3yksdmhcava7ambc2w2dcshq&#34;</span>
-    default_dhcp_options_id:  &lt;computed&gt;
-    default_route_table_id:   &lt;computed&gt;
-    default_security_list_id: &lt;computed&gt;
-    display_name:             <span class="s2">&#34;vcn1&#34;</span>
-    dns_label:                <span class="s2">&#34;vcn1&#34;</span>
-    freeform_tags.%:          &lt;computed&gt;
-    state:                    &lt;computed&gt;
-    time_created:             &lt;computed&gt;
-    vcn_domain_name:          &lt;computed&gt;
+<p>Terraform will perform the following actions:</p>
 
+<p># oci_core_virtual_network.vcn1 will be created
+  + resource &ldquo;oci_core_virtual_network&rdquo; &ldquo;vcn1&rdquo; {
+      + cidr_block               = &ldquo;10.0.0.0/16&rdquo;
+      + cidr_blocks              = (known after apply)
+      + compartment_id           = &ldquo;ocid1.compartment.oc1..aaaaaaaa54ryitndueosfezrxvxvcuosutofi2d6f53rbgwz2dpqrgeci7lq&rdquo;
+      + default_dhcp_options_id  = (known after apply)
+      + default_route_table_id   = (known after apply)
+      + default_security_list_id = (known after apply)
+      + defined_tags             = (known after apply)
+      + display_name             = &ldquo;vcn1&rdquo;
+      + dns_label                = &ldquo;vcn1&rdquo;
+      + freeform_tags            = (known after apply)
+      + id                       = (known after apply)
+      + ipv6cidr_blocks          = (known after apply)
+      + is_ipv6enabled           = (known after apply)
+      + state                    = (known after apply)
+      + time_created             = (known after apply)
+      + vcn_domain_name          = (known after apply)
+    }</p>
 
-Plan: <span class="m">1</span> to add, <span class="m">0</span> to change, <span class="m">0</span> to destroy.
+<p>Plan: 1 to add, 0 to change, 0 to destroy.</p>
 
-Do you want to perform these actions in workspace <span class="s2">&#34;thekoguryo_eu-frankfurt-1&#34;</span>?
-Terraform will perform the actions described above.
-Only <span class="s1">&#39;yes&#39;</span> will be accepted to approve.
+<p>Changes to Outputs:
+  + vcn1_ocid = [
+      + (known after apply),
+    ]</p>
 
-Enter a value: yes
+<p>Do you want to perform these actions in workspace &ldquo;ap-chuncheon-1&rdquo;?
+  Terraform will perform the actions described above.
+  Only &lsquo;yes&rsquo; will be accepted to approve.</p>
 
-oci_core_virtual_network.vcn1: Creating...
-cidr_block:               <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;10.0.0.0/16&#34;</span>
-compartment_id:           <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaatz24wcxhliq6egof4odfayzysfbj3yksdmhcava7ambc2w2dcshq&#34;</span>
-default_dhcp_options_id:  <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-default_route_table_id:   <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-default_security_list_id: <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-display_name:             <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;vcn1&#34;</span>
-dns_label:                <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;vcn1&#34;</span>
-freeform_tags.%:          <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-state:                    <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-time_created:             <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-vcn_domain_name:          <span class="s2">&#34;&#34;</span> <span class="o">=</span>&gt; <span class="s2">&#34;&lt;computed&gt;&#34;</span>
-oci_core_virtual_network.vcn1: Creation <span class="nb">complete</span> after 2s <span class="o">(</span>ID: ocid1.vcn.oc1.eu-frankfurt-1.aaaaaaaaxe...fp43m72x6ueq5bbabfyegoo4zepfqn736werla<span class="o">)</span>
+<p>Enter a value: yes</p>
 
-Apply complete! Resources: <span class="m">1</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
+<p>oci_core_virtual_network.vcn1: Creating&hellip;
+oci_core_virtual_network.vcn1: Creation complete after 0s [id=ocid1.vcn.oc1.ap-chuncheon-1.amaaaaaavsea7yiamplordafqo25ulky46sjoz74r724wxnd5dyplya3ptoq]</p>
 
-Outputs:
+<p>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</p>
 
-<span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
-    ocid1.vcn.oc1.eu-frankfurt-1.aaaaaaaaxekgw5b62aml3qfp43m72x6ueq5bbabfyegoo4zepfqn736werla
-<span class="o">]</span>
+<p>Outputs:</p>
 
-D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
+<p>vcn1_ocid = [
+  &ldquo;ocid1.vcn.oc1.ap-chuncheon-1.amaaaaaavsea7yiamplordafqo25ulky46sjoz74r724wxnd5dyplya3ptoq&rdquo;,
+]
+[opc@bastion-host example_vcn]$</p></li>
 
-<li><p>결과 확인<br>
-OCI 콘솔에서 eu-frankfurt-1 Region으로 변경하면 VCN이 생성된 것을 확인할 수 있습니다.
-<br><img src="../images/created_vcn_fra_1.png" alt="그림" /><br></p></li>
-
-<li><p>Terraform State 확인<br>
-workspace를 사용하는 경우 아래와 같이 terraform.tfstate.d 폴더 밑에 workspace 별 폴더 밑에 terrafrom.tfstate 파일이 생성되어 workspace 별로 상태를 관리하는 것을 알 수 있습니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">D:<span class="se">\e</span>xample_vcn_workspace&gt;dir terraform.tfstate.d /s
-D 드라이브의 볼륨: MyData
-볼륨 일련 번호: D045-88C8
-
-D:<span class="se">\e</span>xample_vcn_workspace<span class="se">\t</span>erraform.tfstate.d 디렉터리
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:13    &lt;DIR&gt;          .
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:13    &lt;DIR&gt;          ..
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:15    &lt;DIR&gt;          thekoguryo_eu-frankfurt-1
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:02    &lt;DIR&gt;          thekoguryo_us-phoenix-1
-            0개 파일                   <span class="m">0</span> 바이트
-
-D:<span class="se">\e</span>xample_vcn_workspace<span class="se">\t</span>erraform.tfstate.d<span class="se">\t</span>hekoguryo_eu-frankfurt-1 디렉터리
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:15    &lt;DIR&gt;          .
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:15    &lt;DIR&gt;          ..
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:15             <span class="m">2</span>,686 terraform.tfstate
-            1개 파일               <span class="m">2</span>,686 바이트
-
-D:<span class="se">\e</span>xample_vcn_workspace<span class="se">\t</span>erraform.tfstate.d<span class="se">\t</span>hekoguryo_us-phoenix-1 디렉터리
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:02    &lt;DIR&gt;          .
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:02    &lt;DIR&gt;          ..
-<span class="m">2019</span>-04-01  오후 <span class="m">03</span>:02             <span class="m">2</span>,620 terraform.tfstate
-            1개 파일               <span class="m">2</span>,620 바이트
-
-    전체 파일:
-            2개 파일               <span class="m">5</span>,306 바이트
-            8개 디렉터리  <span class="m">711</span>,275,831,296 바이트 남음
-
-D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
+<li><p>결과 확인</p></li>
 </ol>
-<br>
+
+<p>OCI 콘솔에서 춘천 Region으로 변경하면 VCN이 생성된 것을 확인할 수 있습니다.</p>
+
+<p><img src="images/image-20220118215527892.png" alt="image-20220118215527892" /></p>
+
+<ol>
+<li>Terraform State 확인</li>
+</ol>
+
+<p>workspace를 사용하는 경우 아래와 같이 terraform.tfstate.d 폴더 밑에 workspace 별 폴더 밑에 terrafrom.tfstate 파일이 생성되어 workspace 별로 상태를 관리하는 것을 알 수 있습니다.</p>
+<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">   <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls terraform.tfstate.d/ -la
+   total <span class="m">4</span>
+   drwxr-xr-x. <span class="m">4</span> opc opc   <span class="m">46</span> Jan <span class="m">18</span> <span class="m">12</span>:39 .
+   drwxrwxr-x. <span class="m">4</span> opc opc <span class="m">4096</span> Jan <span class="m">18</span> <span class="m">12</span>:47 ..
+   drwxr-xr-x. <span class="m">2</span> opc opc   <span class="m">31</span> Jan <span class="m">18</span> <span class="m">12</span>:51 ap-chuncheon-1
+   drwxr-xr-x. <span class="m">2</span> opc opc   <span class="m">31</span> Jan <span class="m">18</span> <span class="m">12</span>:47 ap-seoul-1
+   <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls terraform.tfstate.d/ap-seoul-1/ -la
+   total <span class="m">4</span>
+   drwxr-xr-x. <span class="m">2</span> opc opc   <span class="m">31</span> Jan <span class="m">18</span> <span class="m">12</span>:47 .
+   drwxr-xr-x. <span class="m">4</span> opc opc   <span class="m">46</span> Jan <span class="m">18</span> <span class="m">12</span>:39 ..
+   -rw-rw-r--. <span class="m">1</span> opc opc <span class="m">2147</span> Jan <span class="m">18</span> <span class="m">12</span>:47 terraform.tfstate
+   <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls terraform.tfstate.d/ap-chuncheon-1/ -la
+   total <span class="m">4</span>
+   drwxr-xr-x. <span class="m">2</span> opc opc   <span class="m">31</span> Jan <span class="m">18</span> <span class="m">12</span>:51 .
+   drwxr-xr-x. <span class="m">4</span> opc opc   <span class="m">46</span> Jan <span class="m">18</span> <span class="m">12</span>:39 ..
+   -rw-rw-r--. <span class="m">1</span> opc opc <span class="m">2168</span> Jan <span class="m">18</span> <span class="m">12</span>:51 terraform.tfstate
+   <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$</code></pre></div><br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
@@ -269,7 +282,20 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
 </main><div class="sidebar">
 <nav>
 <ul>
-<li class=""><a href="https://thekoguryo.github.io/">Home</a></li>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
 
 
 
@@ -288,7 +314,11 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -307,16 +337,20 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 IaaS 벤더간 서비스 매핑</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -335,14 +369,17 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 OCI Trial 계정 생성</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
 </ul>
   
 </li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -361,8 +398,10 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 OCI Local 사용자 추가하기</a></li>
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
@@ -384,7 +423,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
@@ -409,7 +450,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
@@ -438,7 +481,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
@@ -464,7 +509,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
@@ -492,7 +539,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
 </ul>
@@ -516,7 +565,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
@@ -542,7 +593,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
@@ -569,13 +622,15 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry를 통한 파일 업로드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
 </ul>
   
@@ -598,12 +653,13 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 위한 Subnet, Security List 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 File System 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/5/">8.5 백업을 위한 Snapshot</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
 </ul>
   
 </li>
@@ -625,34 +681,13 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/2/">
-    9.2 Oracle Cloud Marketplace
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
-</ul>
   
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 OCI Marketplace</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/4/">9.4 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/5/">9.5 Custom Image Export/Import</a></li>
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
   
 </li>
@@ -674,7 +709,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
@@ -706,7 +743,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
 </ul>
   
@@ -729,7 +768,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
 
@@ -750,7 +791,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
 </ul>
@@ -777,7 +820,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
@@ -789,7 +834,7 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
 
 <li class="parent has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. OCI API 사용하기
+    14. Developer Tools 사용하기
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -802,7 +847,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 
 
 
@@ -821,7 +868,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 
 
 
@@ -840,7 +889,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
@@ -854,7 +905,7 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
 
 <li class=" has-sub-menu">
   <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage
+    14.1.2 Object Storage를 CLI로 사용하기
     <button type="button" class="toggleButton">
       <span class="right ">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -867,7 +918,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
 </ul>
@@ -894,7 +947,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class="sub-menu">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
@@ -923,7 +978,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
@@ -952,57 +1009,11 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter16/">
-    16. VCN과 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter-appendix/">
-    부록
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 </ul>
   
 </li>
@@ -1013,8 +1024,8 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
 
 
 <li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    OCP(Oracle Cloud Platform)
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
     <button type="button" class="toggleButton">
       <span class="right  hidden">
         <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
@@ -1027,7 +1038,347 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
-<ul class="">
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. OKE(Oracle Container Engine for Kubernetes)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(OCI Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/8.monitor-application-log/">1.8 애플리케이션 로그 모니터링</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    2. DevOps(관리형 CI/CD) 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    3. OCIR(OCI Registry) 컨테이너 레지스트리
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">3.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">3.2 Helm Chart Repostory로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/">
+    5. Oracle Open Source 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oracle-oss/1.oci-service-operator/">5.1 OCI Service Operator for Kubernetes(OSOK)</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/ocp/">
+    Ocps
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
 
 
 
@@ -1046,7 +1397,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
@@ -1068,7 +1421,9 @@ D:<span class="se">\e</span>xample_vcn_workspace&gt;</code></pre></div></li>
       </span>
     </button>
   </a>
+  
 <ul class=" hidden">
+
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>

@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.7.2 백업으로 새 Volume 만들기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter03/7/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,52 +44,74 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h3 id="3-7-2-백업으로-새-volume-만들기">3.7.2 백업으로 새 Volume 만들기</h3>
-
+<main><h3 id="372-백업으로-새-volume-만들기">3.7.2 백업으로 새 Volume 만들기</h3>
 <p>Block Volume 백업본을 이용해 새로운 Block Volume을 생성하는 복구방식입니다. 복구된 Block Volume은 새로운 Block Volume을 장착하는 것과 같은 방법으로 Compute Instance에 장착하게 사용하면 됩니다.</p>
-
 <h4 id="백업으로-새-block-volume-만들기">백업으로 새 Block Volume 만들기</h4>
-
 <ol>
-<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Storage</strong>  &gt;&gt; <strong>Block Storage</strong> &gt;&gt; <strong>Block Volumes Backups</strong> 항목으로 이동합니다.</p></li>
+<li>
+<p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Storage</strong>  &raquo; <strong>Block Storage</strong> &raquo; <strong>Block Volumes Backups</strong> 항목으로 이동합니다.</p>
+</li>
+<li>
+<p>전체 백업 목록을 확인할 수 있습니다.</p>
+</li>
+<li>
+<p>원하는 백업의 우측 액션 메뉴에서 <strong>Restore Block Volume</strong>을 클릭합니다.</p>
+<p>
 
-<li><p>전체 백업 목록을 확인할 수 있습니다.</p></li>
 
-<li><p>원하는 백업의 우측 액션 메뉴에서 <strong>Restore Block Volume</strong>을 클릭합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220110204200362.png" alt="image-20220110204200362" /></p>
 
-<ol>
-<li><p>생성정보 입력화면은 처음 Block Volume 생성할 때랑 동일합니다. 생성정보를 입력합니다.</p>
 
+
+
+<img class="img-fluid1" src="../images/image-20220110204200362.png" alt='image-20220110204200362' onerror="this.onerror=null;this.src='images\/image-20220110204200362.png';" />
+</p>
+</li>
+<li>
+<p>생성정보 입력화면은 처음 Block Volume 생성할 때랑 동일합니다. 생성정보를 입력합니다.</p>
 <ul>
-<li><p><strong>Name</strong>: 원하는 이름 입력</p></li>
+<li>
+<p><strong>Name</strong>: 원하는 이름 입력</p>
+</li>
+<li>
+<p><strong>Create in Compartment</strong>: 현재 사용중인 Compartment가 기본으로 보입니다. 원하는 Compartment을 선택합니다.</p>
+</li>
+<li>
+<p><strong>Availability Domain</strong>: Compute Instance가 속한 Availability Domain을 선택합니다. Volume과 Instance는 반드시 같은 AD여야 합니다.</p>
+</li>
+<li>
+<p><strong>Size</strong>: 이전 사이즈와 동일, 필요시 증설</p>
+<p>
 
-<li><p><strong>Create in Compartment</strong>: 현재 사용중인 Compartment가 기본으로 보입니다. 원하는 Compartment을 선택합니다.</p></li>
 
-<li><p><strong>Availability Domain</strong>: Compute Instance가 속한 Availability Domain을 선택합니다. Volume과 Instance는 반드시 같은 AD여야 합니다.</p></li>
 
-<li><p><strong>Size</strong>: 이전 사이즈와 동일, 필요시 증설</p></li>
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220110204649770.png" alt='image-20220110204649770' onerror="this.onerror=null;this.src='images\/image-20220110204649770.png';" />
+</p>
+</li>
+<li>
+<p><strong>Backup Policies</strong>: 선택 안함.</p>
+</li>
+<li>
+<p><strong>Cross Region Replication</strong>: Free Tier는 단일 Region 이므로 여기서는 OFF</p>
+</li>
+<li>
+<p><strong>Encryption</strong>: 지금은 OCI 제공 키 사용</p>
+</li>
 </ul>
-
-<p><img src="images/image-20220110204649770.png" alt="image-20220110204649770" /></p>
-
-<ul>
-<li><p><strong>Backup Policies</strong>: 선택 안함.</p></li>
-
-<li><p><strong>Cross Region Replication</strong>: Free Tier는 단일 Region 이므로 여기서는 OFF</p></li>
-
-<li><p><strong>Encryption</strong>: 지금은 OCI 제공 키 사용</p></li>
-</ul></li>
-
-<li><p><strong>Restore Block Volume</strong> 클릭</p></li>
-
-<li><p>생성이 완료되면 AVAILBLE 상태로 표시됩니다.</p></li>
-
-<li><p>복구된 Block Volume은 이제 다른 Block Volume과 동일한 Block Volume입니다. Block Volume을 장착하는 것과 같은 방법으로 장착해서 사용하면 됩니다.</p></li>
+</li>
+<li>
+<p><strong>Restore Block Volume</strong> 클릭</p>
+</li>
+<li>
+<p>생성이 완료되면 AVAILBLE 상태로 표시됩니다.</p>
+</li>
+<li>
+<p>복구된 Block Volume은 이제 다른 Block Volume과 동일한 Block Volume입니다. Block Volume을 장착하는 것과 같은 방법으로 장착해서 사용하면 됩니다.</p>
+</li>
 </ol>
 <br>
 <br>
@@ -137,8 +159,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -169,8 +189,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -199,7 +217,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -505,7 +522,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1172,88 +1188,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

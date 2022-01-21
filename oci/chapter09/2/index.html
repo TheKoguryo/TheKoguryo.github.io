@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>9.2 인스턴스에서 Custom Image 만들기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter09/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,10 +44,7 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="9-2-인스턴스에서-custom-image-만들기">9.2 인스턴스에서 Custom Image 만들기</h2>
-
+<main><h2 id="92-인스턴스에서-custom-image-만들기">9.2 인스턴스에서 Custom Image 만들기</h2>
 <div class="panel panel-caution"><div class="panel-header">
 <h3><i class="fas fa-life-saver"></i> 중요</h3>
 </div><div class="panel-body">
@@ -57,96 +54,157 @@ Custom Image를 만드는 동안 인스턴스를 STOP 시키는 것을 권장하
 
 </div>
 </div>
-
 <p>Custom Image를 만들 대상 Instance에 Block Volume이 장착되어 있더라도, Custom Image를 만들게 되면, Boot Volume만 포함되어 있습니다.</p>
-
 <h3 id="custom-image-만들기">Custom Image 만들기</h3>
-
 <ol>
-<li><p>테스트 VM에 접속하여, Custom Image 만들기 전에 흔적을 만듭니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="nb">echo</span> <span class="s1">&#39;See you soon&#39;</span> &gt; hello.txt
- <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ cat hello.txt
- See you soon</code></pre></div></li>
+<li>
+<p>테스트 VM에 접속하여, Custom Image 만들기 전에 흔적을 만듭니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="nb">echo</span> <span class="s1">&#39;See you soon&#39;</span> &gt; hello.txt
+<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ cat hello.txt
+See you soon
+</code></pre></div></li>
+<li>
+<p><strong>Custom Image를 생성하기 전에 반드시 먼저 OS 레벨에서 종료합니다.</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo su
+<span class="o">[</span>root@examplelinuxinstance opc<span class="o">]</span><span class="c1"># shutdown now</span>
+Connection to 140.238.29.108 closed by remote host.
+Connection to 140.238.29.108 closed.
+</code></pre></div></li>
+<li>
+<p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Compute</strong> &raquo; <strong>Instances</strong> 항목으로 이동합니다.</p>
+</li>
+<li>
+<p>Compute Instance 목록에서 대상 인스턴스를 클릭합니다.</p>
+</li>
+<li>
+<p><strong>OS 레벨에서 종료 여부를 다시 한번 확인한후 콘솔에서 Stop 명령으로 종료합니다.</strong></p>
+</li>
+<li>
+<p>Instance가 중지되면 <strong>Create custom image</strong>를 클릭합니다.</p>
+<p>
 
-<li><p><strong>Custom Image를 생성하기 전에 반드시 먼저 OS 레벨에서 종료합니다.</strong></p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo su
- <span class="o">[</span>root@examplelinuxinstance opc<span class="o">]</span><span class="c1"># shutdown now</span>
- Connection to <span class="m">140</span>.238.29.108 closed by remote host.
- Connection to <span class="m">140</span>.238.29.108 closed.</code></pre></div></li>
 
-<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Compute</strong> &gt;&gt; <strong>Instances</strong> 항목으로 이동합니다.</p></li>
 
-<li><p>Compute Instance 목록에서 대상 인스턴스를 클릭합니다.</p></li>
 
-<li><p><strong>OS 레벨에서 종료 여부를 다시 한번 확인한후 콘솔에서 Stop 명령으로 종료합니다.</strong></p></li>
 
-<li><p>Instance가 중지되면 <strong>Create custom image</strong>를 클릭합니다.</p>
 
-<p><img src="images/image-20220114174836514.png" alt="image-20220114174836514" /></p></li>
 
-<li><p>Custom Image를 저장할 Compartment를 선택하고, 이름을 입력 후 <strong>Create custom image</strong>를 클릭합니다.</p>
-
+<img class="img-fluid1" src="../images/image-20220114174836514.png" alt='image-20220114174836514' onerror="this.onerror=null;this.src='images\/image-20220114174836514.png';" />
+</p>
+</li>
+<li>
+<p>Custom Image를 저장할 Compartment를 선택하고, 이름을 입력 후 <strong>Create custom image</strong>를 클릭합니다.</p>
 <ul>
 <li>이름: 예, ExampleLinuxCustomImage</li>
 <li>아래 경고문에서 Custom Image 생성 전에 OS에서 종료 후, 인스턴스를 종료할 것을 권고하고 있습니다.</li>
 </ul>
+<p>
 
-<p><img src="images/image-20220114175004752.png" alt="image-20220114175004752" /></p></li>
 
-<li><p>이미지 생성 중입니다.</p>
 
-<p><img src="images/image-20220114175132477.png" alt="image-20220114175132477" /></p></li>
 
-<li><p>인스턴스 목록 화면으로 돌아가 왼쪽 <strong>Custom Images</strong>메뉴로 가면 현재 Custom Image 목록을 확인할 수 있습니다.</p>
 
-<p><img src="images/image-20220114175525336.png" alt="image-20220114175525336" /></p></li>
+
+
+<img class="img-fluid1" src="../images/image-20220114175004752.png" alt='image-20220114175004752' onerror="this.onerror=null;this.src='images\/image-20220114175004752.png';" />
+</p>
+</li>
+<li>
+<p>이미지 생성 중입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114175132477.png" alt='image-20220114175132477' onerror="this.onerror=null;this.src='images\/image-20220114175132477.png';" />
+</p>
+</li>
+<li>
+<p>인스턴스 목록 화면으로 돌아가 왼쪽 <strong>Custom Images</strong>메뉴로 가면 현재 Custom Image 목록을 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114175525336.png" alt='image-20220114175525336' onerror="this.onerror=null;this.src='images\/image-20220114175525336.png';" />
+</p>
+</li>
 </ol>
-
 <h3 id="custom-image를-새-instance-생성하기">Custom Image를 새 Instance 생성하기</h3>
-
 <h4 id="방법-1">방법 1</h4>
-
 <ol>
-<li><p>Custom Images 목록에서 원하는 이미지를 선택하고, 우측 액션 메뉴에서 <strong>Create Instance</strong>를 클릭하면, 해당 이미지를 기반으로 Instance 생성화면으로 이동합니다.</p>
+<li>
+<p>Custom Images 목록에서 원하는 이미지를 선택하고, 우측 액션 메뉴에서 <strong>Create Instance</strong>를 클릭하면, 해당 이미지를 기반으로 Instance 생성화면으로 이동합니다.</p>
+<p>
 
-<p><img src="images/image-20220114175704124.png" alt="image-20220114175704124" /></p></li>
 
-<li><p>그 외 필요한 정보를 입력하고 인스턴스를 생성합니다.</p></li>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114175704124.png" alt='image-20220114175704124' onerror="this.onerror=null;this.src='images\/image-20220114175704124.png';" />
+</p>
+</li>
+<li>
+<p>그 외 필요한 정보를 입력하고 인스턴스를 생성합니다.</p>
+</li>
 </ol>
-
 <h4 id="방법-2">방법 2</h4>
-
 <ol>
-<li>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Compute</strong> &gt;&gt; <strong>Instances</strong> 항목으로 이동합니다.</li>
+<li>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Compute</strong> &raquo; <strong>Instances</strong> 항목으로 이동합니다.</li>
 <li><strong>Create Instance</strong> 클릭하여 인스턴스 생성을 시작합니다.</li>
 <li>Image and Shape에서 <strong>Change Image</strong>를 통해 이미지를 변경합니다.</li>
 <li>Image Sources에서 Custom Images를 선택합니다.</li>
 <li>Custom Image가 있는 Compartment를 선택하면 사용 가능한 Custom Images 목록이 보입니다. 사용할 Custom Image를 선택하고 <strong>Select Image</strong>을 클릭합니다.
-<img src="images/image-20220114180030531.png" alt="image-20220114180030531" /></li>
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114180030531.png" alt='image-20220114180030531' onerror="this.onerror=null;this.src='images\/image-20220114180030531.png';" />
+</li>
 <li>그 외 필요한 정보를 입력하고 인스턴스를 생성합니다.</li>
 </ol>
-
 <h4 id="검증">검증</h4>
-
 <ol>
-<li>Custom Image를 기준으로 인스턴스가 생성되었습니다.</li>
-</ol>
+<li>
+<p>Custom Image를 기준으로 인스턴스가 생성되었습니다.</p>
+<p>
 
-<p><img src="images/image-20220114234354695.png" alt="image-20220114234354695" /></p>
 
-<ol>
-<li>생성된 인스턴스에 접속하여 이전에 작성한 파일이 있는 지 확인합니다.</li>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114234354695.png" alt='image-20220114234354695' onerror="this.onerror=null;this.src='images\/image-20220114234354695.png';" />
+</p>
+</li>
+<li>
+<p>생성된 인스턴스에 접속하여 이전에 작성한 파일이 있는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@129.154.219.239
+Last login: Fri Jan <span class="m">14</span> 14:31:26 <span class="m">2022</span> from 220.117.236.6
+<span class="o">[</span>opc@examplelinuxinstance-fromcustomimage ~<span class="o">]</span>$ ls
+hello.txt
+<span class="o">[</span>opc@examplelinuxinstance-fromcustomimage ~<span class="o">]</span>$ cat hello.txt
+See you soon
+</code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@129.154.219.239
-   Last login: Fri Jan <span class="m">14</span> <span class="m">14</span>:31:26 <span class="m">2022</span> from <span class="m">220</span>.117.236.6
-   <span class="o">[</span>opc@examplelinuxinstance-fromcustomimage ~<span class="o">]</span>$ ls
-   hello.txt
-   <span class="o">[</span>opc@examplelinuxinstance-fromcustomimage ~<span class="o">]</span>$ cat hello.txt
-   See you soon</code></pre></div><br>
+<br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
- <div class="edit-meta">Last updated on 14 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter09/2/1/" title="9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a>
+ <div class="edit-meta">Last updated on 14 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter09/1/" title="9.1 기본 제공하고 있는 OS Image"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 9.1 기본 제공하고 있는 OS Image</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter09/3/" title="9.3 Custom Image Export/Import">Next - 9.3 Custom Image Export/Import <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
@@ -188,8 +246,6 @@ Custom Image를 만드는 동안 인스턴스를 STOP 시키는 것을 권장하
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -220,8 +276,6 @@ Custom Image를 만드는 동안 인스턴스를 STOP 시키는 것을 권장하
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -250,7 +304,6 @@ Custom Image를 만드는 동안 인스턴스를 STOP 시키는 것을 권장하
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -556,7 +609,6 @@ Custom Image를 만드는 동안 인스턴스를 STOP 시키는 것을 권장하
 <ul class="sub-menu">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1223,88 +1275,6 @@ Custom Image를 만드는 동안 인스턴스를 STOP 시키는 것을 권장하
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

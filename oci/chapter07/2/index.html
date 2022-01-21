@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>7.2 Bucket에 파일 올리기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter07/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,61 +44,102 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="7-2-bucket에-파일-올리기">7.2 Bucket에 파일 올리기</h2>
-
+<main><h2 id="72-bucket에-파일-올리기">7.2 Bucket에 파일 올리기</h2>
 <p>Object Storage는 단일 파일 기준 최대 50 GB까지 지원합니다. OCI Console의 메시지 기준으로는 2 GiB까지만 올릴 수 있습니다. 그 이상 더 큰 파일은 SDK 또는 API를 통해 올릴 수 있습니다.</p>
-
 <h3 id="oci-console에서-bucket에-파일-올리기">OCI Console에서 Bucket에 파일 올리기</h3>
-
 <ol>
-<li><p>Bucket 상세 정보를 보기 위해 이름을 클릭합니다.</p></li>
+<li>
+<p>Bucket 상세 정보를 보기 위해 이름을 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Upload</strong>를 클릭합니다.</p>
+<p>
 
-<li><p><strong>Upload</strong>를 클릭합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220112143732229.png" alt="image-20220112143732229" /></p>
 
-<ol>
-<li>다이얼로그가 뜨면 파일을 드래그 앤 드랍하거나 브라우저 파일 업로그 기능을 통해 올릴 수 있습니다. <strong>select files</strong>를 클릭합니다.</li>
-</ol>
 
-<p><img src="images/image-20220112150706241.png" alt="image-20220112150706241" /></p>
 
-<ol>
-<li>원하는 파일을 선택합니다.</li>
-</ol>
 
-<p><img src="images/image-20220112151056899.png" alt="image-20220112151056899" /></p>
 
-<ol>
-<li><p>다이얼로그 화면에서 <strong>Upload</strong>를 클릭합니다.</p>
+<img class="img-fluid1" src="../images/image-20220112143732229.png" alt='image-20220112143732229' onerror="this.onerror=null;this.src='images\/image-20220112143732229.png';" />
+</p>
+</li>
+<li>
+<p>다이얼로그가 뜨면 파일을 드래그 앤 드랍하거나 브라우저 파일 업로그 기능을 통해 올릴 수 있습니다. <strong>select files</strong>를 클릭합니다.</p>
+<p>
 
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112150706241.png" alt='image-20220112150706241' onerror="this.onerror=null;this.src='images\/image-20220112150706241.png';" />
+</p>
+</li>
+<li>
+<p>원하는 파일을 선택합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112151056899.png" alt='image-20220112151056899' onerror="this.onerror=null;this.src='images\/image-20220112151056899.png';" />
+</p>
+</li>
+<li>
+<p>다이얼로그 화면에서 <strong>Upload</strong>를 클릭합니다.</p>
 <ul>
 <li><strong>Object Name Prefix</strong>: Prefix를 입력하면 파일명 앞에 붙으며 아래와 같이 / 가 있으면 콘솔에서 폴더로 표현됩니다.</li>
 <li><strong>Storage Tier: Bucket</strong>: 기본에서 필요하면 다른 값으로 변경합니다.</li>
-</ul></li>
-</ol>
+</ul>
+<p>
 
-<p><img src="images/image-20220112152555531.png" alt="image-20220112152555531" /></p>
 
-<ol>
-<li><p>업로드 확인후 Close를 클릭합니다.</p></li>
 
-<li><p>그림과 같이 파일이 업로드 되었고, Prefix에 /를 기준으로 폴더화 되었습니다. Object 우측 액션 메뉴를 통해 상세정보를 확인합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220112152745217.png" alt="image-20220112152745217" /></p>
 
-<ol>
-<li>상세정보 화면에서 URL 및 메타정보를 확인할 수 있습니다. 또한 <strong>[다운로드]</strong> 받을 수도 있습니다. URL 경로 포맷은 다음과 같습니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   https://objectstorage.&lt;region_name&gt;.oraclecloud.com/n/&lt;object_storage_namespace&gt;/b/&lt;bucket&gt;/o/&lt;object_name&gt;</code></pre></div>
-<p><img src="images/image-20220112153023718.png" alt="image-20220112153023718" /></p>
 
-<ol>
-<li>생성된 Bucket은 기본적으로 Private Bucket으로 지금 바로 URL로 파일을 내려받지는 못합니다. 추가 설정 또는 인증을 통해 내려받을 수 있습니다.</li>
+
+<img class="img-fluid1" src="../images/image-20220112152555531.png" alt='image-20220112152555531' onerror="this.onerror=null;this.src='images\/image-20220112152555531.png';" />
+</p>
+</li>
+<li>
+<p>업로드 확인후 Close를 클릭합니다.</p>
+</li>
+<li>
+<p>그림과 같이 파일이 업로드 되었고, Prefix에 /를 기준으로 폴더화 되었습니다. Object 우측 액션 메뉴를 통해 상세정보를 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112152745217.png" alt='image-20220112152745217' onerror="this.onerror=null;this.src='images\/image-20220112152745217.png';" />
+</p>
+</li>
+<li>
+<p>상세정보 화면에서 URL 및 메타정보를 확인할 수 있습니다. 또한 <strong>[다운로드]</strong> 받을 수도 있습니다. URL 경로 포맷은 다음과 같습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">https://objectstorage.&lt;region_name&gt;.oraclecloud.com/n/&lt;object_storage_namespace&gt;/b/&lt;bucket&gt;/o/&lt;object_name&gt;
+</code></pre></div><p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112153023718.png" alt='image-20220112153023718' onerror="this.onerror=null;this.src='images\/image-20220112153023718.png';" />
+</p>
+</li>
+<li>
+<p>생성된 Bucket은 기본적으로 Private Bucket으로 지금 바로 URL로 파일을 내려받지는 못합니다. 추가 설정 또는 인증을 통해 내려받을 수 있습니다.</p>
+</li>
 </ol>
 <br>
 <br>
@@ -146,8 +187,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -178,8 +217,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -208,7 +245,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -514,7 +550,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1181,88 +1216,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

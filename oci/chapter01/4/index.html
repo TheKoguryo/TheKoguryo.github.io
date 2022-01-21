@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>1.4 Virtual Cloud Network(VCN) - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter01/4/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,41 +44,32 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="1-4-virtual-cloud-network-vcn">1.4 Virtual Cloud Network(VCN)</h2>
-
+<main><h2 id="14-virtual-cloud-networkvcn">1.4 Virtual Cloud Network(VCN)</h2>
 <p>OCI를 사용하게 되면 처음 해야 할 작업 중의 하나가 다른 클라우드 자원을 위해 Virtual Cloud Network(VCN)를 만드는 작업입니다. Oracle 데이터 센터에 서버 자원들이 사용할 가상의 네트워크 환경을 구성하는 것으로 네트워크 주소 할당, 방화벽, 라우팅 규칙, 게이트웨이 등을 하는 작업입니다.</p>
-
 <p>처음 VCN을 만들 때 자동 생성 방식으로 구성할 경우 생성되는 기본 구성은 다음과 같습니다.</p>
+<p>
 
-<p><img src="images/vcn_example1.png" alt="" /><br></p>
 
-<h3 id="virtual-cloud-network-vcn">Virtual Cloud Network(VCN)</h3>
 
+
+
+
+
+<img class="img-fluid1" src="../images/vcn_example1.png" alt='' onerror="this.onerror=null;this.src='images\/vcn_example1.png';" />
+<!-- raw HTML omitted --></p>
+<h3 id="virtual-cloud-networkvcn">Virtual Cloud Network(VCN)</h3>
 <p>OCI 상의 다른 클라우드 자원을 위한 가상 네트워크 환경입니다.
-생성 시 VCN에서 사용할 IP 대역은 CIDR 형식으로 지정합니다. 예) 10.0.0.0/16 <br> VCN과 함께 VCN에 속한 아래 컴포넌트를 구성하여 원하는 가상 네트워크 환경을 구성하게 됩니다. 아래 컴포넌트 이외에도 추가적인 컴포넌트들이 많이 있지만, 여기서는 가장 기본적인 컴포넌트에 대해서만 언급하도록 하겠습니다.</p>
-
+생성 시 VCN에서 사용할 IP 대역은 CIDR 형식으로 지정합니다. 예) 10.0.0.0/16 <!-- raw HTML omitted --> VCN과 함께 VCN에 속한 아래 컴포넌트를 구성하여 원하는 가상 네트워크 환경을 구성하게 됩니다. 아래 컴포넌트 이외에도 추가적인 컴포넌트들이 많이 있지만, 여기서는 가장 기본적인 컴포넌트에 대해서만 언급하도록 하겠습니다.</p>
 <h4 id="internet-gateway">Internet Gateway</h4>
-
 <p>명칭 그대로 인터넷과 연결하려면 통해야 하는 관문입니다. 이름을 부여하고 생성하기만 하면 됩니다.</p>
-
 <h4 id="subnet">Subnet</h4>
-
 <p>VCN상에 생성되는 서브 그룹으로 하나의 Availability Domain 내에 존재합니다. 사용할 IP 대역은 VCN의 대역에서 일부를 나누어 가집니다. 사용할 IP 대역은 CIDR 형식으로 지정합니다. 예) 10.0.0.0/24</p>
-
 <p>Public Subnet과 Private Subnet이 있으며, Private Subnet에 있는 인스턴스는 Public IP를 가지지 못합니다. 반면 Public Subnet에 있는 인스턴스는 Public IP를 할당받게 됩니다.</p>
-
 <p>Private Subnet에 있는 인스턴스는 Public IP를 가지지 못하기 때문에 인터넷상의 외부 시스템에서 들어오지는 못합니다. 대신 추가로 Network Address Translate(NAT) GATEWAY를 설정하면 외부 인터넷으로 나가는 것은 가능합니다.</p>
-
 <h4 id="route-table">Route Table</h4>
-
 <p>VCN을 위한 가상의 라우트 테이블로써 Subnet에서 외부 목적지로 가는 규칙을 정하는 Route Table입니다. 자동으로 생성한 디폴트 라우트 테이블은 그림처럼 모든 목적지(0.0.0.0/0)를 Internet Gateway로 라우트 되어 인터넷에 연결되게 설정되었습니다. 커스텀 라우팅 테이블을 구성하여 원하는 규칙을 설정할 수 있습니다.</p>
-
 <h4 id="security-lists">Security Lists</h4>
-
 <p>VCN을 위한 가상의 방화벽으로 Subnet에서 들어오고 나가는 트래픽에 각각에 대한 ingress 규칙 및 egress 규칙을 설정할 수 있습니다. 그림에는 편의상 ingress rule만 표현하였으며, SSH 통신을 위해 22번 포트로 들어오는 모든 요청을 열어두었습니다. 그리고 생략되었지만, egress rule로 모든 요청이 나갈 수 있도록 설정되어 있습니다.</p>
-
 <p>Compute 인스턴스에 WebServer를 설치하거나 별도의 서비스를 위해 포트를 열어야 할 경우 이 Security Lists를 업데이트하면 됩니다. 물론 Security Lists는 VCN상에서 Subnet의 방화벽이며, Compute 인스턴스 자체에 있는 리눅스 방화벽 또는 윈도우 방화벽에 있을 경우에는 자체 방화벽에서 해당 포트도 당연히 열어 두어야 합니다.</p>
 <br>
 <br>
@@ -126,8 +117,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -158,8 +147,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -188,7 +175,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -494,7 +480,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1161,88 +1146,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>7.3 Object 권한 관리 - 사전인증 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter07/3/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,94 +44,172 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="7-3-object-권한-관리-사전인증-pre-authenticated-requests">7.3 Object 권한 관리 - 사전인증(Pre-Authenticated Requests)</h2>
-
+<main><h2 id="73-object-권한-관리---사전인증pre-authenticated-requests">7.3 Object 권한 관리 - 사전인증(Pre-Authenticated Requests)</h2>
 <p>Pre-Authenticated Requests는 Bucket 또는 Object에 대해서 인증 없이 사용자가 접근할 수 있도록 설정하는 기능입니다. 지정된 기간까지 인증없이 Bucket 또는 Object에 접근할 수 있는 임시 공유 링크로 생성됩니다. 이 공유 링크를 통해 임의의 사용자가 접근할 수 있게 됩니다.</p>
-
 <h3 id="object-url로-접근">Object URL로 접근</h3>
-
 <ol>
-<li>Object Details 화면에서 Object의 URL 경로를 확인합니다.</li>
+<li>
+<p>Object Details 화면에서 Object의 URL 경로를 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112153023718.png" alt='image-20220112153023718' onerror="this.onerror=null;this.src='images\/image-20220112153023718.png';" />
+</p>
+</li>
+<li>
+<p>확인한 URL 경로를 브라우저로 접근해 보면 다음과 같이 에러가 발생합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112154321847.png" alt='image-20220112154321847' onerror="this.onerror=null;this.src='images\/image-20220112154321847.png';" />
+</p>
+</li>
 </ol>
-
-<p><img src="images/image-20220112153023718.png" alt="image-20220112153023718" /></p>
-
-<ol>
-<li>확인한 URL 경로를 브라우저로 접근해 보면 다음과 같이 에러가 발생합니다.</li>
-</ol>
-
-<p><img src="images/image-20220112154321847.png" alt="image-20220112154321847" /></p>
-
 <h3 id="object에-pre-authenticated-requests-설정하기">Object에 Pre-Authenticated Requests 설정하기</h3>
-
 <ol>
-<li>Object의 우측 액션 메뉴에서 <strong>Create Pre-Authenticated Request</strong>를 클릭합니다.</li>
-</ol>
+<li>
+<p>Object의 우측 액션 메뉴에서 <strong>Create Pre-Authenticated Request</strong>를 클릭합니다.</p>
+<p>
 
-<p><img src="images/image-20220112154519136.png" alt="image-20220112154519136" /></p>
 
-<ol>
-<li><p>Create Pre-Authenticated Request 설정화면입니다.</p>
 
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112154519136.png" alt='image-20220112154519136' onerror="this.onerror=null;this.src='images\/image-20220112154519136.png';" />
+</p>
+</li>
+<li>
+<p>Create Pre-Authenticated Request 설정화면입니다.</p>
 <ul>
-<li><p><strong>Target</strong>: Bucket, Object 단위 또는 Prefix 기준으로 대상을 선택할 수 있습니다. 여기서는 Object로 합니다.</p></li>
-
-<li><p><strong>Access Type</strong>:  읽기, 쓰기에 대해서 권한을 설정할 수 있습니다.</p></li>
-
-<li><p><strong>Expiration</strong>: 만료기간을 정할 수 있습니다. 기본값은 일주일입니다.</p></li>
-</ul>
-
+<li>
+<p><strong>Target</strong>: Bucket, Object 단위 또는 Prefix 기준으로 대상을 선택할 수 있습니다. 여기서는 Object로 합니다.</p>
+</li>
+<li>
+<p><strong>Access Type</strong>:  읽기, 쓰기에 대해서 권한을 설정할 수 있습니다.</p>
+</li>
+<li>
+<p><strong>Expiration</strong>: 만료기간을 정할 수 있습니다. 기본값은 일주일입니다.</p>
 <p>설정후 아래 <strong>Create Pre-Authenticated Request</strong>를 클릭합니다.</p>
+<p>
 
-<p><img src="images/image-20220112155023915.png" alt="image-20220112155023915" /></p></li>
 
-<li><p>생성된 PAR 공유 링크를 복사합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220112155108789.png" alt="image-20220112155108789" /></p>
 
-<ol>
-<li>브라우저로 PAR 공유 링크를 접근합니다. 그림과 같이 인증없이 잘 접근됩니다.</li>
-</ol>
 
-<p><img src="images/image-20220112155203572.png" alt="image-20220112155203572" /></p>
 
-<h4 id="pre-authenticated-requests-삭제하기">Pre-Authenticated Requests 삭제하기</h4>
 
-<ol>
-<li>Bucket 상세화면의 좌측 <strong>Resources</strong> 메뉴에서 <strong>Pre-Authenticated Requests</strong>를 선택합니다. 그러면 현재 생성된 PAR 리스트가 그림과 같이 보이게 됩니다. 삭제할 PAR의 우측 액션 메뉴를 선택하여 <strong>Delete</strong>를 클릭합니다.</li>
-</ol>
-
-<p><img src="images/image-20220112155442766.png" alt="image-20220112155442766" /></p>
-
-<ol>
-<li><p>확인 메시지를 확인후 OK를 클릭합니다.</p></li>
-
-<li><p>PAR이 삭제된 후 앞서 접속한 PAR 공유 링크로 다시 접근합니다. 그림과 같이 이제 더 이상 접근되지 않습니다.</p></li>
-</ol>
-
-<p><img src="images/image-20220112155558644.png" alt="image-20220112155558644" /></p>
-
-<h4 id="bucket에-pre-authenticated-requests-설정하기">Bucket에 Pre-Authenticated Requests 설정하기</h4>
-
-<ol>
-<li><p>Bucket도 같은 방법으로 PAR 공유링크를 생성할 수 있습니다.</p>
-
-<ul>
-<li><strong>Enable Object Listing</strong>: API로 접근시 목록을 가져오는 기능을 추가적으로 활성화하는 것이 좋습니다.</li>
+<img class="img-fluid1" src="../images/image-20220112155023915.png" alt='image-20220112155023915' onerror="this.onerror=null;this.src='images\/image-20220112155023915.png';" />
+</p>
+</li>
 </ul>
+</li>
+<li>
+<p>생성된 PAR 공유 링크를 복사합니다.</p>
+<p>
 
-<p><img src="images/image-20220112155844976.png" alt="image-20220112155844976" /></p></li>
 
-<li><p>Enable Object Listing을 활성화하면 Bucket PAR 공유링크를 접근하면, 아래와 같이 결과 리스트가 JSON 메시지로 보입니다. 개별 오브젝트에 대한 접근은  SDK 또는 API로 가능합니다. 그래서 일단 이 부분은 생략하도록 하겠습니다.</p></li>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112155108789.png" alt='image-20220112155108789' onerror="this.onerror=null;this.src='images\/image-20220112155108789.png';" />
+</p>
+</li>
+<li>
+<p>브라우저로 PAR 공유 링크를 접근합니다. 그림과 같이 인증없이 잘 접근됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112155203572.png" alt='image-20220112155203572' onerror="this.onerror=null;this.src='images\/image-20220112155203572.png';" />
+</p>
+</li>
 </ol>
-
-<p><img src="images/image-20220112160148229.png" alt="image-20220112160148229" /></p>
-
+<h4 id="pre-authenticated-requests-삭제하기">Pre-Authenticated Requests 삭제하기</h4>
 <ol>
-<li>Prefix에 대한 사전 인증 링크도 동일한 방식으로 생성합니다.</li>
+<li>
+<p>Bucket 상세화면의 좌측 <strong>Resources</strong> 메뉴에서 <strong>Pre-Authenticated Requests</strong>를 선택합니다. 그러면 현재 생성된 PAR 리스트가 그림과 같이 보이게 됩니다. 삭제할 PAR의 우측 액션 메뉴를 선택하여 <strong>Delete</strong>를 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112155442766.png" alt='image-20220112155442766' onerror="this.onerror=null;this.src='images\/image-20220112155442766.png';" />
+</p>
+</li>
+<li>
+<p>확인 메시지를 확인후 OK를 클릭합니다.</p>
+</li>
+<li>
+<p>PAR이 삭제된 후 앞서 접속한 PAR 공유 링크로 다시 접근합니다. 그림과 같이 이제 더 이상 접근되지 않습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112155558644.png" alt='image-20220112155558644' onerror="this.onerror=null;this.src='images\/image-20220112155558644.png';" />
+</p>
+</li>
+</ol>
+<h4 id="bucket에-pre-authenticated-requests-설정하기">Bucket에 Pre-Authenticated Requests 설정하기</h4>
+<ol>
+<li>
+<p>Bucket도 같은 방법으로 PAR 공유링크를 생성할 수 있습니다.</p>
+<ul>
+<li>
+<p><strong>Enable Object Listing</strong>: API로 접근시 목록을 가져오는 기능을 추가적으로 활성화하는 것이 좋습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112155844976.png" alt='image-20220112155844976' onerror="this.onerror=null;this.src='images\/image-20220112155844976.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Enable Object Listing을 활성화하면 Bucket PAR 공유링크를 접근하면, 아래와 같이 결과 리스트가 JSON 메시지로 보입니다. 개별 오브젝트에 대한 접근은  SDK 또는 API로 가능합니다. 그래서 일단 이 부분은 생략하도록 하겠습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112160148229.png" alt='image-20220112160148229' onerror="this.onerror=null;this.src='images\/image-20220112160148229.png';" />
+</p>
+</li>
+<li>
+<p>Prefix에 대한 사전 인증 링크도 동일한 방식으로 생성합니다.</p>
+</li>
 </ol>
 <br>
 <br>
@@ -179,8 +257,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -211,8 +287,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -241,7 +315,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -547,7 +620,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1214,88 +1286,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

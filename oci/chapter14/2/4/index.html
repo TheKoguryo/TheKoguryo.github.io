@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>14.2.4 Terraform Configuration 실행하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter14/2/4/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,366 +44,360 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h3 id="14-2-4-terraform-configuration-실행하기">14.2.4 Terraform Configuration 실행하기</h3>
-
+<main><h3 id="1424-terraform-configuration-실행하기">14.2.4 Terraform Configuration 실행하기</h3>
 <ol>
-<li><p>명령창실행</p></li>
-
-<li><p>Configuration 파일이 있는 경로로 이동</p></li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls -la
-   total <span class="m">12</span>
-   drwxrwxr-x. <span class="m">2</span> opc opc  <span class="m">63</span> Jan <span class="m">18</span> <span class="m">09</span>:50 .
-   drwxrwxr-x. <span class="m">3</span> opc opc  <span class="m">25</span> Jan <span class="m">18</span> <span class="m">09</span>:46 ..
-   -rw-rw-r--. <span class="m">1</span> opc opc <span class="m">359</span> Jan <span class="m">18</span> <span class="m">09</span>:47 provider.tf
-   -rw-rw-r--. <span class="m">1</span> opc opc <span class="m">479</span> Jan <span class="m">18</span> <span class="m">09</span>:50 terraform.tfvars
-   -rw-rw-r--. <span class="m">1</span> opc opc <span class="m">284</span> Jan <span class="m">18</span> <span class="m">09</span>:47 vcn.tf</code></pre></div>
-<ol>
-<li>초기화 실행</li>
-</ol>
-
+<li>
+<p>명령창실행</p>
+</li>
+<li>
+<p>Configuration 파일이 있는 경로로 이동</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls -la
+total <span class="m">12</span>
+drwxrwxr-x. <span class="m">2</span> opc opc  <span class="m">63</span> Jan <span class="m">18</span> 09:50 .
+drwxrwxr-x. <span class="m">3</span> opc opc  <span class="m">25</span> Jan <span class="m">18</span> 09:46 ..
+-rw-rw-r--. <span class="m">1</span> opc opc <span class="m">359</span> Jan <span class="m">18</span> 09:47 provider.tf
+-rw-rw-r--. <span class="m">1</span> opc opc <span class="m">479</span> Jan <span class="m">18</span> 09:50 terraform.tfvars
+-rw-rw-r--. <span class="m">1</span> opc opc <span class="m">284</span> Jan <span class="m">18</span> 09:47 vcn.tf
+</code></pre></div></li>
+<li>
+<p>초기화 실행</p>
 <p>초기화를 수행하면 provider.tf에서 사용하는 OCI Provider를 자동으로 .terraform 폴더 밑으로 다운받습니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   terraform init</code></pre></div>
-<ul>
-<li><p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">terraform init
+</code></pre></div><ul>
+<li>
+<p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ terraform init
 
-<p>```shell
-  [opc@bastion-host example_vcn]$ terraform init</p>
+ Initializing the backend...
 
-<p>Initializing the backend&hellip;</p>
+ Initializing provider plugins...
+ - Finding latest version of hashicorp/oci...
+ - Installing hashicorp/oci v4.59.0...
+ - Installed hashicorp/oci v4.59.0 <span class="o">(</span>signed by HashiCorp<span class="o">)</span>
 
-<p>Initializing provider plugins&hellip;</p>
-
-<ul>
-<li>Finding latest version of hashicorp/oci&hellip;</li>
-<li>Installing hashicorp/oci v4.59.0&hellip;</li>
-<li>Installed hashicorp/oci v4.59.0 (signed by HashiCorp)
-<br /></li>
+ ...
+ <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls -la
+ total <span class="m">20</span>
+ drwxrwxr-x. <span class="m">3</span> opc opc <span class="m">4096</span> Jan <span class="m">18</span> 09:51 .
+ drwxrwxr-x. <span class="m">3</span> opc opc   <span class="m">25</span> Jan <span class="m">18</span> 09:46 ..
+ drwxr-xr-x. <span class="m">3</span> opc opc   <span class="m">23</span> Jan <span class="m">18</span> 09:51 .terraform
+ -rw-r--r--. <span class="m">1</span> opc opc <span class="m">1002</span> Jan <span class="m">18</span> 09:51 .terraform.lock.hcl
+ -rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">359</span> Jan <span class="m">18</span> 09:47 provider.tf
+ -rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">479</span> Jan <span class="m">18</span> 09:50 terraform.tfvars
+ -rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">284</span> Jan <span class="m">18</span> 09:47 vcn.tf
+ <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls -la .terraform
+ total <span class="m">4</span>
+ drwxr-xr-x. <span class="m">3</span> opc opc   <span class="m">23</span> Jan <span class="m">18</span> 09:51 .
+ drwxrwxr-x. <span class="m">3</span> opc opc <span class="m">4096</span> Jan <span class="m">18</span> 09:51 ..
+ drwxr-xr-x. <span class="m">3</span> opc opc   <span class="m">35</span> Jan <span class="m">18</span> 09:51 providers
+</code></pre></div></li>
 </ul>
-
-<p>&hellip;
-  [opc@bastion-host example_vcn]$ ls -la
-  total 20
-  drwxrwxr-x. 3 opc opc 4096 Jan 18 09:51 .
-  drwxrwxr-x. 3 opc opc   25 Jan 18 09:46 ..
-  drwxr-xr-x. 3 opc opc   23 Jan 18 09:51 .terraform
-  -rw-r&ndash;r&ndash;. 1 opc opc 1002 Jan 18 09:51 .terraform.lock.hcl
-  -rw-rw-r&ndash;. 1 opc opc  359 Jan 18 09:47 provider.tf
-  -rw-rw-r&ndash;. 1 opc opc  479 Jan 18 09:50 terraform.tfvars
-  -rw-rw-r&ndash;. 1 opc opc  284 Jan 18 09:47 vcn.tf
-  [opc@bastion-host example_vcn]$ ls -la .terraform
-  total 4
-  drwxr-xr-x. 3 opc opc   23 Jan 18 09:51 .
-  drwxrwxr-x. 3 opc opc 4096 Jan 18 09:51 ..
-  drwxr-xr-x. 3 opc opc   35 Jan 18 09:51 providers
- ```</p></li>
-</ul>
-
-<ol>
-<li>실행 플랜 확인</li>
-</ol>
-
+</li>
+<li>
+<p>실행 플랜 확인</p>
 <p>플랜 명령을 수행하면, 실제 OCI에 수행되는 계획을 확인할 수 있습니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   terraform plan</code></pre></div>
-<ul>
-<li><p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">terraform plan
+</code></pre></div><ul>
+<li>
+<p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ terraform plan
 
-<p>```shell
- [opc@bastion-host example_vcn]$ terraform plan</p>
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+  + create
 
-<p>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
- following symbols:</p>
+Terraform will perform the following actions:
 
-<ul>
-<li>create
-<br /></li>
+  <span class="c1"># oci_core_virtual_network.vcn1 will be created</span>
+  + resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
+      + <span class="nv">cidr_block</span>               <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
+      + <span class="nv">cidr_blocks</span>              <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">compartment_id</span>           <span class="o">=</span> <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&#34;</span>
+      + <span class="nv">default_dhcp_options_id</span>  <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">default_route_table_id</span>   <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">default_security_list_id</span> <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">defined_tags</span>             <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">display_name</span>             <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+      + <span class="nv">dns_label</span>                <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+      + <span class="nv">freeform_tags</span>            <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">id</span>                       <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">ipv6cidr_blocks</span>          <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">is_ipv6enabled</span>           <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">state</span>                    <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">time_created</span>             <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">vcn_domain_name</span>          <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+    <span class="o">}</span>
+
+Plan: <span class="m">1</span> to add, <span class="m">0</span> to change, <span class="m">0</span> to destroy.
+
+Changes to Outputs:
+  + <span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
+      + <span class="o">(</span>known after apply<span class="o">)</span>,
+    <span class="o">]</span>
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Note: You didn<span class="s1">&#39;t use the -out option to save this plan, so Terraform can&#39;</span>t guarantee to take exactly these actions <span class="k">if</span> you run
+<span class="s2">&#34;terraform apply&#34;</span> now.
+</code></pre></div></li>
 </ul>
-
-<p>Terraform will perform the following actions:</p>
-
-<p># oci_core_virtual_network.vcn1 will be created
-   + resource &ldquo;oci_core_virtual_network&rdquo; &ldquo;vcn1&rdquo; {
-       + cidr_block               = &ldquo;10.0.0.0/16&rdquo;
-       + cidr_blocks              = (known after apply)
-       + compartment_id           = &ldquo;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&rdquo;
-       + default_dhcp_options_id  = (known after apply)
-       + default_route_table_id   = (known after apply)
-       + default_security_list_id = (known after apply)
-       + defined_tags             = (known after apply)
-       + display_name             = &ldquo;vcn1&rdquo;
-       + dns_label                = &ldquo;vcn1&rdquo;
-       + freeform_tags            = (known after apply)
-       + id                       = (known after apply)
-       + ipv6cidr_blocks          = (known after apply)
-       + is_ipv6enabled           = (known after apply)
-       + state                    = (known after apply)
-       + time_created             = (known after apply)
-       + vcn_domain_name          = (known after apply)
-     }</p>
-
-<p>Plan: 1 to add, 0 to change, 0 to destroy.</p>
-
-<p>Changes to Outputs:
-   + vcn1_ocid = [
-       + (known after apply),
-     ]</p>
-
-<p>──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</p>
-
-<p>Note: You didn&rsquo;t use the -out option to save this plan, so Terraform can&rsquo;t guarantee to take exactly these actions if you run
- &ldquo;terraform apply&rdquo; now.
- ```</p></li>
-</ul>
-
-<ol>
-<li>실행</li>
-</ol>
-
+</li>
+<li>
+<p>실행</p>
 <p>실행하면 실제 OCI에 Terraform 계획이 적용되어 관련된 OCI 자원이 생성됩니다. 또한 실행후 terraform output 명령을 통해 outout 변수를 조회할 수 있습니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   terraform apply</code></pre></div>
-<ul>
-<li><p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">terraform apply
+</code></pre></div><ul>
+<li>
+<p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ terraform apply
 
-<p>```shell
- [opc@bastion-host example_vcn]$ terraform apply</p>
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+  + create
 
-<p>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
- following symbols:</p>
+Terraform will perform the following actions:
 
-<ul>
-<li>create
-<br /></li>
+  <span class="c1"># oci_core_virtual_network.vcn1 will be created</span>
+  + resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
+      + <span class="nv">cidr_block</span>               <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
+      + <span class="nv">cidr_blocks</span>              <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">compartment_id</span>           <span class="o">=</span> <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&#34;</span>
+      + <span class="nv">default_dhcp_options_id</span>  <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">default_route_table_id</span>   <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">default_security_list_id</span> <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">defined_tags</span>             <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">display_name</span>             <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+      + <span class="nv">dns_label</span>                <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+      + <span class="nv">freeform_tags</span>            <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">id</span>                       <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">ipv6cidr_blocks</span>          <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">is_ipv6enabled</span>           <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">state</span>                    <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">time_created</span>             <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+      + <span class="nv">vcn_domain_name</span>          <span class="o">=</span> <span class="o">(</span>known after apply<span class="o">)</span>
+    <span class="o">}</span>
+
+Plan: <span class="m">1</span> to add, <span class="m">0</span> to change, <span class="m">0</span> to destroy.
+
+Changes to Outputs:
+  + <span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
+      + <span class="o">(</span>known after apply<span class="o">)</span>,
+    <span class="o">]</span>
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only <span class="s1">&#39;yes&#39;</span> will be accepted to approve.
+
+  Enter a value: yes
+
+oci_core_virtual_network.vcn1: Creating...
+oci_core_virtual_network.vcn1: Creation <span class="nb">complete</span> after 1s <span class="o">[</span><span class="nv">id</span><span class="o">=</span>ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q<span class="o">]</span>
+
+Apply complete! Resources: <span class="m">1</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
+
+Outputs:
+
+<span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
+  <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>,
+<span class="o">]</span>
+</code></pre></div></li>
 </ul>
-
-<p>Terraform will perform the following actions:</p>
-
-<p># oci_core_virtual_network.vcn1 will be created
-   + resource &ldquo;oci_core_virtual_network&rdquo; &ldquo;vcn1&rdquo; {
-       + cidr_block               = &ldquo;10.0.0.0/16&rdquo;
-       + cidr_blocks              = (known after apply)
-       + compartment_id           = &ldquo;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&rdquo;
-       + default_dhcp_options_id  = (known after apply)
-       + default_route_table_id   = (known after apply)
-       + default_security_list_id = (known after apply)
-       + defined_tags             = (known after apply)
-       + display_name             = &ldquo;vcn1&rdquo;
-       + dns_label                = &ldquo;vcn1&rdquo;
-       + freeform_tags            = (known after apply)
-       + id                       = (known after apply)
-       + ipv6cidr_blocks          = (known after apply)
-       + is_ipv6enabled           = (known after apply)
-       + state                    = (known after apply)
-       + time_created             = (known after apply)
-       + vcn_domain_name          = (known after apply)
-     }</p>
-
-<p>Plan: 1 to add, 0 to change, 0 to destroy.</p>
-
-<p>Changes to Outputs:
-   + vcn1_ocid = [
-       + (known after apply),
-     ]</p>
-
-<p>Do you want to perform these actions?
-   Terraform will perform the actions described above.
-   Only &lsquo;yes&rsquo; will be accepted to approve.</p>
-
-<p>Enter a value: yes</p>
-
-<p>oci_core_virtual_network.vcn1: Creating&hellip;
- oci_core_virtual_network.vcn1: Creation complete after 1s [id=ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q]</p>
-
-<p>Apply complete! Resources: 1 added, 0 changed, 0 destroyed.</p>
-
-<p>Outputs:</p>
-
-<p>vcn1_ocid = [
-   &ldquo;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&rdquo;,
- ]
- ```</p></li>
-</ul>
-
-<ol>
-<li><p>실행결과 확인</p>
-
+</li>
+<li>
+<p>실행결과 확인</p>
 <ul>
-<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Networking</strong> » <strong>Virtual Cloud Networks</strong> 항목으로 이동합니다.</p></li>
+<li>
+<p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Networking</strong> » <strong>Virtual Cloud Networks</strong> 항목으로 이동합니다.</p>
+</li>
+<li>
+<p>Terraform Configuration시 지정한 Comparment를 선택합니다.</p>
+</li>
+<li>
+<p>그림과 같이 생성된 VCN을 확인 할 수 있습니다.</p>
+<p>
 
-<li><p>Terraform Configuration시 지정한 Comparment를 선택합니다.</p></li>
 
-<li><p>그림과 같이 생성된 VCN을 확인 할 수 있습니다.</p></li>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220118190446150.png" alt='image-20220118190446150' onerror="this.onerror=null;this.src='images\/image-20220118190446150.png';" />
+</p>
+</li>
 </ul>
-
-<p><img src="images/image-20220118190446150.png" alt="image-20220118190446150" /></p></li>
-
-<li><p>State 관리</p>
-
+</li>
+<li>
+<p>State 관리</p>
 <ul>
-<li>다시 terraform apply를 실행하면 아래와 앞서 이미 실행되어 자원이 생성되었기 때문에, 변경 적용할 것이 없다고 표시됩니다.</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ terraform apply
- oci_core_virtual_network.vcn1: Refreshing state... <span class="o">[</span><span class="nv">id</span><span class="o">=</span>ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q<span class="o">]</span>
-     
- No changes. Your infrastructure matches the configuration.
-     
- Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
-     
- Apply complete! Resources: <span class="m">0</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
-     
- Outputs:
-     
- <span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
-   <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>,
- <span class="o">]</span></code></pre></div>
-<ul>
-<li>Terraform State 관리 파일</li>
-</ul>
+<li>
+<p>다시 terraform apply를 실행하면 아래와 앞서 이미 실행되어 자원이 생성되었기 때문에, 변경 적용할 것이 없다고 표시됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ terraform apply
+oci_core_virtual_network.vcn1: Refreshing state... <span class="o">[</span><span class="nv">id</span><span class="o">=</span>ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q<span class="o">]</span>
 
+No changes. Your infrastructure matches the configuration.
+
+Terraform has compared your real infrastructure against your configuration and found no differences, so no changes are needed.
+
+Apply complete! Resources: <span class="m">0</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
+
+Outputs:
+
+<span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
+  <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>,
+<span class="o">]</span>
+</code></pre></div></li>
+<li>
+<p>Terraform State 관리 파일</p>
 <p>terraform 설정을 실행하면, 실행후 아래처럼 terraform.tfstate 파일이 생성되고 생성된 자원에 대한 id와 관련 속성 등을 기록하여 자원 상태를 관리하게 됩니다. 그래서 다시 terraform apply를 통해 실행하더라도, tfstate에서 관리되는 id의 자원의 현재 OCI 자원의 현재 상태를 확인(Refresh)한 상태와 적용할 Plan을 비교하여 변경할 사항이 있는 지 확인후 반영됩니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls -la
- total <span class="m">24</span>
- drwxrwxr-x. <span class="m">3</span> opc opc <span class="m">4096</span> Jan <span class="m">18</span> <span class="m">10</span>:06 .
- drwxrwxr-x. <span class="m">3</span> opc opc   <span class="m">25</span> Jan <span class="m">18</span> <span class="m">09</span>:46 ..
- drwxr-xr-x. <span class="m">3</span> opc opc   <span class="m">23</span> Jan <span class="m">18</span> <span class="m">09</span>:51 .terraform
- -rw-r--r--. <span class="m">1</span> opc opc <span class="m">1002</span> Jan <span class="m">18</span> <span class="m">09</span>:51 .terraform.lock.hcl
- -rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">359</span> Jan <span class="m">18</span> <span class="m">09</span>:47 provider.tf
- -rw-rw-r--. <span class="m">1</span> opc opc <span class="m">2152</span> Jan <span class="m">18</span> <span class="m">10</span>:06 terraform.tfstate
- -rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">479</span> Jan <span class="m">18</span> <span class="m">09</span>:50 terraform.tfvars
- -rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">284</span> Jan <span class="m">18</span> <span class="m">09</span>:47 vcn.tf
- <span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ cat terraform.tfstate
- <span class="o">{</span>
-   <span class="s2">&#34;version&#34;</span>: <span class="m">4</span>,
-   <span class="s2">&#34;terraform_version&#34;</span>: <span class="s2">&#34;1.1.3&#34;</span>,
-   <span class="s2">&#34;serial&#34;</span>: <span class="m">2</span>,
-   <span class="s2">&#34;lineage&#34;</span>: <span class="s2">&#34;b9cd2a13-5ef9-f1e1-ffc9-ea5b2964955d&#34;</span>,
-   <span class="s2">&#34;outputs&#34;</span>: <span class="o">{</span>
-     <span class="s2">&#34;vcn1_ocid&#34;</span>: <span class="o">{</span>
-       <span class="s2">&#34;value&#34;</span>: <span class="o">[</span>
-         <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>
-       <span class="o">]</span>,
-       <span class="s2">&#34;type&#34;</span>: <span class="o">[</span>
-         <span class="s2">&#34;tuple&#34;</span>,
-         <span class="o">[</span>
-           <span class="s2">&#34;string&#34;</span>
-         <span class="o">]</span>
-       <span class="o">]</span>
-     <span class="o">}</span>
-   <span class="o">}</span>,
-   <span class="s2">&#34;resources&#34;</span>: <span class="o">[</span>
-     <span class="o">{</span>
-       <span class="s2">&#34;mode&#34;</span>: <span class="s2">&#34;managed&#34;</span>,
-       <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;oci_core_virtual_network&#34;</span>,
-       <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;vcn1&#34;</span>,
-       <span class="s2">&#34;provider&#34;</span>: <span class="s2">&#34;provider[\&#34;registry.terraform.io/hashicorp/oci\&#34;]&#34;</span>,
-       <span class="s2">&#34;instances&#34;</span>: <span class="o">[</span>
-         <span class="o">{</span>
-           <span class="s2">&#34;schema_version&#34;</span>: <span class="m">0</span>,
-           <span class="s2">&#34;attributes&#34;</span>: <span class="o">{</span>
-             <span class="s2">&#34;cidr_block&#34;</span>: <span class="s2">&#34;10.0.0.0/16&#34;</span>,
-             <span class="s2">&#34;cidr_blocks&#34;</span>: <span class="o">[</span>
-               <span class="s2">&#34;10.0.0.0/16&#34;</span>
-             <span class="o">]</span>,
-             <span class="s2">&#34;compartment_id&#34;</span>: <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&#34;</span>,
-             <span class="s2">&#34;default_dhcp_options_id&#34;</span>: <span class="s2">&#34;ocid1.dhcpoptions.oc1.ap-seoul-1.aaaaaaaaun4ti33kubad7cqexhe4npgwy773lldor7xxfbbu2lu5yz3q6uaa&#34;</span>,
-             <span class="s2">&#34;default_route_table_id&#34;</span>: <span class="s2">&#34;ocid1.routetable.oc1.ap-seoul-1.aaaaaaaammsdhhl7czlkrxeji7eqot6tkiyfcvrhuqvf4hh3cra3rt3m2e2a&#34;</span>,
-             <span class="s2">&#34;default_security_list_id&#34;</span>: <span class="s2">&#34;ocid1.securitylist.oc1.ap-seoul-1.aaaaaaaadmiqjfjkiw7k73lxwbilgci2xrzehxud3ezfujmt3gtjenocsoaa&#34;</span>,
-             <span class="s2">&#34;defined_tags&#34;</span>: <span class="o">{</span>
-               <span class="s2">&#34;Oracle-Tags.CreatedBy&#34;</span>: <span class="s2">&#34;sandboxer&#34;</span>,
-               <span class="s2">&#34;Oracle-Tags.CreatedOn&#34;</span>: <span class="s2">&#34;2022-01-18T10:00:51.322Z&#34;</span>
-             <span class="o">}</span>,
-             <span class="s2">&#34;display_name&#34;</span>: <span class="s2">&#34;vcn1&#34;</span>,
-             <span class="s2">&#34;dns_label&#34;</span>: <span class="s2">&#34;vcn1&#34;</span>,
-             <span class="s2">&#34;freeform_tags&#34;</span>: <span class="o">{}</span>,
-             <span class="s2">&#34;id&#34;</span>: <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>,
-             <span class="s2">&#34;ipv6cidr_blocks&#34;</span>: <span class="o">[]</span>,
-             <span class="s2">&#34;is_ipv6enabled&#34;</span>: false,
-             <span class="s2">&#34;state&#34;</span>: <span class="s2">&#34;AVAILABLE&#34;</span>,
-             <span class="s2">&#34;time_created&#34;</span>: <span class="s2">&#34;2022-01-18 10:00:51.389 +0000 UTC&#34;</span>,
-             <span class="s2">&#34;timeouts&#34;</span>: null,
-             <span class="s2">&#34;vcn_domain_name&#34;</span>: <span class="s2">&#34;vcn1.oraclevcn.com&#34;</span>
-           <span class="o">}</span>,
-           <span class="s2">&#34;sensitive_attributes&#34;</span>: <span class="o">[]</span>,
-           <span class="s2">&#34;private&#34;</span>: <span class="s2">&#34;eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19&#34;</span>
-         <span class="o">}</span>
-       <span class="o">]</span>
-     <span class="o">}</span>
-   <span class="o">]</span>
- <span class="o">}</span></code></pre></div></li>
-
-<li><p>삭제</p></li>
-</ol>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ ls -la
+total <span class="m">24</span>
+drwxrwxr-x. <span class="m">3</span> opc opc <span class="m">4096</span> Jan <span class="m">18</span> 10:06 .
+drwxrwxr-x. <span class="m">3</span> opc opc   <span class="m">25</span> Jan <span class="m">18</span> 09:46 ..
+drwxr-xr-x. <span class="m">3</span> opc opc   <span class="m">23</span> Jan <span class="m">18</span> 09:51 .terraform
+-rw-r--r--. <span class="m">1</span> opc opc <span class="m">1002</span> Jan <span class="m">18</span> 09:51 .terraform.lock.hcl
+-rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">359</span> Jan <span class="m">18</span> 09:47 provider.tf
+-rw-rw-r--. <span class="m">1</span> opc opc <span class="m">2152</span> Jan <span class="m">18</span> 10:06 terraform.tfstate
+-rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">479</span> Jan <span class="m">18</span> 09:50 terraform.tfvars
+-rw-rw-r--. <span class="m">1</span> opc opc  <span class="m">284</span> Jan <span class="m">18</span> 09:47 vcn.tf
+<span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ cat terraform.tfstate
+<span class="o">{</span>
+  <span class="s2">&#34;version&#34;</span>: 4,
+  <span class="s2">&#34;terraform_version&#34;</span>: <span class="s2">&#34;1.1.3&#34;</span>,
+  <span class="s2">&#34;serial&#34;</span>: 2,
+  <span class="s2">&#34;lineage&#34;</span>: <span class="s2">&#34;b9cd2a13-5ef9-f1e1-ffc9-ea5b2964955d&#34;</span>,
+  <span class="s2">&#34;outputs&#34;</span>: <span class="o">{</span>
+    <span class="s2">&#34;vcn1_ocid&#34;</span>: <span class="o">{</span>
+      <span class="s2">&#34;value&#34;</span>: <span class="o">[</span>
+        <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>
+      <span class="o">]</span>,
+      <span class="s2">&#34;type&#34;</span>: <span class="o">[</span>
+        <span class="s2">&#34;tuple&#34;</span>,
+        <span class="o">[</span>
+          <span class="s2">&#34;string&#34;</span>
+        <span class="o">]</span>
+      <span class="o">]</span>
+    <span class="o">}</span>
+  <span class="o">}</span>,
+  <span class="s2">&#34;resources&#34;</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">&#34;mode&#34;</span>: <span class="s2">&#34;managed&#34;</span>,
+      <span class="s2">&#34;type&#34;</span>: <span class="s2">&#34;oci_core_virtual_network&#34;</span>,
+      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;vcn1&#34;</span>,
+      <span class="s2">&#34;provider&#34;</span>: <span class="s2">&#34;provider[\&#34;registry.terraform.io/hashicorp/oci\&#34;]&#34;</span>,
+      <span class="s2">&#34;instances&#34;</span>: <span class="o">[</span>
+        <span class="o">{</span>
+          <span class="s2">&#34;schema_version&#34;</span>: 0,
+          <span class="s2">&#34;attributes&#34;</span>: <span class="o">{</span>
+            <span class="s2">&#34;cidr_block&#34;</span>: <span class="s2">&#34;10.0.0.0/16&#34;</span>,
+            <span class="s2">&#34;cidr_blocks&#34;</span>: <span class="o">[</span>
+              <span class="s2">&#34;10.0.0.0/16&#34;</span>
+            <span class="o">]</span>,
+            <span class="s2">&#34;compartment_id&#34;</span>: <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&#34;</span>,
+            <span class="s2">&#34;default_dhcp_options_id&#34;</span>: <span class="s2">&#34;ocid1.dhcpoptions.oc1.ap-seoul-1.aaaaaaaaun4ti33kubad7cqexhe4npgwy773lldor7xxfbbu2lu5yz3q6uaa&#34;</span>,
+            <span class="s2">&#34;default_route_table_id&#34;</span>: <span class="s2">&#34;ocid1.routetable.oc1.ap-seoul-1.aaaaaaaammsdhhl7czlkrxeji7eqot6tkiyfcvrhuqvf4hh3cra3rt3m2e2a&#34;</span>,
+            <span class="s2">&#34;default_security_list_id&#34;</span>: <span class="s2">&#34;ocid1.securitylist.oc1.ap-seoul-1.aaaaaaaadmiqjfjkiw7k73lxwbilgci2xrzehxud3ezfujmt3gtjenocsoaa&#34;</span>,
+            <span class="s2">&#34;defined_tags&#34;</span>: <span class="o">{</span>
+              <span class="s2">&#34;Oracle-Tags.CreatedBy&#34;</span>: <span class="s2">&#34;sandboxer&#34;</span>,
+              <span class="s2">&#34;Oracle-Tags.CreatedOn&#34;</span>: <span class="s2">&#34;2022-01-18T10:00:51.322Z&#34;</span>
+            <span class="o">}</span>,
+            <span class="s2">&#34;display_name&#34;</span>: <span class="s2">&#34;vcn1&#34;</span>,
+            <span class="s2">&#34;dns_label&#34;</span>: <span class="s2">&#34;vcn1&#34;</span>,
+            <span class="s2">&#34;freeform_tags&#34;</span>: <span class="o">{}</span>,
+            <span class="s2">&#34;id&#34;</span>: <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>,
+            <span class="s2">&#34;ipv6cidr_blocks&#34;</span>: <span class="o">[]</span>,
+            <span class="s2">&#34;is_ipv6enabled&#34;</span>: false,
+            <span class="s2">&#34;state&#34;</span>: <span class="s2">&#34;AVAILABLE&#34;</span>,
+            <span class="s2">&#34;time_created&#34;</span>: <span class="s2">&#34;2022-01-18 10:00:51.389 +0000 UTC&#34;</span>,
+            <span class="s2">&#34;timeouts&#34;</span>: null,
+            <span class="s2">&#34;vcn_domain_name&#34;</span>: <span class="s2">&#34;vcn1.oraclevcn.com&#34;</span>
+          <span class="o">}</span>,
+          <span class="s2">&#34;sensitive_attributes&#34;</span>: <span class="o">[]</span>,
+          <span class="s2">&#34;private&#34;</span>: <span class="s2">&#34;eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19&#34;</span>
+        <span class="o">}</span>
+      <span class="o">]</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>삭제</p>
 <p>앞서 Terraform으로 생성된 자원을 삭제하려면 다음 명령을 수행하면 됩니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   terraform destroy</code></pre></div>
-<ul>
-<li><p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">terraform destroy
+</code></pre></div><ul>
+<li>
+<p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@bastion-host example_vcn<span class="o">]</span>$ terraform destroy
+oci_core_virtual_network.vcn1: Refreshing state... <span class="o">[</span><span class="nv">id</span><span class="o">=</span>ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q<span class="o">]</span>
 
-<p>```shell
- [opc@bastion-host example_vcn]$ terraform destroy
- oci_core_virtual_network.vcn1: Refreshing state&hellip; [id=ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q]</p>
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
+following symbols:
+  - destroy
 
-<p>Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the
- following symbols:</p>
+Terraform will perform the following actions:
 
-<ul>
-<li>destroy
-<br /></li>
-</ul>
+  <span class="c1"># oci_core_virtual_network.vcn1 will be destroyed</span>
+  - resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
+      - <span class="nv">cidr_block</span>               <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span> -&gt; null
+      - <span class="nv">cidr_blocks</span>              <span class="o">=</span> <span class="o">[</span>
+          - <span class="s2">&#34;10.0.0.0/16&#34;</span>,
+        <span class="o">]</span> -&gt; null
+      - <span class="nv">compartment_id</span>           <span class="o">=</span> <span class="s2">&#34;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&#34;</span> -&gt; null
+      - <span class="nv">default_dhcp_options_id</span>  <span class="o">=</span> <span class="s2">&#34;ocid1.dhcpoptions.oc1.ap-seoul-1.aaaaaaaaun4ti33kubad7cqexhe4npgwy773lldor7xxfbbu2lu5yz3q6uaa&#34;</span> -&gt; null
+      - <span class="nv">default_route_table_id</span>   <span class="o">=</span> <span class="s2">&#34;ocid1.routetable.oc1.ap-seoul-1.aaaaaaaammsdhhl7czlkrxeji7eqot6tkiyfcvrhuqvf4hh3cra3rt3m2e2a&#34;</span> -&gt; null
+      - <span class="nv">default_security_list_id</span> <span class="o">=</span> <span class="s2">&#34;ocid1.securitylist.oc1.ap-seoul-1.aaaaaaaadmiqjfjkiw7k73lxwbilgci2xrzehxud3ezfujmt3gtjenocsoaa&#34;</span> -&gt; null
+      - <span class="nv">defined_tags</span>             <span class="o">=</span> <span class="o">{</span>
+          - <span class="s2">&#34;Oracle-Tags.CreatedBy&#34;</span> <span class="o">=</span> <span class="s2">&#34;sandboxer&#34;</span>
+          - <span class="s2">&#34;Oracle-Tags.CreatedOn&#34;</span> <span class="o">=</span> <span class="s2">&#34;2022-01-18T10:00:51.322Z&#34;</span>
+        <span class="o">}</span> -&gt; null
+      - <span class="nv">display_name</span>             <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span> -&gt; null
+      - <span class="nv">dns_label</span>                <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span> -&gt; null
+      - <span class="nv">freeform_tags</span>            <span class="o">=</span> <span class="o">{}</span> -&gt; null
+      - <span class="nv">id</span>                       <span class="o">=</span> <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span> -&gt; null
+      - <span class="nv">ipv6cidr_blocks</span>          <span class="o">=</span> <span class="o">[]</span> -&gt; null
+      - <span class="nv">is_ipv6enabled</span>           <span class="o">=</span> <span class="nb">false</span> -&gt; null
+      - <span class="nv">state</span>                    <span class="o">=</span> <span class="s2">&#34;AVAILABLE&#34;</span> -&gt; null
+      - <span class="nv">time_created</span>             <span class="o">=</span> <span class="s2">&#34;2022-01-18 10:00:51.389 +0000 UTC&#34;</span> -&gt; null
+      - <span class="nv">vcn_domain_name</span>          <span class="o">=</span> <span class="s2">&#34;vcn1.oraclevcn.com&#34;</span> -&gt; null
+    <span class="o">}</span>
 
-<p>Terraform will perform the following actions:</p>
+Plan: <span class="m">0</span> to add, <span class="m">0</span> to change, <span class="m">1</span> to destroy.
 
-<p># oci_core_virtual_network.vcn1 will be destroyed
-   - resource &ldquo;oci_core_virtual_network&rdquo; &ldquo;vcn1&rdquo; {
-       - cidr_block               = &ldquo;10.0.0.0/16&rdquo; -&gt; null
-       - cidr_blocks              = [
-           - &ldquo;10.0.0.0/16&rdquo;,
-         ] -&gt; null
-       - compartment_id           = &ldquo;ocid1.compartment.oc1..aaaaaaaaqcgintvsf3giria27rztelhvr4n6gra5wcvtj2bxzm3ukrk7aq7q&rdquo; -&gt; null
-       - default_dhcp_options_id  = &ldquo;ocid1.dhcpoptions.oc1.ap-seoul-1.aaaaaaaaun4ti33kubad7cqexhe4npgwy773lldor7xxfbbu2lu5yz3q6uaa&rdquo; -&gt; null
-       - default_route_table_id   = &ldquo;ocid1.routetable.oc1.ap-seoul-1.aaaaaaaammsdhhl7czlkrxeji7eqot6tkiyfcvrhuqvf4hh3cra3rt3m2e2a&rdquo; -&gt; null
-       - default_security_list_id = &ldquo;ocid1.securitylist.oc1.ap-seoul-1.aaaaaaaadmiqjfjkiw7k73lxwbilgci2xrzehxud3ezfujmt3gtjenocsoaa&rdquo; -&gt; null
-       - defined_tags             = {
-           - &ldquo;Oracle-Tags.CreatedBy&rdquo; = &ldquo;sandboxer&rdquo;
-           - &ldquo;Oracle-Tags.CreatedOn&rdquo; = &ldquo;2022-01-18T10:00:51.322Z&rdquo;
-         } -&gt; null
-       - display_name             = &ldquo;vcn1&rdquo; -&gt; null
-       - dns_label                = &ldquo;vcn1&rdquo; -&gt; null
-       - freeform_tags            = {} -&gt; null
-       - id                       = &ldquo;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&rdquo; -&gt; null
-       - ipv6cidr_blocks          = [] -&gt; null
-       - is_ipv6enabled           = false -&gt; null
-       - state                    = &ldquo;AVAILABLE&rdquo; -&gt; null
-       - time_created             = &ldquo;2022-01-18 10:00:51.389 +0000 UTC&rdquo; -&gt; null
-       - vcn_domain_name          = &ldquo;vcn1.oraclevcn.com&rdquo; -&gt; null
-     }</p>
+Changes to Outputs:
+  - <span class="nv">vcn1_ocid</span> <span class="o">=</span> <span class="o">[</span>
+      - <span class="s2">&#34;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&#34;</span>,
+    <span class="o">]</span> -&gt; null
 
-<p>Plan: 0 to add, 0 to change, 1 to destroy.</p>
+Do you really want to destroy all resources?
+  Terraform will destroy all your managed infrastructure, as shown above.
+  There is no undo. Only <span class="s1">&#39;yes&#39;</span> will be accepted to confirm.
 
-<p>Changes to Outputs:
-   - vcn1_ocid = [
-       - &ldquo;ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q&rdquo;,
-     ] -&gt; null</p>
+  Enter a value: yes
 
-<p>Do you really want to destroy all resources?
-   Terraform will destroy all your managed infrastructure, as shown above.
-   There is no undo. Only &lsquo;yes&rsquo; will be accepted to confirm.</p>
+oci_core_virtual_network.vcn1: Destroying... <span class="o">[</span><span class="nv">id</span><span class="o">=</span>ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q<span class="o">]</span>
+oci_core_virtual_network.vcn1: Destruction <span class="nb">complete</span> after 1s
 
-<p>Enter a value: yes</p>
-
-<p>oci_core_virtual_network.vcn1: Destroying&hellip; [id=ocid1.vcn.oc1.ap-seoul-1.amaaaaaansfh2iiaduerl4znqr6sb2yng6j7x2yov4kqrsuhi452pcjxl52q]
- oci_core_virtual_network.vcn1: Destruction complete after 1s</p>
-
-<p>Destroy complete! Resources: 1 destroyed.
- ```</p></li>
-
-<li><p>실행결과</p>
-
+Destroy complete! Resources: <span class="m">1</span> destroyed.
+</code></pre></div></li>
+<li>
+<p>실행결과</p>
 <p>아래 그림과 같이 vcn1이 없어진 것을 볼 수 있습니다.</p>
+<p>
 
-<p><img src="images/image-20220118191152233.png" alt="image-20220118191152233" /></p></li>
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220118191152233.png" alt='image-20220118191152233' onerror="this.onerror=null;this.src='images\/image-20220118191152233.png';" />
+</p>
+</li>
 </ul>
+</li>
+</ol>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
@@ -450,8 +444,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -482,8 +474,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -512,7 +502,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -818,7 +807,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1485,88 +1473,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

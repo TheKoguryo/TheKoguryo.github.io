@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>15.1 Resource Manager 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter15/1/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,200 +44,268 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="15-1-resource-manager-사용하기">15.1 Resource Manager 사용하기</h2>
-
+<main><h2 id="151-resource-manager-사용하기">15.1 Resource Manager 사용하기</h2>
 <p>Resource Manager는 OCI 자원 Provisioning을 자동화하는 기능으로 Terraform Configuration을 등록해서 실행하는 서비스입니다. 클라이언트에 Terraform을 설치하는 것이 아닌, Resource Manager에서 Terraform Configuration 파일들을 등록해서 OCI 콘솔 또는 OCI CLI로 실행할 수 있습니다.</p>
-
 <p>Terraform CLI를 별도로 설치할 필요가 없고, Terraform 실행 State를 Resource Manager가 관리한다는 차이가 있습니다.</p>
-
 <ul>
-<li>Stack</li>
-</ul>
-
+<li>
+<p>Stack</p>
 <p>스택은 Terraform Configuration 묶음을 등록하여 생성하는 Provisioning 단위입니다.</p>
-
-<ul>
-<li>Job</li>
-</ul>
-
+</li>
+<li>
+<p>Job</p>
 <p>Job은 스택으로 등록된 Terraform Configuration의 실행 작업이며, Terraform에서 경험한 것 처럼 Terraform Plan, Apply, Destroy이 실행되는 작업입니다.</p>
-
-<h3 id="resource-manager-사용하기">Resource Manager 사용하기</h3>
-
-<ol>
-<li><p>Terraform Configuration 만들기
-<a href="../../chapter15/2">15.2 Terraform Configurations 작성하기</a>에서 사용한 VCN 만들기 설정파일을 그대로 사용해 보겠습니다. <strong>다만 차이는 oci provider에서 region만 필수 필드이고, 나머지 항목들은 필수가 아닙니다.</strong> 등록한 Resource Manager의 Tenancy에서 실행되고, 인증받은 유저가 실행하기 때문에 나머지 항목은 필수가 아닙니다.</p>
-
-<ul>
-<li><p>provider.tf</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell"> variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-         
- provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
-   <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
- <span class="o">}</span></code></pre></div></li>
-
-<li><p>vcn.tf</p></li>
+</li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">  variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
-      
-  resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
-    <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
-    <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
-    <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-    <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
-  <span class="o">}</span>
-      
-  output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
-    <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
-  <span class="o">}</span></code></pre></div>
+<h3 id="resource-manager-사용하기">Resource Manager 사용하기</h3>
+<ol>
+<li>
+<p>Terraform Configuration 만들기
+<a href="../../chapter15/2">15.2 Terraform Configurations 작성하기</a>에서 사용한 VCN 만들기 설정파일을 그대로 사용해 보겠습니다. <strong>다만 차이는 oci provider에서 region만 필수 필드이고, 나머지 항목들은 필수가 아닙니다.</strong> 등록한 Resource Manager의 Tenancy에서 실행되고, 인증받은 유저가 실행하기 때문에 나머지 항목은 필수가 아닙니다.</p>
+<ul>
+<li>
+<p>provider.tf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
+
+provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
+  <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+<li>
+<p>vcn.tf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
+
+resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
+  <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
+  <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+  <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+<span class="o">}</span>
+
+output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
+  <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
 <ul>
 <li>다음 변수들을 OCI 콘솔 정보를 통해 자동으로 계산됩니다.
-
 <ul>
 <li>tenancy_ocid</li>
 <li>compartment_ocid</li>
 <li>region</li>
 <li>current_user_ocid</li>
 <li><a href="https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/terraformconfigresourcemanager.htm#configvar">https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/terraformconfigresourcemanager.htm#configvar</a></li>
-</ul></li>
-</ul></li>
-
-<li><p>Terraform Configuration을 Resource Manager 용으로 변경하기</p>
-
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Terraform Configuration을 Resource Manager 용으로 변경하기</p>
 <ul>
-<li><p>OCI Console에서 Resource Manager를 사용하기 때문에 UI가 존재합니다. Terraform 설정값을 UI에서 설정할 수 있게 확장할 수 있는 스키마를 제공합니다.</p>
-
+<li>
+<p>OCI Console에서 Resource Manager를 사용하기 때문에 UI가 존재합니다. Terraform 설정값을 UI에서 설정할 수 있게 확장할 수 있는 스키마를 제공합니다.</p>
 <ul>
 <li><a href="https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/terraformconfigresourcemanager_topic-schema.htm">Extend Console Pages Using Schema Documents</a></li>
-</ul></li>
+</ul>
+</li>
+<li>
+<p>provider.tf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
 
-<li><p>provider.tf</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-        
 provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
   <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span></code></pre></div></li>
-
-<li><p>vcn.tf 변경분</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
+<span class="o">}</span>
+</code></pre></div></li>
+<li>
+<p>vcn.tf 변경분</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;vcn_name&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;vcn_dns_label&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;vcn_cidr_block&#34;</span> <span class="o">{}</span>
-        
+
 resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
   <span class="nv">cidr_block</span>     <span class="o">=</span> var.vcn_cidr_block
   <span class="nv">dns_label</span>      <span class="o">=</span> var.vcn_dns_label
   <span class="nv">compartment_id</span> <span class="o">=</span> var.compartment_ocid
   <span class="nv">display_name</span>   <span class="o">=</span> var.vcn_name
 <span class="o">}</span>
-        
+
 output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
   <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
-<span class="o">}</span></code></pre></div></li>
-
-<li><p>schema.yaml</p></li>
+<span class="o">}</span>
+</code></pre></div></li>
 </ul>
-
+<ul>
+<li>
+<p>schema.yaml</p>
 <p>Stack 설명구 추가, 변수 타이틀, 설명문 추가, 변수 UI 배열 구문 등을 아래와 같이 추가할 수 있습니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">  </span>title<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Resource Manager Example VCN by TheKoguryo&#34;</span><span class="w">
-</span><span class="w">  </span>description<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Resource Manager로 VCN을 만드는 예제입니다.&#34;</span><span class="w">
-</span><span class="w">  </span>schemaVersion<span class="p">:</span><span class="w"> </span><span class="m">1.0</span>.<span class="m">0</span><span class="w">
-</span><span class="w">  </span>version<span class="p">:</span><span class="w"> </span><span class="s2">&#34;20220119&#34;</span><span class="w">
-</span><span class="w">      
-</span><span class="w">  </span>locale<span class="p">:</span><span class="w"> </span><span class="s2">&#34;en&#34;</span><span class="w">
-</span><span class="w">  </span>groupings<span class="p">:</span><span class="w">
-</span><span class="w">    </span>-<span class="w"> </span>title<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Hidden&#34;</span><span class="w">
-</span><span class="w">      </span>visible<span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">      </span>variables<span class="p">:</span><span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>compartment_ocid<span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>tenancy_ocid<span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>region<span class="w">
-</span><span class="w">      
-</span><span class="w">    </span>-<span class="w"> </span>title<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Configuration&#34;</span><span class="w">
-</span><span class="w">      </span>variables<span class="p">:</span><span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>vcn_name<span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>vcn_dns_label<span class="w">
-</span><span class="w">      
-</span><span class="w">    </span>-<span class="w"> </span>title<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Configure VCN&#34;</span><span class="w">
-</span><span class="w">      </span>variables<span class="p">:</span><span class="w"> 
-</span><span class="w">      </span>-<span class="w"> </span>vcn_cidr_block<span class="w">    
-</span><span class="w">      
-</span><span class="w">  </span>variables<span class="p">:</span><span class="w">
-</span><span class="w">    </span>vcn_name<span class="p">:</span><span class="w">
-</span><span class="w">      </span>type<span class="p">:</span><span class="w"> </span>string<span class="w">
-</span><span class="w">      </span>title<span class="p">:</span><span class="w"> </span>VCN<span class="w"> </span>Name<span class="w">
-</span><span class="w">      </span>required<span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w">      </span>default<span class="p">:</span><span class="w"> </span>example_vcn<span class="w">
-</span><span class="w">      
-</span><span class="w">    </span>vcn_dns_label<span class="p">:</span><span class="w">
-</span><span class="w">      </span>type<span class="p">:</span><span class="w"> </span>string<span class="w">
-</span><span class="w">      </span>title<span class="p">:</span><span class="w"> </span>VCN<span class="w"> </span>DNS<span class="w"> </span>Label<span class="w">
-</span><span class="w">      </span>description<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Only letters and numbers, starting with a letter. 15 characters max.&#34;</span><span class="w"> 
-</span><span class="w">      </span>required<span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w">      </span>default<span class="p">:</span><span class="w"> </span>examplevcn<span class="w">  
-</span><span class="w">      
-</span><span class="w">    </span>vcn_cidr_block<span class="p">:</span><span class="w">
-</span><span class="w">      </span>type<span class="p">:</span><span class="w"> </span>list(string)<span class="w">
-</span><span class="w">      </span>title<span class="p">:</span><span class="w"> </span>VCN<span class="w"> </span>IPv4<span class="w"> </span>CIDR<span class="w"> </span>Block<span class="w">
-</span><span class="w">      </span>description<span class="p">:</span><span class="w"> </span><span class="s2">&#34;Example: 10.0.0.0/16&#34;</span><span class="w">    
-</span><span class="w">      </span>required<span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">    
-</span><span class="w">      </span>default<span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;10.0.0.0/16&#34;</span><span class="p">]</span><span class="w">    </span></code></pre></div></li>
-
-<li><p>OCI 콘솔에서 내비게이션 메뉴의 <strong>Developer Services</strong> &gt;&gt; <strong>Resource Manager</strong> &gt;&gt; <strong>Stacks</strong>을 클릭합니다.</p></li>
-
-<li><p><strong>Create Stack</strong> 을 클릭합니다.</p></li>
-
-<li><p>Stack 생성 설정</p>
-
-<ul>
-<li>첫 번째 <strong>My Configuration</strong>으로 작성한 파일이 위치한 폴더를 <strong>Drop a folder</strong>로 드래그 앤 드랍합니다.</li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Resource Manager Example VCN by TheKoguryo&#34;</span><span class="w">
+</span><span class="w"></span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Resource Manager로 VCN을 만드는 예제입니다.&#34;</span><span class="w">
+</span><span class="w"></span><span class="nt">schemaVersion</span><span class="p">:</span><span class="w"> </span><span class="m">1.0.0</span><span class="w">
+</span><span class="w"></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;20220119&#34;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">locale</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;en&#34;</span><span class="w">
+</span><span class="w"></span><span class="nt">groupings</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Hidden&#34;</span><span class="w">
+</span><span class="w">    </span><span class="nt">visible</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="l">compartment_ocid</span><span class="w">
+</span><span class="w">    </span>- <span class="l">tenancy_ocid</span><span class="w">
+</span><span class="w">    </span>- <span class="l">region</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Configuration&#34;</span><span class="w">
+</span><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="l">vcn_name</span><span class="w">
+</span><span class="w">    </span>- <span class="l">vcn_dns_label</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Configure VCN&#34;</span><span class="w">
+</span><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w"> 
+</span><span class="w">    </span>- <span class="l">vcn_cidr_block    </span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">vcn_name</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN Name</span><span class="w">
+</span><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l">example_vcn</span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="nt">vcn_dns_label</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN DNS Label</span><span class="w">
+</span><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Only letters and numbers, starting with a letter. 15 characters max.&#34;</span><span class="w"> 
+</span><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l">examplevcn  </span><span class="w">
+</span><span class="w">
+</span><span class="w">  </span><span class="nt">vcn_cidr_block</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">list(string)</span><span class="w">
+</span><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN IPv4 CIDR Block</span><span class="w">
+</span><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Example: 10.0.0.0/16&#34;</span><span class="w">    
+</span><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">    
+</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;10.0.0.0/16&#34;</span><span class="p">]</span><span class="w">    
+</span></code></pre></div></li>
 </ul>
-
-<p><img src="images/image-20220119221634743.png" alt="image-20220119221634743" /></p>
-
+</li>
+<li>
+<p>OCI 콘솔에서 내비게이션 메뉴의 <strong>Developer Services</strong> &raquo; <strong>Resource Manager</strong> &raquo; <strong>Stacks</strong>을 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Create Stack</strong> 을 클릭합니다.</p>
+</li>
+<li>
+<p>Stack 생성 설정</p>
 <ul>
-<li>설정 로딩이 되어 Stack의 기본 설명이 아래와 같이 보이게 됩니다.</li>
+<li>
+<p>첫 번째 <strong>My Configuration</strong>으로 작성한 파일이 위치한 폴더를 <strong>Drop a folder</strong>로 드래그 앤 드랍합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220119221634743.png" alt='image-20220119221634743' onerror="this.onerror=null;this.src='images\/image-20220119221634743.png';" />
+</p>
+</li>
+<li>
+<p>설정 로딩이 되어 Stack의 기본 설명이 아래와 같이 보이게 됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220119222129015.png" alt='image-20220119222129015' onerror="this.onerror=null;this.src='images\/image-20220119222129015.png';" />
+</p>
+</li>
+<li>
+<p>다음 페이지로 넘어갑니다.</p>
+</li>
 </ul>
-
-<p><img src="images/image-20220119222129015.png" alt="image-20220119222129015" /></p>
-
-<ul>
-<li>다음 페이지로 넘어갑니다.</li>
-</ul></li>
-
-<li><p>변수 값 입력</p>
-
+</li>
+<li>
+<p>변수 값 입력</p>
 <p>작성한 schema.yaml을 바탕으로 그림과 같이 표현됩니다.</p>
+<p>
 
-<p><img src="images/image-20220119222309261.png" alt="image-20220119222309261" /></p></li>
 
-<li><p>값을 변경해 보고 리뷰후 Stack을 생성합니다.</p>
 
-<p><img src="images/image-20220119222633756.png" alt="image-20220119222633756" /></p></li>
 
-<li><p>terraform plan 명령처럼 Plan 버튼을 클릭해봅니다.</p></li>
 
-<li><p>Terraform CLI에서 terraform plan을 수행했던 것과 동일한 결과가 로그로 확인됩니다.</p>
 
-<p><img src="images/image-20220119223001069.png" alt="image-20220119223001069" /></p></li>
 
-<li><p>다시 Stack 상세화면으로 돌아가 Apply를 클릭하여 실행해 봅니다.</p></li>
+<img class="img-fluid1" src="../images/image-20220119222309261.png" alt='image-20220119222309261' onerror="this.onerror=null;this.src='images\/image-20220119222309261.png';" />
+</p>
+</li>
+<li>
+<p>값을 변경해 보고 리뷰후 Stack을 생성합니다.</p>
+<p>
 
-<li><p>생성이 성공하면 <strong>Resouces</strong> &gt;&gt; <strong>Job Resources</strong> 에서 결과물로 생성된 자원을 확인할 수 있습니다.</p>
 
-<p><img src="images/image-20220119223541535.png" alt="image-20220119223541535" /></p></li>
 
-<li><p>링크를 따라 가면 실제 VCN이 생성된 것을 확인할 수 있습니다.</p></li>
 
-<li><p>Stack 상세 정보로 돌아가 Destroy 버튼을 클릭합니다.</p></li>
 
-<li><p>실행이 끝나고 VCN 리스트 화면으로 이동해 보면, 앞서 생성된 example_vcn이 삭제된 것을 알수 있습니다.</p></li>
 
-<li><p>Stack의 지금까지 Plan, Apply, Destroy를 실행한 모든 작업 결과 내역은 Stack 상세 화면에서 볼 수 있습니다.</p>
 
-<p><img src="images/image-20220119224136146.png" alt="image-20220119224136146" /></p></li>
+<img class="img-fluid1" src="../images/image-20220119222633756.png" alt='image-20220119222633756' onerror="this.onerror=null;this.src='images\/image-20220119222633756.png';" />
+</p>
+</li>
+<li>
+<p>terraform plan 명령처럼 Plan 버튼을 클릭해봅니다.</p>
+</li>
+<li>
+<p>Terraform CLI에서 terraform plan을 수행했던 것과 동일한 결과가 로그로 확인됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220119223001069.png" alt='image-20220119223001069' onerror="this.onerror=null;this.src='images\/image-20220119223001069.png';" />
+</p>
+</li>
+<li>
+<p>다시 Stack 상세화면으로 돌아가 Apply를 클릭하여 실행해 봅니다.</p>
+</li>
+<li>
+<p>생성이 성공하면 <strong>Resouces</strong> &raquo; <strong>Job Resources</strong> 에서 결과물로 생성된 자원을 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220119223541535.png" alt='image-20220119223541535' onerror="this.onerror=null;this.src='images\/image-20220119223541535.png';" />
+</p>
+</li>
+<li>
+<p>링크를 따라 가면 실제 VCN이 생성된 것을 확인할 수 있습니다.</p>
+</li>
+<li>
+<p>Stack 상세 정보로 돌아가 Destroy 버튼을 클릭합니다.</p>
+</li>
+<li>
+<p>실행이 끝나고 VCN 리스트 화면으로 이동해 보면, 앞서 생성된 example_vcn이 삭제된 것을 알수 있습니다.</p>
+</li>
+<li>
+<p>Stack의 지금까지 Plan, Apply, Destroy를 실행한 모든 작업 결과 내역은 Stack 상세 화면에서 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220119224136146.png" alt='image-20220119224136146' onerror="this.onerror=null;this.src='images\/image-20220119224136146.png';" />
+</p>
+</li>
 </ol>
 <br>
 <br>
@@ -285,8 +353,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -317,8 +383,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -347,7 +411,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -653,7 +716,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1320,88 +1382,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

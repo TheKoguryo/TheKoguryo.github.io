@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>7.7 수명주기를 통한 Archive 설정하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter07/7/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,115 +44,229 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="7-7-수명주기를-통한-archive-설정하기">7.7 수명주기를 통한 Archive 설정하기</h2>
-
+<main><h2 id="77-수명주기를-통한-archive-설정하기">7.7 수명주기를 통한 Archive 설정하기</h2>
 <p>Object Storage의 사용 사례의 하나로 디스크 이미지 백업, 파일 백업 등의 용도로 많이 사용합니다. 최근 백업을 사용할 가능성이 높지만, 그 외에 백업을 사용할 가능성을 낮아지지만, 보관 기간 등이 장기간 보관해야 하는 경우가 많습니다. 보관 기간 동안 Storage 비용을 조금이라도 줄이고 싶은 요구 사항이 있습니다.</p>
-
 <p>Object Storage의 Bucket에는 저장된 객체의 수명주기를 관리하는 기능이 있습니다. 객체 생성 후 일정한 기간이 지났을 때 삭제하거나, 좀 더 저렴한 Archive Storage로 이동시킬 수 있는 기능을 제공합니다.</p>
-
 <h3 id="수명주기를-통한-archive-설정하기">수명주기를 통한 Archive 설정하기</h3>
-
 <h4 id="step-1-object-archive-권한-부여">Step 1. Object Archive 권한 부여</h4>
-
 <ol>
-<li><p>OCI 전체 관리자로 OCI 콘솔에 로그인합니다.</p></li>
-
-<li><p>대상 그룹(SandboxGroup)에 Object 관련 Policy 권한 추가</p></li>
-</ol>
-
+<li>
+<p>OCI 전체 관리자로 OCI 콘솔에 로그인합니다.</p>
+</li>
+<li>
+<p>대상 그룹(SandboxGroup)에 Object 관련 Policy 권한 추가</p>
 <p>Object Archive를 하기 위해서는 추가 권한이 필요합니다. Object 패밀리 관리 권한을 추가합니다.</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">   allow service objectstorage-&lt;region_name&gt; to manage object-family in compartment &lt;compartment_name&gt;</code></pre></div>
-<ul>
-<li><p>예시: 이름, ObjectStorageLifecyclePolicy</p>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">  allow service objectstorage-ap-seoul-1 to manage object-family in compartment Sandbox</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">allow service objectstorage-&lt;region_name&gt; to manage object-family in compartment &lt;compartment_name&gt;
+</code></pre></div><ul>
+<li>
+<p>예시: 이름, ObjectStorageLifecyclePolicy</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">allow service objectstorage-ap-seoul-1 to manage object-family in compartment Sandbox
+</code></pre></div></li>
 </ul>
-
+</li>
+</ol>
 <h4 id="step-2-수명-주기-설정하기">Step 2. 수명 주기 설정하기</h4>
-
 <ol>
-<li><p>Sandbox 그룹 사용자로 OCI 콘솔에 로그인합니다.</p></li>
+<li>
+<p>Sandbox 그룹 사용자로 OCI 콘솔에 로그인합니다.</p>
+</li>
+<li>
+<p>수명 주기를 설정할 Bucket(예, ExampleBucket)의 상세 페이지로 이동합니다.</p>
+</li>
+<li>
+<p>왼쪽 아래의 <strong>Resources</strong> &raquo; <strong>Lifecycle Policy Rules</strong>를 클릭합니다.</p>
+</li>
+<li>
+<p>새로운 규칙을 생성하기 위해 <strong>Create Rule</strong>을 클릭합니다.</p>
+<p>
 
-<li><p>수명 주기를 설정할 Bucket(예, ExampleBucket)의 상세 페이지로 이동합니다.</p></li>
 
-<li><p>왼쪽 아래의 <strong>Resources</strong> &gt;&gt; <strong>Lifecycle Policy Rules</strong>를 클릭합니다.</p></li>
 
-<li><p>새로운 규칙을 생성하기 위해 <strong>Create Rule</strong>을 클릭합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220112211029592.png" alt="image-20220112211029592" /></p>
 
-<ol>
-<li><p>수명 주기 규칙 생성</p>
 
+
+<img class="img-fluid1" src="../images/image-20220112211029592.png" alt='image-20220112211029592' onerror="this.onerror=null;this.src='images\/image-20220112211029592.png';" />
+</p>
+</li>
+<li>
+<p>수명 주기 규칙 생성</p>
 <ul>
-<li><p><strong>Name</strong>: 생성할 규칙의 이름을 입력합니다.</p></li>
-
-<li><p><strong>Lifecyle Action</strong>:</p>
-
+<li>
+<p><strong>Name</strong>: 생성할 규칙의 이름을 입력합니다.</p>
+</li>
+<li>
+<p><strong>Lifecyle Action</strong>:</p>
 <ul>
-<li>Move to Archive, Move to Infrequent Access, Delete 중 원하는 것을 선택
-<br /></li>
-</ul></li>
-
-<li><p><strong>Number of Days</strong>: 생성 후 며칠 지난 객체 적용할 지 기간 설정</p></li>
-
-<li><p><strong>Object Name Filters</strong>: Bucket 상의 대상 객체에 대한 조건을 지정하는 영역입니다. 현재는 아무 설정하지 않습니다.</p>
-
-<ul>
-<li>images/oracle.png 처럼 객체 이름에서 슬래쉬 기준 &lsquo;images/&lsquo;이 Prefix입니다. Prefix를 통해 대상 객체에 대한 조건을 지정할 수 있습니다.
-<br /></li>
-</ul></li>
+<li>Move to Archive, Move to Infrequent Access, Delete 중 원하는 것을 선택</li>
 </ul>
+</li>
+<li>
+<p><strong>Number of Days</strong>: 생성 후 며칠 지난 객체 적용할 지 기간 설정</p>
+</li>
+<li>
+<p><strong>Object Name Filters</strong>: Bucket 상의 대상 객체에 대한 조건을 지정하는 영역입니다. 현재는 아무 설정하지 않습니다.</p>
+<ul>
+<li>images/oracle.png 처럼 객체 이름에서 슬래쉬 기준 &lsquo;images/&lsquo;이 Prefix입니다. Prefix를 통해 대상 객체에 대한 조건을 지정할 수 있습니다.</li>
+</ul>
+<p>
 
-<p><img src="images/image-20220112211503811.png" alt="image-20220112211503811" /></p></li>
 
-<li><p>설정 후 <strong>Create</strong> 클릭합니다.</p></li>
 
-<li><p>수명 주기 규칙이 설정되었습니다.
-<img src="images/image-20220112212112078.png" alt="image-20220112212112078" /></p></li>
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112211503811.png" alt='image-20220112211503811' onerror="this.onerror=null;this.src='images\/image-20220112211503811.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>설정 후 <strong>Create</strong> 클릭합니다.</p>
+</li>
+<li>
+<p>수명 주기 규칙이 설정되었습니다.
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220112212112078.png" alt='image-20220112212112078' onerror="this.onerror=null;this.src='images\/image-20220112212112078.png';" />
+</p>
+</li>
 </ol>
-
 <h4 id="step-3-archived-결과-확인하기">Step 3. Archived 결과 확인하기</h4>
-
 <p>결과 내일 다시 확인&hellip;&hellip;</p>
-
 <ol>
-<li><p>설정한 규칙이 적용되어 그림과 같이 Archived 상태가 된 것을 확인할 수 있습니다.
-<img src="images/image-20220114092509970.png" alt="image-20220114092509970" /></p></li>
+<li>
+<p>설정한 규칙이 적용되어 그림과 같이 Archived 상태가 된 것을 확인할 수 있습니다.
 
-<li><p>Archived 상태에서는 다운로드가 불가하여 Public Bucket에서 객체에 URL로 접근해도 다음과 같이 오류가 발생합니다.
-<img src="images/image-20220114092717035.png" alt="image-20220114092717035" /></p></li>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114092509970.png" alt='image-20220114092509970' onerror="this.onerror=null;this.src='images\/image-20220114092509970.png';" />
+</p>
+</li>
+<li>
+<p>Archived 상태에서는 다운로드가 불가하여 Public Bucket에서 객체에 URL로 접근해도 다음과 같이 오류가 발생합니다.
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114092717035.png" alt='image-20220114092717035' onerror="this.onerror=null;this.src='images\/image-20220114092717035.png';" />
+</p>
+</li>
 </ol>
-
 <h4 id="step-4-restoring">Step 4. Restoring</h4>
-
 <ol>
-<li>Archived 상태에서 다시 다운로드 받기 위해서는 대상 객체를 Restore 하면 됩니다.
-<img src="images/image-20220114093721733.png" alt="image-20220114093721733" /></li>
-<li>다운로드 가능한 시간은 미입력시 기본적으로 24시간동안이며, 변경코자 하면 1시간에서 240시간 범위내에서 지정할 수 있습니다. 복구후 지정한 시간동안(기본 24시간)만 다운로드 가능하고 그 이후는 다시 Archive 상태가 됩니다.
-<img src="images/image-20220114095322462.png" alt="image-20220114095322462" /></li>
+<li>
+<p>Archived 상태에서 다시 다운로드 받기 위해서는 대상 객체를 Restore 하면 됩니다.
 
-<li><p>Restore하면 아래와 같이 상태가 표시되면, 완료될때 까지 시간이 좀 걸립니다. 한 번 밖에 테스트 해보진 않았지만, 걸린 시간은 다음과 같습니다.</p>
 
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114093721733.png" alt='image-20220114093721733' onerror="this.onerror=null;this.src='images\/image-20220114093721733.png';" />
+</p>
+</li>
+<li>
+<p>다운로드 가능한 시간은 미입력시 기본적으로 24시간동안이며, 변경코자 하면 1시간에서 240시간 범위내에서 지정할 수 있습니다. 복구후 지정한 시간동안(기본 24시간)만 다운로드 가능하고 그 이후는 다시 Archive 상태가 됩니다.
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114095322462.png" alt='image-20220114095322462' onerror="this.onerror=null;this.src='images\/image-20220114095322462.png';" />
+</p>
+</li>
+<li>
+<p>Restore하면 아래와 같이 상태가 표시되면, 완료될때 까지 시간이 좀 걸립니다. 한 번 밖에 테스트 해보진 않았지만, 걸린 시간은 다음과 같습니다.</p>
 <ul>
-<li><p>요청 시각: Jan 14, 2022 12:48:19 AM, GMT</p></li>
+<li>
+<p>요청 시각: Jan 14, 2022 12:48:19 AM, GMT</p>
+</li>
+<li>
+<p>완료 시각: 05 08, 2019 11:20, GMT (추정)</p>
+</li>
+<li>
+<p>걸리 시간: 약 3시간
 
-<li><p>완료 시각: 05 08, 2019 11:20, GMT (추정)</p></li>
 
-<li><p>걸리 시간: 약 3시간
-<img src="images/image-20220114095524867.png" alt="image-20220114095524867" /></p></li>
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114095524867.png" alt='image-20220114095524867' onerror="this.onerror=null;this.src='images\/image-20220114095524867.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114095727285.png" alt='image-20220114095727285' onerror="this.onerror=null;this.src='images\/image-20220114095727285.png';" />
+</p>
+</li>
 </ul>
+</li>
+<li>
+<p>복구가 완료되면 이제 다운로드 받을 수 있으며, Public Bucket인 경우 객체에 URL로 접근도 가능하게 됩니다.
 
-<p><img src="images/image-20220114095727285.png" alt="image-20220114095727285" /></p></li>
 
-<li><p>복구가 완료되면 이제 다운로드 받을 수 있으며, Public Bucket인 경우 객체에 URL로 접근도 가능하게 됩니다.
-<img src="images/image-20220114113258028.png" alt="image-20220114113258028" />
-<img src="images/image-20220114113320661.png" alt="image-20220114113320661" /></p></li>
 
-<li><p>오브젝트의 상세 정보를 보면, 설정한 시간 기준으로 다운로드 가능 남은 시간이 그림과 같이 보입니다.
-<img src="images/image-20220114113343985.png" alt="image-20220114113343985" /></p></li>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114113258028.png" alt='image-20220114113258028' onerror="this.onerror=null;this.src='images\/image-20220114113258028.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114113320661.png" alt='image-20220114113320661' onerror="this.onerror=null;this.src='images\/image-20220114113320661.png';" />
+</p>
+</li>
+<li>
+<p>오브젝트의 상세 정보를 보면, 설정한 시간 기준으로 다운로드 가능 남은 시간이 그림과 같이 보입니다.
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220114113343985.png" alt='image-20220114113343985' onerror="this.onerror=null;this.src='images\/image-20220114113343985.png';" />
+</p>
+</li>
 </ol>
 <br>
 <br>
@@ -200,8 +314,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -232,8 +344,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -262,7 +372,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -568,7 +677,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1235,88 +1343,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

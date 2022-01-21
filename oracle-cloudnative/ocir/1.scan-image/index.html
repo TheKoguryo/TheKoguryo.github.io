@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.1 컨테이너 이미지 스캔 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,89 +44,128 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h1 id="3-1-컨테이너-이미지-스캔">3.1 컨테이너 이미지 스캔</h1>
-
+<main><h1 id="31-컨테이너-이미지-스캔">3.1 컨테이너 이미지 스캔</h1>
 <p>OCIR는 알려진 Common Vulnerabilities and Exposures (CVE) database를 기반으로 컨테이너 이미지에 대한 취약점 분석 기능을 제공하고 있습니다. 다음은 취약점 분석을 위한 이미지 스캔 기능을 확인해 봅니다.</p>
-
 <p>공식 문서</p>
-
 <ul>
 <li><a href="https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registryscanningimagesforvulnerabilities.htm">Scanning Images for Vulnerabilities</a></li>
 </ul>
-
 <h2 id="관련-policy-설정">관련 Policy 설정</h2>
-
 <p>스캔 서비스가 OCIR repository에 대한 권한을 부여합니다. 적용해야 하는 Policy는 위 공식 문서를 참조합니다. tenancy 전체 또는 compartment 에 대해서 지정할 수 있습니다.</p>
-
 <ul>
-<li><p>전체 테넌시</p>
-
+<li>
+<p>전체 테넌시</p>
 <ul>
 <li>이름 예, ocir-scanning-images-root-policy</li>
-</ul></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">  allow service vulnerability-scanning-service to <span class="nb">read</span> repos in tenancy
-  allow service vulnerability-scanning-service to <span class="nb">read</span> compartments in tenancy</code></pre></div>
-<ul>
-<li>특정 compartment</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">  allow service vulnerability-scanning-service to <span class="nb">read</span> repos in compartment &lt;compartment-name&gt;
-  allow service vulnerability-scanning-service to <span class="nb">read</span> compartments in compartment &lt;compartment-name&gt;</code></pre></div>
-<ul>
-<li>설정 예시</li>
-</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">allow service vulnerability-scanning-service to <span class="nb">read</span> repos in tenancy
+allow service vulnerability-scanning-service to <span class="nb">read</span> compartments in tenancy
+</code></pre></div></li>
+<li>
+<p>특정 compartment</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">allow service vulnerability-scanning-service to <span class="nb">read</span> repos in compartment &lt;compartment-name&gt;
+allow service vulnerability-scanning-service to <span class="nb">read</span> compartments in compartment &lt;compartment-name&gt;
+</code></pre></div></li>
+<li>
+<p>설정 예시</p>
+<p>
 
-<p><img src="images/image-20211204213856664.png" alt="image-20211204213856664" /></p>
 
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211204213856664.png" alt='image-20211204213856664' onerror="this.onerror=null;this.src='images\/image-20211204213856664.png';" />
+</p>
+</li>
+</ul>
 <h2 id="이미지-스캐너-설정">이미지 스캐너 설정</h2>
-
 <p>이미지 스캐너는 repository 단위로 기능 추가, 삭제 할 수 있습니다. 테스트를 위해 먼저 이미지를 배포합니다.</p>
-
 <ol>
-<li><p><a href="../../oke/5.deploy-ocir-image">OCIR 이미지 사용하여 앱 배포하기</a>를 참고하여 OCIR에 이미지를 배포합니다.</p></li>
+<li>
+<p><a href="../../oke/5.deploy-ocir-image">OCIR 이미지 사용하여 앱 배포하기</a>를 참고하여 OCIR에 이미지를 배포합니다.</p>
+</li>
+<li>
+<p>OCIR에 이미지 배포</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">docker pull nginx:latest
+docker tag nginx:latest ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+docker push ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</code></pre></div></li>
+<li>
+<p>OCI 콘솔에 로그인합니다.</p>
+</li>
+<li>
+<p>좌측 상단 햄버거 메뉴에서 <strong>Developer Services</strong> &gt; <strong>Containers &amp; Artifacts</strong> : <strong>Container Registry</strong>로 이동합니다.</p>
+</li>
+<li>
+<p><strong>List Scope</strong>에서 대상 <strong>Compartment</strong>(예, root)를 선택합니다.</p>
+</li>
+<li>
+<p>스캐너를 설정할 <strong>Repository(예, nginx)를 선택</strong>하고 오른쪽 <strong>Actions</strong> 메뉴에서 <strong>Add scanner</strong>를 선택합니다.</p>
+<p>
 
-<li><p>OCIR에 이미지 배포</p></li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   docker pull nginx:latest
-   docker tag nginx:latest ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-   docker push ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest</code></pre></div>
-<ol>
-<li><p>OCI 콘솔에 로그인합니다.</p></li>
 
-<li><p>좌측 상단 햄버거 메뉴에서 <strong>Developer Services</strong> &gt; <strong>Containers &amp; Artifacts</strong> : <strong>Container Registry</strong>로 이동합니다.</p></li>
 
-<li><p><strong>List Scope</strong>에서 대상 <strong>Compartment</strong>(예, root)를 선택합니다.</p></li>
 
-<li><p>스캐너를 설정할 <strong>Repository(예, nginx)를 선택</strong>하고 오른쪽 <strong>Actions</strong> 메뉴에서 <strong>Add scanner</strong>를 선택합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20211204220401065.png" alt="image-20211204220401065" /></p>
 
-<ol>
-<li>생성할 스캐너의 compartment 위치를 확인하고, 처음 스캐너 사용이므로 <strong>Create new scan configuration</strong>으로 선택하여, 스캐너를 추가합니다. 현재는 스캐너별로 따라 추가 설정할 수 있는 기능이 없는 것으로 보여, 한번 만들고 다음부터는 만든 것을 사용하면 됩니다.</li>
-</ol>
 
-<p><img src="images/image-20211204220424569.png" alt="image-20211204220424569" /></p>
+<img class="img-fluid1" src="../images/image-20211204220401065.png" alt='image-20211204220401065' onerror="this.onerror=null;this.src='images\/image-20211204220401065.png';" />
+</p>
+</li>
+<li>
+<p>생성할 스캐너의 compartment 위치를 확인하고, 처음 스캐너 사용이므로 <strong>Create new scan configuration</strong>으로 선택하여, 스캐너를 추가합니다. 현재는 스캐너별로 따라 추가 설정할 수 있는 기능이 없는 것으로 보여, 한번 만들고 다음부터는 만든 것을 사용하면 됩니다.</p>
+<p>
 
-<ol>
-<li>스캐너 결과 확인</li>
-</ol>
 
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211204220424569.png" alt='image-20211204220424569' onerror="this.onerror=null;this.src='images\/image-20211204220424569.png';" />
+</p>
+</li>
+<li>
+<p>스캐너 결과 확인</p>
 <p>스캐너가 추가된 nginx repository에 대해서 tag 별로 컨테이너 이미지 상세 정보를 볼 수 있습니다. <strong>Scan results</strong> 탭을 보면 스캔 결과를 확인할 수 있으며, <strong>View details</strong>를 통해 상세 정보를 확인할 수 있습니다.</p>
+<p>
 
-<p><img src="images/image-20211204220848294.png" alt="image-20211204220848294" /></p>
 
-<ol>
-<li>취약점 확인</li>
-</ol>
 
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211204220848294.png" alt='image-20211204220848294' onerror="this.onerror=null;this.src='images\/image-20211204220848294.png';" />
+</p>
+</li>
+<li>
+<p>취약점 확인</p>
 <p>이미지 스캐닝 결과 확인 알려진 CVE 정보를 기반한 취약점을 확인 할 수 있으며, 취약점를 클릭하면, 실제 CVE 데이터 베이스로 이동하여, 상세 정보를 확인 할 수 있습니다.</p>
+<p>
 
-<p><img src="images/image-20211204221355859.png" alt="image-20211204221355859" /></p>
 
-<p><img src="images/image-20211204224152012.png" alt="image-20211204224152012" /></p>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211204221355859.png" alt='image-20211204221355859' onerror="this.onerror=null;this.src='images\/image-20211204221355859.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211204224152012.png" alt='image-20211204224152012' onerror="this.onerror=null;this.src='images\/image-20211204224152012.png';" />
+</p>
+</li>
+</ol>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
@@ -173,8 +212,6 @@
   
 <ul class=" hidden">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -205,8 +242,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -235,7 +270,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -541,7 +575,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1208,88 +1241,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

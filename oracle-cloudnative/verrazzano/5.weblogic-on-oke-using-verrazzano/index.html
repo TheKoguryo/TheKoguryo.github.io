@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,565 +44,599 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h1 id="6-5-weblogic-server를-verrazzano를-통해-oke에-배포하기">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</h1>
-
+<main><h1 id="65-weblogic-server를-verrazzano를-통해-oke에-배포하기">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</h1>
 <p>Verrazzano 설치시 WebLogic Operator가 함께 설치가 됩니다.  이번 내용은 아래 문서에 있는 내용을 따라 하며 정리한 내용으로, 기존 On-Premise에서 WebLogic Server 에 배포하여 사용하는 애플리케이션을 수정없이 WebLogic Server 를 통채로 Kubernetes 환경으로 이관을 원하는 경우 사용할 수 있는 방법에 대한 내용입니다.</p>
-
 <ul>
 <li><a href="https://verrazzano.io/latest/docs/guides/lift-and-shift/lift-and-shift/">https://verrazzano.io/latest/docs/guides/lift-and-shift/lift-and-shift/</a></li>
 </ul>
-
 <p>수행하는 절차는 아래와 같습니다.</p>
-
 <ul>
 <li>Step #1. WebLogic Server &amp; MySQL DB를 사용하는 애플리케이션을 이관한다는 가정하에 동일한 환경 및 앱을 준비</li>
 <li>Step #2. WebLogic Deploy Tooling을 통해 기 사용 WebLogic Server 분석후 메타데이터로 전환</li>
 <li>Step #3. WebLogic Image Tool을 통해 메타데이터와 WebLogic 설치 파일을 이용해 컨테이너 이미지 생성 및 배포 파일 생성</li>
 <li>Step #4. 생성한 컨테이너 이미지와 배포 파일을 Verrazzano에 배포하면 WebLogic Operator가 이를 이용하여 WebLogic Server 컨테이너 생성</li>
 </ul>
-
 <h2 id="사전-준비">사전 준비</h2>
-
 <ul>
 <li>Step #1. WebLogic Server &amp; MySQL DB를 사용하는 애플리케이션을 이관한다는 가정하에 동일한 환경 및 앱을 준비</li>
 </ul>
-
 <h3 id="mysql-준비">MySQL 준비</h3>
-
 <ul>
 <li>실제 On-Premise 환경에서는 베어메탈 또는 VM 등에 MySQL을 설치 사용하겠지만, 여기서는 데모용으로 도커 컨테이너를 사용합니다.</li>
 </ul>
-
 <ol>
-<li>MySQL 이미지 다운로드</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   docker pull mysql:latest</code></pre></div>
-<ol>
-<li>도커 컨테이너 시작</li>
-</ol>
-
+<li>
+<p>MySQL 이미지 다운로드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">docker pull mysql:latest
+</code></pre></div></li>
+<li>
+<p>도커 컨테이너 시작</p>
 <p>사용할 username, password로 변경</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="nb">export</span> <span class="nv">MYSQL_USER</span><span class="o">=</span>&lt;your-mysql-username&gt;
-   <span class="nb">export</span> <span class="nv">MYSQL_PASSWORD</span><span class="o">=</span>&lt;your-mysql-password&gt;
-   <span class="nb">export</span> <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>&lt;your-mysql-rootpassword&gt;
-   docker run --name tododb <span class="se">\
-</span><span class="se"></span>     -p <span class="m">3306</span>:3306 <span class="se">\
-</span><span class="se"></span>     -e <span class="nv">MYSQL_USER</span><span class="o">=</span><span class="nv">$MYSQL_USER</span> <span class="se">\
-</span><span class="se"></span>     -e <span class="nv">MYSQL_PASSWORD</span><span class="o">=</span><span class="nv">$MYSQL_PASSWORD</span> <span class="se">\
-</span><span class="se"></span>     -e <span class="nv">MYSQL_DATABASE</span><span class="o">=</span>tododb <span class="se">\
-</span><span class="se"></span>     -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="nv">$MYSQL_ROOT_PASSWORD</span> <span class="se">\
-</span><span class="se"></span>     -d mysql:latest</code></pre></div>
-<ol>
-<li>패스워드 정책 변경</li>
-</ol>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">MYSQL_USER</span><span class="o">=</span>&lt;your-mysql-username&gt;
+<span class="nb">export</span> <span class="nv">MYSQL_PASSWORD</span><span class="o">=</span>&lt;your-mysql-password&gt;
+<span class="nb">export</span> <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span>&lt;your-mysql-rootpassword&gt;
+docker run --name tododb <span class="se">\
+</span><span class="se"></span>  -p 3306:3306 <span class="se">\
+</span><span class="se"></span>  -e <span class="nv">MYSQL_USER</span><span class="o">=</span><span class="nv">$MYSQL_USER</span> <span class="se">\
+</span><span class="se"></span>  -e <span class="nv">MYSQL_PASSWORD</span><span class="o">=</span><span class="nv">$MYSQL_PASSWORD</span> <span class="se">\
+</span><span class="se"></span>  -e <span class="nv">MYSQL_DATABASE</span><span class="o">=</span>tododb <span class="se">\
+</span><span class="se"></span>  -e <span class="nv">MYSQL_ROOT_PASSWORD</span><span class="o">=</span><span class="nv">$MYSQL_ROOT_PASSWORD</span> <span class="se">\
+</span><span class="se"></span>  -d mysql:latest
+</code></pre></div></li>
+<li>
+<p>패스워드 정책 변경</p>
 <p>MySQL 8.0 업그레이드후 기본 인증 방식이 변경되어 기존 클라이언트를 위해 이전 인증 방식으로 설정</p>
-
 <ul>
-<li><p>MySQL CLI 클라이언트로 root로 접속, root 패스워드(your-mysql-rootpassword&gt;) 입력</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"> docker <span class="nb">exec</span> <span class="se">\
-</span><span class="se"></span>    -it tododb mysql <span class="se">\
-</span><span class="se"></span>    -uroot <span class="se">\
-</span><span class="se"></span>    -p</code></pre></div></li>
-
-<li><p>기본 인증 방식으로 변경</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"> ALTER USER <span class="s1">&#39;&lt;your-mysql-username&gt;&#39;</span>@<span class="s1">&#39;%&#39;</span> identified with mysql_native_password by <span class="s1">&#39;&lt;your-mysql-password&gt;&#39;</span><span class="p">;</span></code></pre></div></li>
+<li>
+<p>MySQL CLI 클라이언트로 root로 접속, root 패스워드(your-mysql-rootpassword&gt;) 입력</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">docker <span class="nb">exec</span> <span class="se">\
+</span><span class="se"></span>   -it tododb mysql <span class="se">\
+</span><span class="se"></span>   -uroot <span class="se">\
+</span><span class="se"></span>   -p
+</code></pre></div></li>
+<li>
+<p>기본 인증 방식으로 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALTER USER <span class="s1">&#39;&lt;your-mysql-username&gt;&#39;</span>@<span class="s1">&#39;%&#39;</span> identified with mysql_native_password by <span class="s1">&#39;&lt;your-mysql-password&gt;&#39;</span><span class="p">;</span>
+</code></pre></div></li>
 </ul>
-
+</li>
+</ol>
 <h3 id="weblogic-서버-설치">WebLogic 서버 설치</h3>
-
 <ol>
-<li><p><a href="https://docs.oracle.com/en/middleware/fusion-middleware/12.2.1.4/sysrs/system-requirements-and-specifications.html#GUID-E3CECEA2-348A-4493-A4A1-DF164A763687">Oracle WebLogic Server 12.2.1.4</a> 요구 사항에 따라 64비트  jdk1.8.0_211 이상 다운로드 및 설치</p>
-
+<li>
+<p><a href="https://docs.oracle.com/en/middleware/fusion-middleware/12.2.1.4/sysrs/system-requirements-and-specifications.html#GUID-E3CECEA2-348A-4493-A4A1-DF164A763687">Oracle WebLogic Server 12.2.1.4</a> 요구 사항에 따라 64비트  jdk1.8.0_211 이상 다운로드 및 설치</p>
 <ul>
 <li><a href="https://www.oracle.com/middleware/technologies/weblogic-server-downloads.html">WebLogic Server Download</a> 사이트에서 Oracle WebLogic Server 12.2.1.4 Generic 설치 파일 다운로드</li>
 <li><a href="https://www.oracle.com/java/technologies/javase/javase8u211-later-archive-downloads.html">Java Developement Kit</a> 사이트에서 64비트  jdk1.8.0_211 이상 다운로드 및 설치</li>
-</ul></li>
-
-<li><p>설치</p></li>
+</ul>
+</li>
+<li>
+<p>설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">unzip fmw_12.2.1.4.0_wls_lite_Disk1_1of1.zip
+java -jar fmw_12.2.1.4.0_wls_lite_generic.jar
+</code></pre></div></li>
+<li>
+<p>설치된 ORACLE_HOME 환경 변수 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">ORACLE_HOME</span><span class="o">=</span>/home/opc/fmw/wls12c
+</code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   unzip fmw_12.2.1.4.0_wls_lite_Disk1_1of1.zip
-   java -jar fmw_12.2.1.4.0_wls_lite_generic.jar</code></pre></div>
-<ol>
-<li>설치된 ORACLE_HOME 환경 변수 설정</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="nb">export</span> <span class="nv">ORACLE_HOME</span><span class="o">=</span>/home/opc/fmw/wls12c</code></pre></div>
 <h3 id="weblogic-도메인-생성">WebLogic 도메인 생성</h3>
-
 <ol>
-<li>구성 마법사 실행</li>
+<li>
+<p>구성 마법사 실행</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">$ORACLE_HOME</span>/oracle_common/common/bin/config.sh
+</code></pre></div></li>
+<li>
+<p>기본 설정값 기준으로 tododomain 도메인을 $ORACLE_HOME/user_projects/domains/tododomain 에 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">DOMAIN_HOME</span><span class="o">=</span><span class="nv">$ORACLE_HOME</span>/user_projects/domains/tododomain
+</code></pre></div></li>
+<li>
+<p>WebLogic Server 실행</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">$ORACLE_HOME</span>/user_projects/domains/tododomain/bin/startWebLogic.sh
+</code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="nv">$ORACLE_HOME</span>/oracle_common/common/bin/config.sh</code></pre></div>
-<ol>
-<li>기본 설정값 기준으로 tododomain 도메인을 $ORACLE_HOME/user_projects/domains/tododomain 에 생성</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="nb">export</span> <span class="nv">DOMAIN_HOME</span><span class="o">=</span><span class="nv">$ORACLE_HOME</span>/user_projects/domains/tododomain</code></pre></div>
-<ol>
-<li>WebLogic Server 실행</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="nv">$ORACLE_HOME</span>/user_projects/domains/tododomain/bin/startWebLogic.sh</code></pre></div>
 <h3 id="mysql-도커-컨테이너용-datasource-생성">MySQL 도커 컨테이너용 DataSource 생성</h3>
-
 <ol>
-<li><p>WebLogic Admin Console, <a href="http://localhost:7001/console">http://localhost:7001/console</a> 에 접속</p></li>
-
-<li><p>관리 콘솔 왼쪽 메뉴에서 <strong>서비스</strong> &gt; <strong>데이터 소스</strong> 선택</p></li>
-
-<li><p>JDBC 데이터 소스 페이지에서 **새로 만들기 ** &gt; <strong>일반 데이터 소스</strong> 선택</p></li>
-
-<li><p>데이터 소스 생성 페이지에서 다음 정보 입력</p></li>
+<li>
+<p>WebLogic Admin Console, http://localhost:7001/console 에 접속</p>
+</li>
+<li>
+<p>관리 콘솔 왼쪽 메뉴에서 <strong>서비스</strong> &gt; <strong>데이터 소스</strong> 선택</p>
+</li>
+<li>
+<p>JDBC 데이터 소스 페이지에서 **새로 만들기 ** &gt; <strong>일반 데이터 소스</strong> 선택</p>
+</li>
+<li>
+<p>데이터 소스 생성 페이지에서 다음 정보 입력</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">Name</span><span class="p">:</span><span class="w"> </span><span class="l">tododb</span><span class="w">
+</span><span class="w"></span><span class="nt">JNDI Name</span><span class="p">:</span><span class="w"> </span><span class="l">jdbc/ToDoDB</span><span class="w">
+</span><span class="w"></span><span class="nt">Database Type</span><span class="p">:</span><span class="w"> </span><span class="l">MySQ</span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>다음 3번 클릭</p>
+</li>
+<li>
+<p>데이터 소스 생성 페이지에서 다음 정보 입력</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">Database Name</span><span class="p">:</span><span class="w"> </span><span class="l">tododb</span><span class="w">
+</span><span class="w"></span><span class="nt">Host name</span><span class="p">:</span><span class="w"> </span><span class="l">localhost</span><span class="w">
+</span><span class="w"></span><span class="nt">Database Port</span><span class="p">:</span><span class="w"> </span><span class="m">3306</span><span class="w">
+</span><span class="w"></span><span class="nt">Database User Name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;your-mysql-username&gt;</span><span class="w">
+</span><span class="w"></span><span class="nt">Password</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;your-mysql-password&gt;</span><span class="w">
+</span><span class="w"></span><span class="nt">Confirm Password</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;your-mysql-password&gt;</span><span class="w">
+</span><span class="w"></span><span class="l">Click Next.</span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>다음 페이지에서 <strong>구성 테스트</strong> 클릭하여 접속 테스트 시행</p>
+</li>
+<li>
+<p>다음 페이지로 이동하여 <strong>AdminServer</strong>로 대상 선택후 <strong>완료</strong> 클릭</p>
+</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">   </span>Name<span class="p">:</span><span class="w"> </span>tododb<span class="w">
-</span><span class="w">   </span>JNDI<span class="w"> </span>Name<span class="p">:</span><span class="w"> </span>jdbc/ToDoDB<span class="w">
-</span><span class="w">   </span>Database<span class="w"> </span>Type<span class="p">:</span><span class="w"> </span>MySQ</code></pre></div>
-<ol>
-<li><p>다음 3번 클릭</p></li>
-
-<li><p>데이터 소스 생성 페이지에서 다음 정보 입력</p></li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">   </span>Database<span class="w"> </span>Name<span class="p">:</span><span class="w"> </span>tododb<span class="w">
-</span><span class="w">   </span>Host<span class="w"> </span>name<span class="p">:</span><span class="w"> </span>localhost<span class="w">
-</span><span class="w">   </span>Database<span class="w"> </span>Port<span class="p">:</span><span class="w"> </span><span class="m">3306</span><span class="w">
-</span><span class="w">   </span>Database<span class="w"> </span>User<span class="w"> </span>Name<span class="p">:</span><span class="w"> </span>&lt;your-mysql-username<span class="sd">&gt;
-</span><span class="sd">   Password: &lt;your-mysql-password&gt;
-</span><span class="sd">   Confirm Password: &lt;your-mysql-password&gt;
-</span><span class="sd">   Click Next.</span></code></pre></div>
-<ol>
-<li>다음 페이지에서 <strong>구성 테스트</strong> 클릭하여 접속 테스트 시행</li>
-<li>다음 페이지로 이동하여 <strong>AdminServer</strong>로 대상 선택후 <strong>완료</strong> 클릭</li>
-</ol>
-
 <h3 id="샘플-애플리케이션-배포">샘플 애플리케이션 배포</h3>
-
 <ol>
-<li><p>기존에 WAS에 배포하던 일반적인 자바 애플리케이션을 가정하여 샘플 예제를 사용하여 빌드합니다.</p></li>
-
-<li><p>소스 코드 복사후 빌드</p>
-
+<li>
+<p>기존에 WAS에 배포하던 일반적인 자바 애플리케이션을 가정하여 샘플 예제를 사용하여 빌드합니다.</p>
+</li>
+<li>
+<p>소스 코드 복사후 빌드</p>
 <ul>
 <li>git 클라이언트, maven 클라이언트 설치 필요</li>
-</ul></li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">git clone https://github.com/verrazzano/examples.git
+<span class="nb">cd</span> examples/todo-list/
+mvn clean package
+</code></pre></div></li>
+<li>
+<p>빌드후 하위 target/todo.war 가 생김</p>
+</li>
+<li>
+<p>WebLogic Admin Console, http://localhost:7001/console 에 접속</p>
+</li>
+<li>
+<p>관리 콘솔 왼쪽 메뉴에서 <strong>배치</strong> 선택</p>
+</li>
+<li>
+<p><strong>설치</strong>를 클릭하여 todo.war가 있는 경우 지정</p>
+</li>
+<li>
+<p>다음을 클릭하고 이후는 기본값을 사용하여 앱을 배포</p>
+</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   git clone https://github.com/verrazzano/examples.git
-   <span class="nb">cd</span> examples/todo-list/
-   mvn clean package</code></pre></div>
-<ol>
-<li>빌드후 하위 target/todo.war 가 생김</li>
-<li>WebLogic Admin Console, <a href="http://localhost:7001/console">http://localhost:7001/console</a> 에 접속</li>
-<li>관리 콘솔 왼쪽 메뉴에서 <strong>배치</strong> 선택</li>
-<li><strong>설치</strong>를 클릭하여 todo.war가 있는 경우 지정</li>
-<li>다음을 클릭하고 이후는 기본값을 사용하여 앱을 배포</li>
-</ol>
-
 <h3 id="데이터-초기화">데이터 초기화</h3>
-
 <ol>
-<li><a href="http://localhost:7001/todo/rest/items/init">http://localhost:7001/todo/rest/items/init</a> 을 브라우저로 접속</li>
+<li>http://localhost:7001/todo/rest/items/init 을 브라우저로 접속</li>
 <li>MySQL 도커 컨테이너와 연결되어 데이터 초기화 성공하면 ToDos table initialized. 응답 메시지 확인됨</li>
 </ol>
-
 <h3 id="애플리케이션-접속">애플리케이션 접속</h3>
-
 <ol>
-<li><a href="http://localhost:7001/todo/index.html">http://localhost:7001/todo/index.html</a> 주소로 애플리케이션 접속하면, 정상적으로 데이터가 뜨는 것을 알 수 있습니다.</li>
+<li>
+<p>http://localhost:7001/todo/index.html 주소로 애플리케이션 접속하면, 정상적으로 데이터가 뜨는 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220107155645958.png" alt='image-20220107155645958' onerror="this.onerror=null;this.src='images\/image-20220107155645958.png';" />
+</p>
+</li>
 </ol>
-
-<p><img src="images/image-20220107155645958.png" alt="image-20220107155645958" /></p>
-
 <h2 id="이관-작업">이관 작업</h2>
-
 <p>WebLogic Operator을 통해 아래 내용을 WDT Model을 통해 이관하는 방법입니다.</p>
-
 <ul>
 <li>참고사항
-
 <ul>
 <li><a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/">Choose a domain home source type :: WebLogic Kubernetes Operator (oracle.github.io)</a></li>
-</ul></li>
 </ul>
-
+</li>
+</ul>
 <h3 id="wdt-모델-생성">WDT 모델 생성</h3>
-
 <ul>
 <li>Step #2. WebLogic Deploy Tooling을 통해 기 사용 WebLogic Server 분석후 메타데이터로 전환</li>
 </ul>
-
 <ol>
 <li><a href="https://github.com/oracle/weblogic-deploy-tooling/releases">WebLogic Deploy Tooling (WDT)</a>을 아래와 같은 명령으로 다운 받아 설치 합니다.</li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   curl -OL https://github.com/oracle/weblogic-deploy-tooling/releases/latest/download/weblogic-deploy.zip
-   unzip  weblogic-deploy.zip
-   <span class="nb">cd</span> weblogic-deploy
-   <span class="nb">export</span> <span class="nv">WDT_HOME</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span></code></pre></div>
-<ol>
-<li><p>WDT에서 제공하는 discoverDomain.sh를 통해 앞서 앱을 배포한 DOMAIN_HOME을 분석하여 결과물로 메타데이터 모델을 생성합니다.</p>
-
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -OL https://github.com/oracle/weblogic-deploy-tooling/releases/latest/download/weblogic-deploy.zip
+unzip  weblogic-deploy.zip
+<span class="nb">cd</span> weblogic-deploy
+<span class="nb">export</span> <span class="nv">WDT_HOME</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+</code></pre></div><ol start="2">
+<li>
+<p>WDT에서 제공하는 discoverDomain.sh를 통해 앞서 앱을 배포한 DOMAIN_HOME을 분석하여 결과물로 메타데이터 모델을 생성합니다.</p>
 <ul>
 <li>실행전에 export JAVA_HOME으로 jdk home을 사전에 설정해야 합니다.</li>
-</ul></li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   mkdir v8o
-   <span class="nv">$WDT_HOME</span>/bin/discoverDomain.sh <span class="se">\
-</span><span class="se"></span>     -oracle_home <span class="nv">$ORACLE_HOME</span> <span class="se">\
-</span><span class="se"></span>     -domain_home <span class="nv">$DOMAIN_HOME</span> <span class="se">\
-</span><span class="se"></span>     -model_file ./v8o/wdt-model.yaml <span class="se">\
-</span><span class="se"></span>     -archive_file ./v8o/wdt-archive.zip <span class="se">\
-</span><span class="se"></span>     -target vz <span class="se">\
-</span><span class="se"></span>     -output_dir v8o</code></pre></div>
-<ol>
-<li>실행결과</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   $ ls -la v8o/
-   total <span class="m">32</span>
-   drwxrwxr-x. <span class="m">2</span> opc opc  <span class="m">4096</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 .
-   drwxrwxr-x. <span class="m">4</span> opc opc    <span class="m">67</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 ..
-   -rwxr-x---. <span class="m">1</span> opc opc  <span class="m">1944</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 create_k8s_secrets.sh
-   -rw-r-----. <span class="m">1</span> opc opc  <span class="m">3156</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 vz-application.yaml
-   -rw-r-----. <span class="m">1</span> opc opc    <span class="m">51</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 vz_variable.properties
-   -rw-r-----. <span class="m">1</span> opc opc <span class="m">10671</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 wdt-archive.zip
-   -rw-r-----. <span class="m">1</span> opc opc  <span class="m">1179</span> Jan  <span class="m">7</span> <span class="m">08</span>:00 wdt-model.yaml</code></pre></div>
-<ul>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">mkdir v8o
+<span class="nv">$WDT_HOME</span>/bin/discoverDomain.sh <span class="se">\
+</span><span class="se"></span>  -oracle_home <span class="nv">$ORACLE_HOME</span> <span class="se">\
+</span><span class="se"></span>  -domain_home <span class="nv">$DOMAIN_HOME</span> <span class="se">\
+</span><span class="se"></span>  -model_file ./v8o/wdt-model.yaml <span class="se">\
+</span><span class="se"></span>  -archive_file ./v8o/wdt-archive.zip <span class="se">\
+</span><span class="se"></span>  -target vz <span class="se">\
+</span><span class="se"></span>  -output_dir v8o
+</code></pre></div></li>
+<li>
+<p>실행결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ls -la v8o/
+total <span class="m">32</span>
+drwxrwxr-x. <span class="m">2</span> opc opc  <span class="m">4096</span> Jan  <span class="m">7</span> 08:00 .
+drwxrwxr-x. <span class="m">4</span> opc opc    <span class="m">67</span> Jan  <span class="m">7</span> 08:00 ..
+-rwxr-x---. <span class="m">1</span> opc opc  <span class="m">1944</span> Jan  <span class="m">7</span> 08:00 create_k8s_secrets.sh
+-rw-r-----. <span class="m">1</span> opc opc  <span class="m">3156</span> Jan  <span class="m">7</span> 08:00 vz-application.yaml
+-rw-r-----. <span class="m">1</span> opc opc    <span class="m">51</span> Jan  <span class="m">7</span> 08:00 vz_variable.properties
+-rw-r-----. <span class="m">1</span> opc opc <span class="m">10671</span> Jan  <span class="m">7</span> 08:00 wdt-archive.zip
+-rw-r-----. <span class="m">1</span> opc opc  <span class="m">1179</span> Jan  <span class="m">7</span> 08:00 wdt-model.yaml
+</code></pre></div><ul>
 <li>create_k8s_secrets.sh - 웹로직 관리자 정보 등을 kubernes secret으로 만들기 위한 헬프 스크립트</li>
 <li>vz-application.yaml - Verrazzano 애플리케이션으로 배포하기 위한 YAML이 자동으로 생성</li>
 <li>vz_variable.properties - Verrazzano 애플리케이션으로 배포하기 위한 변수값</li>
 <li>wdt-archive.zip - 앞서 배포된 ToDO List 애플리케이션을 포함한 WDT 아카이브 파일</li>
 <li>wdt-model.yaml - WebLogic Server 도메인에 대한 WDT model</li>
 </ul>
-
+</li>
+</ol>
 <h3 id="컨테이너-이미지-생성">컨테이너 이미지 생성</h3>
-
 <ul>
 <li>Step #3. WebLogic Image Tool을 통해 메타데이터와 WebLogic 설치 파일을 이용해 컨테이너 이미지 생성 및 배포 파일 생성</li>
 </ul>
-
 <ol>
-<li><a href="https://github.com/oracle/weblogic-image-tool/releases">WebLogic Image Tool</a>을 아래와 같은 명령으로 다운 받아 설치 합니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   curl -OL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip
-   unzip imagetool.zip
-   <span class="nb">cd</span> imagetool
-   <span class="nb">export</span> <span class="nv">WIT_HOME</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span></code></pre></div>
-<ol>
-<li><p>WIT를 통해 컨테이너 이미지를 생성합니다. 툴을 사용하기 위해서는 앞서 다운 받은 WebLogic 설치 Zip 파일과 JDK  설치 파일이 필요합니다.</p>
-
+<li>
+<p><a href="https://github.com/oracle/weblogic-image-tool/releases">WebLogic Image Tool</a>을 아래와 같은 명령으로 다운 받아 설치 합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -OL https://github.com/oracle/weblogic-image-tool/releases/latest/download/imagetool.zip
+unzip imagetool.zip
+<span class="nb">cd</span> imagetool
+<span class="nb">export</span> <span class="nv">WIT_HOME</span><span class="o">=</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>
+</code></pre></div></li>
+<li>
+<p>WIT를 통해 컨테이너 이미지를 생성합니다. 툴을 사용하기 위해서는 앞서 다운 받은 WebLogic 설치 Zip 파일과 JDK  설치 파일이 필요합니다.</p>
 <ul>
 <li>설치 파일이 위치한 경로를 맞게 수정하고 최종적으로 생성될 컨테이너 이미지의 태그를 원하는 값으로 수정합니다.</li>
-</ul></li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="c1"># The directory created previously to hold the generated scripts and models.</span>
-   <span class="nb">cd</span> v8o
-   
-   <span class="nv">$WIT_HOME</span>/bin/imagetool.sh cache addInstaller <span class="se">\
-</span><span class="se"></span>     --path ~/stage/jdk-8u301-linux-x64.tar.gz <span class="se">\
-</span><span class="se"></span>     --type jdk <span class="se">\
-</span><span class="se"></span>     --version 8u301
-   
-   <span class="c1"># The installer file name may be slightly different depending on</span>
-   <span class="c1"># which version of the 12.2.1.4.0 installer that you downloaded, slim or generic.</span>
-   <span class="nv">$WIT_HOME</span>/bin/imagetool.sh cache addInstaller <span class="se">\
-</span><span class="se"></span>     --path ~/stage/fmw_12.2.1.4.0_wls_lite_Disk1_1of1.zip <span class="se">\
-</span><span class="se"></span>     --type wls <span class="se">\
-</span><span class="se"></span>     --version <span class="m">12</span>.2.1.4.0
-   
-   <span class="nv">$WIT_HOME</span>/bin/imagetool.sh cache addInstaller <span class="se">\
-</span><span class="se"></span>     --path <span class="nv">$WDT_HOME</span>/../weblogic-deploy.zip <span class="se">\
-</span><span class="se"></span>     --type wdt <span class="se">\
-</span><span class="se"></span>     --version latest
-   
-   <span class="c1"># Paths for the files in this command assume that you are running it from the</span>
-   <span class="c1"># v8o directory created during the `discoverDomain` step.</span>
-   <span class="nv">$WIT_HOME</span>/bin/imagetool.sh create <span class="se">\
-</span><span class="se"></span>     --tag &lt;region-key&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;username&gt;/todo:1 <span class="se">\
-</span><span class="se"></span>     --version <span class="m">12</span>.2.1.4.0 <span class="se">\
-</span><span class="se"></span>     --jdkVersion 8u301 <span class="se">\
-</span><span class="se"></span>     --wdtModel ./wdt-model.yaml <span class="se">\
-</span><span class="se"></span>     --wdtArchive ./wdt-archive.zip <span class="se">\
-</span><span class="se"></span>     --wdtVariables ./vz_variable.properties <span class="se">\
-</span><span class="se"></span>     --resourceTemplates<span class="o">=</span>./vz-application.yaml <span class="se">\
-</span><span class="se"></span>     --wdtModelOnly</code></pre></div>
-<ol>
-<li>생성된 컨테이너 이미지를 OCIR 레지스트리에 푸쉬합니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   docker push &lt;region-key&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;username&gt;/todo:1</code></pre></div>
-<h3 id="verrazzano가-설치된-oke에-배포하기">Verrazzano가 설치된 OKE에 배포하기</h3>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># The directory created previously to hold the generated scripts and models.</span>
+<span class="nb">cd</span> v8o
 
+<span class="nv">$WIT_HOME</span>/bin/imagetool.sh cache addInstaller <span class="se">\
+</span><span class="se"></span>  --path ~/stage/jdk-8u301-linux-x64.tar.gz <span class="se">\
+</span><span class="se"></span>  --type jdk <span class="se">\
+</span><span class="se"></span>  --version 8u301
+
+<span class="c1"># The installer file name may be slightly different depending on</span>
+<span class="c1"># which version of the 12.2.1.4.0 installer that you downloaded, slim or generic.</span>
+<span class="nv">$WIT_HOME</span>/bin/imagetool.sh cache addInstaller <span class="se">\
+</span><span class="se"></span>  --path ~/stage/fmw_12.2.1.4.0_wls_lite_Disk1_1of1.zip <span class="se">\
+</span><span class="se"></span>  --type wls <span class="se">\
+</span><span class="se"></span>  --version 12.2.1.4.0
+
+<span class="nv">$WIT_HOME</span>/bin/imagetool.sh cache addInstaller <span class="se">\
+</span><span class="se"></span>  --path <span class="nv">$WDT_HOME</span>/../weblogic-deploy.zip <span class="se">\
+</span><span class="se"></span>  --type wdt <span class="se">\
+</span><span class="se"></span>  --version latest
+
+<span class="c1"># Paths for the files in this command assume that you are running it from the</span>
+<span class="c1"># v8o directory created during the `discoverDomain` step.</span>
+<span class="nv">$WIT_HOME</span>/bin/imagetool.sh create <span class="se">\
+</span><span class="se"></span>  --tag &lt;region-key&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;username&gt;/todo:1 <span class="se">\
+</span><span class="se"></span>  --version 12.2.1.4.0 <span class="se">\
+</span><span class="se"></span>  --jdkVersion 8u301 <span class="se">\
+</span><span class="se"></span>  --wdtModel ./wdt-model.yaml <span class="se">\
+</span><span class="se"></span>  --wdtArchive ./wdt-archive.zip <span class="se">\
+</span><span class="se"></span>  --wdtVariables ./vz_variable.properties <span class="se">\
+</span><span class="se"></span>  --resourceTemplates<span class="o">=</span>./vz-application.yaml <span class="se">\
+</span><span class="se"></span>  --wdtModelOnly
+</code></pre></div></li>
+<li>
+<p>생성된 컨테이너 이미지를 OCIR 레지스트리에 푸쉬합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">docker push &lt;region-key&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;username&gt;/todo:1
+</code></pre></div></li>
+</ol>
+<h3 id="verrazzano가-설치된-oke에-배포하기">Verrazzano가 설치된 OKE에 배포하기</h3>
 <ul>
 <li>Step #4. 생성한 컨테이너 이미지와 배포 파일을 Verrazzano에 배포하면 WebLogic Operator가 이를 이용하여 WebLogic Server 컨테이너 생성</li>
 </ul>
-
 <h4 id="namespace-생성-및-라벨-달기">namespace 생성 및 라벨 달기</h4>
-
 <ol>
-<li>단일 클러스터 기준 다음과 같이 실행합니다.</li>
+<li>
+<p>단일 클러스터 기준 다음과 같이 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create namespace tododomain
+kubectl label namespace tododomain verrazzano-managed<span class="o">=</span><span class="nb">true</span> istio-injection<span class="o">=</span>enabled
+</code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   kubectl create namespace tododomain
-   kubectl label namespace tododomain verrazzano-managed<span class="o">=</span><span class="nb">true</span> istio-injection<span class="o">=</span>enabled</code></pre></div>
 <h4 id="secret-생성">Secret 생성</h4>
-
 <ol>
-<li><p>WDT 실행으로 만들어지 헬프 스크립트(v8o/create_k8s_secrets.sh)로 secret을 만듭니다.</p></li>
-
-<li><p>아래 username과 password를 원하는 값으로 변경합니다.</p>
-
+<li>
+<p>WDT 실행으로 만들어지 헬프 스크립트(v8o/create_k8s_secrets.sh)로 secret을 만듭니다.</p>
+</li>
+<li>
+<p>아래 username과 password를 원하는 값으로 변경합니다.</p>
 <ul>
 <li>weblogic 관리자 이름, 암호</li>
 <li>ToDo 애플리케이션이 사용할 MySQL DB 유저 이름, 암호
-
 <ul>
 <li>여기서 만들어지는 secret으로 OKE에 배포될 MySQL도 바라보게 해야 합니다. 이후 배포되는 예제는 사전에 그렇게 설정되어 있습니다.</li>
-</ul></li>
-</ul></li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="c1"># Update &lt;user&gt; and &lt;password&gt; for weblogic-credentials</span>
-   create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
-   
-   <span class="c1"># Update &lt;user&gt; and &lt;password&gt; for jdbc-tododb</span>
-   create_paired_k8s_secret jdbc-tododb tododb &lt;password&gt;
-   
-   <span class="c1"># Update &lt;password&gt; used to encrypt model and domain hashes</span>
-   <span class="c1"># This secret is only required for model-in-image deployments</span>
-   create_k8s_secret runtime-encryption-secret &lt;password&gt;</code></pre></div>
-<ol>
-<li><p>스크립트를 실행합니다.</p>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># Update &lt;user&gt; and &lt;password&gt; for weblogic-credentials</span>
+create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
 
+<span class="c1"># Update &lt;user&gt; and &lt;password&gt; for jdbc-tododb</span>
+create_paired_k8s_secret jdbc-tododb tododb &lt;password&gt;
+
+<span class="c1"># Update &lt;password&gt; used to encrypt model and domain hashes</span>
+<span class="c1"># This secret is only required for model-in-image deployments</span>
+create_k8s_secret runtime-encryption-secret &lt;password&gt;
+</code></pre></div></li>
+<li>
+<p>스크립트를 실행합니다.</p>
 <ul>
 <li>기본적으로 도메인 이름(tododomain)의 namespace에 생성됩니다. create_k8s_secrets.sh 설정 참고</li>
-</ul></li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ./create_k8s_secrets.sh
+secret/tododomain-weblogic-credentials created
+secret/tododomain-weblogic-credentials labeled
+secret/tododomain-jdbc-tododb created
+secret/tododomain-jdbc-tododb labeled
+secret/tododomain-runtime-encryption-secret created
+secret/tododomain-runtime-encryption-secret labeled
+$ kubectl get secret -n tododomain
+NAME                                   TYPE                                  DATA   AGE
+default-token-snckl                    kubernetes.io/service-account-token   <span class="m">3</span>      7m58s
+tododomain-jdbc-tododb                 Opaque                                <span class="m">2</span>      93s
+tododomain-runtime-encryption-secret   Opaque                                <span class="m">1</span>      83s
+tododomain-weblogic-credentials        Opaque                                <span class="m">2</span>      103s
+</code></pre></div></li>
+<li>
+<p>OCIR에서 이미지를 가져오기 위한 imagePullSecret을 만듭니다. v8o/vz-application.yaml을 보면 tododomain-registry-credentials으로 사용하고 있습니다. 동일한 이름으로 secret을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create secret docker-registry tododomain-registry-credentials <span class="se">\
+</span><span class="se"></span>  --docker-server<span class="o">=</span>&lt;region-key&gt;.ocir.io <span class="se">\
+</span><span class="se"></span>  --docker-email<span class="o">=</span>your.name@example.com <span class="se">\
+</span><span class="se"></span>  --docker-username<span class="o">=</span>&lt;tenancy-namespace&gt;/&lt;username&gt; <span class="se">\
+</span><span class="se"></span>  --docker-password<span class="o">=</span><span class="s1">&#39;&lt;AUTH_TOKEN&gt;&#39;</span> <span class="se">\
+</span><span class="se"></span>  --namespace<span class="o">=</span>tododomain
+</code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   $ ./create_k8s_secrets.sh
-   secret/tododomain-weblogic-credentials created
-   secret/tododomain-weblogic-credentials labeled
-   secret/tododomain-jdbc-tododb created
-   secret/tododomain-jdbc-tododb labeled
-   secret/tododomain-runtime-encryption-secret created
-   secret/tododomain-runtime-encryption-secret labeled
-   $ kubectl get secret -n tododomain
-   NAME                                   TYPE                                  DATA   AGE
-   default-token-snckl                    kubernetes.io/service-account-token   <span class="m">3</span>      7m58s
-   tododomain-jdbc-tododb                 Opaque                                <span class="m">2</span>      93s
-   tododomain-runtime-encryption-secret   Opaque                                <span class="m">1</span>      83s
-   tododomain-weblogic-credentials        Opaque                                <span class="m">2</span>      103s</code></pre></div>
-<ol>
-<li>OCIR에서 이미지를 가져오기 위한 imagePullSecret을 만듭니다. v8o/vz-application.yaml을 보면 tododomain-registry-credentials으로 사용하고 있습니다. 동일한 이름으로 secret을 생성합니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   kubectl create secret docker-registry tododomain-registry-credentials <span class="se">\
-</span><span class="se"></span>     --docker-server<span class="o">=</span>&lt;region-key&gt;.ocir.io <span class="se">\
-</span><span class="se"></span>     --docker-email<span class="o">=</span>your.name@example.com <span class="se">\
-</span><span class="se"></span>     --docker-username<span class="o">=</span>&lt;tenancy-namespace&gt;/&lt;username&gt; <span class="se">\
-</span><span class="se"></span>     --docker-password<span class="o">=</span><span class="s1">&#39;&lt;AUTH_TOKEN&gt;&#39;</span> <span class="se">\
-</span><span class="se"></span>     --namespace<span class="o">=</span>tododomain</code></pre></div>
 <h4 id="verrazzano에-애플리케이션-배포">Verrazzano에 애플리케이션 배포</h4>
-
 <p>배포되는 예제 애플리케이션은 MySQL DB를 저장소로 사용하고 있습니다. OKE에 이관된 WebLogic Server 위에 애플리케이션도 구동을 위해서는 MySQL DB가 필요합니다. 문서 예제에서는 MySQL DB를 Verrazzano Component로 배포하고 있으며, 해당 Component를 사용하도록 v8o/vz-application.yaml에서 Data Source 주소를 변경하고 있습니다. 이 배포되는 MySQL DB Component가 배포시 앞서 만들 jdbc-tododb secret을 사용합니다.</p>
-
 <h5 id="mysql-component-배포">MySQL Component 배포</h5>
-
 <ol>
-<li><p><a href="https://verrazzano.io/latest/docs/guides/lift-and-shift/mysql-oam.yaml">mysql-oam.yaml</a> 파일을 다운로드 받습니다.</p></li>
-
-<li><p>아래와 같이 다운로드 받은 YAML 파일을 배포합니다.</p></li>
+<li>
+<p><a href="https://verrazzano.io/latest/docs/guides/lift-and-shift/mysql-oam.yaml">mysql-oam.yaml</a> 파일을 다운로드 받습니다.</p>
+</li>
+<li>
+<p>아래와 같이 다운로드 받은 YAML 파일을 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host v8o <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl apply -f mysql-oam.yaml
+component.core.oam.dev/todo-mysql-service created
+component.core.oam.dev/todo-mysql-deployment created
+component.core.oam.dev/todo-mysql-configmap created
+<span class="o">[</span>opc@bastion-host v8o <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get component -n tododomain
+NAME                    WORKLOAD-KIND   AGE
+todo-mysql-configmap    ConfigMap       13s
+todo-mysql-deployment   Deployment      13s
+todo-mysql-service      Service         13s
+</code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   <span class="o">[</span>opc@bastion-host v8o <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl apply -f mysql-oam.yaml
-   component.core.oam.dev/todo-mysql-service created
-   component.core.oam.dev/todo-mysql-deployment created
-   component.core.oam.dev/todo-mysql-configmap created
-   <span class="o">[</span>opc@bastion-host v8o <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get component -n tododomain
-   NAME                    WORKLOAD-KIND   AGE
-   todo-mysql-configmap    ConfigMap       13s
-   todo-mysql-deployment   Deployment      13s
-   todo-mysql-service      Service         13s</code></pre></div>
 <h5 id="verrazzano-배포용-application-configuration설정-업데이트">Verrazzano 배포용 application configuration설정 업데이트</h5>
-
 <ol>
-<li>v8o/vz-application.yaml에 component 3개 추가</li>
+<li>
+<p>v8o/vz-application.yaml에 component 3개 추가</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ApplicationConfiguration</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-appconf</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-domain</span><span class="w">
+</span><span class="w">      </span><span class="l">...</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-configmap</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">todo-mysql-service</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">todo-mysql-deployment</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">todo-mysql-configmap    </span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>v8o/vz-application.yaml에 Data Source의 URL 업데이트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Component</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-configmap</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">workload</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="l">...</span><span class="w">
+</span><span class="w">    </span><span class="nt">data</span><span class="p">:</span><span class="w">
+</span><span class="w">      </span><span class="nt">wdt_jdbc.yaml</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span><span class="sd">        resources:
+</span><span class="sd">          JDBCSystemResource:
+</span><span class="sd">            &#39;tododb&#39;:
+</span><span class="sd">              JdbcResource:
+</span><span class="sd">                JDBCDriverParams:
+</span><span class="sd">                  # This is the URL of the database used by the WebLogic Server application
+</span><span class="sd">                  URL: &#34;jdbc:mysql://mysql.tododomain.svc.cluster.local:3306/tododb&#34;</span><span class="w">        
+</span></code></pre></div></li>
 </ol>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">   </span>apiVersion<span class="p">:</span><span class="w"> </span>core.oam.dev/v1alpha2<span class="w">
-</span><span class="w">   </span>kind<span class="p">:</span><span class="w"> </span>ApplicationConfiguration<span class="w">
-</span><span class="w">   </span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">     </span>name<span class="p">:</span><span class="w"> </span>tododomain-appconf<span class="w">
-</span><span class="w">     </span>...<span class="w">
-</span><span class="w">   </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">     </span>components<span class="p">:</span><span class="w">
-</span><span class="w">       </span>-<span class="w"> </span>componentName<span class="p">:</span><span class="w"> </span>tododomain-domain<span class="w">
-</span><span class="w">         </span>...<span class="w">
-</span><span class="w">       </span>-<span class="w"> </span>componentName<span class="p">:</span><span class="w"> </span>tododomain-configmap<span class="w">
-</span><span class="w">       </span>-<span class="w"> </span>componentName<span class="p">:</span><span class="w"> </span>todo-mysql-service<span class="w">
-</span><span class="w">       </span>-<span class="w"> </span>componentName<span class="p">:</span><span class="w"> </span>todo-mysql-deployment<span class="w">
-</span><span class="w">       </span>-<span class="w"> </span>componentName<span class="p">:</span><span class="w"> </span>todo-mysql-configmap<span class="w">    </span></code></pre></div>
+<h5 id="애플리케이션todo-애플리케이션--mysql-배포">애플리케이션(ToDo 애플리케이션 + MySQL) 배포</h5>
 <ol>
-<li>v8o/vz-application.yaml에 Data Source의 URL 업데이트</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">   </span>apiVersion<span class="p">:</span><span class="w"> </span>core.oam.dev/v1alpha2<span class="w">
-</span><span class="w">   </span>kind<span class="p">:</span><span class="w"> </span>Component<span class="w">
-</span><span class="w">   </span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">     </span>name<span class="p">:</span><span class="w"> </span>tododomain-configmap<span class="w">
-</span><span class="w">     </span>...<span class="w">
-</span><span class="w">   </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">     </span>workload<span class="p">:</span><span class="w">
-</span><span class="w">       </span>...<span class="w">
-</span><span class="w">       </span>data<span class="p">:</span><span class="w">
-</span><span class="w">         </span>wdt_jdbc.yaml<span class="p">:</span><span class="w"> </span><span class="sd">|
-</span><span class="sd">           resources:
-</span><span class="sd">             JDBCSystemResource:
-</span><span class="sd">               &#39;tododb&#39;:
-</span><span class="sd">                 JdbcResource:
-</span><span class="sd">                   JDBCDriverParams:
-</span><span class="sd">                     # This is the URL of the database used by the WebLogic Server application
-</span><span class="sd">                     URL: &#34;jdbc:mysql://mysql.tododomain.svc.cluster.local:3306/tododb&#34;</span></code></pre></div>
-<h5 id="애플리케이션-todo-애플리케이션-mysql-배포">애플리케이션(ToDo 애플리케이션 + MySQL) 배포</h5>
-
-<ol>
-<li>애플리케이션을 Verrazzano가 설치된 OKE에 배포합니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   $ kubectl apply -f vz-application.yaml
-   applicationconfiguration.core.oam.dev/tododomain-appconf created
-   component.core.oam.dev/tododomain-domain created
-   component.core.oam.dev/tododomain-configmap created</code></pre></div>
-<ol>
-<li>tododomain-appconf 애플리케이션이 배포되고 VerrazzanoWebLogicWorkload 유형의 tododomain-domain이 배포됩니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">   </span><span class="c">#v8o/vz-application.yaml 참고</span><span class="w">
-</span><span class="w">   </span>...<span class="w">
-</span><span class="w">   </span>---<span class="w">
-</span><span class="w">   </span>apiVersion<span class="p">:</span><span class="w"> </span>core.oam.dev/v1alpha2<span class="w">
-</span><span class="w">   </span>kind<span class="p">:</span><span class="w"> </span>Component<span class="w">
-</span><span class="w">   </span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">     </span>name<span class="p">:</span><span class="w"> </span>tododomain-domain<span class="w">
-</span><span class="w">     </span>namespace<span class="p">:</span><span class="w"> </span>tododomain<span class="w">
-</span><span class="w">   </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">     </span>workload<span class="p">:</span><span class="w">
-</span><span class="w">       </span>apiVersion<span class="p">:</span><span class="w"> </span>oam.verrazzano.io/v1alpha1<span class="w">
-</span><span class="w">       </span>kind<span class="p">:</span><span class="w"> </span>VerrazzanoWebLogicWorkload<span class="w">
-</span><span class="w">   </span>...</code></pre></div>
-<ol>
-<li>배포가 완료되고 POD가 기동됩니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   $ kubectl get pod -n tododomain
-   NAME                     READY   STATUS    RESTARTS   AGE
-   mysql-7bfb67d9f8-gn4qc   <span class="m">2</span>/2     Running   <span class="m">0</span>          5m35s
-   tododomain-adminserver   <span class="m">4</span>/4     Running   <span class="m">0</span>          3m16s</code></pre></div>
-<ol>
-<li>istio상의 애플리케이션 주소를 확인합니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   kubectl get gateway tododomain-tododomain-appconf-gw <span class="se">\
-</span><span class="se"></span>       -n tododomain <span class="se">\
-</span><span class="se"></span>       -o <span class="nv">jsonpath</span><span class="o">={</span>.spec.servers<span class="o">[</span><span class="m">0</span><span class="o">]</span>.hosts<span class="o">[</span><span class="m">0</span><span class="o">]}</span><span class="p">;</span> echo</code></pre></div>
-<ul>
-<li><p>결과 예시</p>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"> $ kubectl get gateway tododomain-tododomain-appconf-gw <span class="se">\
-</span><span class="se"></span> &gt;     -n tododomain <span class="se">\
-</span><span class="se"></span> &gt;     -o <span class="nv">jsonpath</span><span class="o">={</span>.spec.servers<span class="o">[</span><span class="m">0</span><span class="o">]</span>.hosts<span class="o">[</span><span class="m">0</span><span class="o">]}</span><span class="p">;</span> <span class="nb">echo</span>
- tododomain-appconf.tododomain.thekoguryo.ml</code></pre></div></li>
+<li>
+<p>애플리케이션을 Verrazzano가 설치된 OKE에 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl apply -f vz-application.yaml
+applicationconfiguration.core.oam.dev/tododomain-appconf created
+component.core.oam.dev/tododomain-domain created
+component.core.oam.dev/tododomain-configmap created
+</code></pre></div></li>
+<li>
+<p>tododomain-appconf 애플리케이션이 배포되고 VerrazzanoWebLogicWorkload 유형의 tododomain-domain이 배포됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c">#v8o/vz-application.yaml 참고</span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span><span class="w"></span><span class="nn">---</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Component</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-domain</span><span class="w">
+</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">workload</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oam.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VerrazzanoWebLogicWorkload</span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span></code></pre></div></li>
+<li>
+<p>배포가 완료되고 POD가 기동됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get pod -n tododomain
+NAME                     READY   STATUS    RESTARTS   AGE
+mysql-7bfb67d9f8-gn4qc   2/2     Running   <span class="m">0</span>          5m35s
+tododomain-adminserver   4/4     Running   <span class="m">0</span>          3m16s
+</code></pre></div></li>
+<li>
+<p>istio상의 애플리케이션 주소를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get gateway tododomain-tododomain-appconf-gw <span class="se">\
+</span><span class="se"></span>    -n tododomain <span class="se">\
+</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">={</span>.spec.servers<span class="o">[</span>0<span class="o">]</span>.hosts<span class="o">[</span>0<span class="o">]}</span><span class="p">;</span> <span class="nb">echo</span>
+</code></pre></div><ul>
+<li>
+<p>결과 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get gateway tododomain-tododomain-appconf-gw <span class="se">\
+</span><span class="se"></span>&gt;     -n tododomain <span class="se">\
+</span><span class="se"></span>&gt;     -o <span class="nv">jsonpath</span><span class="o">={</span>.spec.servers<span class="o">[</span>0<span class="o">]</span>.hosts<span class="o">[</span>0<span class="o">]}</span><span class="p">;</span> <span class="nb">echo</span>
+tododomain-appconf.tododomain.thekoguryo.ml
+</code></pre></div></li>
 </ul>
-
-<ol>
-<li>/todo를 추가하여 애플리케이션에 접속할 수 있습니다.</li>
-</ol>
-
+</li>
+<li>
+<p>/todo를 추가하여 애플리케이션에 접속할 수 있습니다.</p>
 <p><a href="https://tododomain-appconf.tododomain.thekoguryo.ml/todo">https://tododomain-appconf.tododomain.thekoguryo.ml/todo</a></p>
-
-<ol>
-<li>On-Premise와 동일하게 데이터 초기화하여 MySQL DB Component와 연결되어 데이터가 정상 입력되는 것을 확인할 수 있습니다.</li>
-</ol>
-
+</li>
+<li>
+<p>On-Premise와 동일하게 데이터 초기화하여 MySQL DB Component와 연결되어 데이터가 정상 입력되는 것을 확인할 수 있습니다.</p>
 <p><a href="https://tododomain-appconf.tododomain.thekoguryo.ml/todo/rest/items/init">https://tododomain-appconf.tododomain.thekoguryo.ml/todo/rest/items/init</a></p>
-
+</li>
+</ol>
 <h5 id="weblogic-admin-console-접속">WebLogic Admin Console 접속</h5>
-
 <ol>
-<li>기본 배포되면 애플리케이션만 istio ingress에 등록되어 있어, WebLogic Admin Console은 포트 포워딩을 통해 접속합니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">   kubectl port-forward pods/tododomain-adminserver <span class="m">7001</span>:7001 -n tododomain</code></pre></div>
-<ol>
-<li><p>다만 포트 포워딩 에러가 나는 경우, 아래와 같이 ingress에 노출하여 외부에서 접속하게 추가할 수도 있습니다. 운영에서는 Public IP로 접근은 추천하지 않습니다.</p>
-
+<li>
+<p>기본 배포되면 애플리케이션만 istio ingress에 등록되어 있어, WebLogic Admin Console은 포트 포워딩을 통해 접속합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl port-forward pods/tododomain-adminserver 7001:7001 -n tododomain
+</code></pre></div></li>
+<li>
+<p>다만 포트 포워딩 에러가 나는 경우, 아래와 같이 ingress에 노출하여 외부에서 접속하게 추가할 수도 있습니다. 운영에서는 Public IP로 접근은 추천하지 않습니다.</p>
 <ul>
-<li>vz-application.yaml을 아래와 같이 - path: &ldquo;/console&rdquo; 포함 2줄을 추가하고 다시 배포(kubectl apply -f vz-application.yaml)합니다.</li>
+<li>
+<p>vz-application.yaml을 아래와 같이 - path: &ldquo;/console&rdquo; 포함 2줄을 추가하고 다시 배포(kubectl apply -f vz-application.yaml)합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">...</span><span class="w">
+</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">core.oam.dev/v1alpha2</span><span class="w">
+</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ApplicationConfiguration</span><span class="w">
+</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-appconf</span><span class="w">
+</span><span class="w">  </span><span class="l">...</span><span class="w">
+</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="nt">components</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span>- <span class="nt">componentName</span><span class="p">:</span><span class="w"> </span><span class="l">tododomain-domain</span><span class="w">
+</span><span class="w">      </span><span class="nt">traits</span><span class="p">:</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">trait</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="l">...</span><span class="w">
+</span><span class="w">        </span>- <span class="nt">trait</span><span class="p">:</span><span class="w">
+</span><span class="w">            </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oam.verrazzano.io/v1alpha1</span><span class="w">
+</span><span class="w">            </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">IngressTrait</span><span class="w">
+</span><span class="w">            </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span><span class="w">              </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span><span class="w">                </span>- <span class="nt">paths</span><span class="p">:</span><span class="w">
+</span><span class="w">                    </span><span class="c"># application todo</span><span class="w">
+</span><span class="w">                    </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/todo&#34;</span><span class="w">
+</span><span class="w">                      </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span><span class="w">                    </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/console&#34;</span><span class="w">
+</span><span class="w">                      </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span><span class="w"></span><span class="nn">...</span><span class="w">
+</span></code></pre></div></li>
 </ul>
-<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="w">  </span>...<span class="w">
-</span><span class="w">  </span>apiVersion<span class="p">:</span><span class="w"> </span>core.oam.dev/v1alpha2<span class="w">
-</span><span class="w">  </span>kind<span class="p">:</span><span class="w"> </span>ApplicationConfiguration<span class="w">
-</span><span class="w">  </span>metadata<span class="p">:</span><span class="w">
-</span><span class="w">    </span>name<span class="p">:</span><span class="w"> </span>tododomain-appconf<span class="w">
-</span><span class="w">    </span>...<span class="w">
-</span><span class="w">  </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">    </span>components<span class="p">:</span><span class="w">
-</span><span class="w">      </span>-<span class="w"> </span>componentName<span class="p">:</span><span class="w"> </span>tododomain-domain<span class="w">
-</span><span class="w">        </span>traits<span class="p">:</span><span class="w">
-</span><span class="w">          </span>-<span class="w"> </span>trait<span class="p">:</span><span class="w">
-</span><span class="w">              </span>...<span class="w">
-</span><span class="w">          </span>-<span class="w"> </span>trait<span class="p">:</span><span class="w">
-</span><span class="w">              </span>apiVersion<span class="p">:</span><span class="w"> </span>oam.verrazzano.io/v1alpha1<span class="w">
-</span><span class="w">              </span>kind<span class="p">:</span><span class="w"> </span>IngressTrait<span class="w">
-</span><span class="w">              </span>spec<span class="p">:</span><span class="w">
-</span><span class="w">                </span>rules<span class="p">:</span><span class="w">
-</span><span class="w">                  </span>-<span class="w"> </span>paths<span class="p">:</span><span class="w">
-</span><span class="w">                      </span><span class="c"># application todo</span><span class="w">
-</span><span class="w">                      </span>-<span class="w"> </span>path<span class="p">:</span><span class="w"> </span><span class="s2">&#34;/todo&#34;</span><span class="w">
-</span><span class="w">                        </span>pathType<span class="p">:</span><span class="w"> </span>Prefix<span class="w">
-</span><span class="w">                      </span>-<span class="w"> </span>path<span class="p">:</span><span class="w"> </span><span class="s2">&#34;/console&#34;</span><span class="w">
-</span><span class="w">                        </span>pathType<span class="p">:</span><span class="w"> </span>Prefix<span class="w">
-</span><span class="w">  </span>...</code></pre></div></li>
-
-<li><p>이전 주소에서 /todo 대신 /console로 접속하고 v8o/create_k8s_secrets.sh 에서 입력한 WebLogic 관리자 이름, 암호를 사용합니다.</p></li>
-</ol>
-
+</li>
+<li>
+<p>이전 주소에서 /todo 대신 /console로 접속하고 v8o/create_k8s_secrets.sh 에서 입력한 WebLogic 관리자 이름, 암호를 사용합니다.</p>
 <p><a href="https://tododomain-appconf.tododomain.thekoguryo.ml/console">https://tododomain-appconf.tododomain.thekoguryo.ml/console</a></p>
+<p>
 
-<p><img src="images/image-20220107184435029.png" alt="image-20220107184435029" /></p>
 
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220107184435029.png" alt='image-20220107184435029' onerror="this.onerror=null;this.src='images\/image-20220107184435029.png';" />
+</p>
+</li>
+</ol>
 <h2 id="모니터링">모니터링</h2>
-
-<h3 id="로그-모니터링-elasticsearch-kibana">로그 모니터링(Elasticsearch / Kibana)</h3>
-
+<h3 id="로그-모니터링elasticsearch--kibana">로그 모니터링(Elasticsearch / Kibana)</h3>
 <ol>
-<li><p>Verrazzano 콘솔에서 Kibana 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p></li>
-
-<li><p>단일 클러스터와 배포시와 동일한 방법으로 verrazzano-namespace-hello-helidon 네임스페이스로 인덱스 패턴을 생성합니다.</p></li>
-
-<li><p>kubectl로 조회한 컨테이너 로그가 Kibana에서 생성한 인덱스 패턴에 대해 수집된 로그, 대상 namespace 상의 전체 수집된 로그가 보입니다.</p>
-
+<li>
+<p>Verrazzano 콘솔에서 Kibana 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p>
+</li>
+<li>
+<p>단일 클러스터와 배포시와 동일한 방법으로 verrazzano-namespace-hello-helidon 네임스페이스로 인덱스 패턴을 생성합니다.</p>
+</li>
+<li>
+<p>kubectl로 조회한 컨테이너 로그가 Kibana에서 생성한 인덱스 패턴에 대해 수집된 로그, 대상 namespace 상의 전체 수집된 로그가 보입니다.</p>
 <ul>
-<li>로그 조회</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"> $ kubectl logs tododomain-adminserver -n tododomain -c weblogic-server -f
- ...
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;WebLogicServer&gt; &lt;BEA-000331&gt; &lt;Started the WebLogic Server Administration Server <span class="s2">&#34;AdminServer&#34;</span> <span class="k">for</span> domain <span class="s2">&#34;tododomain&#34;</span> running in development mode.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;Default&#34;</span> is now listening on <span class="m">10</span>.244.1.15:7001 <span class="k">for</span> protocols iiop, t3, ldap, snmp, http.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe&#34;</span> is now listening on <span class="m">127</span>.0.0.1:8888 <span class="k">for</span> protocols http.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe-ext&#34;</span> is now listening on <span class="m">10</span>.244.1.15:8888 <span class="k">for</span> protocols http.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,417 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;Default&#34;</span> is now listening on <span class="m">10</span>.244.1.15:7001 <span class="k">for</span> protocols iiop, t3, ldap, snmp, http.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,417 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe&#34;</span> is now listening on <span class="m">127</span>.0.0.1:8888 <span class="k">for</span> protocols http.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,417 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe-ext&#34;</span> is now listening on <span class="m">10</span>.244.1.15:8888 <span class="k">for</span> protocols http.&gt;
- &lt;Jan <span class="m">7</span>, <span class="m">2022</span> <span class="m">9</span>:21:58,428 AM UTC&gt; &lt;Notice&gt; &lt;WebLogicServer&gt; &lt;BEA-000360&gt; &lt;The server started in RUNNING mode.&gt;
- Successfully started server AdminServer ...
- ...</code></pre></div>
-<ul>
-<li>Kibana</li>
-</ul>
+<li>
+<p>로그 조회</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl logs tododomain-adminserver -n tododomain -c weblogic-server -f
+...
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;WebLogicServer&gt; &lt;BEA-000331&gt; &lt;Started the WebLogic Server Administration Server <span class="s2">&#34;AdminServer&#34;</span> <span class="k">for</span> domain <span class="s2">&#34;tododomain&#34;</span> running in development mode.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;Default&#34;</span> is now listening on 10.244.1.15:7001 <span class="k">for</span> protocols iiop, t3, ldap, snmp, http.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe&#34;</span> is now listening on 127.0.0.1:8888 <span class="k">for</span> protocols http.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,416 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe-ext&#34;</span> is now listening on 10.244.1.15:8888 <span class="k">for</span> protocols http.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,417 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;Default&#34;</span> is now listening on 10.244.1.15:7001 <span class="k">for</span> protocols iiop, t3, ldap, snmp, http.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,417 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe&#34;</span> is now listening on 127.0.0.1:8888 <span class="k">for</span> protocols http.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,417 AM UTC&gt; &lt;Notice&gt; &lt;Server&gt; &lt;BEA-002613&gt; &lt;Channel <span class="s2">&#34;http-probe-ext&#34;</span> is now listening on 10.244.1.15:8888 <span class="k">for</span> protocols http.&gt;
+&lt;Jan 7, <span class="m">2022</span> 9:21:58,428 AM UTC&gt; &lt;Notice&gt; &lt;WebLogicServer&gt; &lt;BEA-000360&gt; &lt;The server started in RUNNING mode.&gt;
+Successfully started server AdminServer ...
+...
+</code></pre></div></li>
+<li>
+<p>Kibana</p>
+<p>
 
-<p><img src="images/image-20220107213201264.png" alt="image-20220107213201264" /></p></li>
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220107213201264.png" alt='image-20220107213201264' onerror="this.onerror=null;this.src='images\/image-20220107213201264.png';" />
+</p>
+</li>
+</ul>
+</li>
 </ol>
-
-<h3 id="메트릭-모니터링-prometheus-grafana">메트릭 모니터링(Prometheus / Grafana)</h3>
-
+<h3 id="메트릭-모니터링prometheus--grafana">메트릭 모니터링(Prometheus / Grafana)</h3>
 <ol>
-<li><p>Verrazzano 콘솔에서 Grafana 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p></li>
+<li>
+<p>Verrazzano 콘솔에서 Grafana 링크를 클릭합니다. SSO 구성이 되어 추가 로그인은 필요없습니다.</p>
+</li>
+<li>
+<p>기본 제공하고 있는 대쉬보드 중에 WebLogic Server 대쉬보드를 선택합니다.</p>
+</li>
+<li>
+<p>기본 제공하는 WebLogic Server 대쉬보드를 통해 Verrazzano가 관리하는 모든 클러스터 상에 있는 WebLogic 기반 컨테이너의 상태를 모니터링 할 수 있습니다.</p>
+<p>
 
-<li><p>기본 제공하고 있는 대쉬보드 중에 WebLogic Server 대쉬보드를 선택합니다.</p></li>
 
-<li><p>기본 제공하는 WebLogic Server 대쉬보드를 통해 Verrazzano가 관리하는 모든 클러스터 상에 있는 WebLogic 기반 컨테이너의 상태를 모니터링 할 수 있습니다.</p></li>
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220107185037749.png" alt='image-20220107185037749' onerror="this.onerror=null;this.src='images\/image-20220107185037749.png';" />
+</p>
+</li>
 </ol>
-
-<p><img src="images/image-20220107185037749.png" alt="image-20220107185037749" /></p>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
  <div class="edit-meta">Last updated on 7 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/" title="6.4 Multicluster에 애플리케이션 배포하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 6.4 Multicluster에 애플리케이션 배포하기</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/ocp/" title="Ocps">Next - Ocps <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/" title="6.1 Verrazzano 설치">Next - 6.1 Verrazzano 설치 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -643,8 +677,6 @@
   
 <ul class=" hidden">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -675,8 +707,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -705,7 +735,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -1011,7 +1040,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1678,88 +1706,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

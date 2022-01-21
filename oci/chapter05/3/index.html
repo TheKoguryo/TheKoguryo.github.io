@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>5.3 Custom Security List 추가하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter05/3/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,68 +44,125 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h2 id="5-3-방법-2-custom-security-list-추가하기">5.3 방법 #2. Custom Security List 추가하기</h2>
-
+<main><h2 id="53-방법-2-custom-security-list-추가하기">5.3 방법 #2. Custom Security List 추가하기</h2>
 <ol>
-<li><p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Networking</strong> &gt;&gt; <strong>Virtual Private Networks</strong> 항목으로 이동합니다.</p></li>
+<li>
+<p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Networking</strong> &raquo; <strong>Virtual Private Networks</strong> 항목으로 이동합니다.</p>
+</li>
+<li>
+<p>현재 사용중인 VCN(예, ExampleVCN)을 클릭하여 VCN의 상세 정보로 이동합니다.</p>
+</li>
+<li>
+<p>왼쪽 아래  <strong>Resources</strong> &gt; <strong>Security List</strong> 항목으로 이동합니다.</p>
+</li>
+<li>
+<p>VCN 마법사로 생성한 Private Subnet용, Public Subnet용 Security외에 Custom Security List 추가를 위해  <strong>Create Security List</strong>를 클릭합니다.</p>
+<p>
 
-<li><p>현재 사용중인 VCN(예, ExampleVCN)을 클릭하여 VCN의 상세 정보로 이동합니다.</p></li>
 
-<li><p>왼쪽 아래  <strong>Resources</strong> &gt; <strong>Security List</strong> 항목으로 이동합니다.</p></li>
 
-<li><p>VCN 마법사로 생성한 Private Subnet용, Public Subnet용 Security외에 Custom Security List 추가를 위해  <strong>Create Security List</strong>를 클릭합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220111210440149.png" alt="image-20220111210440149" /></p>
 
-<ol>
-<li><p>생성창에서 Ingress 방화벽 규칙을 입력합니다.</p>
 
+
+<img class="img-fluid1" src="../images/image-20220111210440149.png" alt='image-20220111210440149' onerror="this.onerror=null;this.src='images\/image-20220111210440149.png';" />
+</p>
+</li>
+<li>
+<p>생성창에서 Ingress 방화벽 규칙을 입력합니다.</p>
 <ul>
 <li>Security List Name: 새 규칙의 이름 입력, 예) Customer Security List</li>
 <li>Ingress Rule 설정 : Apache HTTP 서버가 사용하는 수신 포트 추가
-
 <ul>
 <li><strong>Source CIDR</strong>: 0.0.0.0/0, 모든 IP에서 오는 요청</li>
 <li><strong>IP Protocol</strong>: TCP</li>
 <li><strong>Destination Port Range</strong>: 80, 개방할 포트</li>
-</ul></li>
+</ul>
+</li>
 <li>Egress Rule 설정: 변경하지 않습니다.</li>
-</ul></li>
-</ol>
+</ul>
+<p>
 
-<p><img src="images/image-20220111210956796.png" alt="image-20220111210956796" /></p>
 
-<ol>
-<li><p>하단으로 스크롤하여 <strong>Create Securit List</strong>를 클릭</p></li>
 
-<li><p>새 Security List를 추가되었습니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220111211421446.png" alt="image-20220111211421446" /></p>
 
-<ol>
-<li><p>Subnet에 새 Security List를 추가하기 위해 좌측 <strong>Resources</strong> 메뉴에서 <strong>Subnets</strong>으로 이동합니다.</p></li>
 
-<li><p>Apache 서버가 설치된 인스턴스가 위치한 Public Subnet을 클릭합니다.</p></li>
-</ol>
 
-<p><img src="images/image-20220111211538181.png" alt="image-20220111211538181" /></p>
+<img class="img-fluid1" src="../images/image-20220111210956796.png" alt='image-20220111210956796' onerror="this.onerror=null;this.src='images\/image-20220111210956796.png';" />
+</p>
+</li>
+<li>
+<p>하단으로 스크롤하여 <strong>Create Securit List</strong>를 클릭</p>
+</li>
+<li>
+<p>새 Security List를 추가되었습니다.</p>
+<p>
 
-<ol>
-<li><p>현재 Default Security를 변경하지 않고 새 Security List를 추가하기 위해 <strong>Add Security List</strong>를 클릭합니다.</p>
 
-<p><img src="images/image-20220111211714616.png" alt="image-20220111211714616" /></p></li>
 
-<li><p>앞서 만든 Custom Security List를 추가합니다.</p>
 
-<p><img src="images/image-20220111211835484.png" alt="image-20220111211835484" /></p></li>
 
-<li><p>이제 Public Subnet에 두 개 Security List가 모두 적용됩니다.</p>
 
-<p><img src="images/image-20220111212058188.png" alt="image-20220111212058188" /></p></li>
+
+<img class="img-fluid1" src="../images/image-20220111211421446.png" alt='image-20220111211421446' onerror="this.onerror=null;this.src='images\/image-20220111211421446.png';" />
+</p>
+</li>
+<li>
+<p>Subnet에 새 Security List를 추가하기 위해 좌측 <strong>Resources</strong> 메뉴에서 <strong>Subnets</strong>으로 이동합니다.</p>
+</li>
+<li>
+<p>Apache 서버가 설치된 인스턴스가 위치한 Public Subnet을 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220111211538181.png" alt='image-20220111211538181' onerror="this.onerror=null;this.src='images\/image-20220111211538181.png';" />
+</p>
+</li>
+<li>
+<p>현재 Default Security를 변경하지 않고 새 Security List를 추가하기 위해 <strong>Add Security List</strong>를 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220111211714616.png" alt='image-20220111211714616' onerror="this.onerror=null;this.src='images\/image-20220111211714616.png';" />
+</p>
+</li>
+<li>
+<p>앞서 만든 Custom Security List를 추가합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220111211835484.png" alt='image-20220111211835484' onerror="this.onerror=null;this.src='images\/image-20220111211835484.png';" />
+</p>
+</li>
+<li>
+<p>이제 Public Subnet에 두 개 Security List가 모두 적용됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220111212058188.png" alt='image-20220111212058188' onerror="this.onerror=null;this.src='images\/image-20220111212058188.png';" />
+</p>
+</li>
 </ol>
 <br>
 <br>
@@ -153,8 +210,6 @@
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -185,8 +240,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -215,7 +268,6 @@
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -521,7 +573,6 @@
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1188,88 +1239,6 @@
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>14.2.2 Terraform Configurations 작성하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.53" />
+<meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter14/2/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -44,169 +44,166 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
-
-<h3 id="14-2-2-terraform-configurations-작성하기">14.2.2 Terraform Configurations 작성하기</h3>
-
+<main><h3 id="1422-terraform-configurations-작성하기">14.2.2 Terraform Configurations 작성하기</h3>
 <p>Terraform을 쓰려면 Terraform 설정 파일(.tf)에 HashiCorp Configuration Language(HCL) 형식으로 OCI 인프라 자원을 표현해야 합니다. JSON 형식도 지원하지만, 여기서는 HCL 포맷을 사용하겠습니다.</p>
-
 <p>아래 내용은 Terraform에서 가장 기초적인 일부 내용으로 전체 정보는 Terraform 및 Terraform OCI Provider 문서를 참조하기 바랍니다.</p>
-
 <ul>
 <li><a href="https://www.terraform.io/docs/providers/oci/index.html">Terraform OCI Provider 문서</a></li>
 </ul>
-
 <p>OCI 콘솔에서 처음 VCN을 만든 것처럼 Terraform을 통해 VCN을 만드는 것으로 테스트 해 봅니다. 물론 콘솔에서 Wizard로 만드는 것과는 달리 정말 VCN만 만드는 예제입니다.</p>
-
 <h4 id="oci-provider-정의">OCI Provider 정의</h4>
-
 <p>Terraform 설정 파일에서 표현하는 자원들은 제공업체(Provider)에 따라 그 종류와 특정이 달라집니다. 다양한 업체들이 Terraform Provider로써 자신들의 자원을 정의하여 제공하고 있습니다. OCI로 Provider는 다음과 같이 설정하여 사용할 수 있습니다.</p>
-
 <ul>
-<li>provider.tf</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">  variable <span class="s2">&#34;tenancy_ocid&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;user_ocid&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;fingerprint&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;private_key_path&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-  
-  provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
-    <span class="nv">tenancy_ocid</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-    <span class="nv">user_ocid</span>        <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-    <span class="nv">fingerprint</span>      <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.fingerprint</span><span class="si">}</span><span class="s2">&#34;</span>
-    <span class="nv">private_key_path</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.private_key_path</span><span class="si">}</span><span class="s2">&#34;</span>
-    <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="o">}</span></code></pre></div>
-<h4 id="variable-정의">Variable 정의</h4>
-
-<p>Provider 정의에서 보듯이 Variable은 Terraform 모듈을 위해 필요한 파라미터 정의를 위해 사용합니다. <code>variable &quot;tenancy_ocid&quot; {}</code>와 같이 정의하고 <code>${var.tenancy_ocid}</code> 처럼 필요한 곳에서 사용할 수 있습니다. 선언은 <code>variable &quot;변수명&quot; {}</code> 형식으로 선언하여 아래 예시와 같이 추가 설정을 할 수 있습니다.</p>
-
-<ul>
-<li><p>type (옵션): 변수 타있을 정의합니다</p>
-
-<ul>
-<li>string, list, map 중 하나</li>
-<li>표시하지 않으면 default에 사용된 값 형식에 기초로 함</li>
-<li>표시하지 않고 default도 없는 경우는 string으로 가정
-<br /></li>
-</ul></li>
-
-<li><p>default (옵션): 디폴트 값 정의, 디폴트 값이 없으면, 호출할 때 환경변수 설정 등을 통해서 전달해야 합니다.</p></li>
-
-<li><p>description (옵션): 변수 설명을 입력합니다.</p></li>
-
-<li><p>예시</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">  variable <span class="s2">&#34;tenancy_ocid&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;user_ocid&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;fingerprint&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;private_key_path&#34;</span> <span class="o">{}</span>
-  variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-      
-  variable <span class="s2">&#34;AD&#34;</span> <span class="o">{</span>
-    <span class="nv">default</span>     <span class="o">=</span> <span class="s2">&#34;1&#34;</span>
-    <span class="nv">description</span> <span class="o">=</span> <span class="s2">&#34;Availability Domain&#34;</span>
-  <span class="o">}</span>
-      
-  variable <span class="s2">&#34;CPUCoreCount&#34;</span> <span class="o">{</span>
-    <span class="nb">type</span>    <span class="o">=</span> <span class="s2">&#34;string&#34;</span>
-    <span class="nv">default</span> <span class="o">=</span> <span class="s2">&#34;2&#34;</span>
-  <span class="o">}</span></code></pre></div></li>
-</ul>
-
-<h4 id="variable-값-설정">Variable 값 설정</h4>
-
-<ol>
-<li>Terraform 실행하기 전에 아래 처럼 TF_VAR_변수명 형식으로 환경변수에 지정하여 변수 값을 지정할 수 있습니다.</li>
-</ol>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">   <span class="nb">export</span> <span class="nv">TF_VAR_tenancy_ocid</span><span class="o">=</span><span class="s2">&#34;&lt;tenancy OCID&gt;&#34;</span></code></pre></div>
-<ol>
-<li><p>terraform CLI 실행시 -var 옵션으로 할 수도 있습니다.</p></li>
-
-<li><p>별도 변수 파일(terraform.tfvars) 생성해도 됩니다.</p>
-
-<ul>
-<li><p>환경에 따라 변수를 달리하기 위해 파일명이 다른 경우는 terraform 실행시 -var-file 옵션으로 파일명 지정 가능합니다.</p></li>
-
-<li><p>예시</p></li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell"> <span class="c1">## terraform.tfvars file</span>
- <span class="nv">tenancy_ocid</span><span class="o">=</span><span class="s2">&#34;&lt;tenancy OCID&gt;&#34;</span></code></pre></div></li>
-</ol>
-
-<h4 id="resource-설정">Resource 설정</h4>
-
-<p>Resource는 생성할 OCI 자원을 나타냅니다. 아래와 같이 resource를 설정하고 terraform을 실행하면, OCI에 해당 자원이 실제로 생성됩니다. Terraform을 지원하는 OCI 자원 목록은 Terraform OCI Provider 문서에서 확인할 수 있습니다.</p>
-
-<ul>
-<li>예시</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">  variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
-  
-  resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;example_vcn1&#34;</span> <span class="o">{</span>
-    <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
-    <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
-    <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-    <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
-  <span class="o">}</span></code></pre></div>
-<h4 id="data-source-설정">Data Source 설정</h4>
-
-<p>Data 소스는 조회할 OCI 자원을 나타냅니다. Resource와는 달리 조회 용도로만 사용됩니다. Terraform을 지원하는 OCI Data 소스는 Terraform OCI Provider 문서에서 확인할 수 있습니다.</p>
-
-<ul>
-<li><p>예시, oci_identity_availability_domains</p>
-
-<ul>
-<li><a href="https://registry.terraform.io/providers/hashicorp/oci/latest/docs/data-sources/identity_availability_domains">Data Source: oci_identity_availability_domains</a></li>
-<li>필수 파라미터를 이용해서 조회하는 예시</li>
-</ul></li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">  <span class="c1"># Gets a list of Availability Domains</span>
-  data <span class="s2">&#34;oci_identity_availability_domains&#34;</span> <span class="s2">&#34;ADs&#34;</span> <span class="o">{</span>
-    <span class="c1">#Required</span>
-    <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="o">}</span></code></pre></div>
-<h4 id="output-설정">Output 설정</h4>
-
-<p>Output 변수는 많은 데이터 중에서 쿼리를 통해 특정 값을 조회하는 용도로 terraform 실행시 로그로 출력되며, <code>terraform output 변수명</code> 명령으로 조회도 됩니다.</p>
-
-<ul>
-<li>생성된 example_vcn1의 id 예시</li>
-</ul>
-<div class="highlight"><pre class="chroma"><code class="language-shell" data-lang="shell">  output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
-    <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.example_vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
-  <span class="o">}</span></code></pre></div>
-<h4 id="terraform-configurations-예시">Terraform Configurations 예시</h4>
-
-<ul>
-<li><p>provider.tf</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;tenancy_ocid&#34;</span> <span class="o">{}</span>
+<li>
+<p>provider.tf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;tenancy_ocid&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;user_ocid&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;fingerprint&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;private_key_path&#34;</span> <span class="o">{}</span>
 variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-    
+
 provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
   <span class="nv">tenancy_ocid</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
   <span class="nv">user_ocid</span>        <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
   <span class="nv">fingerprint</span>      <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.fingerprint</span><span class="si">}</span><span class="s2">&#34;</span>
   <span class="nv">private_key_path</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.private_key_path</span><span class="si">}</span><span class="s2">&#34;</span>
   <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span></code></pre></div></li>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h4 id="variable-정의">Variable 정의</h4>
+<p>Provider 정의에서 보듯이 Variable은 Terraform 모듈을 위해 필요한 파라미터 정의를 위해 사용합니다. <code>variable &quot;tenancy_ocid&quot; {}</code>와 같이 정의하고 <code>${var.tenancy_ocid}</code> 처럼 필요한 곳에서 사용할 수 있습니다. 선언은 <code>variable &quot;변수명&quot; {}</code> 형식으로 선언하여 아래 예시와 같이 추가 설정을 할 수 있습니다.</p>
+<ul>
+<li>
+<p>type (옵션): 변수 타있을 정의합니다</p>
+<ul>
+<li>string, list, map 중 하나</li>
+<li>표시하지 않으면 default에 사용된 값 형식에 기초로 함</li>
+<li>표시하지 않고 default도 없는 경우는 string으로 가정</li>
+</ul>
+</li>
+<li>
+<p>default (옵션): 디폴트 값 정의, 디폴트 값이 없으면, 호출할 때 환경변수 설정 등을 통해서 전달해야 합니다.</p>
+</li>
+<li>
+<p>description (옵션): 변수 설명을 입력합니다.</p>
+</li>
+<li>
+<p>예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;tenancy_ocid&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;user_ocid&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;fingerprint&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;private_key_path&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
 
-<li><p>vcn.tf</p>
-<div class="highlight"><pre class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
-    
+variable <span class="s2">&#34;AD&#34;</span> <span class="o">{</span>
+  <span class="nv">default</span>     <span class="o">=</span> <span class="s2">&#34;1&#34;</span>
+  <span class="nv">description</span> <span class="o">=</span> <span class="s2">&#34;Availability Domain&#34;</span>
+<span class="o">}</span>
+
+variable <span class="s2">&#34;CPUCoreCount&#34;</span> <span class="o">{</span>
+  <span class="nb">type</span>    <span class="o">=</span> <span class="s2">&#34;string&#34;</span>
+  <span class="nv">default</span> <span class="o">=</span> <span class="s2">&#34;2&#34;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h4 id="variable-값-설정">Variable 값 설정</h4>
+<ol>
+<li>
+<p>Terraform 실행하기 전에 아래 처럼 TF_VAR_변수명 형식으로 환경변수에 지정하여 변수 값을 지정할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="nb">export</span> <span class="nv">TF_VAR_tenancy_ocid</span><span class="o">=</span><span class="s2">&#34;&lt;tenancy OCID&gt;&#34;</span>
+</code></pre></div></li>
+<li>
+<p>terraform CLI 실행시 -var 옵션으로 할 수도 있습니다.</p>
+</li>
+<li>
+<p>별도 변수 파일(terraform.tfvars) 생성해도 됩니다.</p>
+<ul>
+<li>
+<p>환경에 따라 변수를 달리하기 위해 파일명이 다른 경우는 terraform 실행시 -var-file 옵션으로 파일명 지정 가능합니다.</p>
+</li>
+<li>
+<p>예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="c1">## terraform.tfvars file</span>
+<span class="nv">tenancy_ocid</span><span class="o">=</span><span class="s2">&#34;&lt;tenancy OCID&gt;&#34;</span>
+</code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h4 id="resource-설정">Resource 설정</h4>
+<p>Resource는 생성할 OCI 자원을 나타냅니다. 아래와 같이 resource를 설정하고 terraform을 실행하면, OCI에 해당 자원이 실제로 생성됩니다. Terraform을 지원하는 OCI 자원 목록은 Terraform OCI Provider 문서에서 확인할 수 있습니다.</p>
+<ul>
+<li>
+<p>예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
+
+resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;example_vcn1&#34;</span> <span class="o">{</span>
+  <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
+  <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+  <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h4 id="data-source-설정">Data Source 설정</h4>
+<p>Data 소스는 조회할 OCI 자원을 나타냅니다. Resource와는 달리 조회 용도로만 사용됩니다. Terraform을 지원하는 OCI Data 소스는 Terraform OCI Provider 문서에서 확인할 수 있습니다.</p>
+<ul>
+<li>
+<p>예시, oci_identity_availability_domains</p>
+<ul>
+<li><a href="https://registry.terraform.io/providers/hashicorp/oci/latest/docs/data-sources/identity_availability_domains">Data Source: oci_identity_availability_domains</a></li>
+<li>필수 파라미터를 이용해서 조회하는 예시</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="c1"># Gets a list of Availability Domains</span>
+data <span class="s2">&#34;oci_identity_availability_domains&#34;</span> <span class="s2">&#34;ADs&#34;</span> <span class="o">{</span>
+  <span class="c1">#Required</span>
+  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h4 id="output-설정">Output 설정</h4>
+<p>Output 변수는 많은 데이터 중에서 쿼리를 통해 특정 값을 조회하는 용도로 terraform 실행시 로그로 출력되며, <code>terraform output 변수명</code> 명령으로 조회도 됩니다.</p>
+<ul>
+<li>
+<p>생성된 example_vcn1의 id 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
+  <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.example_vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div></li>
+</ul>
+<h4 id="terraform-configurations-예시">Terraform Configurations 예시</h4>
+<ul>
+<li>
+<p>provider.tf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;tenancy_ocid&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;user_ocid&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;fingerprint&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;private_key_path&#34;</span> <span class="o">{}</span>
+variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
+
+provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
+  <span class="nv">tenancy_ocid</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+  <span class="nv">user_ocid</span>        <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+  <span class="nv">fingerprint</span>      <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.fingerprint</span><span class="si">}</span><span class="s2">&#34;</span>
+  <span class="nv">private_key_path</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.private_key_path</span><span class="si">}</span><span class="s2">&#34;</span>
+  <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
+<span class="o">}</span>
+</code></pre></div></li>
+<li>
+<p>vcn.tf</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
+
 resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
   <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
   <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
   <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
   <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
 <span class="o">}</span>
-    
+
 output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
   <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
-<span class="o">}</span></code></pre></div></li>
+<span class="o">}</span>
+</code></pre></div></li>
 </ul>
 <br>
 <br>
@@ -254,8 +251,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
   
 <ul class="sub-menu">
 
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 다른 Region내 VCN간 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OpenVPN를 사용하여 OCI를 VPN으로 연결하기</a></li>
 
 
 
@@ -286,8 +281,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/1/">비용 예측기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/2/">비용 지급 방식</a></li>
 
 
 
@@ -316,7 +309,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 </ul>
   
 </li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter-appendix/3/">Service Limits</a></li>
 
 
 
@@ -622,7 +614,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/1/">9.2.1 Bitnami Wordpress 이미지로 인스턴스 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
 </ul>
@@ -1289,88 +1280,6 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/">
-    Ocps
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/">
-    1. OCI Database
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/1/">1.1 Database VM을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/2/">1.2 Database VM - Single Instance 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/3/">1.3 Database VM - 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/">
-    1.4 백업 &amp; 복구하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-  
-<ul class=" hidden">
-
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/1/">1.4.1 수동 풀 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/2/">1.4.2 자동화된 증분 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/3/">1.4.3 Database 복구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/4/4/">1.4.4 백업으로 새 Database 만들기</a></li>
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/5/">1.5 Database VM - Data Guard를 통한 HA 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/6/">1.6 Database VM - 패치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/ocp/paas-chapter01/7/">1.7 Database VM - RAC</a></li>
 </ul>
   
 </li>

@@ -209,23 +209,17 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
 
 1. 기존 Node Pool에 있는 모든 Node들이 스케줄에서 제외되어 더이상 사용되지 않습니다. OCI 서비스 콘솔에서  Node Pools로 이동하여 기존 Node Pool을 삭제합니다.
 
-   ![](images/delete-node-pool.png)
+    ![](images/delete-node-pool.png)
 
-4. 업그레이드가 완료되었습니다.
+2. 업그레이드가 완료되었습니다.
 
-   ```bash
-   oke_admin@cloudshell:file-storage (ap-seoul-1)$ kubectl get nodes -L name --sort-by=.metadata.labels.name
-   NAME          STATUS   ROLES   AGE   VERSION    NAME
-   10.0.10.12    Ready    node    18m   v1.20.11   pool2
-   10.0.10.126   Ready    node    19m   v1.20.11   pool2
-   10.0.10.191   Ready    node    19m   v1.20.11   pool2
-   ```
-
-   
-
-
-
-
+    ````
+    winter@cloudshell:~ (ap-chuncheon-1)$ kubectl get nodes -L name --sort-by=.metadata.labels.name
+    NAME          STATUS                     ROLES   AGE    VERSION    NAME
+    10.0.10.166   Ready                      node    77m    v1.20.11   pool2
+    10.0.10.24    Ready                      node    78m    v1.20.11   pool2
+    10.0.10.252   Ready                      node    77m    v1.20.11   pool2
+    ````
 
 이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
 
@@ -234,11 +228,3 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
 ## Acknowledgements
 
 * **Author** - DongHee Lee, February 2022
-
-
-
-winter@cloudshell:~ (ap-chuncheon-1)$ kubectl scale --replicas=2 deployment -n istio-system istio-egressgateway
-deployment.apps/istio-egressgateway scaled
-winter@cloudshell:~ (ap-chuncheon-1)$ kubectl scale --replicas=2 deployment -n istio-system istio-ingressgateway
-deployment.apps/istio-ingressgateway scaled
-winter@cloudshell:~ (ap-chuncheon-1)$ kubectl scale --replicas=2 deployment -n istio-system istiod

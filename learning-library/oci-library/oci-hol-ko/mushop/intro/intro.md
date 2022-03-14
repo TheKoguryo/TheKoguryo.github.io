@@ -8,31 +8,33 @@ Oracle Cloud Native 솔루션을 활용하여 클라우드 네이티브 마이�
 
 ### Objectives
 
-이 실습에서는 다음을 수행합니다: (업데이트 예정)
+이 실습에서는 다음을 수행합니다:
 
-* Create a Kubernetes Cluster on OKE
-* Deploy an eCommerce microservices-based solution to Kubernetes (MuShop App) using [helm](https://helm.sh/)
-* Explore your App
-* Expose your app publicly
-* Monitor your Kubernetes Cluster and the deployed App
-* Create a Function Application
-* Clean up the deployments
+* OKE에서 쿠버네티스 클러스터 만들기
+* [helm](https://helm.sh/)을 통해 Cloud Native 앱(MuShop)을 쿠버네티스 클러스터에 배포
+* 배포된 앱 확인 및 접속
+* 쿠버네티스 클러서 및 배포된 앱 모니터링
+* CI/CD를 통해 소스 코드 변경 작업에 대한 자동 배포
+* 서비스 메쉬를 통한 마이크로 서비스 관리
+* 클러스터 버전 업그레이드
+* 모든 실습이 끝나고 사용한 자원 정리
 
 ### Prerequisites
 
-1. An Oracle Free Tier(Trial), Paid or LiveLabs Cloud Account
-1. [Familiarity with OCI console](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/console.htm)
-1. [Overview of Networking](https://docs.us-phoenix-1.oraclecloud.com/Content/Network/Concepts/overview.htm)
-1. [Familiarity with Compartments](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/concepts.htm)
+1. Oracle Free Tier(Trial), Paid or LiveLabs Cloud Account
+1. [OCI 콘솔 익히기](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/console.htm)
+1. [Networking 소개](https://docs.us-phoenix-1.oraclecloud.com/Content/Network/Concepts/overview.htm)
+1. [Compartments 익히기](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/concepts.htm)
 1. 컨테이너 및 [Kubernetes](https://kubernetes.io/) 에 대한 기본 개념 지식
 
 이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+
 
 ## Learn More
 
 * [MuShop 샘플을 사용하여 OCI의 Cloud Native 애플리케이션 배포하기](https://oracle-quickstart.github.io/oci-cloudnative/)
 * [참조 아키텍처: Kubernetes에서 마이크로서비스 기반 애플리케이션 배포](https://docs.oracle.com/en/solutions/cloud-native-ecommerce/index.html#GUID-CB180453-1F32-4465-8F27-EA7300ECF771)
-* [OCI Functions 기능 개요](https://docs.cloud.oracle.com/en-us/iaas/Content/Functions/Concepts/functionsoverview.htm)
+
 
 ## Acknowledgements
 

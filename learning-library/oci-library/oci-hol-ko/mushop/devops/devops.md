@@ -86,12 +86,14 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
     - Name: 예, DevOps-compartment-policy
 
         ```bash
+        <copy>
         Allow dynamic-group CoderepoDynamicGroup to manage devops-family in compartment <YourCompartmentName>
         Allow dynamic-group BuildDynamicGroup to manage repos in compartment <YourCompartmentName>
         Allow dynamic-group BuildDynamicGroup to read secret-family in compartment <YourCompartmentName>
         Allow dynamic-group BuildDynamicGroup to manage devops-family in compartment <YourCompartmentName>
         Allow dynamic-group BuildDynamicGroup to manage generic-artifacts in compartment <YourCompartmentName>
         Allow dynamic-group BuildDynamicGroup to use ons-topics in compartment <YourCompartmentName>
+        </copy>
         ```
 
 4. Root Compartment 레벨로 다음 Policy를 만듭니다.
@@ -99,15 +101,19 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
     - Name: 예, DevOps-root-policy
 
         ```bash
+        <copy>
         Allow dynamic-group ConnectionDynamicGroup to read secret-family in tenancy
         Allow dynamic-group DeployDynamicGroup to manage all-resources in tenancy
         Allow dynamic-group BuildDynamicGroup to inspect repos in tenancy
         Allow dynamic-group BuildDynamicGroup to use repos in tenancy
+        </copy>
         ```
 
         OCIR에 Repository를 Push하기 전에 미리 생성하지 않으면 기본적으로 Root Compartment에 이미지가 Push됩니다. 이때 권한으로 에러가 발생하며, Root Compartment에도 허용하고자 하면 다음을 추가합니다.
         ````
+        <copy>
         Allow dynamic-group BuildDynamicGroup to manage repos in tenancy
+        </copy>
         ````
 
 

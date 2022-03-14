@@ -85,11 +85,11 @@
 
 1. OKE Cluster를 삭제합니다.
 
-    ![Delete Kubernetes Clusters](images/OKE-delete-cluster.png " ")
+    ![Delete Kubernetes Clusters](images/OKE-delete-cluster.png =50%x*)
 
 2. Confirm
 
-    ![Confirm delete Kubernetes Clusters](images/OKE-delete-cluster-confirm.png " ")
+    ![Confirm delete Kubernetes Clusters](images/OKE-delete-cluster-confirm.png =50%x*)
 
 3. VCN
 
@@ -118,3 +118,4 @@ Quick Create 모드로 VCN을 함께 만든 경우에 클러스터 삭제후에�
 - **Author** - Adao Junior
 - **Contributors** -  Adao Junior
 - **Last Updated By/Date** - Adao Junior, April 2021
+- **Author** - DongHee Lee, February 2022

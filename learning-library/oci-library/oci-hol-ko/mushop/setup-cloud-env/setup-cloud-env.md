@@ -31,7 +31,7 @@
 
 1. 왼쪽 상단 의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Compartments** 을 선택합니다.
 
-   ![Compartment](https://raw.githubusercontent.com/oracle/learning-library/master/common/images/console/id-compartment.png " ")
+   ![Compartment](images/id-compartment.png " ")
 
 1. 이 화면에서 compartments 목록이 표시되면 **Create Compartment**를 클릭합니다.
 
@@ -56,7 +56,7 @@
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Kubernetes Clusters (OKE)**를 선택 합니다.
 
-  ![OKE](https://raw.githubusercontent.com/oracle/learning-library/master/common/images/console/developer-OKE.png " ")
+    ![OKE](images/developer-OKE.png " ")
 
 1. **oci-hol** Compartment에 있는지 확인 하고 **Create Cluster**을 클릭 합니다.
 

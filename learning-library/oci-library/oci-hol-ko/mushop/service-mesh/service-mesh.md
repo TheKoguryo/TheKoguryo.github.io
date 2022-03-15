@@ -6,11 +6,13 @@
 
 - [Istio service mesh](https://istio.io/)
 
-### Objectives
+예상 시간: 20 분
+
+### 목표
 
 * Service Mesh 이해하기
 
-### Prerequisites
+### 전제 조건
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
@@ -73,7 +75,9 @@
 7. istio-system 네임스페이스에 설치가 된 것을 알 수 있습니다.
     
     ````
+    <copy>
     kubectl get all -n istio-system
+    </copy>
     ````
 
 8. 이중화를 위해 스케일합니다.
@@ -106,7 +110,12 @@
 
     mushop 모든 Pod를 삭제하면 Self-Healing으로 재생성되면서 모든 Pod가 istio-proxy 컨이너가 추가 되어 컨터이너 수가 하나씩 증가한 걸 볼 수 있습니다.
     ````
-    $ kubectl get pod -n mushop
+    <copy>
+    kubectl get pod -n mushop
+    </copy>
+    ````
+    
+    ````
     NAME                                READY   STATUS    RESTARTS   AGE
     mushop-api-67df55b466-n7cng         2/2     Running   0          3m21s
     mushop-assets-5d6f44b88f-956fs      2/2     Running   0          3m21s
@@ -320,7 +329,7 @@
 
 7. Kiali 대쉬보드에서 내비게이션 메뉴에서 Graph으로 이동하여, mushop 네임스페이스를 선택하면 서비스 간의 호출 정보를 시각화해서 볼 수 있습니다. 
 
-   ![](images/kiali-graph-mushop.png)
+   ![Kiali Graph](images/kiali-graph-mushop.png)
 
 
 ## Task 4: 신규 서비스를 위한 가중치 기반 라우팅
@@ -360,6 +369,9 @@
     EOF
     </copy>
     ````
+    
+    배포되는 새 버전은 그림과 같이 Review 관련 내용이 추가되었습니다.
+    ![MuShop New BetaKiali Graph](images/istio-weighted-routing-1.png)
 
 2. Destination Rule을 정의하여 기존앱은 original, 신규 앱은 beta로 지정합니다.
 

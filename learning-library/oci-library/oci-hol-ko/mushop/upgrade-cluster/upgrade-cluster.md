@@ -6,7 +6,7 @@ Kubernetes 버전은 x.y.z로 표현되며, 각각 x는 메이저, y는 마이�
 
 - 메일공지 예시
 
-    ![](images/notify-upgrade.png =50%x*)
+    ![Notify Mail for Upgrade](images/notify-upgrade.png =50%x*)
 
 - 현재 지원 버전은 다음 링크를 참조합니다.
 
@@ -32,11 +32,13 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
             2. kubectl 명령으로 기존 Node Pool에 있는 Node 제거, Kubernetes에 의해 컨테이너가 모두 이동하면, Node 삭제하는 방식으로 하나씩 진행
             3. 기존 Node가 모두 제거되면, 기존 Node Pool 삭제
   
-### Objectives
+예상 시간: 20 분
+
+### 목표
 
 * 클러스터 업그레이드 절차 이해
 
-### Prerequisites
+### 전제 조건
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 * 배포된 앱들이 구동중인 상황에서 업그레이드 과정 확인을 위해 이전 앱들이 실행 중일 것
@@ -49,12 +51,12 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
 
 1. 업그레이드가 가능하면, OKE 클러스터 상세 화면에서 **Upgrade Available** 버튼이 활성화 됩니다.
 
-    ![](images/upgrade-available.png =50%x*)
+    ![Updage Available](images/upgrade-available.png =50%x*)
 
 2. Upgrade Available 버튼을 클릭하면 다음과 같이 안내 문구와 함께 업그레이드를 시작할 수 있습니다.
    최신 버전인 v1.21.5을 선택하도록 하겠습니다.
 
-    ![](images/upgrade-control-plane.png =50%x*)
+    ![Upgrade Control Plane](images/upgrade-control-plane.png =50%x*)
 
 3. 버전을 선택하고 아래 **Upgrade** 버튼을 클릭하여 업그레이드를 시작합니다.
 
@@ -62,7 +64,7 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
 
 5. 테스트 시점에는 10~15분 후에 업그레이드 완료되었습니다.
 
-    ![](images/upgraded-control-plane.png =50%x*)
+    ![Upgraed Control Plane](images/upgraded-control-plane.png =50%x*)
 
 
 ## Task 2: Worker Node 업그레이드 (out-of-place 업그레이드)
@@ -77,7 +79,7 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
 
 3. 그림과 같이 기존 버전의 Node Pool이 있는 상태에서 신규 Node Pool 추가를 위해 **Add Node Pool**을 클릭합니다.
 
-    ![](images/add-node-pool-1.png =70%x*)
+    ![Add Node Pool](images/add-node-pool-1.png =70%x*)
 
 4. 신규 Node Pool 정보를 입력하여 생성합니다. 여기서는 예시로 같은 1.20.x 대의 최신 버전으로 업그레이드 합니다.
 
@@ -90,7 +92,7 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
         - Placement Configuration: Node가 위치할 AD, Subnet
         - Add an SSH key: Node VM에 SSH 접속시 사용할 키의 Private Key    
 
-        ![](images/add-node-pool-2.png =40%x*)
+        ![Add Node Pool](images/add-node-pool-2.png =40%x*)
 
 5. 추가 된 Node Pool을 OCI 서비스 콘솔 확인할 수 있습니다. Node Pool이 추가되고 Worker Node가 Ready 될때까지 완료되어야 합니다. 테스트 환경에서 3대 기준 6분 정도 소요되었습니다.
 
@@ -136,8 +138,13 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
      mushop-user-6b8b559cc6-4rwx5           2/2     Running   0          24h   10.244.1.31    10.0.10.43   <none>           <none>
      ````
 
-2. 아래와 같이 `kubectl drain <node_name> --ignore-daemonsets --delete-emptydir-data` 명령으로 하나의 노드를 스케줄에서 제외시킵니다.
+2. 아래와 같이 하나의 노드를 스케줄에서 제외시킵니다.
 
+    ````
+    <copy>
+    kubectl drain <node_name> --ignore-daemonsets --delete-emptydir-data
+    </copy>
+    ````
     > drain은 대상 노드에 배포되어 있는 모든 Pod들을 (시스템상 삭제할 수 없는 것 제외) 삭제합니다. 삭제된 Pod 들은 다른 노드 다시 스케줄링 됩니다.
 
     실행결과
@@ -209,7 +216,7 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
 
 1. 기존 Node Pool에 있는 모든 Node들이 스케줄에서 제외되어 더이상 사용되지 않습니다. OCI 서비스 콘솔에서  Node Pools로 이동하여 기존 Node Pool을 삭제합니다.
 
-    ![](images/delete-node-pool.png)
+    ![Delete Node Pool](images/delete-node-pool.png)
 
 2. 업그레이드가 완료되었습니다.
 

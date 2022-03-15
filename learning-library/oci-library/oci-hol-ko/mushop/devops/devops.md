@@ -6,12 +6,14 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 - https://helm.sh/
 
-### Objectives
+예상 시간: 20 분
+
+### 목표
 
 * 샘플 Helm Chart 만들기
 * Helm CLI로 쿠버네티스에 배포하기
 
-### Prerequisites
+### 전제 조건
 
 아래와 같이 코드 개발을 위한 툴이 필요합니다. 간단한 앱 개발로 여기서는 편의상 사전에 툴들이 설치된 Cloud Shell에서 진행하겠습니다.
 
@@ -142,7 +144,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     - **Project name**: 예, oci-hol-devops-project
     - **Notification Topic**: 앞서 생성한 Topic 선택
 
-    ![](images/new-devops-project.png =70%x*)
+    ![New DevOps Project](images/new-devops-project.png =70%x*)
 
 5. 프로젝트 생성완료
 
@@ -150,15 +152,15 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 프로젝트 생성 직후 Enable Logging 관련 정보가 보이는 것을 볼 수 있습니다. 설명문에서 보는 것 처럼 Logging을 활성화하지 않을 경우, 파이프라인 실행 화면에서 오른쪽에 보이는 실행 로그가 안보입니다. 그래서 Enable Logging은 필수입니다. 
 
-![image-20211124115125896](images/image-20211124115125896.png)
+![Build Run Result](images/build-run-result.png)
 
 1. Project Overview에서 Enable Log을 클릭하거나 왼쪽 메뉴에서 Logs를 클릭합니다.
 
-    ![image-20211124115628060](images/image-20211124115628060.png)
+    ![Enable Logging](images/enable-logging.png)
 
 2. 로그를 활성화 버튼을 토글합니다.
 
-    ![image-20211124115924501](images/image-20211124115924501.png)
+    ![Enable Logging](images/enable-logging-2.png)
 
 3. 대상 Compartment에 이미 Log Group이 있는 경우 나열된 것 중에 선택이 가능합니다. 미리 생성된 Log Group이 없는 경우 아래와 같이 자동입력된 정보를 바탕으로 Enable Log 버튼 클릭시 새로 Log Group과 Log가 만들어 지게 됩니다. 필요시 설정을 수정하고 그렇치 않으면, **Enable Log** 버튼을 클릭합니다.
 
@@ -179,8 +181,8 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 4. Git URL을 확인합니다.
 
-    ![](images/git-url-1.png =30%x*)
-    ![](images/git-url-2.png =50%x*)
+    ![GIT URL](images/git-url-1.png =30%x*)
+    ![GIT URL](images/git-url-2.png =50%x*)
 
 5. Cloud Shell에서 복사한 주소를 사용해 git clone 명령어를 통해 복제합니다.
 
@@ -233,7 +235,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 8. Push가 완료되면 아래와 같이 Code Repository에 코드가 반영되어 있습니다. 이후 CI/CD 파이프라인을 생성한후 아래 코드를 변경하면, 파이프라인이 실행되어 Storefront UI가 변경될 것입니다.
 
-    ![](images/mushop-storefront-code-repo.png)
+    ![MuShop Storefront Code Repository](images/mushop-storefront-code-repo.png)
 
 
 ## Task 4: Build Pipeline 만들기
@@ -258,7 +260,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
     - **Delivery Artifacts**: 빌드 산출물(예, 컨테이너 이미지)를 Artifact Repository에 저장합니다.
     - **Trigger Deployment**: 빌드가 끝나고 Deployment Pipeline을 호출합니다.
     - **Wait**: 일정시간 대기합니다.
-    ![image-20211124131746942](images/image-20211124131746942.png)
+    ![Build Available Stage](images/build-available-stage.png)
 
 ### Build Stage 만들기
 
@@ -277,7 +279,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
 4. 아래 예시와 같이 소스 코드 변경시 빌드 파이프라인은 수행하기 위해서는 Build Spec의 정의가 필요합니다.
 
-    ![image-20211124134401692](images/image-20211124134401692.png)
+    ![Build Spec Not Found](images/build-spec-not-found.png)
 
 5. Build Spec 정의
 
@@ -370,7 +372,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
 6. Start Manual Run을 통해 다시 실행하면 아래와 같이 스크립트가 수행되는 것을 볼 수 있습니다.
 
-    ![image-20211124143654326](images/image-20211124143654326.png)
+    ![Build Run Result](images/build-run-result-2.png)
 
 7. ExportVariables 확인
 
@@ -384,19 +386,19 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
 2. 플러스 버튼을 클릭하여 build-stage 다음에 stage를 추가합니다.
 
-   ![image-20211124144058432](images/image-20211124144058432.png)
+   ![OCIR Stage](images/ocir-stage-1.png)
 
 3. Delivery Artifact Stage를 선택합니다.
 
 4. stage 이름을 입력하고 Create Artifact를 선택합니다.
 
-   ![image-20211124144414998](images/image-20211124144414998.png)
+   ![OCIR Stage](images/ocir-stage-2.png)
 
 5. Container image 유형으로 Artifact 추가합니다.
 
     - 이미지 경로: docker tag를 달때 사용하는 이미지 경로입니다. 직접 입력해도 되지만 여기서는 build-stage에서 넘어온 exportedVariable을 사용하여 `${OCIR_PATH}:${TAG}` 과 같이 입력합니다.
 
-    ![image-20211124144817974](images/image-20211124144817974.png)
+    ![Add Artifact](images/add-artifact-1.png)
 
 6. 같은 방식으로 하나 더 추가 합니다.
 
@@ -414,13 +416,13 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
             location: new-generated-image 
         ```
 
-    ![image-20211124145533765](images/image-20211124145533765.png =70%x*)
+    ![Associate Artifacts](images/associate-artifacts.png =70%x*)
 
 8. 이제 delivery stage까지 추가하였습니다.
 
 9. 파이프라인을 다시 실행해 봅니다. 실제 소스코드로 빌드된 컨테이너 이미지가 OCIR에 자동으로 등록됩니다.
 
-    ![](images/pushed-image.png)
+    ![Pushed Image](images/pushed-image.png)
 
 
 
@@ -446,7 +448,7 @@ CI/CD 중에 빌드된 산출물을 가지고 실제 서버에 배포하는 CD �
     - **Control**: 승인 대기, 트래픽 변경, 대기 등을 지원합니다.
     - **Integration**: 커스텀 로직 수행을 위한 Oracle Function 실행을 지원합니다.
 
-    ![image-20211124164550158](images/image-20211124164550158.png)
+    ![Deployment Add Stage](images/deployment-add-stage.png)
 
 6. 아직 manifest 파일가 필요함을 확인하고, 취소하고 다음으로 넘어갑니다.
 
@@ -458,13 +460,13 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 2. Artifacts로 앞서 빌드 파이프라인 만들때 등록한 2개가 있는 것을 볼수 있습니다. 여기에 등록된 Artifact는 재사용이 가능합니다.
 
-    ![image-20211124165820408](images/image-20211124165820408.png)
+    ![Arifacts](images/artifacts.png)
 
 3. manifest 파일을 등록하기 위해 Add artifact를 클릭합니다.
 
 4. 4 가지 등록 유형을 제공합니다. 이중에 **Kubernetes manifest**를 선택합니다.
 
-    ![image-20211124171921813](images/image-20211124171921813.png)
+    ![Kubernetes Manifest Type](images/k8s-manifest-type.png)
 
 5. Kubernetes manifest 유형에는 Artifact Source로 2가지 유형을 제고합니다.
 
@@ -614,7 +616,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 2. OKE 유형을 선택합니다.
 
-   ![image-20211124173434602](images/image-20211124173434602.png)
+   ![Create Environment](images/create-environment.png)
 
 3. 배포할 클러스터를 선택합니다.
 
@@ -653,7 +655,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 5. 전체 흐름이 완료되었습니다.
 
-   ![image-20211124174455240](images/image-20211124174455240.png)
+   ![Deployment Pipeline Completed](images/deployment-pipeline-completed.png)
 
 
 ### Trigger 설정하기
@@ -700,19 +702,19 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 3. 빌드 실행 내역을 보면, 그림과 같이 Trigger 된것은 Commit ID가 함께 보이며, Code Repository와 링크되어 있습니다.
 
-    ![](images/pipeline-test-1.png)
+    ![Pipeline Test Result](images/pipeline-test-1.png)
 
     - Commit ID를 클릭하면 Code Repository상의 코드 변경 분을 확인할 수 있습니다.
 
-    ![](images/pipeline-test-2.png)
+    ![Pipeline Test Result](images/pipeline-test-2.png)
 
 4. 빌드 파이프라인이 정상적으로 코드 빌드 부터 컨테이너 이미지 생성, 배포 파이프라인 호출까지 실행되었습니다.
 
-    ![](images/pipeline-test-3.png)
+    ![Pipeline Test Result](images/pipeline-test-3.png)
 
 5. 배포 파이프라인도 정상 실행되었습니다.
 
-    ![](images/pipeline-test-4.png)
+    ![Pipeline Test Result](images/pipeline-test-4.png)
 
 6. OKE 클러스터를 조회해 보면 정상 배포 되었습니다.
 

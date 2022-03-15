@@ -6,7 +6,7 @@ Oracle Cloud Native 솔루션을 활용하여 클라우드 네이티브 마이�
 
 예상 시간: 4시간
 
-### Objectives
+### 목표
 
 이 실습에서는 다음을 수행합니다:
 
@@ -19,10 +19,10 @@ Oracle Cloud Native 솔루션을 활용하여 클라우드 네이티브 마이�
 * 클러스터 버전 업그레이드
 * 모든 실습이 끝나고 사용한 자원 정리
 
-### Prerequisites
+### 전제 조건
 
 1. Oracle Free Tier(Trial), Paid or LiveLabs Cloud Account
-1. [OCI 콘솔 익히기](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/console.htm)
+1. [Oracle Cloud Infrastructure 콘솔 익히기](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/console.htm)
 1. [Networking 소개](https://docs.us-phoenix-1.oraclecloud.com/Content/Network/Concepts/overview.htm)
 1. [Compartments 익히기](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/concepts.htm)
 1. 컨테이너 및 [Kubernetes](https://kubernetes.io/) 에 대한 기본 개념 지식

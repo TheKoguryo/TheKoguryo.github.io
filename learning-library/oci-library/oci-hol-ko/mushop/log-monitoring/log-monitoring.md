@@ -1,4 +1,4 @@
-# Monitoring the Log
+# Monitor the Log
 
 ## Introduction
 
@@ -6,12 +6,12 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 예상 시간: 10 분
 
-### Objectives
+### 목표
 
 * OCI Logging 서비스를 사용하여 OKE 로그 모니터링 하는 법 익히기
 * OSS ElasticSearch/Kibana로 OKE 로그 모니터링 하는 법 익히기
 
-### Prerequisites
+### 전제 조건
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
@@ -89,7 +89,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
     - log destination: 수집한 로그를 전달한 앞서 생성한 custom log 이름을 지정합니다.
 
-    ![image-20211116165807986](images/log-agent-configuration.png)
+    ![Log Agent Configuration](images/log-agent-configuration.png)
 
 
 ### 로깅 테스트
@@ -122,7 +122,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 1. 확인된 IP를 통해 이전에 배포된 MuShop 앱을 접속해 봅니다. 테스트를 위해 URL에 테스트용 값을 추가합니다. 예, ?customlogtest
 
-    ![image-20211116171348098](images/mushop-custom-log.png)
+    ![MuShop Custom Log](images/mushop-custom-log.png)
 
 1. 발생한 POD 로그는 다음과 같습니다.
 
@@ -137,11 +137,11 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 1. Custom filters 항목에서 POD 이름 또는 앞서 테스트 URL에 있는 customlogtest 같이 검색값으로 조회하면 됩니다. **Custom filters에 값을 입력하고 엔터키를 꼭 칩니다.**
 
-   ![](images/oci-logging-search-1.png)
+   ![Logging Search](images/oci-logging-search-1.png)
 
 1. 검색된 로그 데이터를 확인할 수 있습니다.
 
-   ![](images/oci-logging-search-2.png)
+   ![Logging Search](images/oci-logging-search-2.png)
 
 
 ## Task 2: OSS ElasticSearch/Kibana (Optional)
@@ -206,7 +206,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     아래와 같이 설치되며, 실제 컨테이너가 기동하는 데 까지 약간의 시간이 걸립니다.
  
     ```
-    $ helm install elasticsearch -f values.yaml bitnami/elasticsearch -n logging
+    $ helm install elasticsearch -f values.yaml bitnami/elasticsearch --version 17.5.0 -n logging
     NAME: elasticsearch
     ...
     
@@ -398,7 +398,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 3. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** > **Discover** 를 클릭합니다.
 
-    ![image-20211210170328113](images/image-20211210170328113.png)
+    ![Kibana Dicover](images/kibana-discover.png)
 
 4. Create index pattern을 클릭합니다.
 
@@ -409,11 +409,11 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     - Name: logstash-*
     - Timestamp field: @timestamp
 
-    ![image-20211210170534407](images/image-20211210170534407.png)
+    ![Kibana Create Index](images/kibana-create-index.png)
 
 6. 인덱스 패턴이 추가된 결과를 볼 수 있습니다.
 
-    ![image-20211210171057888](images/image-20211210171057888.png)
+    ![Kibana Index Pattern](images/kibana-index-pattern.png)
 
 7. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** > **Discover** 를 클릭합니다.
 
@@ -421,7 +421,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
     - 테스트 앱의 로그를 확인하기 위해 **Add filter**를 클릭하여 **namespace_name=mushop** 로 지정합니다.
 
-    ![image-20211210171753800](images/image-20211210171753800.png)
+    ![Kibana Add Filter](images/kibana-add-filter.png)
 
 9. 테스트를 위해 MuShop을 접속합니다.
 
@@ -438,7 +438,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
     아래와 같이 kibana에서 테스트 앱의 로그를 확인할 수 있습니다.
 
-    ![](images/efk-logging-search.png)
+    ![Kibana Logging Search](images/efk-logging-search.png)
 
 11. EFK를 통해 OKE 상의 로그를 수집하는 예시였습니다. EKF에 대한 상세 내용은 제품 관련 홈페이지와 커뮤니티 사이트를 참고하기 바랍니다.
 

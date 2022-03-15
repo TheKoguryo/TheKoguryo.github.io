@@ -4,14 +4,16 @@
 
 마이크로 서비스 애플리케이션 만들기 위해 자바에서는 Spring Boot를 많이 사용하고 오라클에서 지원하는 오픈소스 프레임워크인 Helidon도 사용되고 있습니다. 여기에서는 Spring Boot를 통해 마이크로 서비스를 만들고 OKE에 배포하는 과정을 통해 마이크로 서비스 개발, 컨테이너 이미지 생성, 쿠버네티스에서 구동하는 일련의 과정을 간단한 앱을 통해서 이해를 돕고자 합니다.
 
-### Objectives
+예상 시간: 20분
+
+### 목표
 
 * Spring Boot로 마이크로 서비스 만들기
 * 컨테이너 이미지 만들기
 * 컨테이너 이미지 레지스트리인 OCIR 등록하기
 * Kubernetes인 OKE에 마이크로 서비스 배포하기
 
-### Prerequisites
+### 전제 조건
 
 아래와 같이 코드 개발을 위한 툴이 필요합니다. 간단한 앱 개발로 여기서는 편의상 사전에 툴들이 설치된 Cloud Shell에서 진행하겠습니다.
 
@@ -39,11 +41,11 @@
 
     - 방법 2. Spring Initializr를 브라우저 대신 아래 명령을 통해 Cloud Shell에서 바로 기본 프로젝트 소스파일을 만듭니다.
 
-        ````shell
+        ````
         <copy>
         curl https://start.spring.io/starter.tgz -d baseDir=rest-service -d applicationName=rest-service -d artifactId=rest-service -d javaVersion=8 -d dependencies=web,actuator | tar -xzvf -
         </copy>
-    ````
+        ````
 
 2. **rest-service** 폴더로 이동합니다.
 
@@ -248,7 +250,7 @@
     ````
     winter@cloudshell:rest-service (ap-chuncheon-1)$ oci os ns get
     {
-      "data": "axjowrxaetht"
+      "data": "axjowrxaexxx"
     }
     winter@cloudshell:rest-service (ap-chuncheon-1)$ echo $OCI_REGION 
     ap-chuncheon-1    
@@ -258,7 +260,7 @@
 
     ````
     <copy>
-    docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/axjowrxaetht/spring-boot-greeting:1.0
+    docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
     </copy>    
     ````
 
@@ -266,12 +268,12 @@
     ````
     winter@cloudshell:rest-service (ap-chuncheon-1)$ docker images
     REPOSITORY                                                 TAG                 IMAGE ID            CREATED             SIZE
-    ap-chuncheon-1.ocir.io/axjowrxaetht/spring-boot-greeting   1.0                 a80b8a33c501        6 minutes ago       124MB
+    ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting   1.0                 a80b8a33c501        6 minutes ago       124MB
     spring-boot-greeting                                       1.0                 a80b8a33c501        6 minutes ago       124MB
     openjdk                                                    8-jdk-alpine        a3562aa0b991        2 years ago         105MB
     ````    
 
-2. OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.
+3. OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.
     - Username: ````<tenancy-namespace>/<user-name>```` 형식으로 user-name은 OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명을 사용합니다.
     - Password: 사용자의 Auth Token을 사용합니다. **My Profile** > **Auth tokens** > **Generate token** 을 통해 생성합니다. Auth Token은 생성시점에만 확인이 가능하므로 복사해서 기록해 둡니다.
 
@@ -282,13 +284,13 @@
     아래와 같이 Docker CLI로 로그인합니다.
     ````
     # IDCS 유저인 경우
-    docker login ap-chuncheon-1.ocir.io -u axjowrxaetht/oracleidentitycloudservice/~~~
+    docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/oracleidentitycloudservice/~~~
     # OCI Native 유저인 경우
-    docker login ap-chuncheon-1.ocir.io -u axjowrxaetht/~~~
+    docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/~~~
     ````
 
     ````
-    winter@cloudshell:~ (ap-chuncheon-1)$ docker login ap-chuncheon-1.ocir.io -u axjowrxaetht/winter
+    winter@cloudshell:~ (ap-chuncheon-1)$ docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/winter
     Password: 
     WARNING! Your password will be stored unencrypted in /home/winter/.docker/config.json.
     Configure a credential helper to remove this warning. See
@@ -297,16 +299,16 @@
     Login Succeeded
     ````    
 
-3. OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.
+4. OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.
     ````
     <copy>
-    docker push ap-chuncheon-1.ocir.io/axjowrxaetht/spring-boot-greeting:1.0
+    docker push ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
     </copy>    
     ````
 
-4. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
+5. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
 
-5. Root compartment에 Push한 이미지가 등록된 것을 볼 수 있습니다.
+6. Root compartment에 Push한 이미지가 등록된 것을 볼 수 있습니다.
 
     > 특정 Compartment에 이미지를 Push 하기 위해서는 Push 되기 전에 OCIR에 Repository가 만들어져 있어야 합니다. 없는 경우 Root Commpartment에 자동으로 Private Repository가 생성되도록 기본 설정되어 있습니다.
 
@@ -349,7 +351,7 @@
         spec:
           containers:
           - name: spring-boot-greeting
-            image: ap-chuncheon-1.ocir.io/axjowrxaetht/spring-boot-greeting:1.0
+            image: ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
           imagePullSecrets:
           - name: ocir-secret
     ---

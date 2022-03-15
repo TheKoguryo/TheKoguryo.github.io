@@ -6,12 +6,14 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 - [Helm: The package manager for Kubernetes](https://helm.sh/)
 
-### Objectives
+예상 시간: 20분
+
+### 목표
 
 * 샘플 Helm Chart 만들기
 * Helm CLI로 쿠버네티스에 배포하기
 
-### Prerequisites
+### 전제 조건
 
 아래와 같이 코드 개발을 위한 툴이 필요합니다. 간단한 앱 개발로 여기서는 편의상 사전에 툴들이 설치된 Cloud Shell에서 진행하겠습니다.
 

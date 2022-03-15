@@ -9,17 +9,17 @@ MuShop 애플리케이션 배포 방식으로 Manual 배포(Docker, Kubernetes m
 마이크로 서비스기반 설계는 완벽한 관심사의 분리를 제공하여 개발자의 독립성을 제공합니다. 이러한 이점은 분명하지만 개발 환경에 약간의 복잡성을 가져올 수 있습니다.서비스는 필요할 때는 유연성을 제공하지만, 가능하면 동등한 구성을 지원합니다. 개발에서 운영까지 동일한 도구를 사용하는 것이 필수적입니다.
 
 ![MuShop Deployment](images/mushop-diagram.png)  
-*Note: 이 다이어그램에서는 여기서 다루지 않는 서비스도 포함됩니다.*
+> *Note: 이 다이어그램에서는 여기서 다루지 않는 서비스도 포함됩니다.*
 
-예상시간: 30 분
+예상 시간: 30 분
 
-### Objectives
+### 목표
 
 * MuShop 애플리케이션 이해하고 본인이 데모할 수 있도록 하는 것
 * Helm을 통한 배포
 * 애플리케이션 서비스를 외부로 개방
 
-### Prerequisites
+### 전제 조건
 
 * Oracle Free Trial, Paid or LiveLabs Cloud Account
 * Always Free는 현재 2022년 2월기준 OKE 제공하지 않습니다. Free Trial 이상이 필요합니다.
@@ -260,10 +260,6 @@ helm이 구성 가능한 차트를 패키징하고 배포하는 방법을 제공
 
 
 ## Task 5: 배포된 앱 확인하기
-
-
-
-
 
 다음은 가장 많이 사용되는 kubectl 실행 명령입니다:
 

@@ -1,4 +1,4 @@
-# Monitoring the deployment
+# Monitor the deployment
 
 ## Introduction
 
@@ -6,12 +6,12 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 예상 시간: 10 분
 
-### Objectives
+### 목표
 
 * OCI 모니터링 콘솔 화면을 통해서 OKE Cluster, Node Pool, Worker Node의 상태 체크하는 법 익히기
 * OSS Grafana 대시보드 사용하는 법 익히기
 
-### Prerequisites
+### 전제 조건
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 

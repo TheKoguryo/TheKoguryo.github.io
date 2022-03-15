@@ -18,9 +18,9 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 ## **Task 1**: OKE Metrics 보기
 
-1. *OKE Cluster Metrics:* **Developer Services > Kubernetes Clusters > <클러스터 이름>** 로 이동
+1. *OKE Cluster Metrics:* **Developer Services &lt; Kubernetes Clusters &lt; <클러스터 이름>** 로 이동
 
-2. **Resources > Metrics** 에서 다음 메트릭을 확인
+2. **Resources &lt; Metrics** 에서 다음 메트릭을 확인
 
     * Unschedulable Pods: Pod를 스케쥴하기 위한 리소스가 충분하지 않은 경우 노드풀 확장 작업을 트리거하는데 사용할 수 있는 수치
 
@@ -29,7 +29,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 3. 이러한 매트릭은 OCI Monitoring 콘솔(**Observability & Management > Monitoring**)에서 **oci_oke**라는 메트릭 네임스페이스를 통해서 볼 수 있습니다. OCI Monitoring 콘솔에서는 더 많은 메트릭을 제공하고 이를 통해 쿼리, 알람 등을 추가할 수 있습니다.
 
 
-4. *OKE Node Pool Metrics:* **Developer Services > Kubernetes Clusters > <클러스터 이름> > Node Pools > <노드풀 이름>** 로 이동
+4. *OKE Node Pool Metrics:* **Developer Services &lt; Kubernetes Clusters &lt; <클러스터 이름> &lt; Node Pools &lt; <노드풀 이름>** 로 이동
 
     다음의 노드풀 매트릭스 정보 확인:
 
@@ -38,7 +38,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
     ![OKE Node Pool Metric](images/node-pool-metric.png)
 
-5. *OKE Worker Node Metrics:* **Resources > Nodes > <노드 이름>** 로 이동
+5. *OKE Worker Node Metrics:* **Resources &lt; Nodes &lt; <노드 이름>** 로 이동
 
     Compute 인스턴스에 대한 메트릭으로 다음의 노드 매트릭스 정보 확인:
 

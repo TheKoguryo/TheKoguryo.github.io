@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Kubernetes 버전은 x.y.z로 표현되며, 각각 x는 메이저, y는 마이너, z는 패치 버전을 뜻하며, 오픈소스 Kubernetes도 현재 버전과 그 이전 2개 버전까지를 지원하고 있습니다. OKE 또한 OKE가 지원하는 최신버전 기준, 그 이전 2개의 마이너 버전까지 지원하고 있습니다. 새로운 버전이 나오게 되면 OCI Release Note, OCI Console 공지, 관리자에 메일이 발송 등을 통해 공지 됩니다.
+Kubernetes 버전은 x.y.z로 표현되며, 각각 x는 메이저, y는 마이너, z는 패치 버전을 뜻하며, 오픈소스 Kubernetes도 현재 버전과 그 이전 2개 버전까지를 지원하고 있습니다. OKE 또한 OKE가 지원하는 최신버전 기준, 그 이전 2개의 마이너 버전까지 지원하고 있습니다. 새로운 버전이 나오게 되면 OCI Release Note, Oracle Cloud Console 공지, 관리자에 메일이 발송 등을 통해 공지 됩니다.
 
 - 메일공지 예시
 
@@ -15,11 +15,11 @@ Kubernetes 버전은 x.y.z로 표현되며, 각각 x는 메이저, y는 마이�
 OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅니다.
 
 1. Control Plane 업그레이드
-    - OCI 서비스 콘솔에서 OKE 클러스터 단위를 업그레이드하면 Control Plane만 업그레이드됨
+    - Oracle Cloud 콘솔에서 OKE 클러스터 단위를 업그레이드하면 Control Plane만 업그레이드됨
     - 오라클이 관리하는 영역으로 다운타임 없이 자동으로 업그레이드 됨
     - OKE 클러스터를 업그레이드 하면, 즉 Control Plane이 업그레이드하면 이전 버전으로 다시 다운그레이드 할 수 없음
 2. Worker Node 업그레이드
-    - OCI 서비스 콘솔에서 Node Pool 단위로 업그레이드
+    - Oracle Cloud 콘솔에서 Node Pool 단위로 업그레이드
     - 업그레이드 방식
         - in-place 업그레이드
             1. 대상이 되는 기존 Node Pool은 OCI 콘솔에서 버전 업그레이드, 실제 Node가 자동으로 업그레이드 되지 않음
@@ -69,13 +69,13 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
 
 ## **Task 2**: Worker Node 업그레이드 (out-of-place 업그레이드)
 
-OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. out-of-place 업그레이드 방식은 업그레이드 버전의 Node Pool 신규 생성 -> 기존 Node Pool의 모든 노드 Drain -> 기존 Node Pool 삭제 순으로 업그레이드 합니다.
+OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. out-of-place 업그레이드 방식은 업그레이드 버전의 Node Pool 신규 생성, 기존 Node Pool의 모든 노드 Drain, 기존 Node Pool 삭제 순으로 업그레이드 합니다.
 
 ### 새 버전의 Node Pool 만들기
 
 1. OKE 클러스터 상세 페이지로 이동합니다.
 
-2. **Resources** > **Node Pools** 로 이동합니다.
+2. **Resources** &lt; **Node Pools** 로 이동합니다.
 
 3. 그림과 같이 기존 버전의 Node Pool이 있는 상태에서 신규 Node Pool 추가를 위해 **Add Node Pool**을 클릭합니다.
 

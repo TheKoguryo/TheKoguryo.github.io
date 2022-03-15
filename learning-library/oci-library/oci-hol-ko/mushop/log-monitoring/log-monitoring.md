@@ -22,7 +22,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 1. OCI 콘솔에 로그인합니다.
 
-2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** > **Identity** > **Compartments**로 이동합니다.
+2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** &lt; **Identity** &lt; **Compartments**로 이동합니다.
 
 3. OKE 클러스터가 있는 Compartment의 OCID를 확인하고 복사해 둡니다.
 
@@ -52,7 +52,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 Log Group은 로그들을 관리하는 말 그대로 로그의 묶음 단위 입니다. 커스텀 로그를 만들기 위해 먼저 만듭니다.
 
-1. 좌측 상단 햄버거 메뉴에서 **Observability** **&** **Management** > **Logging** > **Log Groups**로 이동합니다.
+1. 좌측 상단 햄버거 메뉴에서 **Observability** **&** **Management** &lt; **Logging** &lt; **Log Groups**로 이동합니다.
 
 2. Create Log Group을 클릭하여 로그 그룹을 만듭니다.
 
@@ -62,7 +62,7 @@ Log Group은 로그들을 관리하는 말 그대로 로그의 묶음 단위 입
 
 Custom Log는 커스텀 애플리케이션에서 수집하는 로그에 매핑되는 것입니다. Custom Log를 정의하고, 이에 대한 로그 수집기를 정의합니다.
 
-1. **Resources** > **Logs** 메뉴로 이동하여 **Create custom log**를 클릭합니다.
+1. **Resources** &lt; **Logs** 메뉴로 이동하여 **Create custom log**를 클릭합니다.
 
 2. 로그 이름과 필요하면 고급옵션에 있는 보관 주기 등을 설정하여 custom log를 만듭니다.
 
@@ -74,7 +74,7 @@ Custom Log는 커스텀 애플리케이션에서 수집하는 로그에 매핑�
 
 Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니다.
 
-1. **Logging** > **Agent Configurations** 메뉴로 이동하여 **Create agent log**를 클릭합니다.
+1. **Logging** &lt; **Agent Configurations** 메뉴로 이동하여 **Create agent log**를 클릭합니다.
 
 2. Name: 예) oke-cluster-1-agent-conf
 
@@ -133,7 +133,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     ...
     ````
 
-1. OCI 서비스 콘솔에서 **Logging** > **Search** 화면으로 다시 돌아갑니다.
+1. OCI 서비스 콘솔에서 **Logging** &lt; **Search** 화면으로 다시 돌아갑니다.
 
 1. Custom filters 항목에서 POD 이름 또는 앞서 테스트 URL에 있는 customlogtest 같이 검색값으로 조회하면 됩니다. **Custom filters에 값을 입력하고 엔터키를 꼭 칩니다.**
 
@@ -396,7 +396,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 2. 홈으로 이동합니다.
 
-3. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** > **Discover** 를 클릭합니다.
+3. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &lt; **Discover** 를 클릭합니다.
 
     ![Kibana Dicover](images/kibana-discover.png)
 
@@ -415,7 +415,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
     ![Kibana Index Pattern](images/kibana-index-pattern.png)
 
-7. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** > **Discover** 를 클릭합니다.
+7. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &lt; **Discover** 를 클릭합니다.
 
 8. 생성한 인덱스 패턴을 통해 수집된 로그를 확인할 수 있습니다.
 

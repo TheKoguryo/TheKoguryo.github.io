@@ -98,11 +98,11 @@ Quick Create 모드로 VCN을 함께 만든 경우에 클러스터 삭제후에�
 
 ## **Task 6**: OCIR 정리
 
-1. **Developer Services** >> **Container Registry**로 이동하여, 개발한 마이크로 서비스 앱 및 DevOpS 서비스로 배포한 앱을 삭제합니다.
+1. **Developer Services** &lt; **Container Registry**로 이동하여, 개발한 마이크로 서비스 앱 및 DevOpS 서비스로 배포한 앱을 삭제합니다.
 
 ## **Task 7**: DevOps 프로젝트 삭제
 
-1. **Developer Services > DevOps**로 이동합니다.
+1. **Developer Services** &lt; **DevOps**로 이동합니다.
 
 2. 만든 프로젝트로 이동합니다.
 

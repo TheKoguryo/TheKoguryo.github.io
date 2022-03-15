@@ -32,13 +32,13 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
 
 주어진 Compartment 내에서 DevOps 서비스를 사용할 수 있도록 Compartment에 대한 Dynamic Group을 먼저 생성합니다.
 
-1. OCI 콘솔에 로그인합니다.
+1. Oracle Cloud 콘솔에 로그인합니다.
 
-2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** > **Identity** > **Compartments**로 이동합니다.
+2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** &lt; **Identity** &lt; **Compartments**로 이동합니다.
 
 3. DevOps 서비스를 사용할 Compartment로 이동하여 OCID를 복사해 둡니다.
 
-4. **Identity** > **Dynamic Groups**로 이동합니다.
+4. **Identity** &lt; **Dynamic Groups**로 이동합니다.
 
 5. **Create Dynamic Group**을 클릭합니다.
 
@@ -79,7 +79,7 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
 
 ### DevOps 서비스를 위한 Policy 설정하기
 
-1. **Identity** > **Policies**로 이동합니다.
+1. **Identity** &lt; **Policies**로 이동합니다.
 
 2. **Create Policy**을 클릭하여 새 Policy를 만듭니다.
 
@@ -125,7 +125,7 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
 
 DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 위한 용도로 Notification Topic 설정이 필요합니다.  DevOps 프로젝트 생성시 필수 요구 사항이라 미리 만듭니다
 
-1. 좌측 상단 햄버거 메뉴에서 **Developer Services** > **Application Integration** > **Notifications**으로 이동합니다.
+1. 좌측 상단 햄버거 메뉴에서 **Developer Services** &lt; **Application Integration** &lt; **Notifications**으로 이동합니다.
 
 2. **Create Topic**을 클릭하여 Topic을 생성합니다.
 
@@ -135,7 +135,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 ### DevOps 프로젝트 만들기
 
-1. 좌측 상단 햄버거 메뉴에서 **Developer Services** > **DevOps**로 이동합니다.
+1. 좌측 상단 햄버거 메뉴에서 **Developer Services** &lt; **DevOps**로 이동합니다.
 
 2. 프로젝트 생성을 위해 **Projects**로 이동하여 **Create DevOps project**를 클릭합니다.
 

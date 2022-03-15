@@ -114,7 +114,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     </copy>      
     ````
 
-5. OCIR는 OCI(Open Container Initiative) 호환 Registry로 Helm Chart 저장소로 사용할 수 있지만, OCI(Open Container Initiative) 에서는 아직 실험 버전 기능이라, 여기서 OCIR에 등록하는 것을 생략합니다.
+5. OCIR는 Open Container Initiative 호환 Registry로 Helm Chart 저장소로 사용할 수 있지만, Open Container Initiative(OCI) 호환 Registry 에서는 아직 실험 버전 기능이라, 여기서 OCIR에 등록하는 것을 생략합니다.
 
 
 ## **Task 2**: Helm Chart로 OKE 클러스터에 배포하기

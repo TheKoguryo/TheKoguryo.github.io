@@ -16,7 +16,7 @@
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
-## Task 1: Istio 설치
+## **Task 1**: Istio 설치
 
 1. Cloud Shell에 접속합니다.
 
@@ -90,7 +90,7 @@
     </copy>
     ````
 
-## Task 2: MuShop에 Istio 활성화하기
+## **Task 2**: MuShop에 Istio 활성화하기
 
 1. 레이블 달기
 
@@ -229,7 +229,7 @@
     ...
     ````
 
-## Task 3: 서비스 메쉬 시각화
+## **Task 3**: 서비스 메쉬 시각화
 
 분산환경에서 클라이언트의 요청에 대한 서비스 들간의 호출 정보를 시각화를 Kiali를 통해 제공하고 있습니다.
 
@@ -332,7 +332,7 @@
    ![Kiali Graph](images/kiali-graph-mushop.png)
 
 
-## Task 4: 신규 서비스를 위한 가중치 기반 라우팅
+## **Task 4**: 신규 서비스를 위한 가중치 기반 라우팅
 
 1. MuShop Storefront UI의 새 앱은 2.1.3-beta.1을 추가로 배포합니다.
 
@@ -470,7 +470,7 @@
 
 4. Service Mesh의 가중치 기반 라우팅 규칙을 통해 신규 서비스 전에 일부 부하만을 전달하여 테스트 할 수 있습니다.
 
-이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
 
 ## Learn More
 

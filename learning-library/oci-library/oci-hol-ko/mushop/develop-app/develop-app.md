@@ -21,7 +21,7 @@
 * JDK 1.8 or later
 * Gradle 4+ or Maven 3.2+
 
-## Task 1: Spring Boot 기반 마이크로 서비스 만들기
+## **Task 1**: Spring Boot 기반 마이크로 서비스 만들기
 
 [Spring Initializr](https://start.spring.io)를 사용하여 기본 프로젝트 소스파일을 기반으로 개발을 하게 됩니다.
     
@@ -34,7 +34,7 @@
 
         다운로드 받은 파일을 Cloud Shell에 업로드 합니다.
         ![File Upload](images/cloud-shell-upload-1.png =30%x*)     
-        ![File Upload](images/cloud-shell-upload-2.png =70%x*)        
+        ![File Upload](images/cloud-shell-upload-2.png =50%x*)        
 
         Cloud Shell에서 업로드된 파일을 unzip으로 압축해제 합니다.
 
@@ -175,7 +175,7 @@
 
 10. 첫 번째 Cloud Shell에서 실행되는 앱을 중지합니다.
 
-## Task 2: Container Image 만들기
+## **Task 2**: Container Image 만들기
 
 쿠버네티스에서 실행하기 위해서는 구동할 서비스 애플리케이션을 컨테이너화 하여야 합니다. Docker 클라이언트를 통해 컨테이너 이미지를 만듭니다.
 
@@ -237,7 +237,7 @@
     openjdk                8-jdk-alpine        a3562aa0b991        2 years ago          105MB
     ````    
 
-## Task 3: OCIR에 이미지 등록하기
+## **Task 3**: OCIR에 이미지 등록하기
 
 1. OCIR에 컨테이너 이미지를 푸시하기 위해서는 다음과 같은 이미지 태그 네이밍 규칙을 따라야 합니다. 아래 정보를 확인합니다.
 
@@ -314,7 +314,7 @@
 
     ![OCIR Image](images/ocir-spring-boot-greeting.png)     
 
-## Task 4: OKE에 마이크로 서비스 배포하기
+## **Task 4**: OKE에 마이크로 서비스 배포하기
 
 1. OCIR에 이미지를 사용하여 OKE에 컨테이너를 기동하기 위해서는 OKE에서 OCIR 이미지에 접근하는 권한이 필요합니다. OCIR Private Repository로 등록했기 때문에 OKE에 접속을 위한 secret를 생성합니다. 이미 Cloud Shell에서 Docker CLI로 OCI에 로그인 했으므로 해당 정보를 이용하여 생성합니다.
 
@@ -406,7 +406,7 @@
     {"id":1,"content":"Hello, World!"}    
     ````
 
-이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
 
 ## Learn More
 

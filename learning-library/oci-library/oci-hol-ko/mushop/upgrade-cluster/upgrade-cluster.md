@@ -44,7 +44,7 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
 * 배포된 앱들이 구동중인 상황에서 업그레이드 과정 확인을 위해 이전 앱들이 실행 중일 것
 
 
-## Task 1: OKE 클러스터 버전 업그레이드(Control Plane 업그레이드)
+## **Task 1**: OKE 클러스터 버전 업그레이드(Control Plane 업그레이드)
 
 > 위와 같이 1.20.8 버전을 사용 중에 새로운 버전이 출시되었다고 가정합니다. 그러면 앞서 설명한 것과 같이 기술지원 정책에 따라 기존 버전은 30일간 지원하기 때문에, 그동안 버전 검증후 업그레이드가 필요합니다.
 - [Supported Versions of Kubernetes](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutk8sversions.htm)
@@ -67,7 +67,7 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
     ![Upgraed Control Plane](images/upgraded-control-plane.png =50%x*)
 
 
-## Task 2: Worker Node 업그레이드 (out-of-place 업그레이드)
+## **Task 2**: Worker Node 업그레이드 (out-of-place 업그레이드)
 
 OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. out-of-place 업그레이드 방식은 업그레이드 버전의 Node Pool 신규 생성 -> 기존 Node Pool의 모든 노드 Drain -> 기존 Node Pool 삭제 순으로 업그레이드 합니다.
 
@@ -228,7 +228,7 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
     10.0.10.252   Ready                      node    77m    v1.20.11   pool2
     ````
 
-이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
 
 ## Learn More
 

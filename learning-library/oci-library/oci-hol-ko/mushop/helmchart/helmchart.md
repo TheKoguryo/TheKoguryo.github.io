@@ -19,7 +19,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 * Helm CLI
 
-## Task 1: 샘플 차트 만들기
+## **Task 1**: 샘플 차트 만들기
 
 [Helm Chart Template Guide](https://helm.sh/docs/chart_template_guide/getting_started/) 예제를 따라 만든 샘플 차트를 만듭니다.
 
@@ -117,7 +117,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 5. OCIR는 OCI(Open Container Initiative) 호환 Registry로 Helm Chart 저장소로 사용할 수 있지만, OCI(Open Container Initiative) 에서는 아직 실험 버전 기능이라, 여기서 OCIR에 등록하는 것을 생략합니다.
 
 
-## Task 2: Helm Chart로 OKE 클러스터에 배포하기
+## **Task 2**: Helm Chart로 OKE 클러스터에 배포하기
 
 1. 작성한 차트로 배포합니다. mychart/values.yaml에 있는 변수들은 아래와 같이 --set을 통해 배포시 변경할 수 있습니다.
 
@@ -167,7 +167,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     {"id":1,"content":"Hello, World!"}
     ````
 
-이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
 
 ## Learn More
 

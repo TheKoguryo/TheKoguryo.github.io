@@ -16,7 +16,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
 
-## Task 1: OKE Metrics 보기
+## **Task 1**: OKE Metrics 보기
 
 1. *OKE Cluster Metrics:* **Developer Services > Kubernetes Clusters > <클러스터 이름>** 로 이동
 
@@ -52,7 +52,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
     ![OKE Worker Node Metric](images/node-metric.png)
 
 
-## Task 2: OSS Grafana 모니터링
+## **Task 2**: OSS Grafana 모니터링
 
 Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였습니다. OKE에 설치된 Grafana 대시보드에 접속해 보겠습니다.
 
@@ -124,7 +124,7 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
     *Note:* [Grafana 커뮤니티](https://grafana.com/grafana/dashboards?dataSource=prometheus)에서 다른 대시보드를 설치하거나 직접 만들 수 있습니다.
 
 
-## Task 3: Autoscaling
+## **Task 3**: Autoscaling
 
 Deployment를 스케일아웃하면 새 Pod가 생성되고 사용 가능한 자원이 있는 노드에 스케쥴되어 배치되어 변경된 갯수로 Pod의 갯수로 조정되게 됩니다. Kubernetes는 수평, 수직 오토스케일링을 지원합니다. 자세한 설명은 [Horizontal Pod Autoscaling](https://kubernetes.io/docs/user-guide/horizontal-pod-autoscaling/)을 참조하세요.
 
@@ -268,7 +268,7 @@ Deployment를 스케일아웃하면 새 Pod가 생성되고 사용 가능한 자
 
     몇 분 후 부하가 감소하고 대상의 리소스 사용량이 감소합니다. 이 시점에서 Kubernetes는 **scale down**을 시작하고 Replicas 수를 최소로 되돌립니다.
 
-이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
 
 ## Acknowledgements
 

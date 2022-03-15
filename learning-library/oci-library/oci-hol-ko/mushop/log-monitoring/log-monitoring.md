@@ -16,7 +16,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
 
-## Task 1: OCI Logging 서비스
+## **Task 1**: OCI Logging 서비스
 
 ### Worker Node에 대한 Dynamic Group 만들기
 
@@ -144,7 +144,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
    ![Logging Search](images/oci-logging-search-2.png)
 
 
-## Task 2: OSS ElasticSearch/Kibana (Optional)
+## **Task 2**: OSS ElasticSearch/Kibana (Optional)
 
 ### Elastic Search + Kibana 설치
 
@@ -443,7 +443,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 11. EFK를 통해 OKE 상의 로그를 수집하는 예시였습니다. EKF에 대한 상세 내용은 제품 관련 홈페이지와 커뮤니티 사이트를 참고하기 바랍니다.
 
 
-이제 [다음 실습](#next)으로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
 
 ## Learn More
 

@@ -74,15 +74,15 @@
 <p>복사해둔 Compartment OCID를 이용해 필요한 Dynamic Group을 만듭니다.</p>
 <ul>
 <li>
-<p>oke-labs-DeployDynamicGroup</p>
+<p>DeployDynamicGroup</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALL <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsrepository&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
 </code></pre></div></li>
 <li>
-<p>oke-labs-CoderepoDynamicGroup</p>
+<p>CoderepoDynamicGroup</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALL <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsbuildpipeline&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
 </code></pre></div></li>
 <li>
-<p>oke-labs-BuildDynamicGroup</p>
+<p>BuildDynamicGroup</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">All <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsdeploypipeline&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
 </code></pre></div></li>
 </ul>
@@ -99,23 +99,23 @@
 <li>
 <p><strong>Compartment</strong> 레벨로 다음 Policy를 만듭니다.</p>
 <ul>
-<li>Name: 예, oke-labs-DevOps-policy</li>
+<li>Name: 예, DevOps-compartment-policy</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group oke-labs-CoderepoDynamicGroup to manage devops-family in compartment &lt;YourCompartmentName&gt;
-Allow dynamic-group oke-labs-BuildDynamicGroup to manage repos in compartment &lt;YourCompartmentName&gt;
-Allow dynamic-group oke-labs-BuildDynamicGroup to <span class="nb">read</span> secret-family in compartment &lt;YourCompartmentName&gt;
-Allow dynamic-group oke-labs-BuildDynamicGroup to manage devops-family in compartment &lt;YourCompartmentName&gt;
-Allow dynamic-group oke-labs-BuildDynamicGroup to manage generic-artifacts in compartment &lt;YourCompartmentName&gt;
-Allow dynamic-group oke-labs-BuildDynamicGroup to use ons-topics in compartment &lt;YourCompartmentName&gt;
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group CoderepoDynamicGroup to manage devops-family in compartment &lt;YourCompartmentName&gt;
+Allow dynamic-group BuildDynamicGroup to manage repos in compartment &lt;YourCompartmentName&gt;
+Allow dynamic-group BuildDynamicGroup to <span class="nb">read</span> secret-family in compartment &lt;YourCompartmentName&gt;
+Allow dynamic-group BuildDynamicGroup to manage devops-family in compartment &lt;YourCompartmentName&gt;
+Allow dynamic-group BuildDynamicGroup to manage generic-artifacts in compartment &lt;YourCompartmentName&gt;
+Allow dynamic-group BuildDynamicGroup to use ons-topics in compartment &lt;YourCompartmentName&gt;
 </code></pre></div></li>
 <li>
 <p>Root Compartment 레벨로 다음 Policy를 만듭니다.</p>
 <ul>
-<li>Name: 예, oke-labs-DevOps-root-policy</li>
+<li>Name: 예, DevOps-root-policy</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group oke-labs-CoderepoDynamicGroup to manage all-resources in tenancy
-Allow dynamic-group oke-labs-CoderepoDynamicGroup to <span class="nb">read</span> secret-family in tenancy
-Allow dynamic-group oke-labs-DeployDynamicGroup to manage all-resources in tenancy
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group CoderepoDynamicGroup to manage all-resources in tenancy
+Allow dynamic-group CoderepoDynamicGroup to <span class="nb">read</span> secret-family in tenancy
+Allow dynamic-group DeployDynamicGroup to manage all-resources in tenancy
 </code></pre></div></li>
 </ol>
 <h2 id="devops-서비스를-통한-cicd-배포-자동화-하기">DevOps 서비스를 통한 CI/CD 배포 자동화 하기</h2>
@@ -1154,6 +1154,31 @@ replicaset.apps/spring-boot-hello-54848fcfd5   <span class="m">1</span>         
   </script>
 </li>
 <li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/release-notes/">
+    컨테이너관련 OCI 주요 기능 업데이트
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+  
+<ul class=" hidden">
+
+<li class=""><a href="https://thekoguryo.github.io/release-notes/20220315-support-for-oci-network-load-balancers/">Support for OCI Network Load Balancers</a></li>
+</ul>
+  
+</li>
 
 
 

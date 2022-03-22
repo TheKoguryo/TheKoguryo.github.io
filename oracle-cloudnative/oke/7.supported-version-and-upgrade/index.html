@@ -31,7 +31,7 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2022.02.08</span>
+ <span class="version">Version 2022.03.21</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -39,6 +39,7 @@
 <ul>
 <li ><a href="/">Home</a></li>
 <li ><a href="/tags">Tag</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
 <li ><a href="/archives">Archives</a></li>
 <li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
 <li ><a href="/link">Link</a></li></ul>
@@ -312,8 +313,12 @@ nginx-fss-pvc-9fb98454f-7tsjf    1/1     Running   <span class="m">0</span>     
 nginx-fss-pvc-9fb98454f-fzlxj    1/1     Running   <span class="m">0</span>          40m   10.244.0.136   10.0.10.226   &lt;none&gt;           &lt;none&gt;
 </code></pre></div></li>
 <li>
-<p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets</code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.44 --ignore-daemonsets
+<p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets --delete-emptydir-data </code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
+<blockquote>
+<p>emptydir을 사용하는 Pod가 있는 경우 drain시 에러가 발생합니다. emptydir을 임시데이터를 사용하는 용도임으로 &ndash;delete-emptydir-data 옵션을 통해 drain 시킵니다. 테스트시는 elasticsearch가 설치된 상태에서 관련 이슈가 발생하였습니다.</p>
+<p>참고: <a href="https://pet2cattle.com/2021/08/cannot-delete-pods-with-local-storage">https://pet2cattle.com/2021/08/cannot-delete-pods-with-local-storage</a></p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.44 --ignore-daemonsets --delete-emptydir-data
 node/10.0.10.44 already cordoned
 WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-7hc28, kube-system/kube-flannel-ds-b4dp6, kube-system/kube-proxy-f8qmp, kube-system/proxymux-client-6qs4x
 evicting pod default/nginx-fss-pvc-9fb98454f-7tsjf
@@ -488,8 +493,8 @@ NAME          STATUS   ROLES   AGE     VERSION    NAME
 10.0.10.191   Ready    node    4m42s   v1.20.11   pool2
 </code></pre></div></li>
 <li>
-<p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets</code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.242 --ignore-daemonsets
+<p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets --delete-emptydir-data</code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.242 --ignore-daemonsets --delete-emptydir-data
 node/10.0.10.242 already cordoned
 WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-l62xw, kube-system/kube-flannel-ds-7dv8l, kube-system/kube-proxy-zv4ks, kube-system/proxymux-client-24nmv
 evicting pod kube-system/coredns-c5d4bf466-wv8fb
@@ -584,6 +589,8 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
   </script>
 </li>
 <li><a> </a></li>
+
+
 
 
 

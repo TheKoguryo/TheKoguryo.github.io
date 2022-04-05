@@ -130,7 +130,7 @@ Deployment를 스케일아웃하면 새 Pod가 생성되고 사용 가능한 자
 
 배포된 MuShop 애플리케이션은 배포시 사용한 Helm Chart에 HPA를 이미 구성한 상태로 아래와 같이 바로 확인가능합니다.
 
-> HPA가 동작하기 위해서는 CPU, Memory 사용량 정보를 가져오기 위한 Metric Server 설치가 필요합니다. 앞선 MuShop 유틸리티 배포시 이미 배포되어 있습니다. 신규 클러스터에 설치하려면 관련 OKE 문서[(Deploying the Kubernetes Metrics Server on a Cluster Using Kubectl](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengdeployingmetricsserver.htm)를 참고하여 설치합니다.
+> HPA가 동작하기 위해서는 CPU, Memory 사용량 정보를 가져오기 위한 Metric Server 설치가 필요합니다. 앞선 MuShop 유틸리티 배포시 이미 배포되어 있습니다. 신규 클러스터에 설치하려면 관련 OKE 문서[(Deploying the Kubernetes Metrics Server on a Cluster Using Kubectl)](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengdeployingmetricsserver.htm)를 참고하여 설치합니다.
 
 1. MuShop 애플리케이션의 현재 스케일링 설정 및 Replicas 수 확인
 

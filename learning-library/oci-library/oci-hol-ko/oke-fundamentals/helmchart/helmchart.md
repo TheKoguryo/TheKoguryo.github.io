@@ -6,7 +6,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 - [Helm: The package manager for Kubernetes](https://helm.sh/)
 
-예상 시간: 20분
+예상 시간: 10분
 
 ### 목표
 
@@ -95,7 +95,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     ````
     <copy>
     image:
-      repository: ap-chuncheon-1.ocir.io/axjowrxaetht/spring-boot-greeting
+      repository: ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
       tag: "1.0"

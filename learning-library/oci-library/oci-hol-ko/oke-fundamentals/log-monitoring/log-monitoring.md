@@ -22,7 +22,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 1. OCI 콘솔에 로그인합니다.
 
-2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** &lt; **Identity** &lt; **Compartments**로 이동합니다.
+2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** &gt; **Identity** &gt; **Compartments**로 이동합니다.
 
 3. OKE 클러스터가 있는 Compartment의 OCID를 확인하고 복사해 둡니다.
 
@@ -52,7 +52,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 Log Group은 로그들을 관리하는 말 그대로 로그의 묶음 단위 입니다. 커스텀 로그를 만들기 위해 먼저 만듭니다.
 
-1. 좌측 상단 햄버거 메뉴에서 **Observability** **&** **Management** &lt; **Logging** &lt; **Log Groups**로 이동합니다.
+1. 좌측 상단 햄버거 메뉴에서 **Observability** **&** **Management** &gt; **Logging** &gt; **Log Groups**로 이동합니다.
 
 2. Create Log Group을 클릭하여 로그 그룹을 만듭니다.
 

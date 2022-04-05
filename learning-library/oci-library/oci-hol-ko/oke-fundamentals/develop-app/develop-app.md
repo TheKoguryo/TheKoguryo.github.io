@@ -21,6 +21,10 @@
 * JDK 1.8 or later
 * Gradle 4+ or Maven 3.2+
 
+### 실습 비디오
+
+[](youtube:uKecN76lEe0)
+
 ## **Task 1**: Spring Boot 기반 마이크로 서비스 만들기
 
 [Spring Initializr](https://start.spring.io)를 사용하여 기본 프로젝트 소스파일을 기반으로 개발을 하게 됩니다.

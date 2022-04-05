@@ -11,7 +11,7 @@ MuShop 애플리케이션 배포 방식으로 Manual 배포(Docker, Kubernetes m
 ![MuShop Deployment](images/mushop-diagram.png)  
 > *Note: 이 다이어그램에서는 여기서 다루지 않는 서비스도 포함됩니다.*
 
-예상 시간: 30 분
+예상 시간: 25 분
 
 ### 목표
 

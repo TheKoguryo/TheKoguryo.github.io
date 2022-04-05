@@ -44,7 +44,7 @@ Oracle Cloud에서 로그아웃한 경우 다음 단계를 사용하여 다시 �
 
     ![Console Home](images/oci-console-home-page.png " ")
 
-이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.
 
 ## Acknowledgements
 

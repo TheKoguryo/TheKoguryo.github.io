@@ -1,4 +1,4 @@
-# OKE Fundamentals: Cloud Native 앱(MuShop)기반 OKE 실습 워크샵
+
 
 ## Introduction
 
@@ -27,7 +27,7 @@ Oracle Cloud Native 솔루션을 활용하여 클라우드 네이티브 마이�
 1. [Compartments 익히기](https://docs.us-phoenix-1.oraclecloud.com/Content/GSG/Concepts/concepts.htm)
 1. 컨테이너 및 [Kubernetes](https://kubernetes.io/) 에 대한 기본 개념 지식
 
-이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.
 
 
 ## Learn More

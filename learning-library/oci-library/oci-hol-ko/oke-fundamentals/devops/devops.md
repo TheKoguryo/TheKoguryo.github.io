@@ -746,7 +746,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     ![](images/pipeline-test-5.png =50%x*)
 
 
-이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.
 
 ## Learn More
 

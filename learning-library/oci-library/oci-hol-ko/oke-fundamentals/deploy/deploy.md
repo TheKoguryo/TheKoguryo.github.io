@@ -209,7 +209,7 @@ MuShop 애플리케이션에서 제공하는 Helm Chart는 쿠버네티스 클�
     ````
 
 2. Ingress Controller의 EXTERNAL-IP 확인:
-    유틸리티 애플리케이션의 하나로 Nginx의 Ingress Controller가 설치됩니다. Nginx Ingress Controller는 OCI 로드밸런서로 노출되며, Public IP가 할당됩니다. 해당 IP로 오는 모든 요청을 쿠버네티스 Service를 통해 애플리케이션으 컨테이너로 라우팅합니다.
+    유틸리티 애플리케이션의 하나로 Nginx의 Ingress Controller가 설치됩니다. Nginx Ingress Controller는 OCI 로드밸런서로 노출되며, Public IP가 할당됩니다. 해당 IP로 오는 모든 요청을 쿠버네티스 Service를 통해 애플리케이션 컨테이너로 라우팅합니다.
 
     ````shell
     <copy>
@@ -236,7 +236,7 @@ helm이 구성 가능한 차트를 패키징하고 배포하는 방법을 제공
     </copy>
     ````
 
-1. 배포를 위해 애플리케이션 컨테이너 이미지를 받아 오는 데 처음에는 시간이 소요됩니다. 다음 명령어를 모든 Pod가 기동될때까지 기다립니다.
+1. 배포를 위해 애플리케이션 컨테이너 이미지를 받아 오는 데 처음에는 시간이 소요됩니다. 다음 명령어로 모든 Pod가 기동될때까지 기다립니다.
 
     ````shell
     <copy>
@@ -259,7 +259,7 @@ helm이 구성 가능한 차트를 패키징하고 배포하는 방법을 제공
     ![MuShop Storefront](images/mushop-storefront.png)
 
 
-## **Task 5: 배포된 앱 확인하기
+## **Task 5**: 배포된 앱 확인하기
 
 다음은 가장 많이 사용되는 kubectl 실행 명령입니다:
 
@@ -368,7 +368,7 @@ helm이 구성 가능한 차트를 패키징하고 배포하는 방법을 제공
     </copy>
     ````
 
-이제 **다음 실습을 진행**하시면 됩니다.로 넘어갈 수 있습니다.
+이제 **다음 실습을 진행**하시면 됩니다.
 
 ## Learn More
 

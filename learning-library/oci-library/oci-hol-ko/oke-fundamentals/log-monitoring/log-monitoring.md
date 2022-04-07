@@ -4,7 +4,7 @@
 
 Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현재 시스템의 상태를 이해하고 설명하는 데 도움을 줍니다. 시스템에 대한 가시성을 높이는데 도움을 줍니다.
 
-예상 시간: 10 분
+예상 시간: Task 1 기준 10 분
 
 ### 목표
 
@@ -62,7 +62,7 @@ Log Group은 로그들을 관리하는 말 그대로 로그의 묶음 단위 입
 
 Custom Log는 커스텀 애플리케이션에서 수집하는 로그에 매핑되는 것입니다. Custom Log를 정의하고, 이에 대한 로그 수집기를 정의합니다.
 
-1. **Resources** &lt; **Logs** 메뉴로 이동하여 **Create custom log**를 클릭합니다.
+1. **Resources** &gt; **Logs** 메뉴로 이동하여 **Create custom log**를 클릭합니다.
 
 2. 로그 이름과 필요하면 고급옵션에 있는 보관 주기 등을 설정하여 custom log를 만듭니다.
 
@@ -74,7 +74,7 @@ Custom Log는 커스텀 애플리케이션에서 수집하는 로그에 매핑�
 
 Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니다.
 
-1. **Logging** &lt; **Agent Configurations** 메뉴로 이동하여 **Create agent log**를 클릭합니다.
+1. **Logging** &gt; **Agent Configurations** 메뉴로 이동하여 **Create agent log**를 클릭합니다.
 
 2. Name: 예) oke-cluster-1-agent-conf
 
@@ -96,14 +96,6 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 1. Cloud Shell로 이동합니다.
 
-1. Mushop UI이 store-front Pod의 로그를 조회합니다. app: storefornt 레이블을 기준으로 로그를 조회합니다.
-
-    ````
-    <copy>
-    kubectl logs -lapp=storefront -f --tail=10
-    </copy>
-    ````
-
 1. MuShop 앱 접속을 위해 Nginx Ingress Contoller의 Load Balancer IP를 다시 확인합니다.
 
     ````
@@ -120,7 +112,17 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     ...    
     ````
 
+1. Mushop UI이 store-front Pod의 로그를 조회합니다. app: storefornt 레이블을 기준으로 로그를 조회합니다.
+
+    ````
+    <copy>
+    kubectl logs -lapp=storefront -f --tail=10
+    </copy>
+    ````
+
 1. 확인된 IP를 통해 이전에 배포된 MuShop 앱을 접속해 봅니다. 테스트를 위해 URL에 테스트용 값을 추가합니다. 예, ?customlogtest
+
+   - MuShop 앱 테스트 URL 한번만 접속할 경우 구간내에 Log Flush가 안될 수도 있으니 테스트를 위해 여러번 반복 접속합니다.
 
     ![MuShop Custom Log](images/mushop-custom-log.png)
 
@@ -133,13 +135,17 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     ...
     ````
 
-1. OCI 서비스 콘솔에서 **Logging** &lt; **Search** 화면으로 다시 돌아갑니다.
+1. OCI 서비스 콘솔에서 **Logging** &gt; **Search** 화면으로 다시 돌아갑니다.
 
 1. Custom filters 항목에서 POD 이름 또는 앞서 테스트 URL에 있는 customlogtest 같이 검색값으로 조회하면 됩니다. **Custom filters에 값을 입력하고 엔터키를 꼭 칩니다.**
 
    ![Logging Search](images/oci-logging-search-1.png)
 
 1. 검색된 로그 데이터를 확인할 수 있습니다.
+
+   - Log Agent를 통해 수집되는 주기가 있어 조회될때까지 5분 내외가 걸릴 수 있습니다.
+   - 앞서 MuShop 앱 테스트 URL 한번만 접속한 경우 구간내에 Log Flush가 안되어 계속 기다려도 로그 조회가 안될 수 있으니, 테스트 URL 여러번 반복 접속합니다.   
+
 
    ![Logging Search](images/oci-logging-search-2.png)
 
@@ -396,7 +402,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 2. 홈으로 이동합니다.
 
-3. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &lt; **Discover** 를 클릭합니다.
+3. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &gt; **Discover** 를 클릭합니다.
 
     ![Kibana Dicover](images/kibana-discover.png)
 
@@ -415,7 +421,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
     ![Kibana Index Pattern](images/kibana-index-pattern.png)
 
-7. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &lt; **Discover** 를 클릭합니다.
+7. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &gt; **Discover** 를 클릭합니다.
 
 8. 생성한 인덱스 패턴을 통해 수집된 로그를 확인할 수 있습니다.
 

@@ -23,7 +23,7 @@
 
 ### 실습 비디오
 
-[](youtube:uKecN76lEe0)
+[](youtube:8XKd62hwNQg)
 
 ## **Task 1**: Spring Boot 기반 마이크로 서비스 만들기
 

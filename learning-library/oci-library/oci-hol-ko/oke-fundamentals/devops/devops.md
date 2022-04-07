@@ -1,23 +1,21 @@
-# Deploy the App as CI/CD
+# Deploy the App with CI/CD
 
 ## Introduction
 
-Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠버네티스 패키지 매니저입니다. 워크샵에 사용하는 MuShop은 마이크로 서비스들로 구성되어 많은 컴포넌트를 가지고 있고 이를 배포관리하기 위해 Helm을 사용하고 있습니다. 이를 이해하기 위해 사전 단계로 진행하는 실습니다.
-
-- https://helm.sh/
+개발 생산성 향상을 위해 지속적인 빌드 통합, 배포를 위해 CI/CD 툴을 사용합니다. OCI DevOps 서비스는 OCI에서 제공하는 CI/CD 서비스로 소스 코드 관리를 위한 Repository 부터 CI/CD를 위한 파이프라인 구성을 지원합니다.
 
 예상 시간: 20 분
 
 ### 목표
 
-* 샘플 Helm Chart 만들기
-* Helm CLI로 쿠버네티스에 배포하기
+* Git Repository 사용하기
+* DevOps 서비스를 통한 CI/CD 파아프라인 구성하기
 
 ### 전제 조건
 
 아래와 같이 코드 개발을 위한 툴이 필요합니다. 간단한 앱 개발로 여기서는 편의상 사전에 툴들이 설치된 Cloud Shell에서 진행하겠습니다.
 
-* Helm CLI
+* Git CLI
 
 
 ## **Task 1**: DevOps 서비스 사용을 위한 IAM Policy 설정
@@ -34,11 +32,11 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
 
 1. Oracle Cloud 콘솔에 로그인합니다.
 
-2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** &lt; **Identity** &lt; **Compartments**로 이동합니다.
+2. 좌측 상단 햄버거 메뉴에서 **Identity & Security** &gt; **Identity** &gt; **Compartments**로 이동합니다.
 
 3. DevOps 서비스를 사용할 Compartment로 이동하여 OCID를 복사해 둡니다.
 
-4. **Identity** &lt; **Dynamic Groups**로 이동합니다.
+4. **Identity** &gt; **Dynamic Groups**로 이동합니다.
 
 5. **Create Dynamic Group**을 클릭합니다.
 
@@ -79,7 +77,7 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
 
 ### DevOps 서비스를 위한 Policy 설정하기
 
-1. **Identity** &lt; **Policies**로 이동합니다.
+1. **Identity** &gt; **Policies**로 이동합니다.
 
 2. **Create Policy**을 클릭하여 새 Policy를 만듭니다.
 
@@ -125,7 +123,7 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
 
 DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 위한 용도로 Notification Topic 설정이 필요합니다.  DevOps 프로젝트 생성시 필수 요구 사항이라 미리 만듭니다
 
-1. 좌측 상단 햄버거 메뉴에서 **Developer Services** &lt; **Application Integration** &lt; **Notifications**으로 이동합니다.
+1. 좌측 상단 햄버거 메뉴에서 **Developer Services** &gt; **Application Integration** &gt; **Notifications**으로 이동합니다.
 
 2. **Create Topic**을 클릭하여 Topic을 생성합니다.
 
@@ -135,7 +133,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 ### DevOps 프로젝트 만들기
 
-1. 좌측 상단 햄버거 메뉴에서 **Developer Services** &lt; **DevOps**로 이동합니다.
+1. 좌측 상단 햄버거 메뉴에서 **Developer Services** &gt; **DevOps**로 이동합니다.
 
 2. 프로젝트 생성을 위해 **Projects**로 이동하여 **Create DevOps project**를 클릭합니다.
 
@@ -175,7 +173,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 2. **Create repository**를 클릭하여 저장소를 만듭니다.
 
-    - Repository name: 예, mushop-frontstore-code-repo
+    - Repository name: 예, mushop-storefront-code-repo
 
 3. 생성된 코드 저장소 입니다. 일반적인 Git Repository입니다.
 
@@ -295,11 +293,9 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
       timeoutInSeconds: 6000
       shell: bash
       env:
-        # these are local variables to the build config
         variables:
           appName: "spring-boot-hello"
       
-        # exportedVariables are made available to use as parameters in sucessor Build Pipeline stages
         exportedVariables:
           - APP_NAME
           - OCIR_PATH
@@ -356,7 +352,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
       outputArtifacts:
         - name: output-image
           type: DOCKER_IMAGE
-          location: new-generated-image      
+          location: new-generated-image    
       </copy>          
       ```
 
@@ -700,7 +696,18 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
       ...    
     ````
 
-3. 빌드 실행 내역을 보면, 그림과 같이 Trigger 된것은 Commit ID가 함께 보이며, Code Repository와 링크되어 있습니다.
+3. 코드를 Code Repository에 Push 합니다.
+
+    ````
+    <copy>    
+    git add .
+    git commit -m "update opening-hours"
+    git push
+    </copy>
+    ````
+
+
+4. 빌드 실행 내역을 보면, 그림과 같이 Trigger 된것은 Commit ID가 함께 보이며, Code Repository와 링크되어 있습니다.
 
     ![Pipeline Test Result](images/pipeline-test-1.png)
 
@@ -708,15 +715,15 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
     ![Pipeline Test Result](images/pipeline-test-2.png)
 
-4. 빌드 파이프라인이 정상적으로 코드 빌드 부터 컨테이너 이미지 생성, 배포 파이프라인 호출까지 실행되었습니다.
+5. 빌드 파이프라인이 정상적으로 코드 빌드 부터 컨테이너 이미지 생성, 배포 파이프라인 호출까지 실행되었습니다.
 
     ![Pipeline Test Result](images/pipeline-test-3.png)
 
-5. 배포 파이프라인도 정상 실행되었습니다.
+6. 배포 파이프라인도 정상 실행되었습니다.
 
     ![Pipeline Test Result](images/pipeline-test-4.png)
 
-6. OKE 클러스터를 조회해 보면 정상 배포 되었습니다.
+7. OKE 클러스터를 조회해 보면 정상 배포 되었습니다.
 
 
     Pod가 새롭게 배포되었고, 이미지 주소가 새로 생성된 것으로 태그가 Commit ID와 동일함을 알수있습니다.
@@ -741,7 +748,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
       Normal  Pulled     9m4s  kubelet            Successfully pulled image "ap-chuncheon-1.ocir.io/axjowrxaetht/mushop-storefront:4039165" in 838.067082ms
     ```
 
-7. 서비스 주소로 접속시 정상 동작을 확인할 수 있습니다.
+8. 서비스 주소로 접속시 정상 동작을 확인할 수 있습니다.
  
     ![](images/pipeline-test-5.png =50%x*)
 

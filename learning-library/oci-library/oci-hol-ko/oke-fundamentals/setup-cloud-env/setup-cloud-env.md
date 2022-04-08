@@ -17,6 +17,10 @@
 
 - Oracle Cloud Trial Account 또는 Paid Account
 
+### 실습 비디오
+
+[](youtube:sF-9e6yHBHI)
+
 
 ## **Task 1**: OCI 테넌시 로그인
 

@@ -496,7 +496,6 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
             helm.sh/chart: storefront-0.2.0
           name: mushop-storefront
           namespace: mushop
-          uid: 41f91cf2-81fc-491e-a41f-86ef0caf5cc5
         spec:
           progressDeadlineSeconds: 600
           replicas: 1

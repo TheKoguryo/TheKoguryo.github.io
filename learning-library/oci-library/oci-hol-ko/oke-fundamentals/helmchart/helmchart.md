@@ -19,6 +19,11 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 * Helm CLI
 
+### 실습 비디오
+
+[](youtube:TUygTkGt_uc)
+
+
 ## **Task 1**: 샘플 차트 만들기
 
 [Helm Chart Template Guide](https://helm.sh/docs/chart_template_guide/getting_started/) 예제를 따라 만든 샘플 차트를 만듭니다.

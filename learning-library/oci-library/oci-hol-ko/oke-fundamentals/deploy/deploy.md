@@ -25,6 +25,10 @@ MuShop 애플리케이션 배포 방식으로 Manual 배포(Docker, Kubernetes m
 * Always Free는 현재 2022년 2월기준 OKE 제공하지 않습니다. Free Trial 이상이 필요합니다.
 * **Setup Cloud Environment** 실습 완료
 
+### 실습 비디오
+
+[](youtube:n95aHQck0gA)
+
 
 ## **Task 1**: MuShop 소스코드 내려받기
 

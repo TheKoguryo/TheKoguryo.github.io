@@ -43,6 +43,10 @@ OKE 새 버전이 출시되면 버전 업그레이드는 다음 절차를 따릅
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 * 배포된 앱들이 구동중인 상황에서 업그레이드 과정 확인을 위해 이전 앱들이 실행 중일 것
 
+### 실습 비디오
+
+[](youtube:fC2d7IfRn2s)
+
 
 ## **Task 1**: OKE 클러스터 버전 업그레이드(Control Plane 업그레이드)
 

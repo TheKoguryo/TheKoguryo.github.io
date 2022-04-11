@@ -19,8 +19,7 @@
 
 ### 실습 비디오
 
-[](youtube:opopae5xG20)
-
+[](youtube:2TJerSoBmTo)
 
 ## **Task 1**: DevOps 서비스 사용을 위한 IAM Policy 설정
 

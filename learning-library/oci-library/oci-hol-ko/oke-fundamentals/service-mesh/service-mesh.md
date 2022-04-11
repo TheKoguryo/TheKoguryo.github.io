@@ -16,6 +16,10 @@
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
+### 실습 비디오
+
+[](youtube:Es__wypgoNI)
+
 ## **Task 1**: Istio 설치
 
 1. Cloud Shell에 접속합니다.

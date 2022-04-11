@@ -15,6 +15,9 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
+### 실습 비디오
+
+[](youtube:L3gRfDFpesk)
 
 ## **Task 1**: OCI Logging 서비스
 
@@ -151,6 +154,11 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 
 ## **Task 2**: OSS ElasticSearch/Kibana (Optional)
+
+### 실습 비디오
+
+[](youtube:HvxxkpJYvA4)
+
 
 ### Elastic Search + Kibana 설치
 

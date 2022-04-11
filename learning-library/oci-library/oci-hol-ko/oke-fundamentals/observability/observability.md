@@ -15,6 +15,10 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
 
+### 실습 비디오
+
+[](youtube:XMkLtydlc3Y)
+
 
 ## **Task 1**: OKE Metrics 보기
 
@@ -58,7 +62,7 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
 
 1. 우측 상단의 Cloud Shell 아이콘을 클릭하여 Cloud Shell로 들어갑니다.
 
-1. **mushop-utils**가 설치되었는지 확인을 위해 Helm release를 조회합니다.
+2. **mushop-utils**가 설치되었는지 확인을 위해 Helm release를 조회합니다.
 
     ````shell
     <copy>
@@ -74,7 +78,7 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
     mushop-utils    mushop-utilities        1               2022-03-07 01:53:39.822426 +0000 UTC    deployed        mushop-setup-0.0.2      1.0        
     ````
 
-2. **mushop-utils** 에서 Grafana 설치 정보 확인합니다. 다음에서 하는 접속 주소, 암호확인 방법을 확인할 수 있습니다.
+3. **mushop-utils** 에서 Grafana 설치 정보 확인합니다. 다음에서 하는 접속 주소, 암호확인 방법을 확인할 수 있습니다.
 
     ````shell
     <copy>
@@ -82,7 +86,7 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
     </copy>
     ````
 
-3. Ingress Controller에 할당된 EXTERNAL-IP 확인 (EXTERNAL-IP 메모)
+4. Ingress Controller에 할당된 EXTERNAL-IP 확인 (EXTERNAL-IP 메모)
 
     ````shell
     <copy>
@@ -90,7 +94,7 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
     </copy>
     ````
 
-4. 자동 생성된 Grafana **admin** 패스워드 확인
+5. 자동 생성된 Grafana **admin** 패스워드 확인
 
     ````shell
     <copy>
@@ -99,29 +103,34 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
     </copy>
     ````
 
-5. 브라우저를 통해서 **https**://< EXTERNAL-IP >/grafana로 접속
+6. 브라우저를 통해서 **https**://< EXTERNAL-IP >/grafana로 접속
 
-6. **admin**/**< password >** 정보로 로그인
+7. **admin**/**< password >** 정보로 로그인
 
     ![Grafana Login](images/grafana-login.png =30%x*)
 
-7. Grafana 메인 화면에서 **General / Home**을 선택합니다.
+8. Grafana 메인 화면에서 **General / Home**을 선택합니다.
 
     ![Grafana Select Dashboards](images/grafana-select-dashboards.png =40%x*)
 
-8. `Kubernetes Cluster` 대시보드를 선택합니다.
+9. `Kubernetes Cluster` 대시보드를 선택합니다.
 
     *Note:* Mushop은 mushop-utils 차트의 일부로 대시보드를 미리 로드합니다.
 
     ![Grafana Select Dashboards](images/grafana-loaded-dashboards.png)
 
-9. Kubernetes Cluster 대시보드를 확인합니다.
+10. Kubernetes Cluster 대시보드를 확인합니다.
 
     ![Grafana Kubernetes Cluster Dashboard](images/grafana-cluster-dashboard.png)
 
-10. Kubernetes Cluster 외 다른 대시보드도 선택해서 확인해 봅니다.
+11. Kubernetes Cluster 외 다른 대시보드도 선택해서 확인해 봅니다.
 
     *Note:* [Grafana 커뮤니티](https://grafana.com/grafana/dashboards?dataSource=prometheus)에서 다른 대시보드를 설치하거나 직접 만들 수 있습니다.
+
+    - 쿠버네티스 업그레이드로 인한 일부 메트릭 변경 되었습니다. 수정된 다음 대쉬보드를 임포트하면 정상적으로 보입니다.
+        * [Kubernetes Cluster (Prometheus) - OKE](https://raw.githubusercontent.com/TheKoguryo/grafana-dashboard/main/mushop/kubernetes-cluster-prometheus-oke.json)
+        * [Kubernetes Pods (Prometheus) - OKE](https://raw.githubusercontent.com/TheKoguryo/grafana-dashboard/main/mushop/kubernetes-pods-prometheus-oke.json)
+        * [Spring Boot Statistics - OKE](https://raw.githubusercontent.com/TheKoguryo/grafana-dashboard/main/mushop/spring-boot-statistics-oke.json)
 
 
 ## **Task 3**: Autoscaling

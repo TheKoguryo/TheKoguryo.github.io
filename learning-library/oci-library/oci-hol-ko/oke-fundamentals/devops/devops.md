@@ -17,6 +17,10 @@
 
 * Git CLI
 
+### 실습 비디오
+
+[](youtube:opopae5xG20)
+
 
 ## **Task 1**: DevOps 서비스 사용을 위한 IAM Policy 설정
 
@@ -294,7 +298,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
       shell: bash
       env:
         variables:
-          appName: "spring-boot-hello"
+          appName: "mushop-storefront"
       
         exportedVariables:
           - APP_NAME
@@ -306,7 +310,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
           name: "Init exportedVariables"
           timeoutInSeconds: 4000
           command: |
-            APP_NAME=$appName   
+            APP_NAME=`grep '"name"' package.json | cut -d '"' -f 4 | head -n 1`
          
         - type: Command
           name: "Build Source"

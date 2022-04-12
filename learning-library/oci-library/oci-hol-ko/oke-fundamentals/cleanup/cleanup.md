@@ -98,20 +98,46 @@ Quick Create 모드로 VCN을 함께 만든 경우에 클러스터 삭제후에�
 
 ## **Task 6**: OCIR 정리
 
-1. **Developer Services** &lt; **Container Registry**로 이동하여, 개발한 마이크로 서비스 앱 및 DevOpS 서비스로 배포한 앱을 삭제합니다.
+1. **Developer Services** &gt; **Container Registry**로 이동하여, 개발한 마이크로 서비스 앱 및 DevOpS 서비스로 배포한 앱을 삭제합니다.
 
 ## **Task 7**: DevOps 프로젝트 삭제
 
-1. **Developer Services** &lt; **DevOps**로 이동합니다.
+1. **Developer Services** &gt; **DevOps**로 이동합니다.
 
 2. 만든 프로젝트로 이동합니다.
 
 3. 프로젝트를 삭제하기 전에 하위 자원들을 모두 삭제합니다.
 
-    - Build Pipeline의 모든 Stage를 아래 부터 삭제후 마지막으ㄹ Pipeline을 삭제합니다.
-    - Deployment Pipeline의 모든 Stage를 아래 부터 삭제후 마지막으ㄹ Pipeline을 삭제합니다.
+    - Build Pipeline의 모든 Stage를 아래 부터 삭제후 마지막으로 Pipeline을 삭제합니다.
+    - Deployment Pipeline의 모든 Stage를 아래 부터 삭제후 마지막으로 Pipeline을 삭제합니다.
     - Enviroment, Artifact, Trigger, Code Repository를 모두 삭제합니다.
     - DevOps 프로젝트를 삭제합니다.
+
+## **Task 8**: Log 자원 삭제
+
+1. **Observability & Management** &gt; **Agent Configurations**로 이동합니다.
+
+2. oci-hol 내에 만든 agent-config를 삭제합니다.
+
+3. **Logs**로 이동합니다.
+
+4. oci-hol 컴파트먼트내 만든 모든 Log Group내의 Custom Log를 삭제합니다.
+
+5. **Log Groups**로 이동합니다.
+
+6. oci-hol 컴파트먼트내 기본으로 있는 _Audit 이외에 만든 로그 그룹을 삭제합니다.
+
+7. **Developer Services** &gt; **Application Integration** &gt; **Notifications**로 이동합니다.
+
+8. oci-hol 컴파트먼트내 만든 DevOps용 토픽을 삭제합니다.
+
+## **Task 9**: IAM 자원 삭제
+
+    - 앞서 만든 Policy(DevOps Policy, Logging Policy)를 삭제합니다.
+    - 앞서 만든 Dynamic Group을 삭제합니다.
+    - 사용한 컴파트먼트가 더 이상 필요하지 않은 경우 삭제합니다.
+
+
 
 ## Acknowledgements
 

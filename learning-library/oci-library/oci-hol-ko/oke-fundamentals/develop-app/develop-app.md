@@ -410,6 +410,15 @@
     {"id":1,"content":"Hello, World!"}    
     ````
 
+5. 테스트가 끝나면 자원을 정리합니다.
+
+    ````
+    <copy>
+    kubectl delete deploy spring-boot-greeting-deployment
+    kubectl delete svc spring-boot-greeting-service
+    </copy>
+    ````
+
 이제 **다음 실습을 진행**하시면 됩니다.
 
 ## Learn More

@@ -172,6 +172,14 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     {"id":1,"content":"Hello, World!"}
     ````
 
+4. 테스트가 끝나면 자원을 정리합니다.
+
+    ````
+    <copy>
+    helm delete mychart --namespace default
+    </copy>
+    ````
+
 이제 **다음 실습을 진행**하시면 됩니다.
 
 ## Learn More

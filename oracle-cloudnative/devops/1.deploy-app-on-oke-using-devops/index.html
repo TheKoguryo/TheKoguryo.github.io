@@ -75,15 +75,19 @@
 <p>복사해둔 Compartment OCID를 이용해 필요한 Dynamic Group을 만듭니다.</p>
 <ul>
 <li>
-<p>DeployDynamicGroup</p>
+<p>CoderepoDynamicGroup</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALL <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsrepository&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
 </code></pre></div></li>
 <li>
-<p>CoderepoDynamicGroup</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALL <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsbuildpipeline&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
+<p>ConnectionDynamicGroup</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALL <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsconnection&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
 </code></pre></div></li>
 <li>
 <p>BuildDynamicGroup</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ALL <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsbuildpipeline&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
+</code></pre></div></li>
+<li>
+<p>DeployDynamicGroup</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">All <span class="o">{</span>resource.type <span class="o">=</span> <span class="s1">&#39;devopsdeploypipeline&#39;</span>, resource.compartment.id <span class="o">=</span> <span class="s1">&#39;&lt;YourCompartmentOCID&gt;&#39;</span><span class="o">}</span>
 </code></pre></div></li>
 </ul>
@@ -114,9 +118,12 @@ Allow dynamic-group BuildDynamicGroup to use ons-topics in compartment &lt;YourC
 <ul>
 <li>Name: 예, DevOps-root-policy</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group CoderepoDynamicGroup to manage all-resources in tenancy
-Allow dynamic-group CoderepoDynamicGroup to <span class="nb">read</span> secret-family in tenancy
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group ConnectionDynamicGroup to <span class="nb">read</span> secret-family in tenancy
 Allow dynamic-group DeployDynamicGroup to manage all-resources in tenancy
+Allow dynamic-group BuildDynamicGroup to inspect repos in tenancy
+Allow dynamic-group BuildDynamicGroup to use repos in tenancy
+</code></pre></div><p>OCIR에 Repository를 Push하기 전에 미리 생성하지 않으면 기본적으로 Root Compartment에 이미지가 Push됩니다. 이때 권한으로 에러가 발생하며, Root Compartment에도 허용하고자 하면 다음을 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group BuildDynamicGroup to manage repos in tenancy
 </code></pre></div></li>
 </ol>
 <h2 id="devops-서비스를-통한-cicd-배포-자동화-하기">DevOps 서비스를 통한 CI/CD 배포 자동화 하기</h2>
@@ -552,11 +559,9 @@ git push
 </span><span class="w"></span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">6000</span><span class="w">
 </span><span class="w"></span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">bash</span><span class="w">
 </span><span class="w"></span><span class="nt">env</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="c"># these are local variables to the build config</span><span class="w">
 </span><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span><span class="nt">appName</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;spring-boot-hello&#34;</span><span class="w">
 </span><span class="w">
-</span><span class="w">  </span><span class="c"># exportedVariables are made available to use as parameters in sucessor Build Pipeline stages</span><span class="w">
 </span><span class="w">  </span><span class="nt">exportedVariables</span><span class="p">:</span><span class="w">
 </span><span class="w">    </span>- <span class="l">APP_NAME</span><span class="w">
 </span><span class="w">    </span>- <span class="l">OCIR_PATH</span><span class="w">
@@ -567,19 +572,22 @@ git push
 </span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Init exportedVariables&#34;</span><span class="w">
 </span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
 </span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      </span><span class="w">      </span><span class="l">APP_NAME=$appName   </span><span class="w">
+</span><span class="sd">      APP_NAME=$appName
+</span><span class="sd">      echo $APP_NAME</span><span class="w">      
 </span><span class="w">
 </span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
 </span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source&#34;</span><span class="w">
 </span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
 </span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      </span><span class="w">      </span><span class="l">mvn clean install</span><span class="w">
+</span><span class="sd">      echo &#34;build&#34;
+</span><span class="sd">      mvn clean install</span><span class="w">      
 </span><span class="w">
 </span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
 </span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">400</span><span class="w">
 </span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source - Post&#34;</span><span class="w">
 </span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      </span><span class="w">      </span><span class="l">mkdir -p target/dependency &amp;&amp; (cd target/dependency; jar -xf ../*.jar)</span><span class="w">
+</span><span class="sd">      echo &#34;add dependency&#34;
+</span><span class="sd">      mkdir -p target/dependency &amp;&amp; (cd target/dependency; jar -xf ../*.jar)</span><span class="w">      
 </span><span class="w">
 </span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
 </span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Define Image Tag - Commit ID&#34;</span><span class="w">
@@ -971,7 +979,7 @@ git push
 <p>앞서 만든 Build Pipeline에서 컨테이너 이미지 까지 OCIR에 등록하고 나면, OKE에 배포할 Deployment Pipeline을 기동되어야 전체 빌드에서 배포까지가 완료됩니다. 이제 Deployment Pipeline을 등록하였으므로, Build Pipeline에서 호출할 수 있습니다.</p>
 <ol>
 <li>
-<p>앞서 만든 **Build Pipelines(spring-boot-hello-build-pipeline)**으로 이동합니다.</p>
+<p>앞서 만든 <strong>Build Pipelines</strong>(<strong>spring-boot-hello-build-pipeline</strong>)으로 이동합니다.</p>
 </li>
 <li>
 <p>파이프라인 마지막에 Stage를 추가합니다.</p>

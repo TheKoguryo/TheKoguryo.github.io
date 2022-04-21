@@ -1,4 +1,4 @@
-# Deploy the App as Helm Chart
+# Create a Helm Chart
 
 ## Introduction
 

@@ -608,7 +608,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     </copy>
     ````
 
-### Kubernetes Enviroment 등록하기
+### Kubernetes Environment 등록하기
 
 1. **DevOps 프로젝트 페이지**로 이동하여 왼쪽 메뉴의 **Enviroments**로 이동하여 배포할 OKE 환경을 등록합니다.
 
@@ -618,7 +618,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 3. 배포할 클러스터를 선택합니다.
 
-   ![](images/oke-enviroment.png =50%x*)
+   ![Target OKE Cluster](images/oke-environment.png =50%x*)
 
    
 ### Kubernetes manifest 배포 Stage 만들기

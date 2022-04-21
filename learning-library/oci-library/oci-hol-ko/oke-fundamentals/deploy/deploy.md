@@ -30,7 +30,7 @@ MuShop 애플리케이션 배포 방식으로 Manual 배포(Docker, Kubernetes m
 [](youtube:n95aHQck0gA)
 
 
-## **Task 1**: MuShop 소스코드 내려받기
+## Task 1: MuShop 소스코드 내려받기
 
 1. Cloud Shell에서 다음 명령어로 MuShop 소스코드를 다운로드 받습니다.
 
@@ -119,7 +119,7 @@ MuShop 애플리케이션 배포 방식으로 Manual 배포(Docker, Kubernetes m
     ````
 
 
-## **Task 2**: Helm으로 애플리케이션 배포를 Cluster 셋업
+## Task 2: Helm으로 애플리케이션 배포를 Cluster 셋업
 
 MuShop 애플리케이션에서 제공하는 Helm Chart는 쿠버네티스 클러스터상에 다음과 같은 추가 서드 파티 애플리케이션도 함께 설치합니다. 아래의 애플리케이션들은 OCI와 연계되거나, 애플리케이션의 특정 기능을 활성화 해줍니다. 옵션을 통해 기능 활성화할 수 있으며, 여기서는 기본으로 설치되는 것만 사용하겠습니다.
 
@@ -186,7 +186,7 @@ MuShop 애플리케이션에서 제공하는 Helm Chart는 쿠버네티스 클�
     ````
 
 
-## **Task 3**: Ingress IP 주소 확인
+## Task 3: Ingress IP 주소 확인
 
 1. mushop-utilities에 배포된 전체 애플리케이션 확인:
 
@@ -228,7 +228,7 @@ MuShop 애플리케이션에서 제공하는 Helm Chart는 쿠버네티스 클�
     mushop-utils-ingress-nginx-controller   LoadBalancer   10.96.194.130   129.154.57.34   80:30056/TCP,443:31381/TCP   2m18s
     ````
 
-## **Task 4**: Helm을 사용하여 MuShop 애플리케이션 배포
+## Task 4: Helm을 사용하여 MuShop 애플리케이션 배포
 
 helm이 구성 가능한 차트를 패키징하고 배포하는 방법을 제공한다는 것을 앞서 알아 봤습니다. 이제 MuShop 애플리케이션을 **Mock Mode**로 배포하겠습니다.클라우드 서비스와 연동하도록 애플리케이션은 준비되어 있지만, 여기서는 MuShop 애플리케이션에 집중하기 위해 애플리케이션에서 클라우드 서비스를 목업 모드로 처리하도록 하겠습니다.
 
@@ -263,7 +263,7 @@ helm이 구성 가능한 차트를 패키징하고 배포하는 방법을 제공
     ![MuShop Storefront](images/mushop-storefront.png)
 
 
-## **Task 5**: 배포된 앱 확인하기
+## Task 5: 배포된 앱 확인하기
 
 다음은 가장 많이 사용되는 kubectl 실행 명령입니다:
 

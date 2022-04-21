@@ -20,7 +20,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 [](youtube:XMkLtydlc3Y)
 
 
-## **Task 1**: OKE Metrics 보기
+## Task 1: OKE Metrics 보기
 
 1. *OKE Cluster Metrics:* **Developer Services &gt; Kubernetes Clusters &gt; <클러스터 이름>** 로 이동
 
@@ -56,7 +56,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
     ![OKE Worker Node Metric](images/node-metric.png)
 
 
-## **Task 2**: OSS Grafana 모니터링
+## Task 2: OSS Grafana 모니터링
 
 Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였습니다. OKE에 설치된 Grafana 대시보드에 접속해 보겠습니다.
 
@@ -133,7 +133,7 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
         * [Spring Boot Statistics - OKE](https://raw.githubusercontent.com/TheKoguryo/grafana-dashboard/main/mushop/spring-boot-statistics-oke.json)
 
 
-## **Task 3**: Autoscaling
+## Task 3: Autoscaling
 
 Deployment를 스케일아웃하면 새 Pod가 생성되고 사용 가능한 자원이 있는 노드에 스케쥴되어 배치되어 변경된 갯수로 Pod의 갯수로 조정되게 됩니다. Kubernetes는 수평, 수직 오토스케일링을 지원합니다. 자세한 설명은 [Horizontal Pod Autoscaling](https://kubernetes.io/docs/user-guide/horizontal-pod-autoscaling/)을 참조하세요.
 

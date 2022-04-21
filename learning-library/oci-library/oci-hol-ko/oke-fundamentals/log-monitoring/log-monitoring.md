@@ -19,7 +19,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 [](youtube:L3gRfDFpesk)
 
-## **Task 1**: OCI Logging 서비스
+## Task 1: OCI Logging 서비스
 
 ### Worker Node에 대한 Dynamic Group 만들기
 
@@ -153,7 +153,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
    ![Logging Search](images/oci-logging-search-2.png)
 
 
-## **Task 2**: OSS ElasticSearch/Kibana (Optional)
+## Task 2: OSS ElasticSearch/Kibana (Optional)
 
 ### 실습 비디오
 

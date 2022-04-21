@@ -17,7 +17,7 @@
 
 - Oracle Cloud Account
 
-## **Task 1**: 설치된 helm releases를 조회
+## Task 1: 설치된 helm releases를 조회
 
 1. **helm list** 명령어를 사용하여 설치된 Helm 차트를 모두 조회합니다.
 
@@ -36,7 +36,7 @@
     mushop-utils    mushop-utilities        1               2022-03-07 01:53:39.822426 +0000 UTC    deployed        mushop-setup-0.0.2      1.0
     ````
 
-## **Task 2**: MuShop App 정리
+## Task 2: MuShop App 정리
 
 1. mushop 이름으로 앱을 삭제합니다.
 
@@ -47,7 +47,7 @@
     </copy>
     ````
 
-## **Task 3**: MuShop 유틸리티 정리
+## Task 3: MuShop 유틸리티 정리
 
 1. mushop-utils 이름으로 앱을 삭제합니다.
 
@@ -60,7 +60,7 @@
 
     > *Note:* `helm delete` 명령으로 mushop-utils를 삭제하게 되면, Service Type도 함께 삭제되어 ingress controller가 사용하는 Oracle Cloud Infrastructure Load Balancer도 함께 Terminate 됩니다.
 
-## **Task 4**: 추가 설치 자원 정리
+## Task 4: 추가 설치 자원 정리
 
 1. elasticsearch 이름으로 앱을 삭제합니다.
 
@@ -81,7 +81,7 @@
 
 3. 마이크로 서비스 생성 실습을 진행한 경우 Load Balancer Type의 서비스를 사용하였습니다. 이를 먼저 삭제하지 않고 OKE 클러스터를 삭제하면 클러스터 삭제이후에도 Oracle Cloud Infrastructure Load Balancer는 남게 됩니다. 사전에 삭제합니다. `kubectl get svc -A` 명령으로 확인된 Load Balancer 형식 서비스를 모두 삭제합니다.
 
-## **Task 5**: OKE 클러스터 종료
+## Task 5: OKE 클러스터 종료
 
 1. OKE Cluster를 삭제합니다.
 
@@ -96,11 +96,11 @@
 Quick Create 모드로 VCN을 함께 만든 경우에 클러스터 삭제후에도 VCN은 여전히 그대로 남아 있습니다. Custom Create 모드로 설치한 경우에는 사용자가 만든 VCN을 사용하게 할수 있어 OKE 클러스터를 삭제한다고 해서 VCN을 자동으로함께 삭제할 수 없습니다.
 필요한 경우 직접 VCN을 삭제합니다.
 
-## **Task 6**: OCIR 정리
+## Task 6: OCIR 정리
 
 1. **Developer Services** &gt; **Container Registry**로 이동하여, 개발한 마이크로 서비스 앱 및 DevOpS 서비스로 배포한 앱을 삭제합니다.
 
-## **Task 7**: DevOps 프로젝트 삭제
+## Task 7: DevOps 프로젝트 삭제
 
 1. **Developer Services** &gt; **DevOps**로 이동합니다.
 
@@ -113,7 +113,7 @@ Quick Create 모드로 VCN을 함께 만든 경우에 클러스터 삭제후에�
     - Enviroment, Artifact, Trigger, Code Repository를 모두 삭제합니다.
     - DevOps 프로젝트를 삭제합니다.
 
-## **Task 8**: Log 자원 삭제
+## Task 8: Log 자원 삭제
 
 1. **Observability & Management** &gt; **Agent Configurations**로 이동합니다.
 
@@ -131,7 +131,7 @@ Quick Create 모드로 VCN을 함께 만든 경우에 클러스터 삭제후에�
 
 8. oci-hol 컴파트먼트내 만든 DevOps용 토픽을 삭제합니다.
 
-## **Task 9**: IAM 자원 삭제
+## Task 9: IAM 자원 삭제
 
     - 앞서 만든 Policy(DevOps Policy, Logging Policy)를 삭제합니다.
     - 앞서 만든 Dynamic Group을 삭제합니다.

@@ -22,7 +22,7 @@
 [](youtube:sF-9e6yHBHI)
 
 
-## **Task 1**: OCI 테넌시 로그인
+## Task 1: OCI 테넌시 로그인
 
    OCI 대시보드에 로그인하여 리소스 생성에 필요한 정보를 확인합니다.
 
@@ -31,7 +31,7 @@
   ![Landing Screen](images/landing-screen-2.png " ")
 
 
-## **Task 2**: 기본 OCI 인프라 설정
+## Task 2: 기본 OCI 인프라 설정
 
 1. 왼쪽 상단 의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Compartments** 을 선택합니다.
 
@@ -56,7 +56,7 @@
   ![CloudShell](images/cloudshell-2.png " ")
 
 
-## **Task 3**: OKE Kubernetes 클러스터 생성
+## Task 3: OKE Kubernetes 클러스터 생성
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Kubernetes Clusters (OKE)**를 선택 합니다.
 
@@ -83,7 +83,7 @@
 1. 일단 시작되면 클러스터가 완전히 프로비저닝되고 Active 상태로 표시하는 데 일반적으로 약 5-10분이 걸립니다.
 
 
-## **Task 4**: OKE Kubernetes 클러스터 접근을 위한 Cloud Shell 설정
+## Task 4: OKE Kubernetes 클러스터 접근을 위한 Cloud Shell 설정
 
 1. **Clusters** 목록에서 방금 생성한 클러스터를 선택한 다음 **Access Cluster** 버튼을 클릭합니다.
 

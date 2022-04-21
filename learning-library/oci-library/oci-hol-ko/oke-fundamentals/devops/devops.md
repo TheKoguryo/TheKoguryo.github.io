@@ -21,7 +21,7 @@
 
 [](youtube:2TJerSoBmTo)
 
-## **Task 1**: DevOps 서비스 사용을 위한 IAM Policy 설정
+## Task 1: DevOps 서비스 사용을 위한 IAM Policy 설정
 
 DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정이 필요합니다. 공식 문서를 참조하여 권한 설정을 위한 Dynamic Group 및 Group에 대한 Policy를 설정합니다.
 
@@ -120,7 +120,7 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
         ````
 
 
-## **Task 2**: DevOps 프로젝트 만들기
+## Task 2: DevOps 프로젝트 만들기
 
 ### Notification Topic 만들기
 
@@ -168,7 +168,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     ![Enable Log](images/devops-enable-log.png =70%x*)
 
 
-## **Task 3**: Code Repository를 사용하여 애플리케이션 코드 관리하기
+## Task 3: Code Repository를 사용하여 애플리케이션 코드 관리하기
 
 시각적 효과를 위해 MuShop Storefront UI앱을 기준으로 진행하겠습니다.
 
@@ -239,7 +239,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     ![MuShop Storefront Code Repository](images/mushop-storefront-code-repo.png)
 
 
-## **Task 4**: Build Pipeline 만들기
+## Task 4: Build Pipeline 만들기
 
 ### Build Pipeline 만들기
 
@@ -425,7 +425,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
 
 
-## **Task 5**: Deploy Pipeline 만들기
+## Task 5: Deploy Pipeline 만들기
 
 ### Deploy Pipeline 만들기
 

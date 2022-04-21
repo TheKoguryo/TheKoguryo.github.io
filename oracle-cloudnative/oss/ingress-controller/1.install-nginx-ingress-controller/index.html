@@ -3,7 +3,7 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>4.1.1 NGINX Ingress Controller 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
+<title>4.1.1 NGINX Ingress Controller 설치하기 - TheKoguryo&#39;s 기술 블로그</title>
 <meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">
@@ -31,22 +31,22 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">Version 2022.03.22</span>
+ <span class="version">Version 2022.04.21</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
 <nav>
 <ul>
 <li ><a href="/">Home</a></li>
-<li ><a href="/tags">Tag</a></li>
 <li ><a href="/release-notes">OCI Release Notes</a></li>
 <li ><a href="/archives">Archives</a></li>
+<li ><a href="/tags">Tag</a></li>
 <li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
 <li ><a href="/link">Link</a></li></ul>
 </nav>
 </div>
 <div class="content-container">
-<main><h1 id="411-nginx-ingress-controller-사용하기">4.1.1 NGINX Ingress Controller 사용하기</h1>
+<main><h1 id="411-nginx-ingress-controller-설치하기">4.1.1 NGINX Ingress Controller 설치하기</h1>
 <p>OKE에서 Kubernetes에서 사용가능한 여러가지 오픈 소스 ingress controller를 사용할 수 있습니다.  본 문서에서는 그중에서 가장 많이 사용되며, OKE 문서에서 예제로 설명하고 있는 nginx-ingress-controller를 테스트 해보겠습니다.</p>
 <ul>
 <li>
@@ -106,203 +106,17 @@ job.batch/ingress-nginx-admission-patch    1/1           2s         65s
 <ol>
 <li>
 <p>Ingress Controller 서비스의 로드밸런서 IP인 EXTERNAL-IP를 확인합니다.</p>
-<pre tabindex="0"><code>oke_admin@cloudshell:~ (ap-seoul-1)$ kubectl get svc -n ingress-nginx
-NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)                      AGE
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get svc -n ingress-nginx
+NAME                                 TYPE           CLUSTER-IP     EXTERNAL-IP       PORT<span class="o">(</span>S<span class="o">)</span>                      AGE
 ingress-nginx-controller             LoadBalancer   10.96.212.64   132.226.225.240   80:31975/TCP,443:31756/TCP   5m31s
-</code></pre></li>
-</ol>
-<h2 id="path-기반-기본-라우팅-테스트">PATH 기반 기본 라우팅 테스트</h2>
-<p>가장 기본적인 라우팅으로 URL PATH에 따라 라우팅 서비스를 달리하는 경우입니다.</p>
-<ol>
-<li>
-<p>테스트를 위한 샘플 앱을 배포합니다.</p>
-<p>배경 색깔이 다른 두개의 웹페이지를 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create deployment nginx-blue --image<span class="o">=</span>thekoguryo/nginx-hello:blue
-kubectl expose deployment nginx-blue --name nginx-blue-svc --port <span class="m">80</span>
-kubectl create deployment nginx-green --image<span class="o">=</span>thekoguryo/nginx-hello:green
-kubectl expose deployment nginx-green --name nginx-green-svc --port <span class="m">80</span>
 </code></pre></div></li>
-<li>
-<p>ingress 설정 YAML(<code>path-basic.yaml</code>)을 작성합니다.</p>
-<ul>
-<li>/blue 요청은 nginx-blue-svc 로 라우팅</li>
-<li>/green 요청은 nginx-green-svc로 라우팅</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-path-basic</span><span class="w">
-</span><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/blue</span><span class="w">
-</span><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
-</span><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
-</span><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-blue-svc</span><span class="w">
-</span><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/green</span><span class="w">
-</span><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
-</span><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
-</span><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-green-svc</span><span class="w">
-</span><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span></code></pre></div></li>
-<li>
-<p>작성한 <code>path-basic.yaml</code>을 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f path-basic.yaml 
-ingress.networking.k8s.io/ingress-path-basic created
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get ingress
-NAME                 CLASS    HOSTS   ADDRESS           PORTS   AGE
-ingress-path-basic   &lt;none&gt;   *       132.226.225.240   <span class="m">80</span>      49s
-</code></pre></div></li>
-<li>
-<p>앞서 확인한 ingress controller의 EXTERNAL IP로 접속하여 결과를 확인합니다.</p>
-<ul>
-<li>
-<p>/blue 요청</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211206164120654.png" alt='image-20211206164120654' onerror="this.onerror=null;this.src='images\/image-20211206164120654.png';" />
-</p>
-</li>
-<li>
-<p>/green 요청</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211206164138996.png" alt='image-20211206164138996' onerror="this.onerror=null;this.src='images\/image-20211206164138996.png';" />
-</p>
-</li>
-<li>
-<p>POD 정보 확인</p>
-<p>정의한 PATH에 따라 각각 blue, green 앱이 배포된 POD로 라우팅 된 것을 웹페이지 배경색 및 POD IP로 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
-NAME                           READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
-nginx-blue-6fccd8fb49-q6qph    1/1     Running   <span class="m">0</span>          13m   10.244.0.138   10.0.10.139   &lt;none&gt;           &lt;none&gt;
-nginx-green-7f646c5c7f-snpxf   1/1     Running   <span class="m">0</span>          13m   10.244.0.5     10.0.10.84    &lt;none&gt;           &lt;none&gt;
-</code></pre></div></li>
-</ul>
-</li>
-</ol>
-<h2 id="rewrite-target">Rewrite Target</h2>
-<p>URL PATH 라우팅 결과를 보면 /blue, /green의 Path가 최종 라우팅 되어 실행되는 앱으로 그대로 전달되는 것을 알 수 있습니다. ingress controller에서 라우팅을 위해서만 사용하고, 실제 앱의 동작을 위해는 수정이 필요한 경우에 사용합니다.</p>
-<ul>
-<li><a href="https://kubernetes.github.io/ingress-nginx/examples/rewrite/">https://kubernetes.github.io/ingress-nginx/examples/rewrite/</a></li>
-</ul>
-<ol>
-<li>
-<p>ingress 설정 YAML(<code>path-rewrite-target.yaml</code>)을 작성합니다.</p>
-<ul>
-<li>path: /blue -&gt; /blue(/|$)(.*) 로 변경</li>
-<li>annotation 추가: nginx.ingress.kubernetes.io/rewrite-target: /$2</li>
-<li>예시
-<ul>
-<li>~~/blue -&gt; ~~/ 로 앱으로 전달</li>
-<li>~~/blue/abc -&gt; ~~/abc 로 앱으로 전달</li>
-</ul>
-</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-path-rewrite-target</span><span class="w">
-</span><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
-</span><span class="w">    </span><span class="nt">nginx.ingress.kubernetes.io/rewrite-target</span><span class="p">:</span><span class="w"> </span><span class="l">/$2</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/blue(/|$)(.*)</span><span class="w">
-</span><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
-</span><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
-</span><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-blue-svc</span><span class="w">
-</span><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/green(/|$)(.*)</span><span class="w">
-</span><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
-</span><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
-</span><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-green-svc</span><span class="w">
-</span><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span></code></pre></div></li>
-<li>
-<p>앞선 <code>path-basic.yaml</code>를 삭제하고 <code>path-rewrite-target.yaml</code>를 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl delete -f path-basic.yaml 
-ingress.networking.k8s.io <span class="s2">&#34;ingress-path-basic&#34;</span> deleted
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f path-rewrite-target.yaml 
-ingress.networking.k8s.io/ingress-path-rewrite-target created
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get ingress
-NAME                          CLASS    HOSTS   ADDRESS           PORTS   AGE
-ingress-path-rewrite-target   &lt;none&gt;   *       132.226.225.240   <span class="m">80</span>      43s
-</code></pre></div></li>
-<li>
-<p>앞서 확인한 ingress controller의 EXTERNAL IP로 접속하여 결과를 확인합니다.</p>
-<ul>
-<li>
-<p>~~/blue 요청</p>
-<ul>
-<li>라우팅된 앱에서는 /blue가 빠지고 /로만 수신됨</li>
-</ul>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211207115428971.png" alt='image-20211207115428971' onerror="this.onerror=null;this.src='images\/image-20211207115428971.png';" />
-</p>
-</li>
-<li>
-<p>~~/blue/abc 요청</p>
-<ul>
-<li>라우팅된 앱에서는 /blue가 빠지고 /abc로만 수신됨</li>
-</ul>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211207115512042.png" alt='image-20211207115512042' onerror="this.onerror=null;this.src='images\/image-20211207115512042.png';" />
-</p>
-</li>
-</ul>
-</li>
 </ol>
 <br>
 <br>
 <em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
 
  <div class="edit-meta">Last updated on 5 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/" title="4.1 Ingress Controller"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 4.1 Ingress Controller</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/" title="4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)">Next - 4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS) <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/" title="4.1.2 NGINX Ingress Controller에서 PATH 기반 라우팅">Next - 4.1.2 NGINX Ingress Controller에서 PATH 기반 라우팅 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -1167,6 +981,8 @@ ingress-path-rewrite-target   &lt;none&gt;   *       132.226.225.240   <span cla
 <ul class=" hidden">
 
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">2.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/2.bluegreen-stragtegy/">2.2 DevOps 서비스의 Blue/Green 배포 전략으로 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">2.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 </ul>
   
 </li>
@@ -1238,9 +1054,10 @@ ingress-path-rewrite-target   &lt;none&gt;   *       132.226.225.240   <span cla
   
 <ul class="sub-menu">
 
-<li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 NGINX Ingress Controller에서 PATH 기반 라우팅</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.2 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.3 NGINX Ingress Controller에서 TLS termination</a></li>
 </ul>
   
 </li>

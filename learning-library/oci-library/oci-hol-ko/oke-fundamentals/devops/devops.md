@@ -377,7 +377,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
     실행 결과 화면에서 오른쪽 위쪽 점3개를 클릭하여 상세 화면으로 이동하면 Build Output에서 실행결과로 나온 변수값을 볼 수 있습니다. 이 변수들은 이후 Stage 또는 연결되어 호출된 Deployment Pipeline으로 전달되어 사용할 수 있게 됩니다.
 
-    ![](images/build-output.png =50%x*)
+    ![ExportVariables](images/build-output.png =50%x*)
 
 ### 컨테이너 이미지 OCIR 등록 Stage 만들기
 
@@ -629,11 +629,11 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 3. 배포할 환경 및 manifest 파일을 선택합니다
 
-    ![](images/deploy-to-oke-1.png)
+    ![Select Manifest](images/deploy-to-oke-1.png)
 
 4. 파이프라인 완성
 
-    ![](images/deploy-to-oke-2.png =30%x*)
+    ![Completed Pipeline](images/deploy-to-oke-2.png =30%x*)
 
 
 
@@ -649,7 +649,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 4. 설정한 Deployment Pipeline을 지정합니다.
 
-   ![](images/trigger-deployment-pipeline.png)
+   ![Deployment Pipeline](images/trigger-deployment-pipeline.png)
 
 5. 전체 흐름이 완료되었습니다.
 
@@ -670,7 +670,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     - **Source Code Repository**: OCI Code Repository, GitHub, GitLab 연동을 지원하며, 예제에서는 앞서 만든 OCI Code Repository상의 mushop-storefront-repo를 선택합니다.
     - **Actions**: 트리거링 되었을 때 호출하는 액션으로 작성한 빌드 파이프라인인 mushop-storefront-build-pipeline을 선택합니다.
  
-        ![](images/create-trigger.png =60%x*)
+        ![Create Trigger](images/create-trigger.png =60%x*)
 
 4. 설정이 완료되었습니다.
 
@@ -680,7 +680,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 2. MuShop 웹 화면에서 다음 오픈 시간을 변경하기 위해 Cloud Shell에서 다음 파일을 수정하고 반영합니다.
 
-    ![](images/opening-hours.png =50%x*)
+    ![Storefront UI](images/opening-hours.png =50%x*)
 
     src/templates/data/_data.pug 에서 openingHours 시간의 값을 원하시는 시간으로 변경합니다.
     ````
@@ -752,7 +752,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 8. 서비스 주소로 접속시 정상 동작을 확인할 수 있습니다.
  
-    ![](images/pipeline-test-5.png =50%x*)
+    ![Updated Storefront UI](images/pipeline-test-5.png =50%x*)
 
 
 이제 **다음 실습을 진행**하시면 됩니다.

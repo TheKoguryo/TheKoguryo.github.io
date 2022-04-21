@@ -1,4 +1,4 @@
-# Service Mesh
+# Use Service Mesh (Optional)
 
 ## Introduction
 

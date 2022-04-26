@@ -47,7 +47,7 @@
 
         ````
         <copy>
-        curl https://start.spring.io/starter.tgz -d baseDir=rest-service -d applicationName=rest-service -d artifactId=rest-service -d javaVersion=8 -d dependencies=web,actuator | tar -xzvf -
+        curl https://start.spring.io/starter.tgz -d baseDir=rest-service -d name=rest-service -d artifactId=rest-service -d javaVersion=8 -d dependencies=web,actuator | tar -xzvf -
         </copy>
         ````
 

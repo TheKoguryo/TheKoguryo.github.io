@@ -225,7 +225,7 @@ MuShop 애플리케이션에서 제공하는 Helm Chart는 쿠버네티스 클�
 
     ````shell
     NAME                                    TYPE           CLUSTER-IP      EXTERNAL-IP     PORT(S)                      AGE
-    mushop-utils-ingress-nginx-controller   LoadBalancer   10.96.194.130   129.154.57.34   80:30056/TCP,443:31381/TCP   2m18s
+    mushop-utils-ingress-nginx-controller   LoadBalancer   10.96.194.130   129.xxx.xxx.xxx   80:30056/TCP,443:31381/TCP   2m18s
     ````
 
 ## Task 4: Helm을 사용하여 MuShop 애플리케이션 배포

@@ -111,7 +111,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     ````
     NAME                                              TYPE           CLUSTER-IP      EXTERNAL-IP    PORT(S)                      AGE
     ...
-    mushop-utils-ingress-nginx-controller             LoadBalancer   10.96.153.161   138.2.118.95   80:30636/TCP,443:30140/TCP   6d22h
+    mushop-utils-ingress-nginx-controller             LoadBalancer   10.96.153.161   138.xxx.xxx.xxx   80:30636/TCP,443:30140/TCP   6d22h
     ...    
     ````
 
@@ -125,7 +125,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 1. 확인된 IP를 통해 이전에 배포된 MuShop 앱을 접속해 봅니다. 테스트를 위해 URL에 테스트용 값을 추가합니다. 예, ?customlogtest
 
-   - MuShop 앱 테스트 URL 한번만 접속할 경우 구간내에 Log Flush가 안될 수도 있으니 테스트를 위해 여러번 반복 접속합니다.
+    MuShop 앱 테스트 URL 한번만 접속할 경우 구간내에 Log Flush가 안될 수도 있으니 테스트를 위해 여러번 반복 접속합니다.
 
     ![MuShop Custom Log](images/mushop-custom-log.png)
 
@@ -146,11 +146,10 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 1. 검색된 로그 데이터를 확인할 수 있습니다.
 
-   - Log Agent를 통해 수집되는 주기가 있어 조회될때까지 5분 내외가 걸릴 수 있습니다.
-   - 앞서 MuShop 앱 테스트 URL 한번만 접속한 경우 구간내에 Log Flush가 안되어 계속 기다려도 로그 조회가 안될 수 있으니, 테스트 URL 여러번 반복 접속합니다.   
+    - Log Agent를 통해 수집되는 주기가 있어 조회될때까지 5분 내외가 걸릴 수 있습니다.
+    - 앞서 MuShop 앱 테스트 URL 한번만 접속한 경우 구간내에 Log Flush가 안되어 계속 기다려도 로그 조회가 안될 수 있으니, 테스트 URL 여러번 반복 접속합니다.   
 
-
-   ![Logging Search](images/oci-logging-search-2.png)
+    ![Logging Search](images/oci-logging-search-2.png)
 
 
 ## Task 2: OSS ElasticSearch/Kibana (Optional)
@@ -406,13 +405,13 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 1. 설치한 kibana을 웹 브라우저로 접속합니다. nginx ingress controller 로 지정한 주소로 접속합니다.
 
-    - 예, http://129.154.57.34/kibana
+    - 예, http://138.xxx.xxx.xxx/kibana
 
 2. 홈으로 이동합니다.
 
 3. 왼쪽 상단 **내비게이션 메뉴**에서 **Analytics** &gt; **Discover** 를 클릭합니다.
 
-    ![Kibana Dicover](images/kibana-discover.png)
+    ![Kibana Discover](images/kibana-discover.png)
 
 4. Create index pattern을 클릭합니다.
 
@@ -439,7 +438,7 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 
 9. 테스트를 위해 MuShop을 접속합니다.
 
-    - 예, http://129.154.57.34/?efk-test
+    - 예, http://138.xxx.xxx.xxx/?efk-test
 
 10. 로그 확인
 

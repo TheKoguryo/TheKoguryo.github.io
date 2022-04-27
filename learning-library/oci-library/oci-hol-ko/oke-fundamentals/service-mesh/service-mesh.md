@@ -212,7 +212,7 @@
 
     ````
     NAME                   TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)                                                                      AGE
-    istio-ingressgateway   LoadBalancer   10.96.38.45   138.2.117.124   15021:31918/TCP,80:31451/TCP,443:32368/TCP,31400:32514/TCP,15443:31424/TCP   27m    
+    istio-ingressgateway   LoadBalancer   10.96.38.45   138.xxx.xxx.xxx 15021:31918/TCP,80:31451/TCP,443:32368/TCP,31400:32514/TCP,15443:31424/TCP   27m    
     ````    
 
 6. 브라우저로 확인된 EXTERNAL-IP로 접속합니다.
@@ -228,8 +228,8 @@
     ````
     2022-03-10T07:58:52.847225Z     info    Readiness succeeded in 1.353523447s
     2022-03-10T07:58:52.847748Z     info    Envoy proxy is ready
-    [2022-03-10T08:01:06.859Z] "GET / HTTP/1.1" 200 - via_upstream - "-" 0 4780 1 1 "10.179.86.8,10.244.1.0" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36" "137068b0-3a6d-9e4b-91c4-9787a5af72e0" "138.2.117.124" "10.244.1.32:8080" inbound|8080|| 127.0.0.6:59333 10.244.1.32:8080 10.244.1.0:0 outbound_.80_._.mushop-storefront.mushop.svc.cluster.local default
-    [2022-03-10T08:01:07.070Z] "GET /styles/shop-583cb7afd2.css HTTP/1.1" 200 - via_upstream - "-" 0 4963 1 0 "10.179.86.8,10.244.1.0" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36" "75bd63de-4266-907d-b18f-1edbc754a437" "138.2.117.124" "10.244.1.32:8080" inbound|8080|| 127.0.0.6:59333 10.244.1.32:8080 10.244.1.0:0 outbound_.80_._.mushop-storefront.mushop.svc.cluster.local default
+    [2022-03-10T08:01:06.859Z] "GET / HTTP/1.1" 200 - via_upstream - "-" 0 4780 1 1 "10.179.86.8,10.244.1.0" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36" "137068b0-3a6d-9e4b-91c4-9787a5af72e0" "138.xxx.xxx.xxx" "10.244.1.32:8080" inbound|8080|| 127.0.0.6:59333 10.244.1.32:8080 10.244.1.0:0 outbound_.80_._.mushop-storefront.mushop.svc.cluster.local default
+    [2022-03-10T08:01:07.070Z] "GET /styles/shop-583cb7afd2.css HTTP/1.1" 200 - via_upstream - "-" 0 4963 1 0 "10.179.86.8,10.244.1.0" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36" "75bd63de-4266-907d-b18f-1edbc754a437" "138.xxx.xxx.xxx" "10.244.1.32:8080" inbound|8080|| 127.0.0.6:59333 10.244.1.32:8080 10.244.1.0:0 outbound_.80_._.mushop-storefront.mushop.svc.cluster.local default
     ...
     ````
 
@@ -326,7 +326,7 @@
     ````
 
     ````
-    kiali.138.2.117.124.nip.io
+    kiali.138.xxx.xxx.xxx.nip.io
     ````
 
 6. 테스트를 위해 MuShop 웹페이지에 접속하여 메뉴들을 클릭합니다. 앞서와 동일하게 istio-ingress gateway의 EXTERNAL-IP로 접속하면 됩니다.

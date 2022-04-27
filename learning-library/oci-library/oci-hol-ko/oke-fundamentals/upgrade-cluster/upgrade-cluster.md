@@ -160,10 +160,10 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
     evicting pod mushop/mushop-catalogue-c79d9464c-pfqnr
     ...
     evicting pod logging/elasticsearch-master-2
-    I0311 08:23:18.234938    1758 request.go:655] Throttling request took 1.13616577s, request: GET:https://138.2.126.142:6443/api/v1/namespaces/mushop/pods/mushop-storefront-5bb5cb4bc8-22h7l
+    I0311 08:23:18.234938    1758 request.go:655] Throttling request took 1.13616577s, request: GET:https://138.xxx.xxx.xxx:6443/api/v1/namespaces/mushop/pods/mushop-storefront-5bb5cb4bc8-22h7l
     pod/elasticsearch-coordinating-only-1 evicted
     ...
-    I0311 08:23:28.434935    1758 request.go:655] Throttling request took 1.992929428s, request: GET:https://138.2.126.142:6443/api/v1/namespaces/mushop/pods/mushop-nats-977d9d7df-qcg8r
+    I0311 08:23:28.434935    1758 request.go:655] Throttling request took 1.992929428s, request: GET:https://138.xxx.xxx.xxx:6443/api/v1/namespaces/mushop/pods/mushop-nats-977d9d7df-qcg8r
     pod/mushop-nats-977d9d7df-qcg8r evicted
     ...
     node/10.0.10.43 evicted

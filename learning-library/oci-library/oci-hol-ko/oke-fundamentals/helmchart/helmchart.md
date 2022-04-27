@@ -152,7 +152,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     
     NAME                                   TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)        AGE
     service/kubernetes                     ClusterIP      10.96.0.1      <none>            443/TCP        11h
-    service/mychart                        LoadBalancer   10.96.240.58   150.230.250.183   80:32651/TCP   79s
+    service/mychart                        LoadBalancer   10.96.240.58   150.xxx.xxx.xxx   80:32651/TCP   79s
     
     NAME                                              READY   UP-TO-DATE   AVAILABLE   AGE
     deployment.apps/mychart                           1/1     1            1           33s
@@ -164,7 +164,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
     ````
     <copy>
-    curl http://150.230.250.183/greeting; echo
+    curl http://150.xxx.xxx.xxx/greeting; echo
     </copy>
     ````
 

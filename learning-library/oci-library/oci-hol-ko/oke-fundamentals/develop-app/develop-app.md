@@ -29,31 +29,30 @@
 
 [Spring Initializr](https://start.spring.io)를 사용하여 기본 프로젝트 소스파일을 기반으로 개발을 하게 됩니다.
     
-1. Spring Initializr을 통해 프로젝트 파일을 만듭니다.
+1. (Option #1) [Spring Initializr](https://start.spring.io)를 사용하여 기본 프로젝트 소스파일을 만듭니다.
 
-    - 방법 1. [Spring Initializr](https://start.spring.io)를 사용하여 기본 프로젝트 소스파일을 만듭니다.
+    1) 아래 그림과 같이 프로젝트 정보를 입력하고 **Generate**를 클릭하여 소스파일을 생성합니다.
+    ![Spring Initializr](images/spring-initializr.png)
 
-        아래 그림과 같이 프로젝트 정보를 입력하고 **Generate**를 클릭하여 소스파일을 생성합니다.
-        ![Spring Initializr](images/spring-initializr.png)
+    2) 다운로드 받은 파일을 Cloud Shell에 업로드 합니다.
+    ![File Upload](images/cloud-shell-upload-1.png =30%x*)
 
-        다운로드 받은 파일을 Cloud Shell에 업로드 합니다.
-        ![File Upload](images/cloud-shell-upload-1.png =30%x*)     
-        ![File Upload](images/cloud-shell-upload-2.png =50%x*)        
+    ![File Upload](images/cloud-shell-upload-2.png =50%x*)        
 
-        Cloud Shell에서 업로드된 파일을 unzip으로 압축해제 합니다.
+    3) Cloud Shell에서 업로드된 파일을 unzip으로 압축해제 합니다.
 
 
-    - 방법 2. Spring Initializr를 브라우저 대신 아래 명령을 통해 Cloud Shell에서 바로 기본 프로젝트 소스파일을 만듭니다.
+2. (Option #2) Spring Initializr를 브라우저 대신 아래 명령을 통해 Cloud Shell에서 바로 기본 프로젝트 소스파일을 만듭니다.
 
-        ````
-        <copy>
-        curl https://start.spring.io/starter.tgz -d baseDir=rest-service -d name=rest-service -d artifactId=rest-service -d javaVersion=1.8 -d dependencies=web,actuator | tar -xzvf -
-        </copy>
-        ````
+    ````
+    <copy>
+    curl https://start.spring.io/starter.tgz -d baseDir=rest-service -d name=rest-service -d artifactId=rest-service -d javaVersion=1.8 -d dependencies=web,actuator | tar -xzvf -
+    </copy>
+    ````
 
-2. **rest-service** 폴더로 이동합니다.
+3. **rest-service** 폴더로 이동합니다.
 
-3. 요청에 대한 응답 메시지를 아래와 같은 JSON 메시지 응답하는 코드를 구현합니다.
+4. 요청에 대한 응답 메시지를 아래와 같은 JSON 메시지 응답하는 코드를 구현합니다.
 
     ````
     {
@@ -89,7 +88,7 @@
     </copy>
     ````
 
-4. /greeting URL로 HTTP Get 요청에 대한 처리 결과, 여기서는 응답 메시지 전달을 위한 RestController 코드를 src/main/java/com/example/restservice/GreetingController.java 위치에 작성합니다.
+5. /greeting URL로 HTTP Get 요청에 대한 처리 결과, 여기서는 응답 메시지 전달을 위한 RestController 코드를 src/main/java/com/example/restservice/GreetingController.java 위치에 작성합니다.
 
     ````
     <copy>
@@ -115,7 +114,7 @@
     </copy>
     ````
 
-5. Kubernetes에서는 컨테이너 기동후 준비시간(readiness), 헬스체크를(liveness)를 Spring Boot에 활성화하기 src/main/resources/application.properties 파일에 다음 설정을 추가합니다.
+6. Kubernetes에서는 컨테이너 기동후 준비시간(readiness), 헬스체크를(liveness)를 Spring Boot에 활성화하기 src/main/resources/application.properties 파일에 다음 설정을 추가합니다.
 
     ````
     <copy>    
@@ -123,7 +122,7 @@
     </copy>
     ````
 
-6. 실행을 위해 코드를 빌드합니다.
+7. 실행을 위해 코드를 빌드합니다.
 
     ````
     <copy>
@@ -131,7 +130,7 @@
     </copy>
     ````
 
-7. 빌드된 JAR 파일을 실행합니다.
+8. 빌드된 JAR 파일을 실행합니다.
 
     ````
     <copy>
@@ -162,9 +161,9 @@
     2022-03-07 00:28:00.327  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 4.615 seconds (JVM running for 5.413)    
     ````
 
-8. 테스트를 위해 브라우저 탭을 하나 더 열고 동일한 Oracle Cloud 계정으로 접속하여 Cloud Shell을 실행합니다.
+9. 테스트를 위해 브라우저 탭을 하나 더 열고 동일한 Oracle Cloud 계정으로 접속하여 Cloud Shell을 실행합니다.
 
-9. 두 번째 Cloud Shell에서 서비스를 테스트합니다.
+10. 두 번째 Cloud Shell에서 서비스를 테스트합니다.
 
     ````
     <copy>
@@ -177,7 +176,7 @@
     ````
 
 
-10. 첫 번째 Cloud Shell에서 실행되는 앱을 중지합니다.
+11. 첫 번째 Cloud Shell에서 실행되는 앱을 중지합니다.
 
 ## Task 2: Container Image 만들기
 
@@ -389,7 +388,7 @@
     
     NAME                                   TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)        AGE
     service/kubernetes                     ClusterIP      10.96.0.1      <none>            443/TCP        10h
-    service/spring-boot-greeting-service   LoadBalancer   10.96.75.242   150.230.251.137   80:32418/TCP   35s
+    service/spring-boot-greeting-service   LoadBalancer   10.96.75.242   150.xxx.xxx.xxx   80:32418/TCP   35s
     
     NAME                                              READY   UP-TO-DATE   AVAILABLE   AGE
     deployment.apps/spring-boot-greeting-deployment   1/1     1            1           35s
@@ -402,7 +401,7 @@
 
     ```
     <copy>
-    curl http://150.230.251.137/greeting; echo
+    curl http://150.xxx.xxx.xxx/greeting; echo
     </copy>
     ```
 

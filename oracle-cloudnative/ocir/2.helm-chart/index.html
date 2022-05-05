@@ -75,8 +75,7 @@ mv linux-amd64/helm ~/.local/bin/
 </ol>
 <h2 id="helm-chart-생성후-등록하기">Helm Chart 생성후 등록하기</h2>
 <h3 id="샘플-차트-만들기">샘플 차트 만들기</h3>
-<p><a href="https://helm.sh/docs/chart_template_guide/getting_started/">Helm Chart Template Guide</a> 예제를 따라 만든 샘플 차트를</p>
-<p>OCIR 등록 해봅니다.</p>
+<p><a href="https://helm.sh/docs/chart_template_guide/getting_started/">Helm Chart Template Guide</a> 예제를 따라 만든 샘플 차트를 OCIR 등록 해봅니다.</p>
 <ol>
 <li>
 <p>테스트를 위해 차트를 만듭니다.</p>
@@ -125,9 +124,9 @@ charts  Chart.yaml  mychart-0.1.0.tgz  templates  values.yaml
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ oci os ns get
 <span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnrlxx3w0wgq&#34;</span>
+  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnrlxxxxxxxx&#34;</span>
 <span class="o">}</span>
-oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm registry login -u cnrlxx3w0wgq/oke-admin ap-seoul-1.ocir.io
+oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm registry login -u <span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/oke-admin ap-seoul-1.ocir.io
 Password: 
 Login Succeeded
 </code></pre></div></li>
@@ -141,7 +140,7 @@ Login Succeeded
 </li>
 <li>mychart 예시</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm push ./mychart-0.1.0.tgz oci://ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm push ./mychart-0.1.0.tgz oci://ap-seoul-1.ocir.io/<span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/helm
 Pushed: ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm/mychart:0.1.0
 Digest: sha256:842486615ee4398001092a9b2f931320add0ecd13885e039427ce6f7926b493b
 </code></pre></div></li>
@@ -170,11 +169,11 @@ Digest: sha256:842486615ee4398001092a9b2f931320add0ecd13885e039427ce6f7926b493b
 </li>
 <li>
 <p>등록한 Chart로 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">helm install mychart oci://ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm/mychart --version 0.1.0
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">helm install mychart oci://ap-seoul-1.ocir.io/<span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/helm/mychart --version 0.1.0
 </code></pre></div></li>
 <li>
 <p>배포 예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm install mychart oci://ap-seoul-1.ocir.io/cnrlxx3w0wgq/helm/mychart --version 0.1.0 --set service.type<span class="o">=</span>LoadBalancer
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:mychart <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ helm install mychart oci://ap-seoul-1.ocir.io/<span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/helm/mychart --version 0.1.0 --set service.type<span class="o">=</span>LoadBalancer
 NAME: mychart
 LAST DEPLOYED: Fri Dec  <span class="m">3</span> 15:17:51 <span class="m">2021</span>
 NAMESPACE: default
@@ -192,7 +191,7 @@ pod/mychart-76677cc888-rl4v6   1/1     Running   <span class="m">0</span>       
 
 NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
 service/kubernetes   ClusterIP      10.96.0.1       &lt;none&gt;          443/TCP        32m
-service/mychart      LoadBalancer   10.96.198.136   146.56.152.14   80:30926/TCP   56s
+service/mychart      LoadBalancer   10.96.198.136   146.xxx.xxx.xxx 80:30926/TCP   56s
 
 NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/mychart   1/1     <span class="m">1</span>            <span class="m">1</span>           56s

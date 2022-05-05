@@ -1,4 +1,4 @@
-# Login to Oracle Cloud
+# Get Started
 
 ## Introduction
 

@@ -76,7 +76,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     ...
     ````
 
-    - templates/deployment.yaml에서 컨테이너의 포트, liveness, readiness의 체크 path를 변경합니다.
+    - mychart/templates/deployment.yaml에서 컨테이너의 포트(ports.containerPort), liveness, readiness의 체크 path(livenessProbe.httpGet.path, readinessProbe.httpGet.path)를 변경합니다.
     ````
           ...
           ports:

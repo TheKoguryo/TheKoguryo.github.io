@@ -177,12 +177,11 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     </copy>       
     ```
 
-3. 설정값 정의
+3. 배포 설정값 정의
  
-    Helm Chart를 설치시 설정가능한 파라미터 목록을 참고하여 변경하고자 하는 값을 입력합니다.
- 
-    - https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch/#parameters
-    - 아래 예시는 elasticsearch 내장 kibana를 함께 설치하고, kibana 접근 URL을 이전 장에서 설치한 nginx ingress controller를 사용하는 예시입니다.
+    ElasticSearch Helm Chart 배포시 사용할 values.yaml 파일을 만듭니다.
+    - 다음 values.yaml은 kibana를 함께 설치하고, kibana 접근 URL을 이전 장에서 설치한 nginx ingress controller를 사용하는 예시입니다.
+    - Lab 3에서 사용하던 values.yaml과 중복되지 않도록, 별도의 폴더에서 다음 명령을 실행합니다.
  
     ```yaml
     <copy>   
@@ -205,6 +204,9 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     EOF
     </copy>      
     ```
+
+    - 추가적인 사용자 설정이 필요한 경우, 대상 Chart에서 제공하는 파라미터를 참고하여 values.yaml을 작성할 수 있습니다.
+        * https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch/#parameters
 
 4. elasticsearch helm chart 설치
 
@@ -242,6 +244,14 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
     kubectl get pod -n logging --watch
     </copy>    
     ````
+
+8. 설정값이 잘못되어 재설치가 필요한 경우 다음 명령으로 먼저 삭제하고 재설치합니다.
+
+    ```
+    <copy>    
+    helm delete elasticsearch -n logging
+    </copy>
+    ```
 
 ### Fluentd 구성
 

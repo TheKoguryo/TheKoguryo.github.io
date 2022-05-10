@@ -246,7 +246,7 @@
 
     > ````<region-key or region-identifier>.ocir.io/<tenancy-namespace>/<repo-name>:<tag>````
 
-    - region-key: 지금은 Region Key, Region Identifier 둘다 지원하므로, 서울은 icn, ap-seoul-1, 춘천은 yny, ap-chuncheon-1을 쓰면 됩니다. 전체 주소 정보는 [OCIR Avaiable Endpoint](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability)에서 확인하세요.
+    - region-key: 지금은 Region Key, Region Identifier 둘다 지원하므로, 서울은 icn, ap-seoul-1, 춘천은 yny, ap-chuncheon-1을 쓰면 됩니다. 전체 주소 정보는 [OCIR Available Endpoint](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability)에서 확인하세요.
     - tenancy-namespace: OCI 콘솔 Tenancy 상세 정보에서 Object Storage Namespace로 확인하거나, Cloud Shell에서 **oci os ns get**으로 확인합니다.
     - repo-name: 이미지 이름, 경로가 있는 경우 경로를 포함한 이름
 
@@ -329,13 +329,12 @@
     </copy>
     ````
 
-2. 다음 YAML 파일을 이용해 OKE에 배포합니다. Load Balancer 사용도 함께 진행하기 위해 Service Type도 함께 배포합니다.
+2. 다음 YAML 파일을 이용해 OKE에 배포합니다. Load Balancer 사용도 함께 진행하기 위해 Service 자원도 함께 배포합니다.
 
-    image 주소는 각자 환경에 맞게 수정합니다.
+    - image 주소는 각자 환경에 맞게 수정하고 파일을 저장합니다. 예, 파일명: spring-boot-greeting.yaml
 
     ````
     <copy>
-    kubectl apply -f <<EOF -
     apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -370,11 +369,19 @@
           port: 80
           targetPort: 8080
       type: LoadBalancer
-    EOF
     </copy>
     ````
 
-3. kubectl get all 명령으로 배포된 자원을 확인합니다.
+3. 작성한 yaml 파일을 통해 개발한 Spring Boot 앱을 배포합니다.
+
+    ````
+    <copy>
+    kubectl apply -f spring-boot-greeting.yaml
+    </copy>
+    ````
+
+
+4. kubectl get all 명령으로 배포된 자원을 확인합니다.
 
     ````
     <copy>
@@ -397,7 +404,7 @@
     replicaset.apps/spring-boot-greeting-deployment-84c4865b98   1         1         1       35s
     ````
 
-4. Pod가 정상적으로 기동하였습니다. LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
+5. Pod가 정상적으로 기동하였습니다. LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
 
     ```
     <copy>
@@ -409,7 +416,7 @@
     {"id":1,"content":"Hello, World!"}    
     ````
 
-5. 테스트가 끝나면 자원을 정리합니다.
+6. 테스트가 끝나면 자원을 정리합니다.
 
     ````
     <copy>

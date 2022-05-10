@@ -36,7 +36,7 @@ MuShop 애플리케이션 배포 방식으로 Manual 배포(Docker, Kubernetes m
 
     ````shell
     <copy>
-    git clone https://github.com/oracle-quickstart/oci-cloudnative.git mushop
+    git clone https://github.com/TheKoguryo/oci-cloudnative.git mushop
     </copy>
     ````
 

@@ -70,9 +70,9 @@
 
    ![Quick Create Cluster](images/oke-create-cluster.png =50%x*)
 
-1. 원하는 이름(예, **cluster1**)을 입력하고 다른 값들은 기본값으로 유지합니다. *본 워크샵에서는 Kubernetes API 엔드포인트를 Private Endpoint로 선택하지 마십시오.* Private Endpoint를 선택하는 경우 kubectl 명령을 사용하기 위해서 Private IP로 접근이 가능한 bastion 서버가 필요하게 됩니다. 현재 Cloud Shell에서는 접근이 되지 않습니다.. (선택사항으로 Worker Node에 대해 Public IP를 부여하여 외부에서 접근하고자 하는 경우에 **Public Workers**를 선택할 수 있습니다. 필요한 경우 고급옵션에서 Worker Node에 SSH 접근시 필요한 Public Key를 입력합니다.) 필요한 경우 노드 수를 기본 3개에서 늘리거나, 줄입니다.
-      - 버전은 업그레이드 실습을 위해 최신 버전 하나 아래 버전을 선택합니다. 
-      - 2022년 3월 기준 지원버전은 1.19.15, 1.20.11, 1.21.5 입니다.
+1. 원하는 이름(예, **oke-cluster-1**)을 입력하고 다른 값들은 기본값으로 유지합니다. *본 워크샵에서는 Kubernetes API 엔드포인트를 Private Endpoint로 선택하지 마십시오.* Private Endpoint를 선택하는 경우 kubectl 명령을 사용하기 위해서 Private IP로 접근이 가능한 bastion 서버가 필요하게 됩니다. 현재 Cloud Shell에서는 접근이 되지 않습니다.. (선택사항으로 Worker Node에 대해 Public IP를 부여하여 외부에서 접근하고자 하는 경우에 **Public Workers**를 선택할 수 있습니다. 필요한 경우 고급옵션에서 Worker Node에 SSH 접근시 필요한 Public Key를 입력합니다.) 필요한 경우 노드 수를 기본 3개에서 늘리거나, 줄입니다.
+      > 이후 업그레이드 실습을 위해, 여기서는 최신 버전 하나 아래 버전을 선택합니다. 
+      작성일 기준, 여기서는 1.20.8을 설치하고, 이후 업그레이드 실습에서는 새 버전으로 1.20.11, 1.21.5 출시된 상황을 가정하고 있습니다.
 
    ![Cluster Details](images/oke-create-cluster-details.png " ")
 

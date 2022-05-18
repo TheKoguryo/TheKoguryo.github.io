@@ -93,7 +93,7 @@ OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 
     - 나머지 항목: 새롭게 생성할 Worker Node 정보를 입력합니다.
         - Shape: Node VM 유형
         - Number of nodes: 노드 수
-        - Placement Configuration: Node가 위치할 AD, Subnet
+        - Placement Configuration: Node가 위치할 AD, Subnet 선택(예, **oke-nodesubnet-~~**)
         - Add an SSH key: Node VM에 SSH 접속시 사용할 키의 Private Key    
 
         ![Add Node Pool](images/add-node-pool-2.png =40%x*)

@@ -77,7 +77,7 @@ Custom Log는 커스텀 애플리케이션에서 수집하는 로그에 매핑�
 
 Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니다.
 
-1. **Logging** &gt; **Agent Configurations** 메뉴로 이동하여 **Create agent log**를 클릭합니다.
+1. **Logging** &gt; **Agent Configurations** 메뉴로 이동하여 **Create agent config**를 클릭합니다.
 
 2. Name: 예) oke-cluster-1-agent-conf
 

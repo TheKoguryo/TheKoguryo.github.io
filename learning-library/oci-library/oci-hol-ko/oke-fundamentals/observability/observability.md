@@ -33,7 +33,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 3. 이러한 매트릭은 OCI Monitoring 콘솔(**Observability & Management > Monitoring**)에서 **oci_oke**라는 메트릭 네임스페이스를 통해서 볼 수 있습니다. OCI Monitoring 콘솔에서는 더 많은 메트릭을 제공하고 이를 통해 쿼리, 알람 등을 추가할 수 있습니다.
 
 
-4. *OKE Node Pool Metrics:* **Developer Services &gt; Kubernetes Clusters &gt; <클러스터 이름> &gt; Node Pools &lt; <노드풀 이름>** 로 이동
+4. *OKE Node Pool Metrics:* **Developer Services &gt; Kubernetes Clusters &gt; <클러스터 이름> &gt; Node Pools &gt; <노드풀 이름>** 로 이동
 
     다음의 노드풀 매트릭스 정보 확인:
 

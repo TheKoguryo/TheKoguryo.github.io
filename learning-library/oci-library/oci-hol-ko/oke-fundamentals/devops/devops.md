@@ -25,7 +25,8 @@
 
 DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정이 필요합니다. 공식 문서를 참조하여 권한 설정을 위한 Dynamic Group 및 Group에 대한 Policy를 설정합니다.
 
-- [DevOps IAM Policies](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_iampolicies.htm#policy-examples)
+- 참고
+    * [DevOps IAM Policies](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_iampolicies.htm#policy-examples)
 
 아래 Dynamic Group 및 Policy는 위 문서의 예제를 기준으로 작성한 내용으로 요구사항에 따라 일부 변경이 될 수 있습니다.
 
@@ -389,7 +390,9 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
 5. Container image 유형으로 Artifact 추가합니다.
 
-    - 이미지 경로: docker tag를 달때 사용하는 이미지 경로입니다. 직접 입력해도 되지만 여기서는 build-stage에서 넘어온 exportedVariable을 사용하여 `${OCIR_PATH}:${TAG}` 과 같이 입력합니다.
+    - 이미지 경로: docker tag를 달때 사용하는 이미지 경로입니다. 직접 입력해도 되지만 여기서는 build-stage에서 넘어온 exportedVariable을 사용합니다
+    - Name: `generated_image_with_tag`
+    - Image Path: `${OCIR_PATH}:${TAG}`
 
     ![Add Artifact](images/add-artifact-1.png)
 
@@ -461,7 +464,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
     ![Kubernetes Manifest Type](images/k8s-manifest-type.png)
 
-5. Kubernetes manifest 유형에는 Artifact Source로 2가지 유형을 제고합니다.
+5. Kubernetes manifest 유형에는 Artifact Source로 2가지 유형을 지원합니다.
 
     - Artifact Registry Repository: Container Registry로 OCIR을 제공하고 있듯시 Artifact Registry를 서비스로 제공하고 있습니다. 그곳에 있는 자원을 참조할 경우에 선택합니다.
     - Inline: 인라인은 현재 DevOps 프로젝트에 있는 여기 Artifact에 직접 입력하는 것을 말합니다.
@@ -622,6 +625,8 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 2. **Add Stage**를 클릭하여 **Apply manifest to your Kubernetes cluster** Stage를 추가합니다.
 
 3. 배포할 환경 및 manifest 파일을 선택합니다
+
+    - Name: 예, apply-manifest-to-oke-stage
 
     ![Select Manifest](images/deploy-to-oke-1.png)
 

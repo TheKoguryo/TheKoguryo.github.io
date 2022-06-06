@@ -255,20 +255,31 @@
     {
       "data": "axjowrxaexxx"
     }
+    winter@cloudshell:rest-service (ap-chuncheon-1)$ TENANCY_NAMESPACE=`oci os ns get --query 'data' --raw-output`
+    winter@cloudshell:rest-service (ap-chuncheon-1)$ echo $TENANCY_NAMESPACE 
+    axjowrxaexxx
     winter@cloudshell:rest-service (ap-chuncheon-1)$ echo $OCI_REGION 
     ap-chuncheon-1    
     ````
 
 2. OCIR 등록을 위해 기존 이미지에 추가로 태그를 답니다.
+    - Tenancy를 혼자 사용하는 경우
+        * OCI_REGION: *각자에 맞게 수정 필요*, 예시에서는 ap-chuncheon-1
+        * TENANCY_NAMESPACE: *각자에 맞게 수정 필요*, 예시에서는 axjowrxaexxx
+        * REPO_NAME: *각자에 맞게 수정 필요*, 예시에서는 spring-boot-greeting
+        * TAG: *각자에 맞게 수정 필요*, 예시에서는 1.0
+
 
     ````
     <copy>
-    docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
+    docker tag spring-boot-greeting:1.0 $OCI_REGION.ocir.io/$TENANCY_NAMESPACE/spring-boot-greeting:1.0
     </copy>    
-    ````
+    ```` 
 
-    동일한 이미지에 태그가 추가된 것을 알 수 있습니다.
+    - 실행예시, 동일한 이미지에 태그가 추가된 것을 알 수 있습니다.
+
     ````
+    winter@cloudshell:rest-service (ap-chuncheon-1)$ docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
     winter@cloudshell:rest-service (ap-chuncheon-1)$ docker images
     REPOSITORY                                                 TAG                 IMAGE ID            CREATED             SIZE
     ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting   1.0                 a80b8a33c501        6 minutes ago       124MB
@@ -277,20 +288,23 @@
     ````    
 
 3. OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.
-    - Username: ````<tenancy-namespace>/<user-name>```` 형식으로 user-name은 OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명을 사용합니다.
+    - Username: `<tenancy-namespace>/<user-name>` 형식으로 `<user-name>`은 OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명을 사용합니다. oracleidentitycloudservice/로 시작하는 경우 oracleidentitycloudservice/ 포함하여 보이는 전체가 유저명입니다.
     - Password: 사용자의 Auth Token을 사용합니다. **My Profile** > **Auth tokens** > **Generate token** 을 통해 생성합니다. Auth Token은 생성시점에만 확인이 가능하므로 복사해서 기록해 둡니다.
 
         ![Auth Token](images/auth-token-1.png =30%x*) 
-        ![Auth Token](images/auth-token-2.png =50%x*) 
-        ![Auth Token](images/auth-token-3.png =30%x*) 
+        ![Auth Token](images/auth-token-2.png =30%x*) 
+        ![Auth Token](images/auth-token-3.png =50%x*) 
 
-    아래와 같이 Docker CLI로 로그인합니다.
+    - 아래와 같이 Docker CLI로 로그인합니다.
+        * OCI_REGION: *각자에 맞게 수정 필요*, 예시에서는 ap-chuncheon-1
+        * TENANCY_NAMESPACE: *각자에 맞게 수정 필요*, 예시에서는 axjowrxaexxx
+        * USER_NAME: *각자에 맞게 수정 필요*, 예시에서는 winter
+
     ````
-    # IDCS 유저인 경우
-    docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/oracleidentitycloudservice/~~~
-    # OCI Native 유저인 경우
-    docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/~~~
+    docker login $OCI_REGION.ocir.io -u $TENANCY_NAMESPACE/$USER_NAME
     ````
+
+    - 실행예시
 
     ````
     winter@cloudshell:~ (ap-chuncheon-1)$ docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/winter
@@ -305,8 +319,14 @@
 4. OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.
     ````
     <copy>
+    docker push $OCI_REGION.ocir.io/$TENANCY_NAMESPACE/spring-boot-greeting:1.0
+    </copy>   
+    ````
+
+    - 실행예시
+
+    ````
     docker push ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
-    </copy>    
     ````
 
 5. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
@@ -331,7 +351,8 @@
 
 2. 다음 YAML 파일을 이용해 OKE에 배포합니다. Load Balancer 사용도 함께 진행하기 위해 Service 자원도 함께 배포합니다.
 
-    - image 주소는 각자 환경에 맞게 수정하고 파일을 저장합니다. 예, 파일명: spring-boot-greeting.yaml
+    - 배포 파일 생성합니다. 예, 파일명: spring-boot-greeting.yaml
+        * `IMAGE_REGISTRY_PATH`: *각자에 맞게 수정 필요*, 예시에서는 `ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0`
 
     ````
     <copy>
@@ -353,7 +374,7 @@
         spec:
           containers:
           - name: spring-boot-greeting
-            image: ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting:1.0
+            image: $IMAGE_REGISTRY_PATH
           imagePullSecrets:
           - name: ocir-secret
     ---

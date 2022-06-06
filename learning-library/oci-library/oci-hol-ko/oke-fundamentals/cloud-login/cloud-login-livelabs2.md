@@ -42,7 +42,7 @@ Oracle Account를 만드는 것은 다음 두 단계로 요약할 수 있습니�
 
 5. 처음 접속후 패스워드를 변경하면, 오라클 클라우드 콘솔에 로그인이 완료됩니다.
 
-5. Finally, open the lab instructions by choosing one of the two options.
+6. 이제, 워크샵 과정은 현재과 같이 또는 별도의 새로운 탭으로 열어서 볼 수 있습니다.
 
   ![Workshop Instructions](images/workshop-instructions.png " ")
 

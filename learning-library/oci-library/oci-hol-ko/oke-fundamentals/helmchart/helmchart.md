@@ -61,7 +61,8 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 4. 개발한 Spring Boot 앱을 위한 차트를 만들기 위해 일부 내용을 수정합니다.
 
-    - targetPort를 동적으로 받을 수 있게 mychart/templates/service.yaml 파일의 spec.ports.targetPort를 수정합니다.
+    - mychart/templates/service.yaml 파일을 수정합니다.
+        * spec.ports.targetPort을 http 포트가 아닌, 변수에서 가져올 수 있도록 변경합니다.
     ````
     ...
     spec:
@@ -76,7 +77,10 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     ...
     ````
 
-    - mychart/templates/deployment.yaml에서 컨테이너의 포트(ports.containerPort), liveness, readiness의 체크 path(livenessProbe.httpGet.path, readinessProbe.httpGet.path)를 변경합니다.
+    - mychart/templates/deployment.yaml 파일을 수정합니다.
+        * ports.containerPort: 기본 http 포트인 80 이 아닌, 변수에서 가져올 수 있도록 변경합니다.
+        * livenessProbe: httpGet.path를 /가 아닌, Spring Boot Actuator가 제공하는 경로로 변경합니다.
+        * readreadinessProbe: httpGet.path를 /가 아닌, Spring Boot Actuator가 제공하는 경로로 변경합니다.
     ````
           ...
           ports:
@@ -94,21 +98,22 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
           ...    
     ````
 
-    - mychart/values.yaml을 수정하여 차트의 변수 기본값을 변경합니다.
-        * 이미지를 OCIR에서 가져오게 image.repository, image.tag, imagePullSecrets을 변경합니다.
-        * service.targetPort를 8080으로 변경합니다.
+    - mychart/values.yaml 파일을 수정합니다. 차트 내의 여러 파일들에서 사용하는 변수의 기본값을 정의하는 파일입니다.
+        * image.repository: *각자에 맞게 수정 필요*, 이전 실습에서 OCIR로 Push한 이미지 주소로 변경, 예시에서는 ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting
+        * image.tag: *각자에 맞게 수정 필요*, 예시에서는 "1.0"
+        * imagePullSecrets.name: *각자에 맞게 수정 필요*, 예시에서는 ocir-secret
     ````
-    <copy>
     image:
-      repository: ap-chuncheon-1.ocir.io/axjowrxaexxx/spring-boot-greeting
+      repository: $IMAGE_REGISTRY_REPO
       pullPolicy: IfNotPresent
       # Overrides the image tag whose default is the chart appVersion.
       tag: "1.0"
 
     imagePullSecrets:
       - name: ocir-secret
-    </copy>      
+    nameOverride: ""      
     ````
+        * service.targetPort로 8080을 추가합니다. 이 값이 {{ .Values.service.targetPort }}에 해당하게 됩니다. 이전 실습에서 개발한 Spring Boot 앱의 포트가 8080이라 그에 맞게 입력한 사항입니다.
     ````
     ...
     <copy>    
@@ -116,6 +121,9 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
       type: ClusterIP
       port: 80
       targetPort: 8080
+    
+    ingress:
+    ...
     </copy>      
     ````
 
@@ -124,7 +132,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
 
 ## Task 2: Helm Chart로 OKE 클러스터에 배포하기
 
-1. 작성한 차트로 배포합니다. mychart/values.yaml에 있는 변수들은 아래와 같이 --set을 통해 배포시 변경할 수 있습니다.
+1. 작성한 차트로 배포합니다. mychart/values.yaml에 있는 변수값들을 이용해 기본적으로 배포되며, 필요시 아래와 같이 --set을 통해 배포시 변경할 수 있습니다. 앞서 ClusterIP 타입이였는데, 아래와 같이 LoadBalancer로 배포시 변경해 봅니다.
 
     ````
     <copy>
@@ -160,7 +168,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     NAME                                                         DESIRED   CURRENT   READY   AGE
     replicaset.apps/mychart-67958c5467                           1         1         1       33s
     ````
-3. Pod가 정상적으로 기동하였습니다. LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
+3. Pod가 정상적으로 기동하였습니다. service/mychart의 LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
 
     ````
     <copy>

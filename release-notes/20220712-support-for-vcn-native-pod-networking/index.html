@@ -3,10 +3,10 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Tags - TheKoguryo&#39;s 기술 블로그</title>
+<title>Support for VCN-native pod networking - TheKoguryo&#39;s 기술 블로그</title>
 <meta name="generator" content="Hugo 0.89.2" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
-<link rel="canonical" href="https://thekoguryo.github.io/tags/">
+<link rel="canonical" href="https://thekoguryo.github.io/release-notes/20220712-support-for-vcn-native-pod-networking/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
@@ -46,487 +46,567 @@
 </nav>
 </div>
 <div class="content-container">
-<main>
+<main><h1 id="support-for-vcn-native-pod-networking">Support for VCN-native pod networking</h1>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/releasenotes/changes/355e7815-bc51-4f0e-9334-b3530c3f84ed/">Release Notes - Support for VCN-native pod networking</a></li>
+<li><a href="https://blogs.oracle.com/cloud-infrastructure/post/announcing-vcn-native-pod-networking-for-kubernetes-in-oci">Blog - Announcing VCN-native pod networking for Kubernetes in OCI</a></li>
+</ul>
+<h2 id="업데이트-사항">업데이트 사항</h2>
+<p>OKE에서는 기존에 CNI로 flannel만 지원하였습니다. VCN내에 Pod를 위한 가상의 overlay 네트워크를 두는 방식입니다. 이제 VCN-Native Networking을 지원하여, Pod가 VCN Subnet을 직접 사용합니다.</p>
+<ul>
+<li>
+<p>OKE에서 제공하는 CNI 비교</p>
+<ul>
+<li>
+<p>출처 - <a href="https://blogs.oracle.com/cloud-infrastructure/post/announcing-vcn-native-pod-networking-for-kubernetes-in-oci">Blog - Announcing VCN-native pod networking for Kubernetes in OCI</a></p>
+</li>
+<li>
+<p>Flannel overlay networking</p>
+<p>
+
+<img class="img-fluid2" src="https://blogs.oracle.com/content/published/api/v1.1/assets/CONT94FDF8973EA4486AB65E88CA4DF72114/Medium?cb=_cache_3512&amp;format=jpg&amp;channelToken=f7814d202b7d468686f50574164024ec" alt='Flannel overlay networking' />
+</p>
+<ul>
+<li>flannel overlay 네트워크를 사용하면, 그림처럼 가상의 POD Network가 만들어지고, 생성되는 pod들은 해당 대역의 IP를 할당받습니다. 그리고 다른 Worker Node에 있는 pod와 통신하기 위해서는 왼쪽 아래와 같이 Worker Node IP로 감싸져서 대상 Worker Node로 전달후 대상 Pod IP로 전달됩니다.</li>
+</ul>
+</li>
+<li>
+<p>VCN-Native pod networking</p>
+<p>
+
+<img class="img-fluid2" src="https://blogs.oracle.com/content/published/api/v1.1/assets/CONT78BF0A5D337F41A887531F7969A18FDE/Medium?cb=_cache_3512&amp;format=jpg&amp;channelToken=f7814d202b7d468686f50574164024ec" alt='VCN-Native pod networking' />
+</p>
+<ul>
+<li>VCN-Native pod 네트워크를 사용하면, 그림처럼, 생성되는 pod들은 지정한 VCN상의 Subnet 상의 IP를 할당받습니다. 그리도 다른 Worker Node에 있는 pod와 통신하기 위해 VCN 네트워크를 직접사용합니다. 그래서 VCN상의 다른 VM에서도 해당 IP로 접근이 가능합니다. 또한 VCN 관련 네트워크 설정, 모니터링 툴을 그대로 사용 가능합니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="vcn-native-pod-networking">VCN-Native Pod Networking</h2>
+<h3 id="관련-네트워크-자원-만들기">관련 네트워크 자원 만들기</h3>
+<blockquote>
+<p>아래 설정은 Quick Create 모드에서 자동으로 생성되는 VCN 관련자원에서 추가되는 부분만 설명합니다.</p>
+</blockquote>
+<ol>
+<li>예시, CIDR Block
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Kubernetes API Endpoint</td>
+<td style="text-align:left">10.0.0.0/28</td>
+</tr>
+<tr>
+<td style="text-align:left">Worker Nodes</td>
+<td style="text-align:left">10.0.10.0/24</td>
+</tr>
+<tr>
+<td style="text-align:left">Load Balancers</td>
+<td style="text-align:left">10.0.20.0/24</td>
+</tr>
+<tr>
+<td style="text-align:left">Pods</td>
+<td style="text-align:left">10.0.40.0/24</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ol>
+<h4 id="security-rules-추가-및-만들기">Security Rules 추가 및 만들기</h4>
+<blockquote>
+<p>전체 필요한 보안 규칙은 공식 문서를 참조합니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengnetworkconfig.htm#securitylistconfig">https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengnetworkconfig.htm#securitylistconfig</a></li>
+</ul>
+</blockquote>
+<ol>
+<li>
+<p>Kubernetes API Endpoint의 기존 Security Rules에 추가 규칙</p>
+<ul>
+<li>
+<p>Ingress Rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Source</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">TCP/6443</td>
+<td style="text-align:left">Pod to Kubernetes API endpoint communication (when using VCN-native pod networking).</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">TCP/12250</td>
+<td style="text-align:left">Pod to Kubernetes API endpoint communication (when using VCN-native pod networking).</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Egress Rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Destination</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Kubernetes API endpoint to pod communication (when using VCN-native pod networking).</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Worker Nodes CIDR</td>
+<td style="text-align:left">TCP/12250</td>
+<td style="text-align:left">Kubernetes API endpoint to worker node communication (when using VCN-native pod networking).</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>Worker Nodes의 기존 Security Rules에 추가 규칙</p>
+<ul>
+<li>
+<p>Ingress Rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Source</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Allow pods on one worker node to communicate with pods on other worker nodes (when using VCN-native pod networking).</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Kubernetes API Endpoint CIDR</td>
+<td style="text-align:left">TCP/12250</td>
+<td style="text-align:left">Kubernetes API endpoint to worker node communication (when using VCN-native pod networking).</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Egress Rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Destination</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Allow worker nodes to communicate with pods on other worker nodes (when using VCN-native pod networking).</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+<li>
+<p>Pod 서브넷을 위한 Security Rule 신규 생성</p>
+<ul>
+<li>
+<p>Name: 예, oke-pods-seclist</p>
+</li>
+<li>
+<p>Ingress Rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Source</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Kubernetes API Endpoint CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Kubernetes API endpoint to pod communication (when using VCN-native pod networking).</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Worker Nodes CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Allow pods on one worker node to communicate with pods on other worker nodes.</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Allow pods to communicate with each other.</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Egress Rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Destination</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Pods CIDR</td>
+<td style="text-align:left">ALL/ALL</td>
+<td style="text-align:left">Allow pods to communicate with each other.</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">All <!-- raw HTML omitted --> Services in Oracle Services Network</td>
+<td style="text-align:left">ICMP 3,4</td>
+<td style="text-align:left">Path Discovery.</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">All <!-- raw HTML omitted --> Services in Oracle Services Network</td>
+<td style="text-align:left">TCP/ALL</td>
+<td style="text-align:left">Allow worker nodes to communicate with OCI services.</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Kubernetes API Endpoint CIDR</td>
+<td style="text-align:left">TCP/6443</td>
+<td style="text-align:left">Pod to Kubernetes API endpoint communication (when using VCN-native pod networking).</td>
+</tr>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">Kubernetes API Endpoint CIDR</td>
+<td style="text-align:left">TCP/12250</td>
+<td style="text-align:left">Pod to Kubernetes API endpoint communication (when using VCN-native pod networking).</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>optional egress rules</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">State</th>
+<th style="text-align:left">Destination</th>
+<th style="text-align:left">Protocol/Dest. Port</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Stateful</td>
+<td style="text-align:left">0.0.0.0/0</td>
+<td style="text-align:left">TCP/ALL</td>
+<td style="text-align:left">(optional) Allow worker nodes to communicate with internet.</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="pod-서브넷-만들기">Pod 서브넷 만들기</h4>
+<ol>
+<li>아래 정보를 기준으로 서브넷을 추가 생성합니다.
+<ul>
+<li>Name: oke-pods-subnet</li>
+<li>Subnet Type: Regional</li>
+<li>CIDR Block: 10.0.40.0/24</li>
+<li>Route Table: oke-private-routetable-~~~</li>
+<li>Subnet Access: Private Subnet</li>
+<li>Dhcp Options: default</li>
+<li>Security Lists: oke-pods-seclist</li>
+</ul>
+</li>
+</ol>
+<h3 id="oke-클러스터-만들기">OKE 클러스터 만들기</h3>
+<ol>
+<li>
+<p>오라클 클라우드 콘솔에서 OKE 클러스터 생성 메뉴로 이동합니다.</p>
+</li>
+<li>
+<p>Custom create 방식으로 클러스터를 만듭니다.</p>
+</li>
+<li>
+<p>Network setup</p>
+<ul>
+<li>Network Type에서 VCN-native pod networking을 선택합니다.</li>
+</ul>
+<p>
 
 
 
-    <div id="tag-cloud" style="width: 100%; height: 100%; border: 0px solid #ccc; margin: 20px;"></div>
-
-    <script>
-        var tag_words = [];
-        
-            
-            tag_words.push( {text: "ad", weight:  1 , link: "\/tags\/ad"} );
-            console.log("ad" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "alarm", weight:  1 , link: "\/tags\/alarm"} );
-            console.log("alarm" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "apache", weight:  2 , link: "\/tags\/apache"} );
-            console.log("apache" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "api-key", weight:  1 , link: "\/tags\/api-key"} );
-            console.log("api-key" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "api-public-key", weight:  1 , link: "\/tags\/api-public-key"} );
-            console.log("api-public-key" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "appdev", weight:  3 , link: "\/tags\/appdev"} );
-            console.log("appdev" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "archive", weight:  1 , link: "\/tags\/archive"} );
-            console.log("archive" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "autoscaling", weight:  3 , link: "\/tags\/autoscaling"} );
-            console.log("autoscaling" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "availibilty-domain", weight:  1 , link: "\/tags\/availibilty-domain"} );
-            console.log("availibilty-domain" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "backend", weight:  1 , link: "\/tags\/backend"} );
-            console.log("backend" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "backup", weight:  6 , link: "\/tags\/backup"} );
-            console.log("backup" + " : " +  6 );
-        
-            
-            tag_words.push( {text: "bare-metal", weight:  1 , link: "\/tags\/bare-metal"} );
-            console.log("bare-metal" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "bash", weight:  1 , link: "\/tags\/bash"} );
-            console.log("bash" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "block-volume", weight:  10 , link: "\/tags\/block-volume"} );
-            console.log("block-volume" + " : " +  10 );
-        
-            
-            tag_words.push( {text: "blue/green", weight:  1 , link: "\/tags\/blue\/green"} );
-            console.log("blue/green" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "boot-volume", weight:  3 , link: "\/tags\/boot-volume"} );
-            console.log("boot-volume" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "bucket", weight:  4 , link: "\/tags\/bucket"} );
-            console.log("bucket" + " : " +  4 );
-        
-            
-            tag_words.push( {text: "canary", weight:  1 , link: "\/tags\/canary"} );
-            console.log("canary" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "ci/cd", weight:  9 , link: "\/tags\/ci\/cd"} );
-            console.log("ci/cd" + " : " +  9 );
-        
-            
-            tag_words.push( {text: "cli", weight:  5 , link: "\/tags\/cli"} );
-            console.log("cli" + " : " +  5 );
-        
-            
-            tag_words.push( {text: "cloud-account", weight:  1 , link: "\/tags\/cloud-account"} );
-            console.log("cloud-account" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "cloud-init", weight:  1 , link: "\/tags\/cloud-init"} );
-            console.log("cloud-init" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "cloudberry", weight:  1 , link: "\/tags\/cloudberry"} );
-            console.log("cloudberry" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "compartment", weight:  2 , link: "\/tags\/compartment"} );
-            console.log("compartment" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "compute", weight:  1 , link: "\/tags\/compute"} );
-            console.log("compute" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "config", weight:  1 , link: "\/tags\/config"} );
-            console.log("config" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "container-engine-for-kubernetes", weight:  1 , link: "\/tags\/container-engine-for-kubernetes"} );
-            console.log("container-engine-for-kubernetes" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "container-registry", weight:  3 , link: "\/tags\/container-registry"} );
-            console.log("container-registry" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "copy", weight:  2 , link: "\/tags\/copy"} );
-            console.log("copy" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "csi", weight:  1 , link: "\/tags\/csi"} );
-            console.log("csi" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "custom-image", weight:  2 , link: "\/tags\/custom-image"} );
-            console.log("custom-image" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "devops", weight:  10 , link: "\/tags\/devops"} );
-            console.log("devops" + " : " +  10 );
-        
-            
-            tag_words.push( {text: "dns", weight:  1 , link: "\/tags\/dns"} );
-            console.log("dns" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "domain-name", weight:  1 , link: "\/tags\/domain-name"} );
-            console.log("domain-name" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "efk", weight:  1 , link: "\/tags\/efk"} );
-            console.log("efk" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "example", weight:  1 , link: "\/tags\/example"} );
-            console.log("example" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "export-option", weight:  1 , link: "\/tags\/export-option"} );
-            console.log("export-option" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "fault-domain", weight:  2 , link: "\/tags\/fault-domain"} );
-            console.log("fault-domain" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "file-storage", weight:  4 , link: "\/tags\/file-storage"} );
-            console.log("file-storage" + " : " +  4 );
-        
-            
-            tag_words.push( {text: "fn", weight:  3 , link: "\/tags\/fn"} );
-            console.log("fn" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "functions", weight:  3 , link: "\/tags\/functions"} );
-            console.log("functions" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "git", weight:  1 , link: "\/tags\/git"} );
-            console.log("git" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "graalvm", weight:  2 , link: "\/tags\/graalvm"} );
-            console.log("graalvm" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "grafana", weight:  3 , link: "\/tags\/grafana"} );
-            console.log("grafana" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "helm-chart", weight:  1 , link: "\/tags\/helm-chart"} );
-            console.log("helm-chart" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "image", weight:  3 , link: "\/tags\/image"} );
-            console.log("image" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "ingress-controller", weight:  5 , link: "\/tags\/ingress-controller"} );
-            console.log("ingress-controller" + " : " +  5 );
-        
-            
-            tag_words.push( {text: "insomnia", weight:  1 , link: "\/tags\/insomnia"} );
-            console.log("insomnia" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "istio", weight:  2 , link: "\/tags\/istio"} );
-            console.log("istio" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "key-pair", weight:  1 , link: "\/tags\/key-pair"} );
-            console.log("key-pair" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "lifecycle", weight:  1 , link: "\/tags\/lifecycle"} );
-            console.log("lifecycle" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "linux", weight:  4 , link: "\/tags\/linux"} );
-            console.log("linux" + " : " +  4 );
-        
-            
-            tag_words.push( {text: "load-balancer", weight:  6 , link: "\/tags\/load-balancer"} );
-            console.log("load-balancer" + " : " +  6 );
-        
-            
-            tag_words.push( {text: "logging", weight:  4 , link: "\/tags\/logging"} );
-            console.log("logging" + " : " +  4 );
-        
-            
-            tag_words.push( {text: "metric", weight:  1 , link: "\/tags\/metric"} );
-            console.log("metric" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "monitoring", weight:  6 , link: "\/tags\/monitoring"} );
-            console.log("monitoring" + " : " +  6 );
-        
-            
-            tag_words.push( {text: "mount", weight:  1 , link: "\/tags\/mount"} );
-            console.log("mount" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "multicluster", weight:  2 , link: "\/tags\/multicluster"} );
-            console.log("multicluster" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "node-pool", weight:  1 , link: "\/tags\/node-pool"} );
-            console.log("node-pool" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "object-storage", weight:  9 , link: "\/tags\/object-storage"} );
-            console.log("object-storage" + " : " +  9 );
-        
-            
-            tag_words.push( {text: "oci", weight:  1 , link: "\/tags\/oci"} );
-            console.log("oci" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oci-account", weight:  1 , link: "\/tags\/oci-account"} );
-            console.log("oci-account" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oci-console", weight:  2 , link: "\/tags\/oci-console"} );
-            console.log("oci-console" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "oci-group", weight:  1 , link: "\/tags\/oci-group"} );
-            console.log("oci-group" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oci-logging", weight:  1 , link: "\/tags\/oci-logging"} );
-            console.log("oci-logging" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oci-opensearch", weight:  1 , link: "\/tags\/oci-opensearch"} );
-            console.log("oci-opensearch" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oci-provider", weight:  1 , link: "\/tags\/oci-provider"} );
-            console.log("oci-provider" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oci-user", weight:  3 , link: "\/tags\/oci-user"} );
-            console.log("oci-user" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "oke", weight:  32 , link: "\/tags\/oke"} );
-            console.log("oke" + " : " +  32 );
-        
-            
-            tag_words.push( {text: "oke-image", weight:  1 , link: "\/tags\/oke-image"} );
-            console.log("oke-image" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "opensearch", weight:  2 , link: "\/tags\/opensearch"} );
-            console.log("opensearch" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "opensource", weight:  1 , link: "\/tags\/opensource"} );
-            console.log("opensource" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "os-image", weight:  3 , link: "\/tags\/os-image"} );
-            console.log("os-image" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "osok", weight:  1 , link: "\/tags\/osok"} );
-            console.log("osok" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "oss", weight:  12 , link: "\/tags\/oss"} );
-            console.log("oss" + " : " +  12 );
-        
-            
-            tag_words.push( {text: "par", weight:  1 , link: "\/tags\/par"} );
-            console.log("par" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "pem", weight:  1 , link: "\/tags\/pem"} );
-            console.log("pem" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "policy", weight:  3 , link: "\/tags\/policy"} );
-            console.log("policy" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "postman", weight:  1 , link: "\/tags\/postman"} );
-            console.log("postman" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "ppk", weight:  1 , link: "\/tags\/ppk"} );
-            console.log("ppk" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "prometheus", weight:  1 , link: "\/tags\/prometheus"} );
-            console.log("prometheus" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "public-bucket", weight:  2 , link: "\/tags\/public-bucket"} );
-            console.log("public-bucket" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "putty", weight:  2 , link: "\/tags\/putty"} );
-            console.log("putty" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "pvc", weight:  2 , link: "\/tags\/pvc"} );
-            console.log("pvc" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "region", weight:  1 , link: "\/tags\/region"} );
-            console.log("region" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "request-signature", weight:  1 , link: "\/tags\/request-signature"} );
-            console.log("request-signature" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "reserved-public-ip", weight:  2 , link: "\/tags\/reserved-public-ip"} );
-            console.log("reserved-public-ip" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "resource-manage", weight:  3 , link: "\/tags\/resource-manage"} );
-            console.log("resource-manage" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "resource-manager", weight:  1 , link: "\/tags\/resource-manager"} );
-            console.log("resource-manager" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "rest-api", weight:  4 , link: "\/tags\/rest-api"} );
-            console.log("rest-api" + " : " +  4 );
-        
-            
-            tag_words.push( {text: "searchservice", weight:  1 , link: "\/tags\/searchservice"} );
-            console.log("searchservice" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "security-list", weight:  3 , link: "\/tags\/security-list"} );
-            console.log("security-list" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "serverless", weight:  3 , link: "\/tags\/serverless"} );
-            console.log("serverless" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "service-mapping", weight:  1 , link: "\/tags\/service-mapping"} );
-            console.log("service-mapping" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "service-mesh", weight:  3 , link: "\/tags\/service-mesh"} );
-            console.log("service-mesh" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "snapshot", weight:  1 , link: "\/tags\/snapshot"} );
-            console.log("snapshot" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "ssh", weight:  3 , link: "\/tags\/ssh"} );
-            console.log("ssh" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "subnet", weight:  2 , link: "\/tags\/subnet"} );
-            console.log("subnet" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "tenancy", weight:  1 , link: "\/tags\/tenancy"} );
-            console.log("tenancy" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "terraform", weight:  11 , link: "\/tags\/terraform"} );
-            console.log("terraform" + " : " +  11 );
-        
-            
-            tag_words.push( {text: "trial", weight:  1 , link: "\/tags\/trial"} );
-            console.log("trial" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "upload", weight:  2 , link: "\/tags\/upload"} );
-            console.log("upload" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "vcn", weight:  3 , link: "\/tags\/vcn"} );
-            console.log("vcn" + " : " +  3 );
-        
-            
-            tag_words.push( {text: "vcn-native-pod", weight:  1 , link: "\/tags\/vcn-native-pod"} );
-            console.log("vcn-native-pod" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "verrazzano", weight:  6 , link: "\/tags\/verrazzano"} );
-            console.log("verrazzano" + " : " +  6 );
-        
-            
-            tag_words.push( {text: "virtual-cloud-network", weight:  2 , link: "\/tags\/virtual-cloud-network"} );
-            console.log("virtual-cloud-network" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "virtual-machine", weight:  1 , link: "\/tags\/virtual-machine"} );
-            console.log("virtual-machine" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "vm", weight:  1 , link: "\/tags\/vm"} );
-            console.log("vm" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "vpu", weight:  1 , link: "\/tags\/vpu"} );
-            console.log("vpu" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "vss", weight:  1 , link: "\/tags\/vss"} );
-            console.log("vss" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "vulnerability-scanning", weight:  1 , link: "\/tags\/vulnerability-scanning"} );
-            console.log("vulnerability-scanning" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "weblogic", weight:  1 , link: "\/tags\/weblogic"} );
-            console.log("weblogic" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "windows", weight:  2 , link: "\/tags\/windows"} );
-            console.log("windows" + " : " +  2 );
-        
-            
-            tag_words.push( {text: "worker-node-deletion", weight:  1 , link: "\/tags\/worker-node-deletion"} );
-            console.log("worker-node-deletion" + " : " +  1 );
-        
-            
-            tag_words.push( {text: "workspace", weight:  1 , link: "\/tags\/workspace"} );
-            console.log("workspace" + " : " +  1 );
-        
-
-        $("#tag-cloud").jQCloud(tag_words, {
-            classPattern: null,
-            fontSize: {
-              from: 0.1,
-              to: 0.02
-            }
-        });
-    </script>
 
 
 
+
+<img class="img-fluid1" src="../images/image-20220801163725872.png" alt='image-20220801163725872' onerror="this.onerror=null;this.src='images\/image-20220801163725872.png';" />
+</p>
+<ul>
+<li>나머지 항목은 해당 서브넷을 지정합니다.</li>
+</ul>
+</li>
+<li>
+<p>Node pools</p>
+<ul>
+<li>
+<p>Pod communication에서 앞서 새로 만든 Pods 서브넷을 지정합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220801164128771.png" alt='image-20220801164128771' onerror="this.onerror=null;this.src='images\/image-20220801164128771.png';" />
+</p>
+</li>
+<li>
+<p>나머지는 필요한 값을 지정합니다.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>입력한 정보로 클러스터를 생성합니다.</p>
+</li>
+</ol>
+<h3 id="결과-테스트">결과 테스트</h3>
+<h4 id="구성-정보-확인">구성 정보 확인</h4>
+<ol>
+<li>
+<p>다음 명령으로 VCN-Native Pod Network 정보를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl get NativePodNetwork
+</code></pre></div><ul>
+<li>
+<p>결과 예시</p>
+<ul>
+<li>Worker Node 갯수 만큼 자원이 보입니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get NativePodNetwork
+NAME                                                           STATE     REASON
+an4w4ljrvsea7yic6abavw2aef6d6ap3em6ghx6ik7lbbeli5qtazjjqslza   SUCCESS   COMPLETED
+an4w4ljrvsea7yic6mnz7upb5pw4vxe7z3a3xdflzq4njtwcogmi2wkz4bcq   SUCCESS   COMPLETED
+an4w4ljrvsea7yiclt6upymxrdpnhaaeqtemijovs5r3gkpm66aiidudwzkq   SUCCESS   COMPLETED
+</code></pre></div><ul>
+<li>그 중 하나를 조회하면, 관련 정보를 확인할 수 있습니다.
+<ul>
+<li>Metadata.Owner References.Name: 대상 Worker Node, 예, 10.0.10.149</li>
+<li>Status.Vnics.Addresses: 사전 확보한 Pod 서브넷의 31개 IP 목록</li>
+<li>Status.Vnics.Subnet Cidr:  Pod 서브넷의 CIDR, 예, 10.0.40.0/24</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ $ kubectl describe NativePodNetwork an4w4ljrvsea7yic6abavw2aef6d6ap3em6ghx6ik7lbbeli5qtazjjqslza
+Name:         an4w4ljrvsea7yic6abavw2aef6d6ap3em6ghx6ik7lbbeli5qtazjjqslza
+Namespace:    
+Labels:       &lt;none&gt;
+Annotations:  &lt;none&gt;
+API Version:  oci.oraclecloud.com/v1beta1
+Kind:         NativePodNetwork
+Metadata:
+  Creation Timestamp:  2022-08-01T08:23:43Z
+  Generation:          <span class="m">1</span>
+  Managed Fields:
+    API Version:  oci.oraclecloud.com/v1beta1
+    ...
+  Owner References:
+    API Version:     v1
+    Kind:            Node
+    Name:            10.0.10.149
+    UID:             3abe2f1e-3e7f-4d6d-8720-d7df76f038ef
+  Resource Version:  <span class="m">1291</span>
+  UID:               55cbf861-04b8-4536-8a41-3ce051f5d482
+Spec:
+  Id:             ocid1.instance.oc1.ap-chuncheon-1.an4w4ljrvsea7yic6abavw2aef6d6ap3em6ghx6ik7lbbeli5qtazjjqslza
+  Max Pod Count:  <span class="m">31</span>
+  Pod Subnet Ids:
+    ...
+Status:
+  Reason:  COMPLETED
+  State:   SUCCESS
+  Vnics:
+    Addresses:
+      10.0.40.102
+      10.0.40.195
+      10.0.40.23
+      10.0.40.7
+      10.0.40.65
+      10.0.40.133
+      10.0.40.157
+      10.0.40.46
+      10.0.40.122
+      10.0.40.69
+      10.0.40.208
+      10.0.40.80
+      10.0.40.225
+      10.0.40.9
+      10.0.40.116
+      10.0.40.237
+      10.0.40.121
+      10.0.40.146
+      10.0.40.49
+      10.0.40.17
+      10.0.40.45
+      10.0.40.111
+      10.0.40.224
+      10.0.40.196
+      10.0.40.188
+      10.0.40.67
+      10.0.40.26
+      10.0.40.4
+      10.0.40.153
+      10.0.40.231
+      10.0.40.86
+    Mac Address:  02:00:17:01:B8:67
+    Router Ip:    10.0.40.1
+    Subnet Cidr:  10.0.40.0/24
+    Vnic Id:      ocid1.vnic.oc1.ap-chuncheon-1.ab4w4ljrve4z6xyu2vw62xsax6lwmhnvdtxhpdbrwqypsqfiq4qkezeqt5eq
+Events:           &lt;none&gt;
+</code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Worker Node 컴퓨트 인스턴스 확인</p>
+<ul>
+<li>
+<p>인스턴스에 붙은 VNIC을 보면 아래와 같이 2개가 보입니다. Primary VNIC은 Worker Node 서브넷이며, 두번째는 Pods 서브넷입니다. 앞서 OKE 클러스터에서 확인한 MAC 주소가 동일합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220801174904089.png" alt='image-20220801174904089' onerror="this.onerror=null;this.src='images\/image-20220801174904089.png';" />
+</p>
+</li>
+<li>
+<p>두 번째 VNIC의 상세 정보에 사전 확보한 31개 IP 목록을 동일하게 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220801175204907.png" alt='image-20220801175204907' onerror="this.onerror=null;this.src='images\/image-20220801175204907.png';" />
+</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="pod-배포-테스트">Pod 배포 테스트</h4>
+<ol>
+<li>
+<p>테스트용 앱인 nginx 를 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl create deploy nginx --image<span class="o">=</span>nginx
+</code></pre></div></li>
+<li>
+<p>결과 확인</p>
+<p>IP가 10.0.40.23으로 Pods 서브넷 상의 IP입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get pod -o wide
+NAME                     READY   STATUS    RESTARTS   AGE     IP           NODE          NOMINATED NODE   READINESS GATES
+nginx-85b98978db-8prsc   1/1     Running   <span class="m">0</span>          2m11s   10.0.40.23   10.0.10.149   &lt;none&gt;           &lt;none&gt;
+</code></pre></div></li>
+<li>
+<p>Pod IP로 접근 확인</p>
+<p>VCN내 서브넷의 IP를 직접 할당 받았기 때문에, Pod 서브넷에 접근 가능한 네트워크에서 아래와 같이 Pod의 IP로 직접 연결이 가능합니다. 물론 Pod의 재생성에 따라 IP는 유동적이고, 현재 VCN Private Subnet에서 고정 IP를 지원하지 않기 때문에 Pod IP로 직접 연결하는 것은 올바른 방법은 아닙니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ curl http://10.0.40.23
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+...
+&lt;/head&gt;
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+...
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div></li>
+<li>
+<p>LoadBalancer 타입의 서비스를 만듭니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ kubectl scale deploy nginx --replicas<span class="o">=</span><span class="m">2</span>
+deployment.apps/nginx scaled
+$ kubectl expose deploy nginx --name<span class="o">=</span>nginx-svc --port<span class="o">=</span><span class="m">80</span> --type<span class="o">=</span>LoadBalancer
+service/nginx-svc exposed
+
+$ kubectl get pod,svc -o wide
+NAME                         READY   STATUS    RESTARTS   AGE     IP           NODE          NOMINATED NODE   READINESS GATES
+pod/nginx-85b98978db-8prsc   1/1     Running   <span class="m">0</span>          44m     10.0.40.23   10.0.10.149   &lt;none&gt;           &lt;none&gt;
+pod/nginx-85b98978db-g9w9s   1/1     Running   <span class="m">0</span>          2m26s   10.0.40.47   10.0.10.101   &lt;none&gt;           &lt;none&gt;
+
+NAME                 TYPE           CLUSTER-IP     EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE   SELECTOR
+service/kubernetes   ClusterIP      10.96.0.1      &lt;none&gt;          443/TCP        74m   &lt;none&gt;
+service/nginx-svc    LoadBalancer   10.96.26.147   144.24.xx.xxx   80:32163/TCP   93s   <span class="nv">app</span><span class="o">=</span>nginx
+</code></pre></div></li>
+<li>
+<p>생성된 LoadBalancer로 서비스가 되는 것을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ kubectl describe svc nginx-svc
+Name:                     nginx-svc
+...
+LoadBalancer Ingress:     144.24.xx.xxx
+Port:                     &lt;unset&gt;  80/TCP
+TargetPort:               80/TCP
+NodePort:                 &lt;unset&gt;  32163/TCP
+Endpoints:                10.0.40.23:80,10.0.40.47:80
+...
+
+$ curl http://144.24.90.247
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+...
+&lt;body&gt;
+&lt;h1&gt;Welcome to nginx!&lt;/h1&gt;
+...
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div></li>
+</ol>
 <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">

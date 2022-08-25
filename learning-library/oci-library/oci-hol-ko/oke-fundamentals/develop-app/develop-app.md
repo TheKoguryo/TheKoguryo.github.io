@@ -277,7 +277,7 @@
     - REPO_NAME: *다른 유저랑 충돌되지 않게, 각자에 맞게 수정 필요*, 예시에서는 spring-boot-greeting
     - TAG: *각자에 맞게 수정 필요*, 예시에서는 1.0
 
-    - 편의를 위해 아래와 같이 기존 환경 변수($OCI_REGION) 및 신규 등록($TENANCY_NAMESPACE)하여 사용할 수 있습니다.
+    - 편의를 위해 아래와 같이 기존 환경 변수(*`$OCI_REGION`*) 및 신규 등록(*`$TENANCY_NAMESPACE`*)하여 사용할 수 있습니다.
 
     ````
     winter@cloudshell:rest-service (ap-chuncheon-1)$ TENANCY_NAMESPACE=`oci os ns get --query 'data' --raw-output`

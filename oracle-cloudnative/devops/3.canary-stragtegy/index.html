@@ -356,26 +356,26 @@ webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span> 
 </code></pre></div></li>
 <li>
 <p>ns-canary-stage내의 webpage-ingress의 annotations에서 보면 <strong>canary-weight:</strong> &ldquo;<strong>25</strong>&ldquo;로 변경된 걸 볼 수 있습니다.</p>
-<pre tabindex="0"><code>[opc@jumpbox-945115 oci-devops-oke-webpage]$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: &quot;true&quot;
+    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
     nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
-    nginx.ingress.kubernetes.io/canary-weight: &quot;25&quot;
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
+    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
 ...
-[opc@jumpbox-945115 oci-devops-oke-webpage]$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
+<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
 ...
-</code></pre></li>
+</code></pre></div></li>
 <li>
 <p>웹페이지에 접속합니다. 25%의 확률로 ns-canary-stage에 있는 새 버전으로 요청됩니다.</p>
 <p>
@@ -535,18 +535,18 @@ webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>
 </code></pre></div></li>
 <li>
 <p>ns-canary-stage내의 webpage-ingress의 annotations에서 보면 <strong>canary-weight:</strong> &ldquo;<strong>25</strong>&ldquo;로 변경된 걸 볼 수 있습니다.</p>
-<pre tabindex="0"><code>[opc@jumpbox-945115 oci-devops-oke-webpage]$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: &quot;true&quot;
+    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
     nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
-    nginx.ingress.kubernetes.io/canary-weight: &quot;25&quot;
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
+    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
 ...
-</code></pre></li>
+</code></pre></div></li>
 <li>
 <p>웹페이지에 접속합니다. 25%의 확률로 ns-canary-stage에 있는 새 버전으로 요청됩니다.</p>
 </li>

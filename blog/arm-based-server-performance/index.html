@@ -1,0 +1,1957 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ARM 기반 서버 성능 비교 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.89.2" />
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/arm-based-server-performance/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script></head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">Version 2022.09.02</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/archives">Archives</a></li>
+<li ><a href="/tags">Tag</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1 id="arm-기반-서버-성능-비교">ARM 기반 서버 성능 비교</h1>
+<h2 id="oci-ampere-altra-a1">OCI Ampere Altra A1</h2>
+<p>오라클은 2021년 5월부터 Arm 기반의 Ampere A1 Compute Shape을 가상 머신에서 사용할 수 있습니다.</p>
+<ul>
+<li>Release Notes - <a href="https://docs.oracle.com/en-us/iaas/releasenotes/changes/be1f5b9b-70ce-42fb-9866-a8640b68fd41/">Arm-based Ampere A1 Compute shape now available</a></li>
+<li><a href="https://www.oracle.com/kr/cloud/compute/arm/">Ampere A1 Compute 소개 페이지</a></li>
+</ul>
+<h2 id="oci-ampere-a1-성능-측정">OCI Ampere A1 성능 측정</h2>
+<h3 id="성능-측정-참고-문서">성능 측정 참고 문서</h3>
+<p>최근 API Gateway인 <a href="https://apisix.apache.org/">Apache APISIX</a> 블로그에서 클라우드 ARM 기반 서버들의 성능을 비교하였습니다. 해당 내용을 기반으로 OCI에서도 최대한 유사한 환경을 구성하여 성능 측정을 한번 해보겠습니다.</p>
+<ul>
+<li><a href="https://apisix.apache.org/blog/2022/06/07/installation-performance-test-of-apigateway-apisix-on-aws-graviton3/">#1. June 7, 2022, Installation and performance testing of API Gateway Apache APISIX on AWS Graviton3</a></li>
+<li><a href="https://apisix.apache.org/blog/2022/08/12/arm-performance-google-aws-azure-with-apisix">#2. August 12, 2022, GCP, AWS, and Azure ARM-based server performance comparison</a></li>
+</ul>
+<h3 id="arm-ubuntu-vm-생성">ARM Ubuntu VM 생성</h3>
+<blockquote>
+<p>참고 문서에서 테스트한 환경</p>
+<ul>
+<li>AWS Graviton3: ARM 아키텍처 기반</li>
+<li>AWS EC2 c7g.large(2vCPU, 4GiB Memory)</li>
+<li>Ubuntu 20.04</li>
+</ul>
+</blockquote>
+<ol>
+<li>
+<p>OCI에서는 다음 환경을 구성합니다.</p>
+<ul>
+<li>OCI Ampere A1: ARM 아키텍처 기반</li>
+<li>VM.Standard.A1.Flex: 자유 구성이나, 동일하게 2OCPU, 4GB 메모리 선택</li>
+<li>Ubuntu 22.04 Minimal aarch64: 벤치마크 테스트 모듈 설치 오류 최소화를 위해 22.04 선택</li>
+</ul>
+</li>
+<li>
+<p>Compute 인스턴스 생성 화면에서 <strong>Shape</strong> 유형을 <strong>Ampere</strong>로 선택합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/compute-shape-arm.png" alt='' onerror="this.onerror=null;this.src='images\/compute-shape-arm.png';" />
+</p>
+</li>
+<li>
+<p>OS를 이미지를 <strong>Ubuntu</strong>로 변경하고, 기본 22.04 Minimal aarch64로 변경합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/compute-image-ubuntu-22.04.png" alt='' onerror="this.onerror=null;this.src='images\/compute-image-ubuntu-22.04.png';" />
+</p>
+</li>
+<li>
+<p>하나 있는 <strong>VM.Standard.A1.Flex</strong> Shape을 선택합니다. A1이 Arm기반 Ampere A1을 뜻하며, Flex는 CPU, Memory 선택이 자유로운 것을 뜻합니다. <strong>2 OCPU, 4GB 메모리</strong>를 선택합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/compute-shape-size.png" alt='' onerror="this.onerror=null;this.src='images\/compute-shape-size.png';" />
+</p>
+</li>
+<li>
+<p>OS Image와 Arm 서버 Shape이 선택되었습니다.</p>
+<ul>
+<li>Network bandwith는 Flex Shape에서 OCPU 갯수에 따라 증가합니다.</li>
+<li>VM.Standard.A1.Flex의 Network bandwith는 OCPU 당 1 Gbps이고, 최대 40 Gbps 입니다.
+<ul>
+<li>참조: <a href="https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#vm-standard">Oracle Cloud Infrastructure Documentation &gt; Compute &gt; Compute Shapes</a></li>
+</ul>
+</li>
+<li>2 OCPU가 선택되어, 그림과 같이 2 Gbps가 되었습니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/compute-image-n-shape-22.04.png" alt='' onerror="this.onerror=null;this.src='images\/compute-image-n-shape-22.04.png';" />
+</p>
+</li>
+<li>
+<p>이름, VCN, SSH Key 등 나머지는 원하는 값으로 지정하여 인스턴스를 생성합니다.</p>
+</li>
+<li>
+<p>만든 인스턴스에 SSH로 접속합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ssh ubuntu@&lt;PUBLIC-IP-OF-COMPUTE-INSTANCE&gt;
+</code></pre></div></li>
+</ol>
+<h3 id="arm-ubuntu-vm에-apisix-설치">ARM Ubuntu VM에 APISIX 설치</h3>
+<p>참고 문서: <a href="https://apisix.apache.org/blog/2022/01/11/building-apisix-in-ubuntu-for-arm/">How to build APISIX in ARM Ubuntu</a></p>
+<h4 id="요구사항-설치">요구사항 설치</h4>
+<ol>
+<li>
+<p>소스 코드 복제</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo apt-get update
+sudo apt-get install git
+
+git clone https://github.com/apache/apisix.git
+<span class="nb">cd</span> apisix
+git checkout release/2.15
+</code></pre></div></li>
+<li>
+<p>OpenResty를 설치합니다. Ubuntu 22.04, ARM에 맞게 설치합니다.</p>
+<ul>
+<li>
+<p>참고: (<a href="https://openresty.org/en/linux-packages.html#ubuntu">https://openresty.org/en/linux-packages.html#ubuntu</a>)</p>
+</li>
+<li>
+<p>Step 1: we should install some prerequisites needed by adding GPG public keys (could be removed later):</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo apt-get -y install --no-install-recommends wget gnupg ca-certificates
+</code></pre></div><ul>
+<li>Step 2: import our GPG key:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># For ubuntu 22</span>
+wget -O - https://openresty.org/package/pubkey.gpg <span class="p">|</span> sudo gpg --dearmor -o /usr/share/keyrings/openresty.gpg
+</code></pre></div><ul>
+<li>Step 3: then add the our official APT repository.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># for arm64 or aarch64 system</span>
+<span class="c1"># For ubuntu 22 or above</span>
+<span class="nb">echo</span> <span class="s2">&#34;deb [arch=</span><span class="k">$(</span>dpkg --print-architecture<span class="k">)</span><span class="s2"> signed-by=/usr/share/keyrings/openresty.gpg] http://openresty.org/package/arm64/ubuntu </span><span class="k">$(</span>lsb_release -sc<span class="k">)</span><span class="s2"> main&#34;</span> <span class="p">|</span> sudo tee /etc/apt/sources.list.d/openresty.list &gt; /dev/null
+</code></pre></div><ul>
+<li>Step 4: update the APT index &amp; install openresty</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo apt-get update
+sudo apt-get -y install openresty
+</code></pre></div></li>
+<li>
+<p>Dependencies 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">bash utils/install-dependencies.sh
+sudo apt install wget sudo unzip
+sudo apt-get install make gcc
+curl https://raw.githubusercontent.com/apache/apisix/master/utils/linux-install-luarocks.sh -sL <span class="p">|</span> bash -
+<span class="nv">LUAROCKS_SERVER</span><span class="o">=</span>https://luarocks.cn make deps
+</code></pre></div></li>
+<li>
+<p>APISIX 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo make install
+</code></pre></div></li>
+</ol>
+<h4 id="etcd-설치">ETCD 설치</h4>
+<ol>
+<li>
+<p>Docker 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo apt-get install docker.io
+</code></pre></div></li>
+<li>
+<p>etcd 시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo docker run -d --name etcd -p 2379:2379 -e <span class="nv">ETCD_UNSUPPORTED_ARCH</span><span class="o">=</span>arm64 -e <span class="nv">ETCD_LISTEN_CLIENT_URLS</span><span class="o">=</span>http://0.0.0.0:2379 -e <span class="nv">ETCD_ADVERTISE_CLIENT_URLS</span><span class="o">=</span>http://0.0.0.0:2379 gcr.io/etcd-development/etcd:v3.5.1-arm64
+</code></pre></div></li>
+<li>
+<p>확인
+STATUS가 Up인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo docker ps -a
+</code></pre></div></li>
+</ol>
+<h4 id="apisix-시작">APISIX 시작</h4>
+<ol>
+<li>
+<p>소스 코드 위치로 이동</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">cd</span> ~/apisix
+</code></pre></div></li>
+<li>
+<p>Dependencies 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">make deps
+sudo make install
+</code></pre></div></li>
+<li>
+<p>설정 추가</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">echo</span> <span class="s2">&#34;ulimit -n 4096&#34;</span> &gt;&gt; ~/.bashrc
+<span class="nb">source</span> ~/.bashrc
+</code></pre></div></li>
+<li>
+<p>APISIX 시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">apisix init
+
+<span class="c1"># start APISIX</span>
+apisix start
+</code></pre></div></li>
+<li>
+<p>테스트 Route 등록</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">curl <span class="s2">&#34;http://127.0.0.1:9080/apisix/admin/routes/1&#34;</span> <span class="se">\
+</span><span class="se"></span>-H <span class="s2">&#34;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#34;</span> -X PUT -d <span class="s1">&#39;
+</span><span class="s1">{
+</span><span class="s1">  &#34;uri&#34;: &#34;/anything/*&#34;,
+</span><span class="s1">  &#34;upstream&#34;: {
+</span><span class="s1">    &#34;type&#34;: &#34;roundrobin&#34;,
+</span><span class="s1">    &#34;nodes&#34;: {
+</span><span class="s1">      &#34;httpbin.org:80&#34;: 1
+</span><span class="s1">    }
+</span><span class="s1">  }
+</span><span class="s1">}&#39;</span>
+</code></pre></div></li>
+<li>
+<p>테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">curl -i http://127.0.0.1:9080/anything/das
+</code></pre></div><p>테스트 결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">HTTP/1.1 <span class="m">200</span> OK
+.....
+
+
+</code></pre></div></li>
+</ol>
+<h3 id="성능-측정">성능 측정</h3>
+<blockquote>
+<p>성능 테스트는 참고 문서 #1에서 언급하고 있는 Apache APISIX 공식 벤치마크 <a href="https://github.com/apache/apisix/blob/master/benchmark/run.sh">스크립트</a>을 사용하였습니다.</p>
+</blockquote>
+<h4 id="성능-측정-준비">성능 측정 준비</h4>
+<ol>
+<li>
+<p>생성한 ubuntu VM에 HTTP 벤치마크 툴인 wrk를 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo apt-get install wrk
+</code></pre></div></li>
+</ol>
+<h4 id="측정-시나리오">측정 시나리오</h4>
+<p>아래 2가지 시나리오를 사용하였으며, 사용할 벤치마크 테스트 스크립트 안에 해당 내용이 들어 있습니다. 각 시나리오는 APISIX가 라우팅할 127.0.0.1:1980에서 서비스되는 Nginx 노드가 필요합니다. 테스트 스크립트 안에 그 부분도 포함되어 있습니다.</p>
+<ol>
+<li>
+<p>Scenario 1: Single upstream​</p>
+<ul>
+<li>참고 문서 #1의 첫번째 시나리오로 플러그인 없이, single upstream을 사용합니다. 순 proxy back-to-origin 모드에서 APISIX 성능 테스트 용도라고 합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># apisix: 1 worker + 1 upstream + no plugin</span>
+
+<span class="c1"># register route</span>
+curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
+</span><span class="s1">{
+</span><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
+</span><span class="s1">    &#34;plugins&#34;: {
+</span><span class="s1">    },
+</span><span class="s1">    &#34;upstream&#34;: {
+</span><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
+</span><span class="s1">        &#34;nodes&#34;: {
+</span><span class="s1">            &#34;127.0.0.1:1980&#34;:1
+</span><span class="s1">        }
+</span><span class="s1">    }
+</span><span class="s1">}&#39;</span>
+</code></pre></div></li>
+<li>
+<p>Scenario 2: Single upstream + Two plugins​</p>
+<ul>
+<li>참고 문서 #1의 두번째 시나리오로 플러그인 2개, single upstream을 사용합니다. 2 코어 성능-소비 플러그인으로 <code>limit-count</code>와 <code>prometheus</code>을 사용하여 APISIX 성능 테스트 용도라고 합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># apisix: 1 worker + 1 upstream + 2 plugins (limit-count + prometheus)</span>
+
+<span class="c1"># register route</span>
+curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
+</span><span class="s1">{
+</span><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
+</span><span class="s1">    &#34;plugins&#34;: {
+</span><span class="s1">        &#34;limit-count&#34;: {
+</span><span class="s1">            &#34;count&#34;: 2000000000000,
+</span><span class="s1">            &#34;time_window&#34;: 60,
+</span><span class="s1">            &#34;rejected_code&#34;: 503,
+</span><span class="s1">            &#34;key&#34;: &#34;remote_addr&#34;
+</span><span class="s1">        },
+</span><span class="s1">        &#34;prometheus&#34;: {}
+</span><span class="s1">    },
+</span><span class="s1">    &#34;upstream&#34;: {
+</span><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
+</span><span class="s1">        &#34;nodes&#34;: {
+</span><span class="s1">            &#34;127.0.0.1:1980&#34;:1
+</span><span class="s1">        }
+</span><span class="s1">    }
+</span><span class="s1">}&#39;</span>
+</code></pre></div></li>
+</ol>
+<h4 id="벤치마크-테스트-스크립트-수행">벤치마크 테스트 스크립트 수행</h4>
+<ol>
+<li>
+<p>소스 코드 위치로 이동</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">cd</span> ~/apisix
+</code></pre></div></li>
+<li>
+<p>편집 툴 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo apt-get install vim
+</code></pre></div></li>
+<li>
+<p>백엔드 Nginx 기동을 확인하기 위해 ./benchmark/run.sh 스크립트의 103줄에 curl 명령을 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">curl -i http://127.0.0.1:9080/hello
+wrk -d <span class="m">5</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
+</code></pre></div></li>
+<li>
+<p>./benchmark/run.sh 스크립트에서 테스트를 위해 부하 시간을 기본 5초에서 60초로 늘립니다. <code>-d 5</code>를 <code>-d 60</code>으로 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
+</code></pre></div></li>
+<li>
+<p>벤치마크 스크립트를 수행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">./benchmark/run.sh
+</code></pre></div></li>
+<li>
+<p>실행 결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ubuntu@oci-arm-ubuntu-c2m4:~/apisix$ ./benchmark/run.sh
++ <span class="s1">&#39;[&#39;</span> -n <span class="s1">&#39;&#39;</span> <span class="s1">&#39;]&#39;</span>
++ <span class="nv">worker_cnt</span><span class="o">=</span><span class="m">1</span>
++ <span class="s1">&#39;[&#39;</span> -n <span class="s1">&#39;&#39;</span> <span class="s1">&#39;]&#39;</span>
++ <span class="nv">upstream_cnt</span><span class="o">=</span><span class="m">1</span>
++ mkdir -p benchmark/server/logs
++ mkdir -p benchmark/fake-apisix/logs
++ make init
+<span class="o">[</span> info <span class="o">]</span> init -&gt; <span class="o">[</span> Start <span class="o">]</span>
+...
+apisix: <span class="m">1</span> worker + <span class="m">1</span> upstream + no plugin
++ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
+</span><span class="s1">{
+</span><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
+</span><span class="s1">    &#34;plugins&#34;: {
+</span><span class="s1">    },
+</span><span class="s1">    &#34;upstream&#34;: {
+</span><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
+</span><span class="s1">        &#34;nodes&#34;: {
+</span><span class="s1">            &#34;127.0.0.1:1980&#34;:1
+</span><span class="s1">        }
+</span><span class="s1">    }
+</span><span class="s1">}&#39;</span>
+<span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="o">{</span><span class="s2">&#34;key&#34;</span>:<span class="s2">&#34;\/apisix\/routes\/1&#34;</span>,<span class="s2">&#34;value&#34;</span>:<span class="o">{</span><span class="s2">&#34;uri&#34;</span>:<span class="s2">&#34;\/hello&#34;</span>,<span class="s2">&#34;update_time&#34;</span>:1664362611,<span class="s2">&#34;plugins&#34;</span>:<span class="o">{}</span>,<span class="s2">&#34;status&#34;</span>:1,<span class="s2">&#34;create_time&#34;</span>:1664361560,<span class="s2">&#34;priority&#34;</span>:0,<span class="s2">&#34;upstream&#34;</span>:<span class="o">{</span><span class="s2">&#34;scheme&#34;</span>:<span class="s2">&#34;http&#34;</span>,<span class="s2">&#34;pass_host&#34;</span>:<span class="s2">&#34;pass&#34;</span>,<span class="s2">&#34;nodes&#34;</span>:<span class="o">{</span><span class="s2">&#34;127.0.0.1:1980&#34;</span>:1<span class="o">}</span>,<span class="s2">&#34;hash_on&#34;</span>:<span class="s2">&#34;vars&#34;</span>,<span class="s2">&#34;type&#34;</span>:<span class="s2">&#34;roundrobin&#34;</span><span class="o">}</span>,<span class="s2">&#34;id&#34;</span>:<span class="s2">&#34;1&#34;</span><span class="o">}}</span>,<span class="s2">&#34;action&#34;</span>:<span class="s2">&#34;set&#34;</span><span class="o">}</span>
++ sleep <span class="m">1</span>
++ curl -i http://127.0.0.1:9080/hello
+HTTP/1.1 <span class="m">200</span> OK
+Content-Type: text/plain<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Date: Wed, <span class="m">28</span> Sep <span class="m">2022</span> 10:56:52 GMT
+Server: APISIX/2.15.0
+
+1234567890+ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
+Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
+  <span class="m">2</span> threads and <span class="m">16</span> connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.02ms  188.43us  13.83ms   97.08%
+    Req/Sec     7.86k   505.69     8.73k    89.58%
+  <span class="m">938523</span> requests in 1.00m, 171.84MB <span class="nb">read</span>
+Requests/sec:  15640.38
+Transfer/sec:      2.86MB
++ sleep <span class="m">1</span>
++ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
+Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
+  <span class="m">2</span> threads and <span class="m">16</span> connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.03ms  112.62us  10.02ms   93.94%
+    Req/Sec     7.82k   314.04    15.89k    88.01%
+  <span class="m">934559</span> requests in 1.00m, 171.12MB <span class="nb">read</span>
+Requests/sec:  15550.03
+Transfer/sec:      2.85MB
+
+...
+
+apisix: <span class="m">1</span> worker + <span class="m">1</span> upstream + <span class="m">2</span> plugins <span class="o">(</span>limit-count + prometheus<span class="o">)</span>
++ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
+</span><span class="s1">{
+</span><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
+</span><span class="s1">    &#34;plugins&#34;: {
+</span><span class="s1">        &#34;limit-count&#34;: {
+</span><span class="s1">            &#34;count&#34;: 2000000000000,
+</span><span class="s1">            &#34;time_window&#34;: 60,
+</span><span class="s1">            &#34;rejected_code&#34;: 503,
+</span><span class="s1">            &#34;key&#34;: &#34;remote_addr&#34;
+</span><span class="s1">        },
+</span><span class="s1">        &#34;prometheus&#34;: {}
+</span><span class="s1">    },
+</span><span class="s1">    &#34;upstream&#34;: {
+</span><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
+</span><span class="s1">        &#34;nodes&#34;: {
+</span><span class="s1">            &#34;127.0.0.1:1980&#34;:1
+</span><span class="s1">        }
+</span><span class="s1">    }
+</span><span class="s1">}&#39;</span>
+<span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="o">{</span><span class="s2">&#34;key&#34;</span>:<span class="s2">&#34;\/apisix\/routes\/1&#34;</span>,<span class="s2">&#34;value&#34;</span>:<span class="o">{</span><span class="s2">&#34;uri&#34;</span>:<span class="s2">&#34;\/hello&#34;</span>,<span class="s2">&#34;update_time&#34;</span>:1664362734,<span class="s2">&#34;plugins&#34;</span>:<span class="o">{</span><span class="s2">&#34;limit-count&#34;</span>:<span class="o">{</span><span class="s2">&#34;time_window&#34;</span>:60,<span class="s2">&#34;key&#34;</span>:<span class="s2">&#34;remote_addr&#34;</span>,<span class="s2">&#34;rejected_code&#34;</span>:503,<span class="s2">&#34;count&#34;</span>:2000000000000,<span class="s2">&#34;key_type&#34;</span>:<span class="s2">&#34;var&#34;</span>,<span class="s2">&#34;policy&#34;</span>:<span class="s2">&#34;local&#34;</span>,<span class="s2">&#34;allow_degradation&#34;</span>:false,<span class="s2">&#34;show_limit_quota_header&#34;</span>:true<span class="o">}</span>,<span class="s2">&#34;prometheus&#34;</span>:<span class="o">{</span><span class="s2">&#34;prefer_name&#34;</span>:false<span class="o">}}</span>,<span class="s2">&#34;status&#34;</span>:1,<span class="s2">&#34;create_time&#34;</span>:1664361560,<span class="s2">&#34;priority&#34;</span>:0,<span class="s2">&#34;upstream&#34;</span>:<span class="o">{</span><span class="s2">&#34;scheme&#34;</span>:<span class="s2">&#34;http&#34;</span>,<span class="s2">&#34;pass_host&#34;</span>:<span class="s2">&#34;pass&#34;</span>,<span class="s2">&#34;nodes&#34;</span>:<span class="o">{</span><span class="s2">&#34;127.0.0.1:1980&#34;</span>:1<span class="o">}</span>,<span class="s2">&#34;hash_on&#34;</span>:<span class="s2">&#34;vars&#34;</span>,<span class="s2">&#34;type&#34;</span>:<span class="s2">&#34;roundrobin&#34;</span><span class="o">}</span>,<span class="s2">&#34;id&#34;</span>:<span class="s2">&#34;1&#34;</span><span class="o">}}</span>,<span class="s2">&#34;action&#34;</span>:<span class="s2">&#34;set&#34;</span><span class="o">}</span>
++ sleep <span class="m">3</span>
++ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
+Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
+  <span class="m">2</span> threads and <span class="m">16</span> connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.31ms  192.72us  17.15ms   95.50%
+    Req/Sec     6.15k   294.98     6.71k    71.83%
+  <span class="m">734891</span> requests in 1.00m, 185.02MB <span class="nb">read</span>
+Requests/sec:  12248.00
+Transfer/sec:      3.08MB
++ sleep <span class="m">1</span>
++ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
+Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
+  <span class="m">2</span> threads and <span class="m">16</span> connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.30ms  141.40us  12.13ms   93.56%
+    Req/Sec     6.17k   254.42     6.87k    64.83%
+  <span class="m">736422</span> requests in 1.00m, 185.41MB <span class="nb">read</span>
+Requests/sec:  12271.99
+Transfer/sec:      3.09MB
+...
+</code></pre></div></li>
+</ol>
+<h4 id="성능-측정-결과">성능 측정 결과</h4>
+<ul>
+<li>
+<p>Scenario 1: Single upstream​</p>
+<ul>
+<li>apisix: 1 worker + 1 upstream + no plugin 부분</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">항목</th>
+<th style="text-align:left">1차</th>
+<th style="text-align:left">2차</th>
+<th style="text-align:left">평균</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Requests/sec (초당 요청건)</td>
+<td style="text-align:left">15640.38</td>
+<td style="text-align:left">15550.03</td>
+<td style="text-align:left">15595.205</td>
+</tr>
+<tr>
+<td style="text-align:left">Avg Latency (평균 응답지연)</td>
+<td style="text-align:left">1.02ms</td>
+<td style="text-align:left">1.03ms</td>
+<td style="text-align:left">1.025ms</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>Scenario 2: Single upstream + Two plugins​</p>
+<ul>
+<li>apisix: 1 worker + 1 upstream + 2 plugins (limit-count + prometheus)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">항목</th>
+<th style="text-align:left">1차</th>
+<th style="text-align:left">2차</th>
+<th style="text-align:left">평균</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Requests/sec (초당 요청건)</td>
+<td style="text-align:left">12248.00</td>
+<td style="text-align:left">12271.99</td>
+<td style="text-align:left">12259.995</td>
+</tr>
+<tr>
+<td style="text-align:left">Avg Latency (평균 응답지연)</td>
+<td style="text-align:left">1.31ms</td>
+<td style="text-align:left">1.30ms</td>
+<td style="text-align:left">1.305ms</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li>
+<p>테스트시 CPU, Memory 상태</p>
+<ul>
+<li>CPU: 부하로 인해 백엔드 Nginx Worker 프로세스가 CPU를 많이 사용하고 있음</li>
+<li>Memory: Nginx 단순 웹페이지라 메모리는 크게 사용하지 않음
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/compute-metrics-for-testing.png" alt='' onerror="this.onerror=null;this.src='images\/compute-metrics-for-testing.png';" />
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="비용대비-성능-비교">비용대비 성능 비교</h3>
+<h4 id="oci-arm-기반-shape">OCI Arm 기반 Shape</h4>
+<ul>
+<li>VM, Bare Metal 모두 Ampere A1을 지원하며, VM에서는 Flex Shape의 하나로 제공
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#flexible">https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#flexible</a></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Shape</th>
+<th style="text-align:left">Maximum OCPUs</th>
+<th style="text-align:left">Minimum Memory</th>
+<th style="text-align:left">Maximum Memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">VM.Standard.A1.Flex</td>
+<td style="text-align:left">80</td>
+<td style="text-align:left">1 GB 또는 OCPU 갯수, 둘 중 큰 값</td>
+<td style="text-align:left">OCPU 당 64 GB, 총합 최대 512 GB</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<h4 id="oci-arm-기반-가상-머신-비용">OCI Arm 기반 가상 머신 비용</h4>
+<ul>
+<li>OCI Ampere A1 Compute
+<ul>
+<li><a href="https://www.oracle.com/cloud/compute/arm/">https://www.oracle.com/cloud/compute/arm/</a></li>
+<li>Arm CPU 아키텍처(Ampere)에서는 1 OCPU = 1 vCPU 입니다.</li>
+<li>Cloud Account내 Ampere A1 shape의 매달 전체 사용량 중에 첫 3,000 OCPU-시간과 첫 18,000 GB-시간 까지는 무료입니다.</li>
+<li>Flex Shape으로 OCPU와 Memory를 조정할 수 있어, 각각 단위 비용이 있습니다.</li>
+<li>OCI는 모든 리전이 가격이 동일합니다.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Compute - Virtual Machine Instances</th>
+<th style="text-align:left">Comparison Price ( /vCPU)*</th>
+<th style="text-align:left">Unit Price</th>
+<th style="text-align:left">Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Compute – Ampere A1 – OCPU</td>
+<td style="text-align:left">$0.01</td>
+<td style="text-align:left">$0.01</td>
+<td style="text-align:left">시간당 OCPU</td>
+</tr>
+<tr>
+<td style="text-align:left">Compute – Ampere A1 – Memory</td>
+<td style="text-align:left">-</td>
+<td style="text-align:left">$0.0015</td>
+<td style="text-align:left">시간당 기가바이트</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<h4 id="벤치마크-테스트-관련-비용-비교">벤치마크 테스트 관련 비용 비교</h4>
+<h5 id="비교-조건">비교 조건</h5>
+<ul>
+<li>ARM 서버 기준입니다.</li>
+<li>AWS: C7g (US East Ohio) 기준 시간당 비용입니다.
+<ul>
+<li><a href="https://aws.amazon.com/ec2/pricing/on-demand/">https://aws.amazon.com/ec2/pricing/on-demand/</a></li>
+</ul>
+</li>
+<li>OCI: VM.Standard.A1.Flex 기준 시간당 비용입니다.
+<ul>
+<li>OCI는 모든 리전이 가격이 동일합니다.</li>
+<li>비교를 위해 AWS C7g와 같은 크기의 CPU, Memory로 비교한 가격입니다.</li>
+<li>VM.Standard.A1.Flex 가격은 CPU 가격과 Memory 가격의 합입니다.</li>
+</ul>
+</li>
+</ul>
+<h5 id="시간당-비용">시간당 비용</h5>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">VM series / vCPU(Memory)</th>
+<th style="text-align:left">1 (2G)</th>
+<th style="text-align:left">2 (4G)</th>
+<th style="text-align:left">4 (8G)</th>
+<th style="text-align:left">8 (16G)</th>
+<th style="text-align:left">16 (32G)</th>
+<th style="text-align:left">32 (64G)</th>
+<th style="text-align:left">64 (128G)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">AWS C7g</td>
+<td style="text-align:left">$0.0361</td>
+<td style="text-align:left">$0.0723</td>
+<td style="text-align:left">$0.1445</td>
+<td style="text-align:left">$0.289</td>
+<td style="text-align:left">$0.5781</td>
+<td style="text-align:left">$1.1562</td>
+<td style="text-align:left">$1.7342</td>
+</tr>
+<tr>
+<td style="text-align:left">OCI Ampere A1</td>
+<td style="text-align:left">$0.013</td>
+<td style="text-align:left">$0.026</td>
+<td style="text-align:left">$0.052</td>
+<td style="text-align:left">$0.104</td>
+<td style="text-align:left">$0.208</td>
+<td style="text-align:left">$0.416</td>
+<td style="text-align:left">$0.832</td>
+</tr>
+</tbody>
+</table>
+<h5 id="연간-비용-테스트-시나리오-1-기준">연간 비용: 테스트 시나리오 1 기준</h5>
+<ul>
+<li>QPS (queries per second): 초당 요청 처리 건수</li>
+<li>AWS c7g.large의 QPS는 참조 문서 #1, #2 결과 기준</li>
+<li><strong>참조 문서 #1, #2를 참고하여 최대한 동일한 구성으로 테스트하였으나, 참조 문서의 최종 부하 요청, 그 당시 자원 사용량을 알 수 없으므로, 아래 성능 및 비용 대비 성능은 절대적인 것이 아닌 참고용입니다.</strong></li>
+<li>OCI Flex Shape은 구성이 자유로우므로 OCPU는 2개 그대로하고 사용량이 적은 Memory를 2GB로 구성하는 것도 가능합니다.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">시간당 비용</th>
+<th style="text-align:left">일년(24*365) 총 시간</th>
+<th style="text-align:left">Annual Cost</th>
+<th style="text-align:left">QPS</th>
+<th style="text-align:left">Cost Performance(QPS/cost)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">AWS c7g.large</td>
+<td style="text-align:left">$0.0723</td>
+<td style="text-align:left">8760 시간</td>
+<td style="text-align:left">$633.3</td>
+<td style="text-align:left"><strong>23000</strong></td>
+<td style="text-align:left"><strong>36.3</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">OCI VM.Standard.A1.Flex 2 OCPU, 4 GB Memory</td>
+<td style="text-align:left">$0.026</td>
+<td style="text-align:left">8760 시간</td>
+<td style="text-align:left">$227.8</td>
+<td style="text-align:left"><strong>15595.205</strong></td>
+<td style="text-align:left"><strong>68.5</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">OCI VM.Standard.A1.Flex 2 OCPU, 2 GB Memory</td>
+<td style="text-align:left">$0.023</td>
+<td style="text-align:left">8760 시간</td>
+<td style="text-align:left">$201.5</td>
+<td style="text-align:left"><strong>15595.205</strong></td>
+<td style="text-align:left"><strong>77.4</strong></td>
+</tr>
+</tbody>
+</table>
+<h5 id="테넌트내-테스트-환경만-사용한다는-가정하에-무료-제공량-제외시">테넌트내 테스트 환경만 사용한다는 가정하에 무료 제공량 제외시</h5>
+<ul>
+<li>Cloud Account내 Ampere A1 shape의 매달 전체 사용량 중에 첫 3,000 OCPU-시간과 첫 18,000 GB-시간 까지는 무료입니다..</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">시간당 비용</th>
+<th style="text-align:left">일년(24*365) 총 시간</th>
+<th style="text-align:left">매달 무료 제공량 제외시</th>
+<th style="text-align:left">Annual Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">OCI VM.Standard.A1.Flex 2 OCPU</td>
+<td style="text-align:left">$0.02</td>
+<td style="text-align:left">8760 시간</td>
+<td style="text-align:left">0 시간</td>
+<td style="text-align:left"><strong>$0</strong></td>
+</tr>
+<tr>
+<td style="text-align:left">OCI VM.Standard.A1.Flex 4 GB Memory</td>
+<td style="text-align:left">$0.006</td>
+<td style="text-align:left">8760 시간</td>
+<td style="text-align:left">0 시간</td>
+<td style="text-align:left"><strong>$0</strong></td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/">
+    OCI(Oracle Cloud Infrastructure)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter01/">
+    1. OCI 기본개념
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter02/">
+    2. OCI 서비스 시작하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter03/">
+    3. OCI Compute VM 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter03/5/">
+    3.5 Linux 인스턴스 접속하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter03/6/">
+    3.6 하드 드라이브 같은 Block Volume
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/4/">3.6.4 Block Volume 포맷하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter03/7/">
+    3.7 Block Volume 백업 활용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter03/8/">
+    3.8 Boot Volume 백업 활용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter04/">
+    4. 고정 IP 할당을 위한 Reserved Public IP
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter05/">
+    5. 방화벽 구성을 위해 Security Lists 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter06/">
+    6. 사용자 권한 설정을 위해 IAM 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter07/">
+    7. Object Storage 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter08/">
+    8. 네트워크 파일 시스템인 File Storage 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter09/">
+    9. Machine Image
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter10/">
+    10. 고가용성을 위한 Load Balancer 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/4/">10.4 Load Balancer를 위한 Subnet 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/5/">10.5 Load Balancer 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/6/">10.6 Load Balancer 연결 확인</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter11/">
+    11. Domain Name System (DNS)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter12/">
+    12. OCI 자원 모니터링을 위한 Monitoring
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter12/3/">
+    12.3 OCI Grafana Plugin
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter13/">
+    13. Metric에 기반한 Autoscaling
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter14/">
+    14. Developer Tools 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter14/1/">
+    14.1 OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter14/1/1/">
+    14.1.1 OCI CLI 설치하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
+    14.1.2 Object Storage를 CLI로 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter14/2/">
+    14.2 Terraform
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/4/">14.2.4 Terraform Configuration 실행하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter14/3/">
+    14.3 REST API
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oci/chapter15/">
+    15. Resource Manager 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+    Oracle Cloud Native
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
+    1. 관리형 쿠버네티스 OKE 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 OKE 클러스터 연결하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Persistent Volume 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
+    2. 컨테이너 레지스트리인 OCIR 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
+    3. CI/CD인 OCI DevOps 서비스 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 DevOps 서비스의 Blue/Green 배포 전략으로 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
+    4. OSS(Open Source Software) 활용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 NGINX Ingress Controller에서 PATH 기반 라우팅</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/">
+    5. OCI 서비스 활용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 OKE에서 OCI 자원관리를 위한 Service Operator</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/">
+    5.2 Logging 서비스
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
+    6. 엔터프라이즈 컨테이너 플랫폼 Verrazzano 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/">
+    7. 애플리케이션 개발하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/">7.1 Spring Boot 애플리케이션 개발하기</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/">
+    7.2 GraalVM 사용하기
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/1.use-graal-vm/">7.2.1 GraalVM 기반 컨테이너 이미지 만들기</a></li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

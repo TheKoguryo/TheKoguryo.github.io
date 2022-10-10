@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>3.6 Block Volume like hard drive on TheKoguryo&#39;s Tech Blog</title>
+    <link>https://thekoguryo.github.io/en/oci/chapter03/6/</link>
+    <description>Recent content in 3.6 Block Volume like hard drive on TheKoguryo&#39;s Tech Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ko-kr</language>
+    <lastBuildDate>Wed, 19 Dec 2018 00:00:00 +0000</lastBuildDate><atom:link href="https://thekoguryo.github.io/en/oci/chapter03/6/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>3.6.1 Creating a Block Volume</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/1/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/1/</guid>
+      <description>3.6.1 Creating Block Volumes Block Volumes are network storage for use with OCI Compute Instances. By creating a Block Volume, attaching it to your instance, and mounting it, you can use it as if you were using a physical hard drive attached to your computer. If it can be mounted on one instance at a time, it can be mounted on another instance after dismounting.
+  Open the navigation menu in the OCI console.</description>
+    </item>
+    
+    <item>
+      <title>3.6.2 Mounting Block Volume to Instance</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/2/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/2/</guid>
+      <description>3.6.2 Mounting Block Volume to Instance   Open the navigation menu in the OCI console. Go to Compute &amp;raquo; Instances.
+  Click on the name of the target Instance you created earlier.
+  On the Instance detail page, click Resources &amp;raquo; Attached block volumes in the lower left corner.
+  Click the Attached block volumes button
+   In the dialog that appears, select Next.</description>
+    </item>
+    
+    <item>
+      <title>3.6.3 Connecting to Block Volume</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/3/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/3/</guid>
+      <description>3.6.3 Connecting to Block Volume After mounting the Block Volume, you need to establish an iSCSI connection. It is executed by the iscsiadm command, and the command to be executed is provided by the mounted Block Volume, so you can copy it and run it as it is.
+  Open the navigation menu in the OCI console. Go to Compute &amp;raquo; Instances.
+  Click on the name of the target Instance you created earlier.</description>
+    </item>
+    
+    <item>
+      <title>3.6.4 Formatting Block Volumes</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/4/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/4/</guid>
+      <description>3.6.4 Formatting Block Volumes   After connecting to the Compute Instance with SSH, format the Block Volume. You can format the file system type by changing it to anything you want.
+sudo mkfs -t &amp;lt;fs type&amp;gt; /dev/sdb   Examples of execution
+ After looking up the Block Volume as shown below, it was formatted.  [opc@examplelinuxinstance ~]$ lsblk -f NAME FSTYPE LABEL UUID MOUNTPOINT sdb sda ├─sda2 swap 7c02c8fa-405c-4583-bf26-72fcfff63ccf [SWAP] ├─sda3 xfs daec0eb0-26cf-43cb-bcb1-896cdc193242 / └─sda1 vfat 61E0-20B8 /boot/efi [opc@examplelinuxinstance ~]$ sudo mkfs -t xfs /dev/sdb meta-data=/dev/sdb isize=256 agcount=4, agsize=3276800 blks = sectsz=4096 attr=2, projid32bit=1 = crc=0 finobt=0, sparse=0, rmapbt=0 = reflink=0 data = bsize=4096 blocks=13107200, imaxpct=25 = sunit=0 swidth=0 blks naming =version 2 bsize=4096 ascii-ci=0, ftype=1 log =internal log bsize=4096 blocks=6400, version=2 = sectsz=4096 sunit=1 blks, lazy-count=1 realtime =none extsz=4096 blocks=0, rtextents=0 [opc@examplelinuxinstance ~]$ lsblk -f NAME FSTYPE LABEL UUID MOUNTPOINT sdb xfs c15dcf4c-e7af-4150-b1f8-07953032464a sda ├─sda2 swap 7c02c8fa-405c-4583-bf26-72fcfff63ccf [SWAP] ├─sda3 xfs daec0eb0-26cf-43cb-bcb1-896cdc193242 / └─sda1 vfat 61E0-20B8 /boot/efi     </description>
+    </item>
+    
+    <item>
+      <title>3.6.5 Mount Block Volume</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/5/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/5/</guid>
+      <description>3.6.5 Mount Block Volume According to the OCI document, if there are two or more volume other than root volume, if the device name is mounted with the device name, the device name and the actual device may be different.As of January 10, 2019, the CONSISTENT Device Path function was released to ensure the response of the device after the server reversion and the actual device.In the unsupported images and</description>
+    </item>
+    
+    <item>
+      <title>3.6.6 Unmounting Block Volume</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/6/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/6/</guid>
+      <description>3.6.6 Unmounting Block Volume Unmount   Connect to the Compute Instance with SSH.
+  Update /etc/fstab
+Execute the sudo vi /etc/fstab command to delete /mnt/vol1, the volume to be unmounted, from the fstab file.
+sudo vi /etc/fstab   Unmount
+sudo umount /mnt/vol1   Disconnect to Volume   Open the navigation menu in the OCI console. Go to Compute &amp;raquo; Instances.
+  Click on the name of the target Instance you created earlier.</description>
+    </item>
+    
+    <item>
+      <title>3.6.7 Deleting Block Volume</title>
+      <link>https://thekoguryo.github.io/en/oci/chapter03/6/7/</link>
+      <pubDate>Mon, 10 Jan 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://thekoguryo.github.io/en/oci/chapter03/6/7/</guid>
+      <description>3.6.7 Deleting Block Volume  Caution Terminate the Block Volume and it will be completely deleted. Please note that this is not recoverable.     Open the navigation menu in the OCI console. Go to Storage &amp;raquo; Block Storage &amp;raquo; Block Volumes.
+  Click on the action icon next to Block Volume and then click on Terminate.
+   Reconfirmation
+Once terminated, it cannot be recovered. If you still want to delete it, click Terminate.</description>
+    </item>
+    
+  </channel>
+</rss>

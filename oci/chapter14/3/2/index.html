@@ -31,7 +31,7 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/oci/chapter14/3/2/" /><meta property="article:section" content="oci" />
 
-<meta property="article:modified_time" content="2022-01-19T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-01-19T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그" />
 
 
 </head>
@@ -50,7 +50,13 @@
 <li ><a href="/archives">Archives</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
-<li ><a href="/link">Link</a></li></ul>
+<li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">English</a>
+</li>
+
+
+</ul>
 </nav>
 </div>
 <div class="content-container">
@@ -210,8 +216,8 @@ oracle@ubuntu:~/oci-curl$
 </ol>
 <h4 id="step-3-사용자-조회-rest-api-실행">Step 3. 사용자 조회 REST API 실행</h4>
 <ol>
-<li>ListUsers 설명</li>
-</ol>
+<li>
+<p>ListUsers 설명</p>
 <ul>
 <li>문서 링크: <a href="https://docs.cloud.oracle.com/iaas/api/#/en/identity/20160918/User/ListUsers">https://docs.cloud.oracle.com/iaas/api/#/en/identity/20160918/User/ListUsers</a></li>
 <li>Endpoint: identity.us-ashburn-1.oraclecloud.com</li>
@@ -222,13 +228,15 @@ oracle@ubuntu:~/oci-curl$
 </ul>
 </li>
 </ul>
-<ol start="2">
-<li>사용방법</li>
+</li>
+<li>
+<p>사용방법</p>
+</li>
 </ol>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Bash" data-lang="Bash">oci-curl &lt;host&gt; &lt;method&gt; <span class="o">[</span>file-to-send-as-body<span class="o">]</span> &lt;request-target&gt; <span class="o">[</span>extra-curl-args<span class="o">]</span>
 </code></pre></div><ol start="3">
 <li>사용예시 - tenancy내 모든 사용자 조회
-<!-- raw HTML omitted -->아래와 같이 사용자가 조회되는 것을 확인할 수 있습니다.
+<br>아래와 같이 사용자가 조회되는 것을 확인할 수 있습니다.
 <ul>
 <li>extra-curl-args로 -i를 입력하면 응답메시지 헤더를 확인할 수 있습니다.</li>
 </ul>
@@ -292,35 +300,30 @@ X-Content-Type-Options: nosniff
 <span class="o">}</span> <span class="o">]</span>oracle@ubuntu:~/oci-curl$
 </code></pre></div><h4 id="step-4-사용자-생성-rest-api-실행">Step 4. 사용자 생성 REST API 실행</h4>
 <ol>
-<li>CreateUser 설명</li>
-</ol>
+<li>
+<p>CreateUser 설명</p>
 <ul>
-<li>
-<p>문서 링크: <a href="https://docs.cloud.oracle.com/iaas/api/#/en/identity/20160918/User/CreateUser">https://docs.cloud.oracle.com/iaas/api/#/en/identity/20160918/User/CreateUser</a></p>
-</li>
-<li>
-<p>Endpoint: identity.us-ashburn-1.oraclecloud.com</p>
-</li>
-<li>
-<p>POST /20160918/users/</p>
-</li>
-<li>
-<p>요청메시지 예시</p>
+<li>문서 링크: <a href="https://docs.cloud.oracle.com/iaas/api/#/en/identity/20160918/User/CreateUser">https://docs.cloud.oracle.com/iaas/api/#/en/identity/20160918/User/CreateUser</a></li>
+<li>Endpoint: identity.us-ashburn-1.oraclecloud.com</li>
+<li>POST /20160918/users/</li>
+<li>요청메시지 예시</li>
+</ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-JSON" data-lang="JSON"><span class="p">{</span>
 
   <span class="nt">&#34;compartmentId&#34;</span> <span class="p">:</span> <span class="s2">&#34;tenancy OCID&#34;</span><span class="p">,</span>
   <span class="nt">&#34;name&#34;</span> <span class="p">:</span> <span class="s2">&#34;사용자 이름&#34;</span><span class="p">,</span>
   <span class="nt">&#34;description&#34;</span> <span class="p">:</span> <span class="s2">&#34;설명&#34;</span>
 <span class="p">}</span>
-</code></pre></div></li>
-</ul>
-<ol start="2">
-<li>사용방법</li>
+</code></pre></div><p>``</p>
+</li>
+<li>
+<p>사용방법</p>
+</li>
 </ol>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Bash" data-lang="Bash">oci-curl &lt;host&gt; &lt;method&gt; <span class="o">[</span>file-to-send-as-body<span class="o">]</span> &lt;request-target&gt; <span class="o">[</span>extra-curl-args<span class="o">]</span>
 </code></pre></div><ol start="3">
 <li>사용예시 - 사용자 생성
-<!-- raw HTML omitted -->아래와 같이 사용자가 만들어 지는 것을 확인할 수 있습니다.</li>
+<br>아래와 같이 사용자가 만들어 지는 것을 확인할 수 있습니다.</li>
 </ol>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Bash" data-lang="Bash">oracle@ubuntu:~/oci-curl$ cat create_user_request.json
 <span class="o">{</span>
@@ -373,11 +376,15 @@ X-Content-Type-Options: nosniff
 
 
 <img class="img-fluid1" src="../images/oci-curl-createuser_1.png" alt='그림' onerror="this.onerror=null;this.src='images\/oci-curl-createuser_1.png';" />
-<!-- raw HTML omitted --></li>
+<br></li>
 </ol>
 <br>
 <br>
-<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+<div class="panel panel-caution">
+    <div class="panel-body">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
 
  <div class="edit-meta">Last updated on 19 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/3/1/" title="14.3.1 OCI Request Signature Version 1"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.3.1 OCI Request Signature Version 1</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter14/3/3/" title="14.3.3 Insomnia - OCI REST API 호출하기">Next - 14.3.3 Insomnia - OCI REST API 호출하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>

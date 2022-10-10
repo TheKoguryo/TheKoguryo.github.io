@@ -31,7 +31,7 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/oci/chapter15/3/" /><meta property="article:section" content="oci" />
 
-<meta property="article:modified_time" content="2022-06-21T00:00:00+00:00" />
+<meta property="article:modified_time" content="2022-06-21T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그" />
 
 
 </head>
@@ -50,7 +50,13 @@
 <li ><a href="/archives">Archives</a></li>
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
-<li ><a href="/link">Link</a></li></ul>
+<li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/en/oci/chapter15/3/">English</a>
+</li>
+
+
+</ul>
 </nav>
 </div>
 <div class="content-container">
@@ -65,7 +71,7 @@
 <li><strong>Image</strong>: <strong>Oracle Linux 7.9</strong>를 선택 (Oracle Linux 8은 안됩니다.)</li>
 <li><strong>Networking</strong>: Public IP가 없는 Private Subnet을 선택
 <ul>
-<li>예, Private Subnet-ExampleVCN</li>
+<li>예시, Private Subnet-ExampleVCN</li>
 </ul>
 </li>
 <li><strong>Add SSH Keys</strong>: 사용할 키 쌍의 Public Key를 입력</li>
@@ -78,7 +84,7 @@
 <ul>
 <li>Public IP를 가지고 GitLab CE 인스턴스에 접근이 가능하도록 설정합니다.</li>
 <li>Public Subnet을 선택하고 Public IP를 받도록 설정합니다.</li>
-<li>예, Public Subnet-ExampleVCN</li>
+<li>예시, Public Subnet-ExampleVCN</li>
 </ul>
 </li>
 <li><strong>Add SSH Keys</strong>: 사용할 키 쌍의 Public Key를 입력</li>
@@ -169,7 +175,7 @@ sudo systemctl start postfix
 <li>Private Git Server를 HTTPS로 연결시 사용할 Certificate은 OCI Certificate으로 등록되어 있어야 합니다.
 <ul>
 <li>별도 공인기관 Certificate인 경우 사전에 임포트 합니다.</li>
-<li>OCI Certificate 서비스가 Self-Signed Certificate에 대한 임포트를 지원하지 않기 때문에, 별도 공인 Certificate이 없는 경우 OCI Certificate 서비스에서 만들어서 사용합니다. 여기에서는 OCI Certifcate 서비스를 통해 CA와 Certificate을 만듭니다.</li>
+<li>OCI Certificate 서비스가 Self-Signed Certificate에 대한 임포트를 지원하지 않기 때문에, 별도 공인 Certificate이 없는 경우 OCI Certificate 서비스에서 만들어서 사용합니다. 여기에서는 OCI Certificate 서비스를 통해 CA와 Certificate을 만듭니다.</li>
 </ul>
 </li>
 </ul>
@@ -180,14 +186,14 @@ sudo systemctl start postfix
 <li>
 <p>CA를 위한 Dynamic Group을 만듭니다.</p>
 <ul>
-<li>Name: 예, ca-dynamic-group</li>
+<li>Name: 예시, ca-dynamic-group</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">resource.type=&#39;certificateauthority&#39;
 </code></pre></div></li>
 <li>
 <p>Policy를 만듭니다.</p>
 <ul>
-<li>Name: 예, ca-policy</li>
+<li>Name: 예시, ca-policy</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Allow dynamic-group &lt;YourDynamicGroupName&gt; to use keys in compartment &lt;YourCompartmentName&gt;
 Allow dynamic-group &lt;YourDynamicGroupName&gt; to manage objects in compartment &lt;YourCompartmentName&gt;
@@ -198,7 +204,7 @@ Allow dynamic-group &lt;YourDynamicGroupName&gt; to manage objects in compartmen
 <li>
 <p>새 Vault를 만듭니다.</p>
 <ul>
-<li>Name: 예, my-vault</li>
+<li>Name: 예시, my-vault</li>
 </ul>
 </li>
 <li>
@@ -235,13 +241,13 @@ Allow dynamic-group &lt;YourDynamicGroupName&gt; to manage objects in compartmen
 <p>기본 정보</p>
 <ul>
 <li>CA 타입: Root Certificate Authority</li>
-<li>Name: 예, my-oci-root-ca</li>
+<li>Name: 예시, my-oci-root-ca</li>
 </ul>
 </li>
 <li>
 <p>Subject Information</p>
 <ul>
-<li>Common Name: 예,  My OCI Root CA</li>
+<li>Common Name: 예시,  My OCI Root CA</li>
 </ul>
 </li>
 <li>
@@ -304,7 +310,7 @@ Allow dynamic-group &lt;YourDynamicGroupName&gt; to manage objects in compartmen
 <p>기본 정보</p>
 <ul>
 <li>CA 타입: Issued by internal CA</li>
-<li>Name: 예, gitlab.example.com</li>
+<li>Name: 예시, gitlab.example.com</li>
 </ul>
 </li>
 <li>
@@ -312,7 +318,7 @@ Allow dynamic-group &lt;YourDynamicGroupName&gt; to manage objects in compartmen
 <ul>
 <li>Common Name: HTTPS로 접속시 사용할 주소명을 입력합니다. GitLab CE 설정이 EXTERNAL_URL 값과 동일해야 합니다.
 <ul>
-<li>예,  gitlab.example.com</li>
+<li>예시,  gitlab.example.com</li>
 </ul>
 </li>
 </ul>
@@ -575,10 +581,10 @@ sudo gitlab-ctl restart
 <li>
 <p>private endpoint 생성 정보하여 생성합니다.</p>
 <ul>
-<li>Name: 예, gitlab-private-endpoint</li>
+<li>Name: 예시, gitlab-private-endpoint</li>
 <li>VCN, Subnet: GitLab 서버에 접근이 가능한 서브넷을 선택합니다.
 <ul>
-<li>예, Private Subnet-ExampleVCN</li>
+<li>예시, Private Subnet-ExampleVCN</li>
 </ul>
 </li>
 <li>Resource Manager에서 Source Provider로 설정하기 위해 다음을 체크합니다.
@@ -682,7 +688,7 @@ Address: 10.0.1.149
 <li>
 <p>Source Provider 정보를 입력하여 만듭니다.</p>
 <ul>
-<li>Name: 예, private-gitlab</li>
+<li>Name: 예시, private-gitlab</li>
 <li>Private endpoint 유형 선택</li>
 <li>Private Endpoints: 앞서 만든 gitlab-private-endpoint 선택</li>
 <li>SSL certificate: GitLab CE 서버에서 사용중인 OCI Certificate 선택</li>
@@ -912,7 +918,11 @@ Receiving objects: 100% <span class="o">(</span>3/3<span class="o">)</span>, <sp
 </ol>
 <br>
 <br>
-<em>** 이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다. **</em>
+<div class="panel panel-caution">
+    <div class="panel-body">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
 
  <div class="edit-meta">Last updated on 21 Jun 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter15/2/" title="15.2 Resource Manager을 위한 Stack Template"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 15.2 Resource Manager을 위한 Stack Template</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/" title="Oracle Cloud Native">Next - Oracle Cloud Native <i class="fas fa-arrow-right" aria-hidden="true"></i></a>

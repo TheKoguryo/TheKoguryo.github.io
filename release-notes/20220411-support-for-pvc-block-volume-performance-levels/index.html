@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Support for PVC block volume performance levels - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/release-notes/20220411-support-for-pvc-block-volume-performance-levels/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -96,11 +96,11 @@
 <h3 id="기본-storage-class-조회">기본 Storage Class 조회</h3>
 <ul>
 <li>OKE 클러스터를 생성하면, 기본으로 두개의 Storage Class가 만들어져 있습니다. oci-bv가 Block Volume CSI 볼륨 플러그인을 사용하고 있으면, vpusPerGB이 따로 설정되지 않아, 기본값인 vpusPerGB: 10에 해당합니다.
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get sc
-NAME            PROVISIONER                       RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-oci <span class="o">(</span>default<span class="o">)</span>   oracle.com/oci                    Delete          Immediate              <span class="nb">false</span>                  4d
-oci-bv          blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   4d
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl get sc
+</span></span><span class="line"><span class="cl">NAME            PROVISIONER                       RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+</span></span><span class="line"><span class="cl">oci <span class="o">(</span>default<span class="o">)</span>   oracle.com/oci                    Delete          Immediate              <span class="nb">false</span>                  4d
+</span></span><span class="line"><span class="cl">oci-bv          blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   4d
+</span></span></code></pre></div></li>
 </ul>
 <h3 id="vpu를-설정한-persistent-volume-사용하기">VPU를 설정한 Persistent Volume 사용하기</h3>
 <ol>
@@ -109,87 +109,87 @@ oci-bv          blockvolume.csi.oraclecloud.com   Delete          WaitForFirstCo
 <ul>
 <li>csi-bvs-sc-higher-perf.yaml</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">storage.k8s.io/v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">StorageClass</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">oci-bv-higher-perf</span><span class="w">
-</span><span class="w"></span><span class="nt">provisioner</span><span class="p">:</span><span class="w"> </span><span class="l">blockvolume.csi.oraclecloud.com</span><span class="w">
-</span><span class="w"></span><span class="nt">parameters</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">vpusPerGB</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;20&#34;</span><span class="w">
-</span><span class="w"></span><span class="nt">reclaimPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Delete</span><span class="w">
-</span><span class="w"></span><span class="nt">volumeBindingMode</span><span class="p">:</span><span class="w"> </span><span class="l">WaitForFirstConsumer</span><span class="w">
-</span><span class="w"></span><span class="nt">allowVolumeExpansion</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">storage.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">StorageClass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">oci-bv-higher-perf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">provisioner</span><span class="p">:</span><span class="w"> </span><span class="l">blockvolume.csi.oraclecloud.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">parameters</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">vpusPerGB</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;20&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">reclaimPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Delete</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">volumeBindingMode</span><span class="p">:</span><span class="w"> </span><span class="l">WaitForFirstConsumer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">allowVolumeExpansion</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>PVC를 생성합니다.</p>
 <ul>
 <li>csi-bvs-pvc-higher-perf.yaml</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">PersistentVolumeClaim</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">csi-bvs-pvc-higher-perf</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;oci-bv-higher-perf&#34;</span><span class="w">
-</span><span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="l">ReadWriteOnce</span><span class="w">
-</span><span class="w">  </span><span class="nt">resources</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">requests</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l">50Gi</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">PersistentVolumeClaim</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">csi-bvs-pvc-higher-perf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;oci-bv-higher-perf&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">ReadWriteOnce</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">requests</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l">50Gi</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>테스트를 위한 앱을 배포합니다.</p>
 <ul>
 <li>nginx-deployment-bvs-pvc-higher-perf.yaml</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
-</span><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
-</span><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
-</span><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx:latest</span><span class="w">
-</span><span class="w">        </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
-</span><span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/usr/share/nginx/html</span><span class="w">
-</span><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
-</span><span class="w">        </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l">csi-bvs-pvc-higher-perf</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc-higher-perf</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx:latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/usr/share/nginx/html</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l">csi-bvs-pvc-higher-perf</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>실행 예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span><span class="nv">$kubectl</span> apply -f csi-bvs-sc-higher-perf.yaml 
-storageclass.storage.k8s.io/oci-bv-higher-perf created
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span><span class="nv">$kubectl</span> apply -f csi-bvs-pvc-higher-perf.yaml 
-persistentvolumeclaim/csi-bvs-pvc-higher-perf created
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl apply -f nginx-deployment-bvs-pvc-higher-perf.yaml 
-deployment.apps/nginx-bvs-pvc-higher-perf created
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get sc
-NAME                 PROVISIONER                       RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-oci <span class="o">(</span>default<span class="o">)</span>        oracle.com/oci                    Delete          Immediate              <span class="nb">false</span>                  4d1h
-oci-bv               blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   4d1h
-oci-bv-higher-perf   blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   35s
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get pvc
-NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS         AGE
-csi-bvs-pvc-higher-perf   Bound    csi-51c51276-6103-487e-a549-9039de4f8ae4   50Gi       RWO            oci-bv-higher-perf   29s
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get pod
-NAME                                         READY   STATUS    RESTARTS   AGE
-nginx-bvs-pvc-higher-perf-6495bcdf45-xzc2j   1/1     Running   <span class="m">0</span>          5m23s
-spring-boot-hello-6865775b89-gzx4w           1/1     Running   <span class="m">0</span>          3d3h
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span><span class="nv">$kubectl</span> apply -f csi-bvs-sc-higher-perf.yaml 
+</span></span><span class="line"><span class="cl">storageclass.storage.k8s.io/oci-bv-higher-perf created
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span><span class="nv">$kubectl</span> apply -f csi-bvs-pvc-higher-perf.yaml 
+</span></span><span class="line"><span class="cl">persistentvolumeclaim/csi-bvs-pvc-higher-perf created
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl apply -f nginx-deployment-bvs-pvc-higher-perf.yaml 
+</span></span><span class="line"><span class="cl">deployment.apps/nginx-bvs-pvc-higher-perf created
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get sc
+</span></span><span class="line"><span class="cl">NAME                 PROVISIONER                       RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+</span></span><span class="line"><span class="cl">oci <span class="o">(</span>default<span class="o">)</span>        oracle.com/oci                    Delete          Immediate              <span class="nb">false</span>                  4d1h
+</span></span><span class="line"><span class="cl">oci-bv               blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   4d1h
+</span></span><span class="line"><span class="cl">oci-bv-higher-perf   blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   35s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get pvc
+</span></span><span class="line"><span class="cl">NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS         AGE
+</span></span><span class="line"><span class="cl">csi-bvs-pvc-higher-perf   Bound    csi-51c51276-6103-487e-a549-9039de4f8ae4   50Gi       RWO            oci-bv-higher-perf   29s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                                         READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">nginx-bvs-pvc-higher-perf-6495bcdf45-xzc2j   1/1     Running   <span class="m">0</span>          5m23s
+</span></span><span class="line"><span class="cl">spring-boot-hello-6865775b89-gzx4w           1/1     Running   <span class="m">0</span>          3d3h
+</span></span></code></pre></div></li>
 <li>
 <p>실행결과 생성된 Block Volume 확인</p>
 <p>실제 생성된 Block Volume을 오라클 클라우드 콘솔에서 확인해 보면, VPU: 20의 Higher Performance로 생성된 것을 볼 수 있습니다.</p>
@@ -216,18 +216,18 @@ spring-boot-hello-6865775b89-gzx4w           1/1     Running   <span class="m">0
 </li>
 <li>
 <p>vpusPerGB:0의 Lower Cost와 vpusPerGB:10인 기본 Storage Class인 oci-bv를 사용해도, 각각 관련 VPU의 Block Volume이 생성되는 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get sc
-NAME                 PROVISIONER                       RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-oci <span class="o">(</span>default<span class="o">)</span>        oracle.com/oci                    Delete          Immediate              <span class="nb">false</span>                  4d2h
-oci-bv               blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   4d2h
-oci-bv-higher-perf   blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   29m
-oci-bv-lower-cost    blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   15m
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get pvc
-NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS         AGE
-csi-bvs-pvc               Bound    csi-88a5df3c-2351-4554-9e27-57d7ef948025   50Gi       RWO            oci-bv               17m
-csi-bvs-pvc-higher-perf   Bound    csi-51c51276-6103-487e-a549-9039de4f8ae4   50Gi       RWO            oci-bv-higher-perf   29m
-csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50Gi       RWO            oci-bv-lower-cost    15m
-</code></pre></div><p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get sc
+</span></span><span class="line"><span class="cl">NAME                 PROVISIONER                       RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+</span></span><span class="line"><span class="cl">oci <span class="o">(</span>default<span class="o">)</span>        oracle.com/oci                    Delete          Immediate              <span class="nb">false</span>                  4d2h
+</span></span><span class="line"><span class="cl">oci-bv               blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   4d2h
+</span></span><span class="line"><span class="cl">oci-bv-higher-perf   blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   29m
+</span></span><span class="line"><span class="cl">oci-bv-lower-cost    blockvolume.csi.oraclecloud.com   Delete          WaitForFirstConsumer   <span class="nb">true</span>                   15m
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get pvc
+</span></span><span class="line"><span class="cl">NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS         AGE
+</span></span><span class="line"><span class="cl">csi-bvs-pvc               Bound    csi-88a5df3c-2351-4554-9e27-57d7ef948025   50Gi       RWO            oci-bv               17m
+</span></span><span class="line"><span class="cl">csi-bvs-pvc-higher-perf   Bound    csi-51c51276-6103-487e-a549-9039de4f8ae4   50Gi       RWO            oci-bv-higher-perf   29m
+</span></span><span class="line"><span class="cl">csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50Gi       RWO            oci-bv-lower-cost    15m
+</span></span></code></pre></div><p>
 
 
 
@@ -318,6 +318,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -347,6 +351,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -401,6 +409,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -433,6 +445,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -462,6 +478,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -490,9 +510,17 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -520,6 +548,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -549,6 +581,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -579,6 +615,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -611,6 +651,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -640,6 +684,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -668,6 +716,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -703,6 +755,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -729,6 +785,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -780,9 +840,17 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -811,6 +879,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -885,6 +957,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -912,9 +988,17 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -947,6 +1031,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -976,6 +1064,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1007,6 +1099,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1083,6 +1179,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1112,10 +1212,18 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1143,6 +1251,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1173,6 +1285,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1225,6 +1341,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1251,6 +1371,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1277,6 +1401,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1304,6 +1432,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1357,9 +1489,17 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1390,6 +1530,10 @@ csi-bvs-pvc-lower-cost    Bound    csi-219ba6c6-f3d5-4308-90a8-51431583dd23   50
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>5.1 Installing Apache HTTP Server on Linux Instance - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter05/1/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -27,10 +27,10 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="5.1 Installing Apache HTTP Server on Linux Instance" />
-<meta property="og:description" content="5.1 Installing Apache HTTP Server on Linux Instance   Connect to the created instance through the SSH command. The commands below are based on Oracle Enterprise Linux.
-ssh –i &lt;private_key&gt; &lt;username&gt;@&lt;public-ip-address&gt;   Install Apache HTTP Server
-sudo yum -y install httpd   Open port 80, port for Apache HTTP in OS firewall
-sudo firewall-cmd --permanent --add-port=80/tcp  Tips Firewall open ports
+<meta property="og:description" content="5.1 Installing Apache HTTP Server on Linux Instance Connect to the created instance through the SSH command. The commands below are based on Oracle Enterprise Linux.
+ssh –i &lt;private_key&gt; &lt;username&gt;@&lt;public-ip-address&gt; Install Apache HTTP Server
+sudo yum -y install httpd Open port 80, port for Apache HTTP in OS firewall
+sudo firewall-cmd --permanent --add-port=80/tcp Tips Firewall open ports
 Modify the above command according to a port other than the Apache server default port, or a port that needs to be opened when using other applications, and open the port in the firewall." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter05/1/" /><meta property="article:section" content="oci" />
@@ -76,16 +76,16 @@ Modify the above command according to a port other than the Apache server defaul
 <ol>
 <li>
 <p>Connect to the created instance through the SSH command. The commands below are based on Oracle Enterprise Linux.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ssh –i &lt;private_key&gt; &lt;username&gt;@&lt;public-ip-address&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ssh –i &lt;private_key&gt; &lt;username&gt;@&lt;public-ip-address&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>Install Apache HTTP Server</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo yum -y install httpd
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo yum -y install httpd
+</span></span></code></pre></div></li>
 <li>
 <p>Open port 80, port for Apache HTTP in OS firewall</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo firewall-cmd --permanent --add-port<span class="o">=</span>80/tcp
-</code></pre></div><div class="panel panel-notice"><div class="panel-header">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port<span class="o">=</span>80/tcp
+</span></span></code></pre></div><div class="panel panel-notice"><div class="panel-header">
 <h3><i class="fas fa-life-saver"></i> Tips</h3>
 </div><div class="panel-body">
 
@@ -97,128 +97,128 @@ Modify the above command according to a port other than the Apache server defaul
 </li>
 <li>
 <p>Re-reflect firewall changes</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo firewall-cmd --reload
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
 <li>
 <p>Start Apache</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo systemctl start httpd
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo systemctl start httpd
+</span></span></code></pre></div></li>
 <li>
 <p>Create server&rsquo;s Root Index Document for testing</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo su
-<span class="nb">echo</span> <span class="s1">&#39;Hello Apache&#39;</span> &gt;/var/www/html/index.html
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo su
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s1">&#39;Hello Apache&#39;</span> &gt;/var/www/html/index.html
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="example-of-installation">Example of installation</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@152.70.251.xx
-Last login: Mon Jan <span class="m">10</span> 08:38:45 <span class="m">2022</span> from 223.62.21.xx
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo yum -y install httpd
-Loaded plugins: langpacks, ulninfo
-ol7_MySQL80                                                                                 <span class="p">|</span> 3.0 kB 00:00:00
-ol7_MySQL80_connectors_community                                                            <span class="p">|</span> 2.9 kB 00:00:00
-ol7_MySQL80_tools_community                                                                 <span class="p">|</span> 2.9 kB 00:00:00
-ol7_UEKR6                                                                                   <span class="p">|</span> 3.0 kB 00:00:00
-ol7_addons                                                                                  <span class="p">|</span> 3.0 kB 00:00:00
-ol7_ksplice                                                                                 <span class="p">|</span> 3.0 kB 00:00:00
-ol7_latest                                                                                  <span class="p">|</span> 3.6 kB 00:00:00
-ol7_oci_included                                                                            <span class="p">|</span> 2.9 kB 00:00:00
-ol7_optional_latest                                                                         <span class="p">|</span> 3.0 kB 00:00:00
-ol7_software_collections                                                                    <span class="p">|</span> 3.0 kB 00:00:00
-<span class="o">(</span>1/20<span class="o">)</span>: ol7_MySQL80_connectors_community/x86_64/updateinfo                                  <span class="p">|</span>  <span class="m">71</span> B 00:00:01
-<span class="o">(</span>2/20<span class="o">)</span>: ol7_MySQL80_tools_community/x86_64/primary_db                                       <span class="p">|</span> <span class="m">13</span> kB 00:00:00
-<span class="o">(</span>3/20<span class="o">)</span>: ol7_UEKR6/x86_64/updateinfo                                                         <span class="p">|</span> <span class="m">389</span> kB 00:00:00
-<span class="o">(</span>4/20<span class="o">)</span>: ol7_MySQL80/x86_64/updateinfo                                                       <span class="p">|</span>  <span class="m">71</span> B 00:00:01
-<span class="o">(</span>5/20<span class="o">)</span>: ol7_addons/x86_64/updateinfo                                                        <span class="p">|</span> <span class="m">131</span> kB 00:00:00
-<span class="o">(</span>6/20<span class="o">)</span>: ol7_addons/x86_64/primary_db                                                        <span class="p">|</span> <span class="m">209</span> kB 00:00:00
-<span class="o">(</span>7/20<span class="o">)</span>: ol7_MySQL80_tools_community/x86_64/updateinfo                                       <span class="p">|</span>  <span class="m">71</span> B 00:00:01
-<span class="o">(</span>8/20<span class="o">)</span>: ol7_ksplice/updateinfo                                                              <span class="p">|</span> 7.9 kB 00:00:00
-<span class="o">(</span>9/20<span class="o">)</span>: ol7_latest/x86_64/group_gz                                                          <span class="p">|</span> <span class="m">136</span> kB 00:00:00
-<span class="o">(</span>10/20<span class="o">)</span>: ol7_ksplice/primary_db                                                             <span class="p">|</span> 2.4 MB 00:00:00
-<span class="o">(</span>11/20<span class="o">)</span>: ol7_MySQL80_connectors_community/x86_64/primary_db                                 <span class="p">|</span> <span class="m">27</span> kB 00:00:01
-<span class="o">(</span>12/20<span class="o">)</span>: ol7_oci_included/x86_64/primary_db                                                 <span class="p">|</span> <span class="m">754</span> kB 00:00:00
-<span class="o">(</span>13/20<span class="o">)</span>: ol7_latest/x86_64/updateinfo                                                       <span class="p">|</span> 3.4 MB 00:00:00
-<span class="o">(</span>14/20<span class="o">)</span>: ol7_optional_latest/x86_64/updateinfo                                              <span class="p">|</span> 1.3 MB 00:00:00
-<span class="o">(</span>15/20<span class="o">)</span>: ol7_software_collections/x86_64/updateinfo                                         <span class="p">|</span> 8.9 kB 00:00:00
-<span class="o">(</span>16/20<span class="o">)</span>: ol7_software_collections/x86_64/primary_db                                         <span class="p">|</span> 5.8 MB 00:00:00
-<span class="o">(</span>17/20<span class="o">)</span>: ol7_MySQL80/x86_64/primary_db                                                      <span class="p">|</span> <span class="m">183</span> kB 00:00:02
-<span class="o">(</span>18/20<span class="o">)</span>: ol7_optional_latest/x86_64/primary_db                                              <span class="p">|</span> 5.6 MB 00:00:00
-<span class="o">(</span>19/20<span class="o">)</span>: ol7_UEKR6/x86_64/primary_db                                                        <span class="p">|</span> <span class="m">27</span> MB 00:00:01
-<span class="o">(</span>20/20<span class="o">)</span>: ol7_latest/x86_64/primary_db                                                       <span class="p">|</span> <span class="m">37</span> MB 00:00:01
-Resolving Dependencies
---&gt; Running transaction check
----&gt; Package httpd.x86_64 0:2.4.6-97.0.5.el7_9.2 will be installed
---&gt; Processing Dependency: httpd-tools <span class="o">=</span> 2.4.6-97.0.5.el7_9.2 <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
---&gt; Processing Dependency: /etc/mime.types <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
---&gt; Processing Dependency: libapr-1.so.0<span class="o">()(</span>64bit<span class="o">)</span> <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
---&gt; Processing Dependency: libaprutil-1.so.0<span class="o">()(</span>64bit<span class="o">)</span> <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
---&gt; Running transaction check
----&gt; Package apr.x86_64 0:1.4.8-7.el7 will be installed
----&gt; Package apr-util.x86_64 0:1.5.2-6.0.1.el7 will be installed
----&gt; Package httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2 will be installed
----&gt; Package mailcap.noarch 0:2.1.41-2.el7 will be installed
---&gt; Finished Dependency Resolution
-
-Dependencies <span class="nv">Resolved</span>
-
-<span class="o">=================================================================================================================</span>
- Package                    Arch                 Version                        Repository                <span class="nv">Size</span>
-<span class="o">=================================================================================================================</span>
-Installing:
- httpd                      x86_64               2.4.6-97.0.5.el7_9.2           ol7_latest                1.2 M
-Installing <span class="k">for</span> dependencies:
- apr                        x86_64               1.4.8-7.el7                    ol7_latest                <span class="m">103</span> k
- apr-util                   x86_64               1.5.2-6.0.1.el7                ol7_latest                <span class="m">91</span> k
- httpd-tools                x86_64               2.4.6-97.0.5.el7_9.2           ol7_latest                <span class="m">93</span> k
- mailcap                    noarch               2.1.41-2.el7                   ol7_latest                <span class="m">30</span> k
-
-Transaction <span class="nv">Summary</span>
-<span class="o">=================================================================================================================</span>
-Install <span class="m">1</span> Package <span class="o">(</span>+4 Dependent packages<span class="o">)</span>
-
-Total download size: 1.5 M
-Installed size: 4.3 M
-Downloading packages:
-<span class="o">(</span>1/5<span class="o">)</span>: apr-1.4.8-7.el7.x86_64.rpm                                                           <span class="p">|</span> <span class="m">103</span> kB 00:00:00
-<span class="o">(</span>2/5<span class="o">)</span>: apr-util-1.5.2-6.0.1.el7.x86_64.rpm                                                  <span class="p">|</span> <span class="m">91</span> kB 00:00:00
-<span class="o">(</span>3/5<span class="o">)</span>: httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64.rpm                                          <span class="p">|</span> <span class="m">93</span> kB 00:00:00
-<span class="o">(</span>4/5<span class="o">)</span>: mailcap-2.1.41-2.el7.noarch.rpm                                                      <span class="p">|</span> <span class="m">30</span> kB 00:00:00
-<span class="o">(</span>5/5<span class="o">)</span>: httpd-2.4.6-97.0.5.el7_9.2.x86_64.rpm                                                <span class="p">|</span> 1.2 MB 00:00:00
-------------------------------------------------------------------------------------------------------------------
-Total                                                                              1.5 MB/s <span class="p">|</span> 1.5 MB 00:00:00
-Running transaction check
-Running transaction <span class="nb">test</span>
-Transaction <span class="nb">test</span> succeeded
-Running transaction
- Installing : apr-1.4.8-7.el7.x86_64                                                                      1/5
- Installing : apr-util-1.5.2-6.0.1.el7.x86_64                                                             2/5
- Installing : httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64                                                     3/5
- Installing : mailcap-2.1.41-2.el7.noarch                                                                 4/5
- Installing : httpd-2.4.6-97.0.5.el7_9.2.x86_64                                                           5/5
- Verifying : httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64                                                      1/5
- Verifying : apr-1.4.8-7.el7.x86_64                                                                       2/5
- Verifying : apr-util-1.5.2-6.0.1.el7.x86_64                                                              3/5
- Verifying : mailcap-2.1.41-2.el7.noarch                                                                  4/5
- Verifying : httpd-2.4.6-97.0.5.el7_9.2.x86_64                                                            5/5
-
-Installed:
- httpd.x86_64 0:2.4.6-97.0.5.el7_9.2
-
-Dependency Installed:
- apr.x86_64 0:1.4.8-7.el7         apr-util.x86_64 0:1.5.2-6.0.1.el7         httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2         mailcap.noarch 0:2.1.41-2.el7
-
-Complete!
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo firewall-cmd --permanent --add-port<span class="o">=</span>80/tcp
-success
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo firewall-cmd --reload
-success
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo systemctl start httpd
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo su
-<span class="o">[</span>root@examplelinuxinstance opc<span class="o">]</span><span class="c1"># echo &#39;Hello Apache&#39; &gt;/var/www/html/index.html</span>
-<span class="o">[</span>root@examplelinuxinstance opc<span class="o">]</span><span class="c1"># exit</span>
-<span class="nb">exit</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ curl http://127.0.0.1:80/index.html
-Hello Apache
-</code></pre></div><br>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@152.70.251.xx
+</span></span><span class="line"><span class="cl">Last login: Mon Jan <span class="m">10</span> 08:38:45 <span class="m">2022</span> from 223.62.21.xx
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo yum -y install httpd
+</span></span><span class="line"><span class="cl">Loaded plugins: langpacks, ulninfo
+</span></span><span class="line"><span class="cl">ol7_MySQL80                                                                                 <span class="p">|</span> 3.0 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_MySQL80_connectors_community                                                            <span class="p">|</span> 2.9 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_MySQL80_tools_community                                                                 <span class="p">|</span> 2.9 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_UEKR6                                                                                   <span class="p">|</span> 3.0 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_addons                                                                                  <span class="p">|</span> 3.0 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_ksplice                                                                                 <span class="p">|</span> 3.0 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_latest                                                                                  <span class="p">|</span> 3.6 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_oci_included                                                                            <span class="p">|</span> 2.9 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_optional_latest                                                                         <span class="p">|</span> 3.0 kB 00:00:00
+</span></span><span class="line"><span class="cl">ol7_software_collections                                                                    <span class="p">|</span> 3.0 kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>1/20<span class="o">)</span>: ol7_MySQL80_connectors_community/x86_64/updateinfo                                  <span class="p">|</span>  <span class="m">71</span> B 00:00:01
+</span></span><span class="line"><span class="cl"><span class="o">(</span>2/20<span class="o">)</span>: ol7_MySQL80_tools_community/x86_64/primary_db                                       <span class="p">|</span> <span class="m">13</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>3/20<span class="o">)</span>: ol7_UEKR6/x86_64/updateinfo                                                         <span class="p">|</span> <span class="m">389</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>4/20<span class="o">)</span>: ol7_MySQL80/x86_64/updateinfo                                                       <span class="p">|</span>  <span class="m">71</span> B 00:00:01
+</span></span><span class="line"><span class="cl"><span class="o">(</span>5/20<span class="o">)</span>: ol7_addons/x86_64/updateinfo                                                        <span class="p">|</span> <span class="m">131</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>6/20<span class="o">)</span>: ol7_addons/x86_64/primary_db                                                        <span class="p">|</span> <span class="m">209</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>7/20<span class="o">)</span>: ol7_MySQL80_tools_community/x86_64/updateinfo                                       <span class="p">|</span>  <span class="m">71</span> B 00:00:01
+</span></span><span class="line"><span class="cl"><span class="o">(</span>8/20<span class="o">)</span>: ol7_ksplice/updateinfo                                                              <span class="p">|</span> 7.9 kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>9/20<span class="o">)</span>: ol7_latest/x86_64/group_gz                                                          <span class="p">|</span> <span class="m">136</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>10/20<span class="o">)</span>: ol7_ksplice/primary_db                                                             <span class="p">|</span> 2.4 MB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>11/20<span class="o">)</span>: ol7_MySQL80_connectors_community/x86_64/primary_db                                 <span class="p">|</span> <span class="m">27</span> kB 00:00:01
+</span></span><span class="line"><span class="cl"><span class="o">(</span>12/20<span class="o">)</span>: ol7_oci_included/x86_64/primary_db                                                 <span class="p">|</span> <span class="m">754</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>13/20<span class="o">)</span>: ol7_latest/x86_64/updateinfo                                                       <span class="p">|</span> 3.4 MB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>14/20<span class="o">)</span>: ol7_optional_latest/x86_64/updateinfo                                              <span class="p">|</span> 1.3 MB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>15/20<span class="o">)</span>: ol7_software_collections/x86_64/updateinfo                                         <span class="p">|</span> 8.9 kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>16/20<span class="o">)</span>: ol7_software_collections/x86_64/primary_db                                         <span class="p">|</span> 5.8 MB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>17/20<span class="o">)</span>: ol7_MySQL80/x86_64/primary_db                                                      <span class="p">|</span> <span class="m">183</span> kB 00:00:02
+</span></span><span class="line"><span class="cl"><span class="o">(</span>18/20<span class="o">)</span>: ol7_optional_latest/x86_64/primary_db                                              <span class="p">|</span> 5.6 MB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>19/20<span class="o">)</span>: ol7_UEKR6/x86_64/primary_db                                                        <span class="p">|</span> <span class="m">27</span> MB 00:00:01
+</span></span><span class="line"><span class="cl"><span class="o">(</span>20/20<span class="o">)</span>: ol7_latest/x86_64/primary_db                                                       <span class="p">|</span> <span class="m">37</span> MB 00:00:01
+</span></span><span class="line"><span class="cl">Resolving Dependencies
+</span></span><span class="line"><span class="cl">--&gt; Running transaction check
+</span></span><span class="line"><span class="cl">---&gt; Package httpd.x86_64 0:2.4.6-97.0.5.el7_9.2 will be installed
+</span></span><span class="line"><span class="cl">--&gt; Processing Dependency: httpd-tools <span class="o">=</span> 2.4.6-97.0.5.el7_9.2 <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
+</span></span><span class="line"><span class="cl">--&gt; Processing Dependency: /etc/mime.types <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
+</span></span><span class="line"><span class="cl">--&gt; Processing Dependency: libapr-1.so.0<span class="o">()(</span>64bit<span class="o">)</span> <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
+</span></span><span class="line"><span class="cl">--&gt; Processing Dependency: libaprutil-1.so.0<span class="o">()(</span>64bit<span class="o">)</span> <span class="k">for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
+</span></span><span class="line"><span class="cl">--&gt; Running transaction check
+</span></span><span class="line"><span class="cl">---&gt; Package apr.x86_64 0:1.4.8-7.el7 will be installed
+</span></span><span class="line"><span class="cl">---&gt; Package apr-util.x86_64 0:1.5.2-6.0.1.el7 will be installed
+</span></span><span class="line"><span class="cl">---&gt; Package httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2 will be installed
+</span></span><span class="line"><span class="cl">---&gt; Package mailcap.noarch 0:2.1.41-2.el7 will be installed
+</span></span><span class="line"><span class="cl">--&gt; Finished Dependency Resolution
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Dependencies <span class="nv">Resolved</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">=================================================================================================================</span>
+</span></span><span class="line"><span class="cl"> Package                    Arch                 Version                        Repository                <span class="nv">Size</span>
+</span></span><span class="line"><span class="cl"><span class="o">=================================================================================================================</span>
+</span></span><span class="line"><span class="cl">Installing:
+</span></span><span class="line"><span class="cl"> httpd                      x86_64               2.4.6-97.0.5.el7_9.2           ol7_latest                1.2 M
+</span></span><span class="line"><span class="cl">Installing <span class="k">for</span> dependencies:
+</span></span><span class="line"><span class="cl"> apr                        x86_64               1.4.8-7.el7                    ol7_latest                <span class="m">103</span> k
+</span></span><span class="line"><span class="cl"> apr-util                   x86_64               1.5.2-6.0.1.el7                ol7_latest                <span class="m">91</span> k
+</span></span><span class="line"><span class="cl"> httpd-tools                x86_64               2.4.6-97.0.5.el7_9.2           ol7_latest                <span class="m">93</span> k
+</span></span><span class="line"><span class="cl"> mailcap                    noarch               2.1.41-2.el7                   ol7_latest                <span class="m">30</span> k
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Transaction <span class="nv">Summary</span>
+</span></span><span class="line"><span class="cl"><span class="o">=================================================================================================================</span>
+</span></span><span class="line"><span class="cl">Install <span class="m">1</span> Package <span class="o">(</span>+4 Dependent packages<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Total download size: 1.5 M
+</span></span><span class="line"><span class="cl">Installed size: 4.3 M
+</span></span><span class="line"><span class="cl">Downloading packages:
+</span></span><span class="line"><span class="cl"><span class="o">(</span>1/5<span class="o">)</span>: apr-1.4.8-7.el7.x86_64.rpm                                                           <span class="p">|</span> <span class="m">103</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>2/5<span class="o">)</span>: apr-util-1.5.2-6.0.1.el7.x86_64.rpm                                                  <span class="p">|</span> <span class="m">91</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>3/5<span class="o">)</span>: httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64.rpm                                          <span class="p">|</span> <span class="m">93</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>4/5<span class="o">)</span>: mailcap-2.1.41-2.el7.noarch.rpm                                                      <span class="p">|</span> <span class="m">30</span> kB 00:00:00
+</span></span><span class="line"><span class="cl"><span class="o">(</span>5/5<span class="o">)</span>: httpd-2.4.6-97.0.5.el7_9.2.x86_64.rpm                                                <span class="p">|</span> 1.2 MB 00:00:00
+</span></span><span class="line"><span class="cl">------------------------------------------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">Total                                                                              1.5 MB/s <span class="p">|</span> 1.5 MB 00:00:00
+</span></span><span class="line"><span class="cl">Running transaction check
+</span></span><span class="line"><span class="cl">Running transaction <span class="nb">test</span>
+</span></span><span class="line"><span class="cl">Transaction <span class="nb">test</span> succeeded
+</span></span><span class="line"><span class="cl">Running transaction
+</span></span><span class="line"><span class="cl"> Installing : apr-1.4.8-7.el7.x86_64                                                                      1/5
+</span></span><span class="line"><span class="cl"> Installing : apr-util-1.5.2-6.0.1.el7.x86_64                                                             2/5
+</span></span><span class="line"><span class="cl"> Installing : httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64                                                     3/5
+</span></span><span class="line"><span class="cl"> Installing : mailcap-2.1.41-2.el7.noarch                                                                 4/5
+</span></span><span class="line"><span class="cl"> Installing : httpd-2.4.6-97.0.5.el7_9.2.x86_64                                                           5/5
+</span></span><span class="line"><span class="cl"> Verifying : httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64                                                      1/5
+</span></span><span class="line"><span class="cl"> Verifying : apr-1.4.8-7.el7.x86_64                                                                       2/5
+</span></span><span class="line"><span class="cl"> Verifying : apr-util-1.5.2-6.0.1.el7.x86_64                                                              3/5
+</span></span><span class="line"><span class="cl"> Verifying : mailcap-2.1.41-2.el7.noarch                                                                  4/5
+</span></span><span class="line"><span class="cl"> Verifying : httpd-2.4.6-97.0.5.el7_9.2.x86_64                                                            5/5
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Installed:
+</span></span><span class="line"><span class="cl"> httpd.x86_64 0:2.4.6-97.0.5.el7_9.2
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Dependency Installed:
+</span></span><span class="line"><span class="cl"> apr.x86_64 0:1.4.8-7.el7         apr-util.x86_64 0:1.5.2-6.0.1.el7         httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2         mailcap.noarch 0:2.1.41-2.el7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Complete!
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo firewall-cmd --permanent --add-port<span class="o">=</span>80/tcp
+</span></span><span class="line"><span class="cl">success
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo firewall-cmd --reload
+</span></span><span class="line"><span class="cl">success
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo systemctl start httpd
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo su
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@examplelinuxinstance opc<span class="o">]</span><span class="c1"># echo &#39;Hello Apache&#39; &gt;/var/www/html/index.html</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>root@examplelinuxinstance opc<span class="o">]</span><span class="c1"># exit</span>
+</span></span><span class="line"><span class="cl"><span class="nb">exit</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ curl http://127.0.0.1:80/index.html
+</span></span><span class="line"><span class="cl">Hello Apache
+</span></span></code></pre></div><br>
 <br>
 <div class="panel panel-caution">
 <div class="panel-body">

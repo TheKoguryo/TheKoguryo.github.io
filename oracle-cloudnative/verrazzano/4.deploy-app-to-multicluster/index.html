@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>6.4 Multicluster에 애플리케이션 배포하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -81,93 +81,93 @@
 <li>
 <p>단일 클러스터 기준 (참고)</p>
 <p>앞서 예제에서 배포할 namespace를 생성하고 라벨을 사전에 설정해야 했습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create namespace hello-helidon
-kubectl label namespace hello-helidon verrazzano-managed<span class="o">=</span><span class="nb">true</span> istio-injection<span class="o">=</span>enabled
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create namespace hello-helidon
+</span></span><span class="line"><span class="cl">kubectl label namespace hello-helidon verrazzano-managed<span class="o">=</span><span class="nb">true</span> istio-injection<span class="o">=</span>enabled
+</span></span></code></pre></div></li>
 <li>
 <p>멀티 클러스터를 위해 namespace를 생성(즉, Project를 생성)</p>
 <ul>
 <li>애플리케이션이 배포될 멀티클러스터에 걸쳐있는 namespace를 관리하기 위해서 VerrazzanoProject 유형을 제공합니다. Admin Cluster에 다음 명령을 수행하면, Admin Cluster 및 대상 Managed Cluster에 해당 namespace가 생성되면 verrazzano에서 관리하게 됩니다.</li>
 <li>아래 설정을 admin-cluster에 배포합니다.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">clusters.verrazzano.io/v1alpha1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VerrazzanoProject</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">verrazzano-mc</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">namespaces</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
-</span><span class="w">  </span><span class="nt">placement</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">clusters</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-1</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-2      </span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">clusters.verrazzano.io/v1alpha1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VerrazzanoProject</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">verrazzano-mc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">namespaces</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">hello-helidon</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">placement</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">clusters</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-2      </span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>결과 확인</p>
 <p>VerrazzanoProject 만들면 아래와 같이 대상 클러스터들에 namespace가 만들어지고 자동으로 라벨이 부여됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span> <span class="o">)]</span>$ kubectl config use-context admin-cluster
-Switched to context <span class="s2">&#34;admin-cluster&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl get ns hello-helidon --show-labels
-NAME            STATUS   AGE     LABELS
-hello-helidon   Active   4m50s   istio-injection<span class="o">=</span>enabled,verrazzano-managed<span class="o">=</span><span class="nb">true</span>
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
-Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get ns hello-helidon --show-labels
-NAME            STATUS   AGE     LABELS
-hello-helidon   Active   4m50s   istio-injection<span class="o">=</span>enabled,verrazzano-managed<span class="o">=</span><span class="nb">true</span>
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
-Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get ns hello-helidon --show-labels
-NAME            STATUS   AGE    LABELS
-hello-helidon   Active   5m3s   istio-injection<span class="o">=</span>enabled,verrazzano-managed<span class="o">=</span><span class="nb">true</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span> <span class="o">)]</span>$ kubectl config use-context admin-cluster
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;admin-cluster&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl get ns hello-helidon --show-labels
+</span></span><span class="line"><span class="cl">NAME            STATUS   AGE     LABELS
+</span></span><span class="line"><span class="cl">hello-helidon   Active   4m50s   istio-injection<span class="o">=</span>enabled,verrazzano-managed<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get ns hello-helidon --show-labels
+</span></span><span class="line"><span class="cl">NAME            STATUS   AGE     LABELS
+</span></span><span class="line"><span class="cl">hello-helidon   Active   4m50s   istio-injection<span class="o">=</span>enabled,verrazzano-managed<span class="o">=</span><span class="nb">true</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get ns hello-helidon --show-labels
+</span></span><span class="line"><span class="cl">NAME            STATUS   AGE    LABELS
+</span></span><span class="line"><span class="cl">hello-helidon   Active   5m3s   istio-injection<span class="o">=</span>enabled,verrazzano-managed<span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Component 배포</p>
 <p>단일 클러스터, 멀티 클러스터 차이가 없습니다. 설정 파일은 이전과 동일하고 대신 admin-cluster에 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>Application Configuration 배포</p>
 <ul>
 <li>
 <p>멀티 클러스터 배포를 위한 YAML 예시</p>
 <p>멀티 클러스터 배포시에는 MultiClusterApplicationConfiguration 유형을 사용합니다. 기존 ApplicationConfiguration에서 정의된 부분이 MultiClusterApplicationConfiguration의 하위 spec으로 들어간 것을 알 수 있습니다.  또한 멀티클러스터 배포를 위한 placement 구문이 추가됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">apiVersion: clusters.verrazzano.io/v1alpha1
-kind: MultiClusterApplicationConfiguration
-metadata:
-  name: hello-helidon-appconf
-  namespace: hello-helidon
-spec:
-  template:
-    metadata:
-      annotations:
-        version: v1.0.0
-        description: <span class="s2">&#34;Hello Helidon application&#34;</span>
-    spec:
-      components:
-        - componentName: hello-helidon-component
-          traits:
-            ...
-
-  placement:
-    clusters:
-      - name: managed-cluster-1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">apiVersion: clusters.verrazzano.io/v1alpha1
+</span></span><span class="line"><span class="cl">kind: MultiClusterApplicationConfiguration
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: hello-helidon-appconf
+</span></span><span class="line"><span class="cl">  namespace: hello-helidon
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  template:
+</span></span><span class="line"><span class="cl">    metadata:
+</span></span><span class="line"><span class="cl">      annotations:
+</span></span><span class="line"><span class="cl">        version: v1.0.0
+</span></span><span class="line"><span class="cl">        description: <span class="s2">&#34;Hello Helidon application&#34;</span>
+</span></span><span class="line"><span class="cl">    spec:
+</span></span><span class="line"><span class="cl">      components:
+</span></span><span class="line"><span class="cl">        - componentName: hello-helidon-component
+</span></span><span class="line"><span class="cl">          traits:
+</span></span><span class="line"><span class="cl">            ...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  placement:
+</span></span><span class="line"><span class="cl">    clusters:
+</span></span><span class="line"><span class="cl">      - name: managed-cluster-1
+</span></span></code></pre></div></li>
 <li>
 <p>멀티 클러스터 배포용 Application Configuration을 각자 placement에 맞게 수정하여 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">wget https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/multicluster/hello-helidon/mc-hello-helidon-app.yaml
-<span class="c1"># placement 수정</span>
-kubectl apply -f mc-hello-helidon-app.yaml
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">wget https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/multicluster/hello-helidon/mc-hello-helidon-app.yaml
+</span></span><span class="line"><span class="cl"><span class="c1"># placement 수정</span>
+</span></span><span class="line"><span class="cl">kubectl apply -f mc-hello-helidon-app.yaml
+</span></span></code></pre></div><ul>
 <li>
 <p>필요하면 이전 단일클러스터 배포시 사용한 아래 파일과 직접 비교해봅니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-app.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-app.yaml
+</span></span></code></pre></div></li>
 </ul>
 </li>
 </ul>
@@ -175,47 +175,47 @@ kubectl apply -f mc-hello-helidon-app.yaml
 <li>
 <p>배포결과</p>
 <p>admin-cluster에 Componet와 Application을 배포하면, 아래 결과에서 보듯이 placement로 지정한 클러스터에 배포되는 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
-component.core.oam.dev/hello-helidon-component created
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f mc-hello-helidon-app.yaml
-multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf created
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
-NAME                                                                                AGE
-multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   11m
-
-NAME                                             WORKLOAD-KIND               AGE
-component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   17m
-
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
-Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
-NAME                                                                                AGE
-multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   11m
-
-NAME                                             WORKLOAD-KIND               AGE
-component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   11m
-
-NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           11m
-
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
-Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
-No resources found in hello-helidon namespace.
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f https://raw.githubusercontent.com/verrazzano/verrazzano/v1.1.0/examples/hello-helidon/hello-helidon-comp.yaml
+</span></span><span class="line"><span class="cl">component.core.oam.dev/hello-helidon-component created
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl apply -f mc-hello-helidon-app.yaml
+</span></span><span class="line"><span class="cl">multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf created
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+</span></span><span class="line"><span class="cl">NAME                                                                                AGE
+</span></span><span class="line"><span class="cl">multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   11m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                             WORKLOAD-KIND               AGE
+</span></span><span class="line"><span class="cl">component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   17m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+</span></span><span class="line"><span class="cl">NAME                                                                                AGE
+</span></span><span class="line"><span class="cl">multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   11m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                             WORKLOAD-KIND               AGE
+</span></span><span class="line"><span class="cl">component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   11m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           11m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+</span></span><span class="line"><span class="cl">No resources found in hello-helidon namespace.
+</span></span></code></pre></div></li>
 <li>
 <p>배포된 앱의 istio를 통해 등록된 ingress DNS 확인</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl get gateway hello-helidon-hello-helidon-appconf-gw <span class="se">\
-</span><span class="se"></span>    -n hello-helidon <span class="se">\
-</span><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.servers[0].hosts[0]}&#39;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl get gateway hello-helidon-hello-helidon-appconf-gw <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -n hello-helidon <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.servers[0].hosts[0]}&#39;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>실행예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ kubectl get gateway hello-helidon-hello-helidon-appconf-gw <span class="se">\
-</span><span class="se"></span>&gt;     -n hello-helidon <span class="se">\
-</span><span class="se"></span>&gt;     -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.servers[0].hosts[0]}&#39;</span>
-hello-helidon-appconf.hello-helidon.mc-1.thekoguryo.ml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ kubectl get gateway hello-helidon-hello-helidon-appconf-gw <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     -n hello-helidon <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.servers[0].hosts[0]}&#39;</span>
+</span></span><span class="line"><span class="cl">hello-helidon-appconf.hello-helidon.mc-1.thekoguryo.ml
+</span></span></code></pre></div></li>
 <li>
 <p>애플리케이션 테스트</p>
 <p>확인된 https://{ingress DNS 주소}/greet 주소로 정상 호출되는 것을 알 수 있습니다.</p>
@@ -305,43 +305,43 @@ hello-helidon-appconf.hello-helidon.mc-1.thekoguryo.ml
 <ol>
 <li>
 <p>placement 항목을 통해 클러스터 위치를 변경할 수 있습니다. 변경할 placement 파일을 생성합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># patch.yaml</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">placement</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">clusters</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-2</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># patch.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">placement</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">clusters</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">managed-cluster-2</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>배포 위치 변경</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl patch MultiClusterApplicationConfiguration hello-helidon-appconf <span class="se">\
-</span><span class="se"></span>    -n hello-helidon <span class="se">\
-</span><span class="se"></span>    --type merge <span class="se">\
-</span><span class="se"></span>    --patch <span class="s2">&#34;</span><span class="k">$(</span>cat patch.yaml<span class="k">)</span><span class="s2">&#34;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl patch MultiClusterApplicationConfiguration hello-helidon-appconf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    -n hello-helidon <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --type merge <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --patch <span class="s2">&#34;</span><span class="k">$(</span>cat patch.yaml<span class="k">)</span><span class="s2">&#34;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>배포결과 확인</p>
 <p>앞서 managed-cluster-1에 배포되어 있던 앱이 managed-cluster-2로 위치가 변경된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl patch MultiClusterApplicationConfiguration hello-helidon-appconf <span class="se">\
-</span><span class="se"></span>&gt;     -n hello-helidon <span class="se">\
-</span><span class="se"></span>&gt;     --type merge <span class="se">\
-</span><span class="se"></span>&gt;     --patch <span class="s2">&#34;</span><span class="k">$(</span>cat patch.yaml<span class="k">)</span><span class="s2">&#34;</span>
-multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf patched
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
-Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
-No resources found in hello-helidon namespace.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
-Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
-<span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
-NAME                                                                                AGE
-multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   3m25s
-
-NAME                                             WORKLOAD-KIND               AGE
-component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   2m26s
-
-NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           2m22s
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl patch MultiClusterApplicationConfiguration hello-helidon-appconf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     -n hello-helidon <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     --type merge <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     --patch <span class="s2">&#34;</span><span class="k">$(</span>cat patch.yaml<span class="k">)</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf patched
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>admin-cluster:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-1
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;managed-cluster-1&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+</span></span><span class="line"><span class="cl">No resources found in hello-helidon namespace.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-1:default<span class="o">)]</span>$ kubectl config use-context managed-cluster-2
+</span></span><span class="line"><span class="cl">Switched to context <span class="s2">&#34;managed-cluster-2&#34;</span>.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host ~ <span class="o">(</span>⎈ <span class="p">|</span>managed-cluster-2:default<span class="o">)]</span>$ kubectl get multiclusterapplicationconfigurations,component,deployment -n hello-helidon
+</span></span><span class="line"><span class="cl">NAME                                                                                AGE
+</span></span><span class="line"><span class="cl">multiclusterapplicationconfiguration.clusters.verrazzano.io/hello-helidon-appconf   3m25s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                             WORKLOAD-KIND               AGE
+</span></span><span class="line"><span class="cl">component.core.oam.dev/hello-helidon-component   VerrazzanoHelidonWorkload   2m26s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                       READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           2m22s
+</span></span></code></pre></div></li>
 </ol>
 <br>
 <br>
@@ -424,6 +424,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -453,6 +457,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -507,6 +515,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -539,6 +551,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -568,6 +584,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -596,9 +616,17 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -626,6 +654,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -655,6 +687,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -685,6 +721,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -717,6 +757,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -746,6 +790,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -774,6 +822,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -809,6 +861,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -835,6 +891,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -886,9 +946,17 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -917,6 +985,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -991,6 +1063,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1018,9 +1094,17 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1053,6 +1137,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1082,6 +1170,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1113,6 +1205,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1189,6 +1285,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1218,10 +1318,18 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1249,6 +1357,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1279,6 +1391,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1331,6 +1447,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1357,6 +1477,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1383,6 +1507,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1410,6 +1538,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1463,9 +1595,17 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1496,6 +1636,10 @@ deployment.apps/hello-helidon-deployment   1/1     <span class="m">1</span>     
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

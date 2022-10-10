@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>6.5 Grabbing the Policy Concept - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter06/5/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -77,16 +77,16 @@ Policy General Format If the permissions for resources are defined through the p
 <p>IAM Policy is an access policy for OCI resources. A policy can generally be thought of as defining what grants a user group permission to a specific type of resource belonging to a specific compartment.</p>
 <h3 id="policy-syntax">Policy syntax</h3>
 <p>All policies have the following syntax.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">Allow &lt;subject&gt; to &lt;verb&gt; &lt;resource-type&gt; in &lt;location&gt; where &lt;conditions&gt;
-</code></pre></div><p>For detailed syntax, please refer to OCI Documentation.<br>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">Allow &lt;subject&gt; to &lt;verb&gt; &lt;resource-type&gt; in &lt;location&gt; where &lt;conditions&gt;
+</span></span></code></pre></div><p>For detailed syntax, please refer to OCI Documentation.<br>
 <a href="https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/policysyntax.htm">https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/policysyntax.htm</a></p>
 <h3 id="policy-general-format">Policy General Format</h3>
 <p>If the permissions for resources are defined through the policy below, all permissions are granted to the administrator when creating a tenancy, and general users and groups that do not apply a separate policy have no permissions at all. Grants only the permissions explicitly granted by the policy.</p>
 <p>A commonly used policy is defined in a format in which a user group grants read, write, and full privileges to a specific resource type within the compartment as shown below.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">Allow group &lt;group_name&gt; to &lt;verb&gt; &lt;resource-type&gt; in compartment &lt;compartment_name&gt;
-</code></pre></div><p>Some define policies that apply to the entire tenancy rather than a compartment.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">Allow group &lt;group_name&gt; to &lt;verb&gt; &lt;resource-type&gt; in tenancy
-</code></pre></div><h4 id="subjects">Subjects</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">Allow group &lt;group_name&gt; to &lt;verb&gt; &lt;resource-type&gt; in compartment &lt;compartment_name&gt;
+</span></span></code></pre></div><p>Some define policies that apply to the entire tenancy rather than a compartment.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">Allow group &lt;group_name&gt; to &lt;verb&gt; &lt;resource-type&gt; in tenancy
+</span></span></code></pre></div><h4 id="subjects">Subjects</h4>
 <p>This is usually group, but you cannot specify a specific user. Any-user can be specified.</p>
 <p>See also: <a href="https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/policysyntax.htm#one">https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/policysyntax.htm#one</a></p>
 <h4 id="verbs">Verbs</h4>
@@ -140,14 +140,14 @@ Policy General Format If the permissions for resources are defined through the p
 <p>If a compartment consists of multiple layers, the policy given to the parent compartment is inherited by the child compartment.</p>
 <h3 id="example-policy">Example Policy</h3>
 <p>Example Policy by granting user management rights to specific groups based on tenancy</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">Allow group HelpDesk to manage users in tenancy
-</code></pre></div><p>Example Policy that assigns a group of administrators to manage all resources on a Compartment basis</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">Allow group A-Admins to manage all-resources in compartment Project-A
-</code></pre></div><p>Example of a policy that assigns a group of partial administrators to manage only a specific resource family based on the compartment</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">Allow group A-Admins to manage instance-family in compartment Project-A
-Allow group A-Admins to manage volume-family in compartment Project-A
-Allow group A-Admins to use virtual-network-family in compartment Networks
-</code></pre></div><h4 id="examples-of-policies-that-can-be-used">Examples of policies that can be used</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">Allow group HelpDesk to manage users in tenancy
+</span></span></code></pre></div><p>Example Policy that assigns a group of administrators to manage all resources on a Compartment basis</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">Allow group A-Admins to manage all-resources in compartment Project-A
+</span></span></code></pre></div><p>Example of a policy that assigns a group of partial administrators to manage only a specific resource family based on the compartment</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">Allow group A-Admins to manage instance-family in compartment Project-A
+</span></span><span class="line"><span class="cl">Allow group A-Admins to manage volume-family in compartment Project-A
+</span></span><span class="line"><span class="cl">Allow group A-Admins to use virtual-network-family in compartment Networks
+</span></span></code></pre></div><h4 id="examples-of-policies-that-can-be-used">Examples of policies that can be used</h4>
 <p>Common Policies for policies that can be used in general are provided in the document. Please refer to it when creating a policy.<br>
 <a href="https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/commonpolicies.htm">https://docs.cloud.oracle.com/iaas/Content/Identity/Concepts/commonpolicies.htm</a></p>
 <br>

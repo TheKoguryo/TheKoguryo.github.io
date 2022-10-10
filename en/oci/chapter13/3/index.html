@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>13.3 Autoscaling Test - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter13/3/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -27,10 +27,10 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="13.3 Autoscaling Test" />
-<meta property="og:description" content="13.3 Autoscaling Test Scale Out occurrence test   Go to the Instance Pool and connect to the current Compute instance with SSH.
-  Install the stress tool
-sudo yum-config-manager --enable ol7_developer_EPEL sudo yum install -y stress   Perform stress
-sudo stress --cpu N   Execution example
+<meta property="og:description" content="13.3 Autoscaling Test Scale Out occurrence test Go to the Instance Pool and connect to the current Compute instance with SSH.
+Install the stress tool
+sudo yum-config-manager --enable ol7_developer_EPEL sudo yum install -y stress Perform stress
+sudo stress --cpu N Execution example
 Continue to apply the load by adjusting the number of CPUs of the Compute Instance to be used. Considering the Cool Down value determined when auto-scale is set, apply a load longer than that time." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter13/3/" /><meta property="article:section" content="oci" />
@@ -80,19 +80,19 @@ Continue to apply the load by adjusting the number of CPUs of the Compute Instan
 </li>
 <li>
 <p>Install the stress tool</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo yum-config-manager --enable ol7_developer_EPEL
-sudo yum install -y stress
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo yum-config-manager --enable ol7_developer_EPEL
+</span></span><span class="line"><span class="cl">sudo yum install -y stress
+</span></span></code></pre></div></li>
 <li>
 <p>Perform stress</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo stress --cpu N
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo stress --cpu N
+</span></span></code></pre></div></li>
 <li>
 <p>Execution example</p>
 <p>Continue to apply the load by adjusting the number of CPUs of the Compute Instance to be used. Considering the Cool Down value determined when auto-scale is set, apply a load longer than that time.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@autoscalingwebserver ~<span class="o">]</span>$ sudo stress --cpu <span class="m">4</span>
-stress: info: <span class="o">[</span>21438<span class="o">]</span> dispatching hogs: <span class="m">4</span> cpu, <span class="m">0</span> io, <span class="m">0</span> vm, <span class="m">0</span> hdd
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@autoscalingwebserver ~<span class="o">]</span>$ sudo stress --cpu <span class="m">4</span>
+</span></span><span class="line"><span class="cl">stress: info: <span class="o">[</span>21438<span class="o">]</span> dispatching hogs: <span class="m">4</span> cpu, <span class="m">0</span> io, <span class="m">0</span> vm, <span class="m">0</span> hdd
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="monitoring-during-load-occurrence">Monitoring during load occurrence</h3>
 <ol>
@@ -204,11 +204,11 @@ stress: info: <span class="o">[</span>21438<span class="o">]</span> dispatching 
 <ol>
 <li>
 <p>Stop the load given by the SSH connection terminal of the server No. 1.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@autoscalingwebserver-264316 ~<span class="o">]</span>$ sudo stress --cpu <span class="m">4</span>
-stress: info: <span class="o">[</span>7772<span class="o">]</span> dispatching hogs: <span class="m">4</span> cpu, <span class="m">0</span> io, <span class="m">0</span> vm, <span class="m">0</span> hdd
-^C
-<span class="o">[</span>opc@autoscalingwebserver-264316 ~<span class="o">]</span>$
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@autoscalingwebserver-264316 ~<span class="o">]</span>$ sudo stress --cpu <span class="m">4</span>
+</span></span><span class="line"><span class="cl">stress: info: <span class="o">[</span>7772<span class="o">]</span> dispatching hogs: <span class="m">4</span> cpu, <span class="m">0</span> io, <span class="m">0</span> vm, <span class="m">0</span> hdd
+</span></span><span class="line"><span class="cl">^C
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@autoscalingwebserver-264316 ~<span class="o">]</span>$
+</span></span></code></pre></div></li>
 <li>
 <p>Check the decrease in the average CPU load of the Instance Pool in Monitoring
 

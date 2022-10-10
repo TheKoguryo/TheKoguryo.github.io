@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -73,31 +73,31 @@
 </li>
 <li>
 <p>Istio 다운로드</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -L https://istio.io/downloadIstio <span class="p">|</span> <span class="nv">ISTIO_VERSION</span><span class="o">=</span>1.12.1 <span class="nv">TARGET_ARCH</span><span class="o">=</span>x86_64 sh -
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -L https://istio.io/downloadIstio <span class="p">|</span> <span class="nv">ISTIO_VERSION</span><span class="o">=</span>1.12.1 <span class="nv">TARGET_ARCH</span><span class="o">=</span>x86_64 sh -
+</span></span></code></pre></div></li>
 <li>
 <p>Istio 경로로 이동</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> istio-1.12.1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> istio-1.12.1
+</span></span></code></pre></div></li>
 <li>
 <p>PATH 환경 변수에 추가</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/bin:<span class="nv">$PATH</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/bin:<span class="nv">$PATH</span>
+</span></span></code></pre></div></li>
 <li>
 <p>사전검증 실행</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">istioctl x precheck
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">istioctl x precheck
+</span></span></code></pre></div></li>
 <li>
 <p>설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">istioctl install --set <span class="nv">profile</span><span class="o">=</span>demo
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">istioctl install --set <span class="nv">profile</span><span class="o">=</span>demo
+</span></span></code></pre></div></li>
 <li>
 <p>스케일</p>
 <p>pod&rsquo;s disruption budget 기본 1로 설정되어 있는 업그레이드를 고려하여 2개 이상으로 스케일합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istio-egressgateway
-kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istio-ingressgateway
-kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istiod
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istio-egressgateway
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istio-ingressgateway
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istiod
+</span></span></code></pre></div></li>
 </ol>
 <h2 id="istio-enable">Istio Enable</h2>
 <h3 id="productpage-서비스-istio-enable">productpage 서비스 Istio Enable</h3>
@@ -105,40 +105,40 @@ kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deploym
 <li>
 <p>Istio sidecar 추가하여 재배포</p>
 <p>istioctl kube-inject 명령으로 productpage 앱에만 sidecar를 추가합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> sed <span class="s1">&#39;s/replicas: 1/replicas: 3/g&#39;</span> <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>productpage,version<span class="o">=</span>v1 -f -
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> sed <span class="s1">&#39;s/replicas: 1/replicas: 3/g&#39;</span> <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>productpage,version<span class="o">=</span>v1 -f -
+</span></span></code></pre></div></li>
 <li>
 <p>결과 확인</p>
 <p>product Pod내에 istio-proxy 컨테이너가 추가된 것을 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
-NAME                            READY   STATUS    RESTARTS   AGE
-details-v1-79f774bdb9-29z48     1/1     Running   <span class="m">0</span>          89m
-details-v1-79f774bdb9-d5lfq     1/1     Running   <span class="m">0</span>          89m
-details-v1-79f774bdb9-sqp9p     1/1     Running   <span class="m">0</span>          89m
-productpage-v1-c6885474-6g754   2/2     Running   <span class="m">0</span>          16s
-productpage-v1-c6885474-r9l8l   2/2     Running   <span class="m">0</span>          19s
-productpage-v1-c6885474-sz9mf   2/2     Running   <span class="m">0</span>          14s
-ratings-v1-b6994bb9-6xlq7       1/1     Running   <span class="m">0</span>          89m
-ratings-v1-b6994bb9-j2l78       1/1     Running   <span class="m">0</span>          89m
-ratings-v1-b6994bb9-w748t       1/1     Running   <span class="m">0</span>          89m
-reviews-v2-7bf8c9648f-4rh4z     1/1     Running   <span class="m">0</span>          7m16s
-reviews-v2-7bf8c9648f-6vhlq     1/1     Running   <span class="m">0</span>          7m18s
-reviews-v2-7bf8c9648f-8zjcw     1/1     Running   <span class="m">0</span>          7m16s
-sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          12m
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe pod productpage-v1-c6885474-6g75
-Name:         productpage-v1-c6885474-6g754
-Namespace:    default
-...
-Containers:
-  productpage:
-    Container ID:   cri-o://95f68b2fcb5e8168879e1a5703bf520a94729664cc410edbe0d3255113344149
-    Image:          docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
-    ...
-  istio-proxy:
-    Container ID:  cri-o://74f2707caa99b8b12b3e293a129f74234c5ac1ab36729f70045de640eeb2b4b4
-    Image:         docker.io/istio/proxyv2:1.12.1    
-    ...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-29z48     1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-d5lfq     1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-sqp9p     1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-6g754   2/2     Running   <span class="m">0</span>          16s
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-r9l8l   2/2     Running   <span class="m">0</span>          19s
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-sz9mf   2/2     Running   <span class="m">0</span>          14s
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-6xlq7       1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-j2l78       1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-w748t       1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">reviews-v2-7bf8c9648f-4rh4z     1/1     Running   <span class="m">0</span>          7m16s
+</span></span><span class="line"><span class="cl">reviews-v2-7bf8c9648f-6vhlq     1/1     Running   <span class="m">0</span>          7m18s
+</span></span><span class="line"><span class="cl">reviews-v2-7bf8c9648f-8zjcw     1/1     Running   <span class="m">0</span>          7m16s
+</span></span><span class="line"><span class="cl">sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          12m
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe pod productpage-v1-c6885474-6g75
+</span></span><span class="line"><span class="cl">Name:         productpage-v1-c6885474-6g754
+</span></span><span class="line"><span class="cl">Namespace:    default
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Containers:
+</span></span><span class="line"><span class="cl">  productpage:
+</span></span><span class="line"><span class="cl">    Container ID:   cri-o://95f68b2fcb5e8168879e1a5703bf520a94729664cc410edbe0d3255113344149
+</span></span><span class="line"><span class="cl">    Image:          docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">  istio-proxy:
+</span></span><span class="line"><span class="cl">    Container ID:  cri-o://74f2707caa99b8b12b3e293a129f74234c5ac1ab36729f70045de640eeb2b4b4
+</span></span><span class="line"><span class="cl">    Image:         docker.io/istio/proxyv2:1.12.1    
+</span></span><span class="line"><span class="cl">    ...
+</span></span></code></pre></div></li>
 <li>
 <p>앞서와 동일하게 productpage 페이지를 접속합니다.</p>
 <ul>
@@ -148,36 +148,36 @@ Containers:
 <li>
 <p>istio-proxy 로그 확인</p>
 <p>웹페이지가 이전과 동일하게 접속이 되고 추가적으로 istio-proxy를 통해서 거쳐가는 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl logs -l <span class="nv">app</span><span class="o">=</span>productpage -c istio-proxy -f
-...
-<span class="o">[</span>2021-12-20T09:16:54.826Z<span class="o">]</span> <span class="s2">&#34;GET /details/0 HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">178</span> <span class="m">2</span> <span class="m">2</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;details:9080&#34;</span> <span class="s2">&#34;10.244.2.43:9080&#34;</span> outbound<span class="p">|</span>9080<span class="o">||</span>details.default.svc.cluster.local 10.244.2.149:41122 10.96.175.211:9080 10.244.2.149:55324 - default
-<span class="o">[</span>2021-12-20T09:16:54.842Z<span class="o">]</span> <span class="s2">&#34;GET /reviews/0 HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">379</span> <span class="m">591</span> <span class="m">591</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;reviews:9080&#34;</span> <span class="s2">&#34;10.244.2.51:9080&#34;</span> outbound<span class="p">|</span>9080<span class="o">||</span>reviews.default.svc.cluster.local 10.244.2.149:45512 10.96.197.86:9080 10.244.2.149:35752 - default
-<span class="o">[</span>2021-12-20T09:16:54.820Z<span class="o">]</span> <span class="s2">&#34;GET /productpage HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">5183</span> <span class="m">616</span> <span class="m">615</span> <span class="s2">&#34;10.179.87.76&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;146.56.142.95:9080&#34;</span> <span class="s2">&#34;10.244.2.149:9080&#34;</span> inbound<span class="p">|</span>9080<span class="o">||</span> 127.0.0.6:41867 10.244.2.149:9080 10.179.87.76:0 - default
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl logs -l <span class="nv">app</span><span class="o">=</span>productpage -c istio-proxy -f
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2021-12-20T09:16:54.826Z<span class="o">]</span> <span class="s2">&#34;GET /details/0 HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">178</span> <span class="m">2</span> <span class="m">2</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;details:9080&#34;</span> <span class="s2">&#34;10.244.2.43:9080&#34;</span> outbound<span class="p">|</span>9080<span class="o">||</span>details.default.svc.cluster.local 10.244.2.149:41122 10.96.175.211:9080 10.244.2.149:55324 - default
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2021-12-20T09:16:54.842Z<span class="o">]</span> <span class="s2">&#34;GET /reviews/0 HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">379</span> <span class="m">591</span> <span class="m">591</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;reviews:9080&#34;</span> <span class="s2">&#34;10.244.2.51:9080&#34;</span> outbound<span class="p">|</span>9080<span class="o">||</span>reviews.default.svc.cluster.local 10.244.2.149:45512 10.96.197.86:9080 10.244.2.149:35752 - default
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2021-12-20T09:16:54.820Z<span class="o">]</span> <span class="s2">&#34;GET /productpage HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">5183</span> <span class="m">616</span> <span class="m">615</span> <span class="s2">&#34;10.179.87.76&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;146.56.142.95:9080&#34;</span> <span class="s2">&#34;10.244.2.149:9080&#34;</span> inbound<span class="p">|</span>9080<span class="o">||</span> 127.0.0.6:41867 10.244.2.149:9080 10.179.87.76:0 - default
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="전체-서비스-istio-enable">전체 서비스 Istio Enable</h3>
 <ol>
 <li>
 <p>다음 명령을 통해 Review v2와 나머지 서비스들에도 Istio를 활성화합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l app!<span class="o">=</span>reviews -f -
-curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2 -f -
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l app!<span class="o">=</span>reviews -f -
+</span></span><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2 -f -
+</span></span></code></pre></div></li>
 <li>
 <p>실행결과</p>
 <p>Istio-proxy가 추가 되어 Pod당 컨테이너가 2개로 보이면, bookinfo.yaml이 재적용되어 replica=1임을 참고합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
-NAME                            READY   STATUS    RESTARTS   AGE
-details-v1-5c6d488c49-ltw8r     2/2     Running   <span class="m">0</span>          69s
-productpage-v1-c6885474-6g754   2/2     Running   <span class="m">0</span>          15h
-ratings-v1-7dfc8d4bbf-p8n2f     2/2     Running   <span class="m">0</span>          68s
-reviews-v2-5ff75858c7-zhn57     2/2     Running   <span class="m">0</span>          64s
-sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          16h
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">details-v1-5c6d488c49-ltw8r     2/2     Running   <span class="m">0</span>          69s
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-6g754   2/2     Running   <span class="m">0</span>          15h
+</span></span><span class="line"><span class="cl">ratings-v1-7dfc8d4bbf-p8n2f     2/2     Running   <span class="m">0</span>          68s
+</span></span><span class="line"><span class="cl">reviews-v2-5ff75858c7-zhn57     2/2     Running   <span class="m">0</span>          64s
+</span></span><span class="line"><span class="cl">sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          16h
+</span></span></code></pre></div></li>
 <li>
 <p>참고</p>
 <p>아래와 같이 istio-injection 레이블을 달면 해당 네임스페이스에 배포되는 pod는 자동으로 istio sidecar가 추가됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl label namespace &lt;NAMESPACE_NAME&gt; istio-injection<span class="o">=</span>enabled
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl label namespace &lt;NAMESPACE_NAME&gt; istio-injection<span class="o">=</span>enabled
+</span></span></code></pre></div></li>
 </ol>
 <h2 id="istio-ingress-gateway-설정">Istio Ingress Gateway 설정</h2>
 <p>앞서 다른 장에서 Ingress Controller로 nginx ingress controller를 사용하였습니다. 마이크로 서비스들에 대한 컨트롤을 위해 서비스들에 대해서 Istio의 Ingress Gateway를 사용하도록 설정합니다.</p>
@@ -198,56 +198,56 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ol>
 <li>
 <p>아래 내용으로 예제인 book-info에 대한 Istio Ingress Gateway를 생성합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">kubectl apply -f - &lt;&lt;EOF</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">bookinfo-gateway</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w"> </span><span class="c"># use Istio default gateway implementation</span><span class="w">
-</span><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http</span><span class="w">
-</span><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
-</span><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="s2">&#34;*&#34;</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">bookinfo</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="s2">&#34;*&#34;</span><span class="w">
-</span><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="l">bookinfo-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">match</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/productpage</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/login</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/logout</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l">/static</span><span class="w">
-</span><span class="w">    </span><span class="nt">route</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">productpage</span><span class="w">
-</span><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">9080</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl apply -f - &lt;&lt;EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">bookinfo-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w"> </span><span class="c"># use Istio default gateway implementation</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;*&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">bookinfo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;*&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">bookinfo-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">match</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/productpage</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/login</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/logout</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l">/static</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">productpage</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">9080</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>Istio Ingress Gateway를 통한 접속을 위해 IP를 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get svc -n istio-system
-NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>                                                                      AGE
-istio-egressgateway    ClusterIP      10.96.59.144   &lt;none&gt;          80/TCP,443/TCP                                                               66m
-istio-ingressgateway   LoadBalancer   10.96.150.51   146.56.186.52   15021:32250/TCP,80:32707/TCP,443:32572/TCP,31400:32532/TCP,15443:31522/TCP   66m
-istiod                 ClusterIP      10.96.188.42   &lt;none&gt;          15010/TCP,15012/TCP,443/TCP,15014/TCP                                        66m
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get svc -n istio-system
+</span></span><span class="line"><span class="cl">NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>                                                                      AGE
+</span></span><span class="line"><span class="cl">istio-egressgateway    ClusterIP      10.96.59.144   &lt;none&gt;          80/TCP,443/TCP                                                               66m
+</span></span><span class="line"><span class="cl">istio-ingressgateway   LoadBalancer   10.96.150.51   146.56.186.52   15021:32250/TCP,80:32707/TCP,443:32572/TCP,31400:32532/TCP,15443:31522/TCP   66m
+</span></span><span class="line"><span class="cl">istiod                 ClusterIP      10.96.188.42   &lt;none&gt;          15010/TCP,15012/TCP,443/TCP,15014/TCP                                        66m
+</span></span></code></pre></div></li>
 <li>
 <p>접속 확인</p>
 <ul>
@@ -269,9 +269,9 @@ istiod                 ClusterIP      10.96.188.42   &lt;none&gt;          15010
 <ol>
 <li>
 <p>Prometheus &amp; Grafana 설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/prometheus.yaml
-kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/grafana.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/prometheus.yaml
+</span></span><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/grafana.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>설치된 Grafana 대쉬보드를 외부에서 접근</p>
 <ul>
@@ -302,61 +302,61 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samp
 <ul>
 <li>
 <p>Istio Ingress Gateway의 External IP를 확인하여, DNS 서버에 설정하거나, 클라이언트의 /etc/hosts 파일의 설정합니다. 사용할 도메인 주소를 입력합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>외부 접속 오픈</p>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-grafana</span><span class="w">
-</span><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
-</span><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="s2">&#34;grafana.${INGRESS_DOMAIN}&#34;</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana-vs</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="s2">&#34;grafana.${INGRESS_DOMAIN}&#34;</span><span class="w">
-</span><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="l">grafana-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
-</span><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
-</span><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;grafana.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana-vs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;grafana.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">grafana-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>테스트 데이타 발생</p>
 <ul>
@@ -411,8 +411,8 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samp
 <ol>
 <li>
 <p>Zipkin 설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/extras/zipkin.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/extras/zipkin.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>설치된 Zipkin 페이지를 외부에서 접근</p>
 <ul>
@@ -429,59 +429,59 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samp
 <ul>
 <li>
 <p>설정을 위한 도메인 설정</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>외부 접속 오픈</p>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-tracing</span><span class="w">
-</span><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
-</span><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="s2">&#34;tracing.${INGRESS_DOMAIN}&#34;</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing-vs</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="s2">&#34;tracing.${INGRESS_DOMAIN}&#34;</span><span class="w">
-</span><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="l">tracing-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
-</span><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
-</span><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;tracing.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing-vs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;tracing.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">tracing-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>테스트 데이타 발생</p>
 <ul>
@@ -582,8 +582,8 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samp
 <ol>
 <li>
 <p>Kiali 설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/kiali.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/kiali.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>설치된 Kiali 페이지를 외부에서 접근</p>
 <ul>
@@ -600,59 +600,59 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samp
 <ul>
 <li>
 <p>설정을 위한 도메인 설정</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>외부 접속 오픈</p>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
-</span><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-kiali</span><span class="w">
-</span><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
-</span><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="s2">&#34;kiali.${INGRESS_DOMAIN}&#34;</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali-vs</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="s2">&#34;kiali.${INGRESS_DOMAIN}&#34;</span><span class="w">
-</span><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="l">kiali-gateway</span><span class="w">
-</span><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
-</span><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">20001</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
-</span><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
-</span><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;kiali.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali-vs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;kiali.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">kiali-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">20001</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>테스트 데이타 발생</p>
 <ul>
@@ -689,17 +689,17 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samp
 <li>
 <p>Reviews v3 버전을 배포합니다.</p>
 <p>Istio가 활성화 된 상태에서 버전 업데이트를 가정하여 v3를 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v3 -f -
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v3 -f -
+</span></span></code></pre></div></li>
 <li>
 <p>배포 결과 확인</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
-NAME                            READY   STATUS    RESTARTS   AGE
-...
-reviews-v2-5ff75858c7-hwrgv     2/2     Running   <span class="m">0</span>          5h15m
-reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>          3m8s
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">reviews-v2-5ff75858c7-hwrgv     2/2     Running   <span class="m">0</span>          5h15m
+</span></span><span class="line"><span class="cl">reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>          3m8s
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>productpage의 Istio Ingress Gateway를 통해 접속하여 테스트합니다.</p>
 <ul>
@@ -723,96 +723,96 @@ reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>      
 <ol>
 <li>
 <p>배포된 Reviews Pod의 버전 레이블을 확인합니다. 각각 version=v2, version=v2가 할당되어 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -L version
-NAME                            READY   STATUS    RESTARTS   AGE     VERSION
-details-v1-5c6d488c49-m5t7j     2/2     Running   <span class="m">0</span>          5h28m   v1
-productpage-v1-c6885474-qkpx9   2/2     Running   <span class="m">0</span>          5h28m   v1
-ratings-v1-7dfc8d4bbf-97p6z     2/2     Running   <span class="m">0</span>          5h28m   v1
-reviews-v2-5ff75858c7-hwrgv     2/2     Running   <span class="m">0</span>          5h28m   v2
-reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>          15m     v3
-sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          22h
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -L version
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE     VERSION
+</span></span><span class="line"><span class="cl">details-v1-5c6d488c49-m5t7j     2/2     Running   <span class="m">0</span>          5h28m   v1
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-qkpx9   2/2     Running   <span class="m">0</span>          5h28m   v1
+</span></span><span class="line"><span class="cl">ratings-v1-7dfc8d4bbf-97p6z     2/2     Running   <span class="m">0</span>          5h28m   v1
+</span></span><span class="line"><span class="cl">reviews-v2-5ff75858c7-hwrgv     2/2     Running   <span class="m">0</span>          5h28m   v2
+</span></span><span class="line"><span class="cl">reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>          15m     v3
+</span></span><span class="line"><span class="cl">sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          22h
+</span></span></code></pre></div></li>
 <li>
 <p>레이블 기준으로 라우팅을 위해 Istio에 필요한 아래 설정을 배포합니다.</p>
 <ul>
 <li>DestinationRule: 서비스 엔드포인트에 대해서 labels로 필터링. 테스트 예제에서는  Service Type이 아닌, Pod에만 version label이 있음. Pod의 label로 하는 것 같음</li>
 <li>VirtualService: 정의한 destination에 대해서 weight 기준으로 분배함. weight의 총합은 100이어야함. 100번 중에 90번, 10번 이렇게 정확한 분배가 아닌, 확률로 추측됨.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f - <span class="s">&lt;&lt;EOF
-</span><span class="s">apiVersion: networking.istio.io/v1alpha3
-</span><span class="s">kind: VirtualService
-</span><span class="s">metadata:
-</span><span class="s">  name: reviews
-</span><span class="s">spec:
-</span><span class="s">  hosts:
-</span><span class="s">    - reviews
-</span><span class="s">  http:
-</span><span class="s">  - route:
-</span><span class="s">    - destination:
-</span><span class="s">        host: reviews
-</span><span class="s">        subset: v2
-</span><span class="s">      weight: 90
-</span><span class="s">    - destination:
-</span><span class="s">        host: reviews
-</span><span class="s">        subset: v3
-</span><span class="s">      weight: 10
-</span><span class="s">---
-</span><span class="s">apiVersion: networking.istio.io/v1alpha3
-</span><span class="s">kind: DestinationRule
-</span><span class="s">metadata:
-</span><span class="s">  name: reviews
-</span><span class="s">spec:
-</span><span class="s">  host: reviews   
-</span><span class="s">  subsets:
-</span><span class="s">  - name: v1
-</span><span class="s">    labels:
-</span><span class="s">      version: v1
-</span><span class="s">  - name: v2
-</span><span class="s">    labels:
-</span><span class="s">      version: v2
-</span><span class="s">  - name: v3
-</span><span class="s">    labels:
-</span><span class="s">      version: v3
-</span><span class="s">EOF</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: VirtualService
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  hosts:
+</span></span></span><span class="line"><span class="cl"><span class="s">    - reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">  http:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - route:
+</span></span></span><span class="line"><span class="cl"><span class="s">    - destination:
+</span></span></span><span class="line"><span class="cl"><span class="s">        host: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">        subset: v2
+</span></span></span><span class="line"><span class="cl"><span class="s">      weight: 90
+</span></span></span><span class="line"><span class="cl"><span class="s">    - destination:
+</span></span></span><span class="line"><span class="cl"><span class="s">        host: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">        subset: v3
+</span></span></span><span class="line"><span class="cl"><span class="s">      weight: 10
+</span></span></span><span class="line"><span class="cl"><span class="s">---
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: DestinationRule
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  host: reviews   
+</span></span></span><span class="line"><span class="cl"><span class="s">  subsets:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">    labels:
+</span></span></span><span class="line"><span class="cl"><span class="s">      version: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v2
+</span></span></span><span class="line"><span class="cl"><span class="s">    labels:
+</span></span></span><span class="line"><span class="cl"><span class="s">      version: v2
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v3
+</span></span></span><span class="line"><span class="cl"><span class="s">    labels:
+</span></span></span><span class="line"><span class="cl"><span class="s">      version: v3
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div></li>
 <li>
 <p>아래와 같이 반복 테스트합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">counter</span><span class="o">=</span>1<span class="p">;</span> <span class="se">\
-</span><span class="se"></span><span class="k">while</span> <span class="o">[</span> <span class="nv">$counter</span> -lt <span class="m">20</span> <span class="o">]</span><span class="p">;</span> <span class="se">\
-</span><span class="se"></span><span class="k">do</span>
-   curl -s http://146.56.186.52/productpage <span class="p">|</span> grep color <span class="p">|</span> head -1<span class="p">;</span>
-   <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span> <span class="nv">$counter</span> <span class="o">+</span> <span class="m">1</span> <span class="k">))</span><span class="p">;</span> <span class="se">\
-</span><span class="se"></span><span class="k">done</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">counter</span><span class="o">=</span>1<span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">while</span> <span class="o">[</span> <span class="nv">$counter</span> -lt <span class="m">20</span> <span class="o">]</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">do</span>
+</span></span><span class="line"><span class="cl">   curl -s http://146.56.186.52/productpage <span class="p">|</span> grep color <span class="p">|</span> head -1<span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span> <span class="nv">$counter</span> <span class="o">+</span> <span class="m">1</span> <span class="k">))</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">done</span>
+</span></span></code></pre></div></li>
 <li>
 <p>테스트 결과</p>
 <p>20중에 18번 검은색 별표, 2번 빨간색 별표임을 알수 있습니다. 확률로 정확이 딱 안 맞을 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nv">counter</span><span class="o">=</span>1<span class="p">;</span> <span class="se">\
-</span><span class="se"></span>&gt; <span class="k">while</span> <span class="o">[</span> <span class="nv">$counter</span> -lt <span class="m">20</span> <span class="o">]</span><span class="p">;</span> <span class="se">\
-</span><span class="se"></span>&gt; <span class="k">do</span>
-&gt;    curl -s http://146.56.186.52/productpage <span class="p">|</span> grep color <span class="p">|</span> head -1<span class="p">;</span>
-&gt;    <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span> <span class="nv">$counter</span> <span class="o">+</span> <span class="m">1</span> <span class="k">))</span><span class="p">;</span> <span class="se">\
-</span><span class="se"></span>&gt; <span class="k">done</span>
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nv">counter</span><span class="o">=</span>1<span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; <span class="k">while</span> <span class="o">[</span> <span class="nv">$counter</span> -lt <span class="m">20</span> <span class="o">]</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; <span class="k">do</span>
+</span></span><span class="line"><span class="cl">&gt;    curl -s http://146.56.186.52/productpage <span class="p">|</span> grep color <span class="p">|</span> head -1<span class="p">;</span>
+</span></span><span class="line"><span class="cl">&gt;    <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span> <span class="nv">$counter</span> <span class="o">+</span> <span class="m">1</span> <span class="k">))</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; <span class="k">done</span>
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>Kiali에 호출 흐름 확인</p>
 <p>아래그림에서 보듯이 Reviews v2, v3에  설정한 가중치에 맞게 분배되는 것을 볼 수 있습니다.</p>
@@ -837,7 +837,7 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
     </div>
 
  <div class="edit-meta">Last updated on 21 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/" title="4.4.1 Service Mesh 없는 마이크로서비스 앱 배포"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/" title="5. OCI 서비스 활용하기">Next - 5. OCI 서비스 활용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -909,6 +909,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -938,6 +942,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -992,6 +1000,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1024,6 +1036,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1053,6 +1069,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1081,9 +1101,17 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1111,6 +1139,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1140,6 +1172,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1170,6 +1206,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1202,6 +1242,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1231,6 +1275,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1259,6 +1307,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1294,6 +1346,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -1320,6 +1376,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1371,9 +1431,17 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1402,6 +1470,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1476,6 +1548,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1503,9 +1579,17 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1538,6 +1622,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1567,6 +1655,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1598,6 +1690,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1674,6 +1770,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1703,10 +1803,18 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1734,6 +1842,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1764,6 +1876,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1816,6 +1932,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1842,6 +1962,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1868,6 +1992,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1895,6 +2023,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class="sub-menu">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1948,9 +2080,17 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1981,6 +2121,10 @@ sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>      
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

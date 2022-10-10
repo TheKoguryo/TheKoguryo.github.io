@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.6.6 Unmounting Block Volume - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -27,12 +27,13 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="3.6.6 Unmounting Block Volume" />
-<meta property="og:description" content="3.6.6 Unmounting Block Volume Unmount   Connect to the Compute Instance with SSH.
-  Update /etc/fstab
+<meta property="og:description" content="3.6.6 Unmounting Block Volume Unmount Connect to the Compute Instance with SSH.
+Update /etc/fstab
 Execute the sudo vi /etc/fstab command to delete /mnt/vol1, the volume to be unmounted, from the fstab file.
-sudo vi /etc/fstab   Unmount
-sudo umount /mnt/vol1   Disconnect to Volume   Open the navigation menu in the OCI console. Go to Compute &raquo; Instances.
-  Click on the name of the target Instance you created earlier." />
+sudo vi /etc/fstab Unmount
+sudo umount /mnt/vol1 Disconnect to Volume Open the navigation menu in the OCI console. Go to Compute &raquo; Instances.
+Click on the name of the target Instance you created earlier.
+On the Instance detail page, click Resources &raquo; Attached block volumes in the lower left corner." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter03/6/6/" /><meta property="article:section" content="oci" />
 
@@ -82,12 +83,12 @@ sudo umount /mnt/vol1   Disconnect to Volume   Open the navigation menu in the O
 <li>
 <p>Update /etc/fstab<br>
 Execute the sudo vi /etc/fstab command to delete /mnt/vol1, the volume to be unmounted, from the fstab file.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo vi /etc/fstab
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo vi /etc/fstab
+</span></span></code></pre></div></li>
 <li>
 <p>Unmount</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo umount /mnt/vol1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo umount /mnt/vol1
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="disconnect-to-volume">Disconnect to Volume</h4>
 <ol>
@@ -128,33 +129,33 @@ Execute the sudo vi /etc/fstab command to delete /mnt/vol1, the volume to be unm
 </li>
 <li>
 <p>Copy the commands of <strong>Disconnect COMMANDS</strong> and execute them one by one in the SSH session connected to the instance.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
-Last login: Mon Jan <span class="m">10</span> 07:24:34 <span class="m">2022</span> from 223.62.21.xx
-
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260 -u
-Logging out of session <span class="o">[</span>sid: 1, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span>
-Logout of <span class="o">[</span>sid: 1, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span> successful.
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
+</span></span><span class="line"><span class="cl">Last login: Mon Jan <span class="m">10</span> 07:24:34 <span class="m">2022</span> from 223.62.21.xx
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260 -u
+</span></span><span class="line"><span class="cl">Logging out of session <span class="o">[</span>sid: 1, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span>
+</span></span><span class="line"><span class="cl">Logout of <span class="o">[</span>sid: 1, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span> successful.
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o delete -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260
+</span></span></code></pre></div></li>
 <li>
 <p>Check with the fdisk -l command to confirm whether or not it has been dismounted.</p>
 <p>You can see that the /dev/sdb disk is gone.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo fdisk -l
-WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
-
-Disk /dev/sda: 50.0 GB, <span class="m">50010783744</span> bytes, <span class="m">97677312</span> sectors
-<span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
-Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
-I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
-Disk label type: gpt
-Disk identifier: BBBA97C2-4E47-43B0-9059-2702FDB720E7
-
-
-<span class="c1">#         Start          End    Size  Type            Name</span>
- <span class="m">1</span>         <span class="m">2048</span>       <span class="m">411647</span>    200M  EFI System      EFI System Partition
- <span class="m">2</span>       <span class="m">411648</span>     <span class="m">17188863</span>      8G  Linux swap
- <span class="m">3</span>     <span class="m">17188864</span>     <span class="m">97675263</span>   38.4G  Microsoft basic
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo fdisk -l
+</span></span><span class="line"><span class="cl">WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Disk /dev/sda: 50.0 GB, <span class="m">50010783744</span> bytes, <span class="m">97677312</span> sectors
+</span></span><span class="line"><span class="cl"><span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+</span></span><span class="line"><span class="cl">Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
+</span></span><span class="line"><span class="cl">I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
+</span></span><span class="line"><span class="cl">Disk label type: gpt
+</span></span><span class="line"><span class="cl">Disk identifier: BBBA97C2-4E47-43B0-9059-2702FDB720E7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#         Start          End    Size  Type            Name</span>
+</span></span><span class="line"><span class="cl"> <span class="m">1</span>         <span class="m">2048</span>       <span class="m">411647</span>    200M  EFI System      EFI System Partition
+</span></span><span class="line"><span class="cl"> <span class="m">2</span>       <span class="m">411648</span>     <span class="m">17188863</span>      8G  Linux swap
+</span></span><span class="line"><span class="cl"> <span class="m">3</span>     <span class="m">17188864</span>     <span class="m">97675263</span>   38.4G  Microsoft basic
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="unmount-volume">Unmount Volume</h4>
 <ol>

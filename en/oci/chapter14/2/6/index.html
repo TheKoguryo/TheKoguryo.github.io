@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>14.2.6 Example, Creating Users Using List and Count - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -72,85 +72,85 @@ Policy required for user creation Allow group &lt;group_name&gt; to manage users
 </div><h3 id="1426-example-creating-a-user-using-list-and-count">14.2.6 Example, creating a user using list and count</h3>
 <p>When creating resources, there are cases where multiple identical resources are created through Array. Considering the situation where multiple users are created to compose the practice environment, let&rsquo;s see how to create multiple users at once through list and count.</p>
 <h4 id="policy-required-for-user-creation">Policy required for user creation</h4>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">Allow group &lt;group_name&gt; to manage users in tenancy
-</code></pre></div><h4 id="create-user">Create User</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Allow group &lt;group_name&gt; to manage users in tenancy
+</span></span></code></pre></div><h4 id="create-user">Create User</h4>
 <p>OCI users can be created using the syntax <a href="https://registry.terraform.io/providers/hashicorp/oci/latest/docs/resources/identity_user">oci_identity_user</a>.</p>
 <ul>
 <li>
 <p>example</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;test_user&#34;</span> <span class="o">{</span>
-  <span class="c1">#Required</span>
-  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_description</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_name</span><span class="si">}</span><span class="s2">&#34;</span>
-
-  <span class="c1">#Optional</span>
-  <span class="nv">defined_tags</span>   <span class="o">=</span> <span class="o">{</span><span class="s2">&#34;Operations.CostCenter&#34;</span><span class="o">=</span> <span class="s2">&#34;42&#34;</span><span class="o">}</span>
-  <span class="nv">email</span>          <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_email</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">freeform_tags</span>  <span class="o">=</span> <span class="o">{</span><span class="s2">&#34;Department&#34;</span><span class="o">=</span> <span class="s2">&#34;Finance&#34;</span><span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;test_user&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="c1">#Required</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_description</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_name</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">#Optional</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">defined_tags</span>   <span class="o">=</span> <span class="o">{</span><span class="s2">&#34;Operations.CostCenter&#34;</span><span class="o">=</span> <span class="s2">&#34;42&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">email</span>          <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.user_email</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">freeform_tags</span>  <span class="o">=</span> <span class="o">{</span><span class="s2">&#34;Department&#34;</span><span class="o">=</span> <span class="s2">&#34;Finance&#34;</span><span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 <h4 id="create-multiple-users-using-count">Create multiple users using count</h4>
 <p>By default, one resource block corresponds to one resource. You can create multiple identical types by adding count here. In general, set the number of iterations as count as in loop programming, and use count.index to inquire the current loop value. So, you can designate the number of resources to create in count as shown below, and use count.index to avoid conflicting resource names.</p>
 <ul>
 <li>
 <p>Example of creating as many users as desired, such as testuser_01 and testuser_02</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;test_user&#34;</span> <span class="o">{</span>
-  <span class="nv">count</span>          <span class="o">=</span> <span class="m">2</span>  
-
-  <span class="c1">#Required</span>
-  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;test_user&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count</span>          <span class="o">=</span> <span class="m">2</span>  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="c1">#Required</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 <li>
 <p>Example of the entire contents of users.tf</p>
 <ul>
 <li>For provider.tf and terraform.tfvars, the previous practice files are used as they are.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="c1">### Create Users</span>
-resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;users_1&#34;</span> <span class="o">{</span>
-  <span class="nv">count</span>          <span class="o">=</span> <span class="m">2</span>
-
-  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-<span class="c1">### Set User Passwords</span>
-<span class="c1">### This is one time password.</span>
-resource <span class="s2">&#34;oci_identity_ui_password&#34;</span> <span class="s2">&#34;users_1_password&#34;</span> <span class="o">{</span>
-  <span class="nv">count</span>   <span class="o">=</span> <span class="m">2</span>
-  <span class="nv">user_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_identity_user</span><span class="p">.users_1.*.id[count.index]</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-<span class="c1">### Outputs</span>
-output <span class="s2">&#34;my_users_1_password&#34;</span> <span class="o">{</span>
-  <span class="nv">sensitive</span> <span class="o">=</span> <span class="nb">false</span>
-  <span class="nv">value</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">concat</span><span class="p">(oci_identity_user.users_1.*.name, oci_identity_ui_password.users_1_password.*.password)</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl"><span class="c1">### Create Users</span>
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;users_1&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count</span>          <span class="o">=</span> <span class="m">2</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;testuser_</span><span class="si">${</span><span class="nv">format</span><span class="p">(</span><span class="s2">&#34;%02d&#34;</span><span class="p">, count.index + 1)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">### Set User Passwords</span>
+</span></span><span class="line"><span class="cl"><span class="c1">### This is one time password.</span>
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_ui_password&#34;</span> <span class="s2">&#34;users_1_password&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count</span>   <span class="o">=</span> <span class="m">2</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">user_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_identity_user</span><span class="p">.users_1.*.id[count.index]</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">### Outputs</span>
+</span></span><span class="line"><span class="cl">output <span class="s2">&#34;my_users_1_password&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">sensitive</span> <span class="o">=</span> <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">value</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">concat</span><span class="p">(oci_identity_user.users_1.*.name, oci_identity_ui_password.users_1_password.*.password)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 <li>
 <p>Execution result
 You can see that the output and OCI have been created as many as the number of counts specified by the user.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="o">[</span>opc@bastion-host example_user_count<span class="o">]</span>$ terraform apply
-
-...
-
-Apply complete! Resources: <span class="m">4</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
-
-Outputs:
-
-<span class="nv">my_users_1_password</span> <span class="o">=</span> <span class="o">[</span>
-  <span class="s2">&#34;testuser_01&#34;</span>,
-  <span class="s2">&#34;testuser_02&#34;</span>,
-  <span class="s2">&#34;:&lt;7:qa.Z[XqvKa19uL</span><span class="nv">$u</span><span class="s2">&#34;</span>,
-  <span class="s2">&#34;s.;sl72P_.v]Eu]V{rxu&#34;</span>,
-<span class="o">]</span>
-<span class="o">[</span>opc@bastion-host example_user_count<span class="o">]</span>$
-</code></pre></div><p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host example_user_count<span class="o">]</span>$ terraform apply
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Apply complete! Resources: <span class="m">4</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Outputs:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">my_users_1_password</span> <span class="o">=</span> <span class="o">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;testuser_01&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;testuser_02&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;:&lt;7:qa.Z[XqvKa19uL</span><span class="nv">$u</span><span class="s2">&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;s.;sl72P_.v]Eu]V{rxu&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host example_user_count<span class="o">]</span>$
+</span></span></code></pre></div><p>
 
 
 
@@ -168,74 +168,73 @@ Outputs:
 <li>
 <p>Example of creating multiple users with different names</p>
 <p>Create a list type variable and use <strong>&quot;${element(LIST, INDEX)}&quot;</strong>, <strong>&quot;${length(LIST)}&quot;</strong> to search specific data and list length.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;user_names&#34;</span> <span class="o">{</span>
-  <span class="nb">type</span>        <span class="o">=</span> <span class="s2">&#34;list&#34;</span>
-  <span class="nv">default</span>     <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;oracle&#34;</span>, <span class="s2">&#34;neo&#34;</span><span class="o">]</span>
-<span class="o">}</span>
-
-resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;my_users_2&#34;</span> <span class="o">{</span>
-  <span class="nv">count</span>          <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">length</span><span class="p">(var.user_names)</span><span class="si">}</span><span class="s2">&#34;</span>
-
-  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">variable <span class="s2">&#34;user_names&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">type</span>        <span class="o">=</span> <span class="s2">&#34;list&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">default</span>     <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;oracle&#34;</span>, <span class="s2">&#34;neo&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;my_users_2&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count</span>          <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">length</span><span class="p">(var.user_names)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 <li>
 <p>Example of the entire contents of users.tf</p>
 <ul>
 <li>For provider.tf and terraform.tfvars, the previous practice files are used as they are.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">variable <span class="s2">&#34;user_names&#34;</span> <span class="o">{</span>
-  <span class="nb">type</span>        <span class="o">=</span> list
-  <span class="nv">default</span>     <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;oracle&#34;</span>, <span class="s2">&#34;neo&#34;</span><span class="o">]</span>
-<span class="o">}</span>
-
-<span class="c1">### Create Users</span>
-resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;my_users_2&#34;</span> <span class="o">{</span>
-  <span class="nv">count</span>          <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">length</span><span class="p">(var.user_names)</span><span class="si">}</span><span class="s2">&#34;</span>
-
-  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-<span class="c1">### Set User Passwords</span>
-<span class="c1">### This is one time password.</span>
-resource <span class="s2">&#34;oci_identity_ui_password&#34;</span> <span class="s2">&#34;my_users_2_password&#34;</span> <span class="o">{</span>
-  <span class="nv">count</span>   <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">length</span><span class="p">(var.user_names)</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">user_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_identity_user</span><span class="p">.my_users_2.*.id[count.index]</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-<span class="c1">### Outputs</span>
-output <span class="s2">&#34;my_users_2_password&#34;</span> <span class="o">{</span>
-  <span class="nv">sensitive</span> <span class="o">=</span> <span class="nb">false</span>
-  <span class="nv">value</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">concat</span><span class="p">(oci_identity_user.my_users_2.*.name, oci_identity_ui_password.my_users_2_password.*.password)</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">variable <span class="s2">&#34;user_names&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nb">type</span>        <span class="o">=</span> list
+</span></span><span class="line"><span class="cl">  <span class="nv">default</span>     <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;oracle&#34;</span>, <span class="s2">&#34;neo&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">### Create Users</span>
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_user&#34;</span> <span class="s2">&#34;my_users_2&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count</span>          <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">length</span><span class="p">(var.user_names)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.tenancy_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">description</span>    <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">name</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">element</span><span class="p">(var.user_names, count.index)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">### Set User Passwords</span>
+</span></span><span class="line"><span class="cl"><span class="c1">### This is one time password.</span>
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_identity_ui_password&#34;</span> <span class="s2">&#34;my_users_2_password&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">count</span>   <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">length</span><span class="p">(var.user_names)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">user_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_identity_user</span><span class="p">.my_users_2.*.id[count.index]</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">### Outputs</span>
+</span></span><span class="line"><span class="cl">output <span class="s2">&#34;my_users_2_password&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">sensitive</span> <span class="o">=</span> <span class="nb">false</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">value</span>     <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">concat</span><span class="p">(oci_identity_user.my_users_2.*.name, oci_identity_ui_password.my_users_2_password.*.password)</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 <li>
 <p>Execution result
 You can see the output and OCI users created by their names in the list.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="o">[</span>opc@bastion-host example_user_list<span class="o">]</span>$ terraform apply
-
-Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
-  + create
-
-...
-
-Apply complete! Resources: <span class="m">4</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
-
-Outputs:
-
-<span class="nv">my_users_2_password</span> <span class="o">=</span> <span class="o">[</span>
-  <span class="s2">&#34;oracle&#34;</span>,
-  <span class="s2">&#34;neo&#34;</span>,
-  <span class="s2">&#34;W</span><span class="nv">$tC</span><span class="s2">!bS6k&amp;h;mH8R#}9u&#34;</span>,
-  <span class="s2">&#34;(I;hZJ-uZq+.LkXGl5#Z&#34;</span>,
-<span class="o">]</span>
-<span class="o">[</span>opc@bastion-host example_user_list<span class="o">]</span>$
-</code></pre></div><p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host example_user_list<span class="o">]</span>$ terraform apply
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+</span></span><span class="line"><span class="cl">  + create
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Apply complete! Resources: <span class="m">4</span> added, <span class="m">0</span> changed, <span class="m">0</span> destroyed.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Outputs:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nv">my_users_2_password</span> <span class="o">=</span> <span class="o">[</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;oracle&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;neo&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;W</span><span class="nv">$tC</span><span class="s2">!bS6k&amp;h;mH8R#}9u&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;(I;hZJ-uZq+.LkXGl5#Z&#34;</span>,
+</span></span><span class="line"><span class="cl"><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@bastion-host example_user_list<span class="o">]</span>$
+</span></span></code></pre></div><p>
 
 
 

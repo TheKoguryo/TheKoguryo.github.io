@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>13.1 Preparation for Autoscaling - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter13/1/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -80,14 +80,14 @@
 </li>
 <li>
 <p>You can use <strong>cloud-init</strong> to set a script to start on instance creation. Here, we use a bash script to install Apache and create index.html.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="cp">#!/bin/bash
-</span><span class="cp"></span>sudo yum -y install httpd
-sudo firewall-offline-cmd --add-port<span class="o">=</span>80/tcp
-sudo systemctl <span class="nb">enable</span> httpd
-<span class="nv">MY_IP</span><span class="o">=</span><span class="k">$(</span>hostname -I<span class="k">)</span>
-sudo bash -c <span class="s2">&#34;echo &#39;Hello Apache on &#39;</span><span class="nv">$MY_IP</span><span class="s2"> &gt;&gt; /var/www/html/index.html&#34;</span>
-sudo reboot
-</code></pre></div><p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>sudo yum -y install httpd
+</span></span><span class="line"><span class="cl">sudo firewall-offline-cmd --add-port<span class="o">=</span>80/tcp
+</span></span><span class="line"><span class="cl">sudo systemctl <span class="nb">enable</span> httpd
+</span></span><span class="line"><span class="cl"><span class="nv">MY_IP</span><span class="o">=</span><span class="k">$(</span>hostname -I<span class="k">)</span>
+</span></span><span class="line"><span class="cl">sudo bash -c <span class="s2">&#34;echo &#39;Hello Apache on &#39;</span><span class="nv">$MY_IP</span><span class="s2"> &gt;&gt; /var/www/html/index.html&#34;</span>
+</span></span><span class="line"><span class="cl">sudo reboot
+</span></span></code></pre></div><p>
 
 
 
@@ -107,17 +107,17 @@ You can check the execution log of cloud-init in the <br><strong>/var/log/messag
 <ul>
 <li>
 <p>Example of cloud-init log</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">...
-Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: Installed:
-Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: httpd.x86_64 0:2.4.6-97.0.5.el7_9.2
-Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: Dependency Installed:
-Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: apr.x86_64 0:1.4.8-7.el7 apr-util.x86_64 0:1.5.2-6.0.1.el7
-Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2 mailcap.noarch 0:2.1.41-2.el7
-Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: Complete!
-Jan <span class="m">17</span> 07:03:32 autoscalingwebserver-694639 cloud-init: success
-Jan <span class="m">17</span> 07:03:32 autoscalingwebserver-694639 cloud-init: Created symlink from /etc/systemd/system/multi-user.target.wants/httpd.service to /usr/lib/systemd/system/httpd.service.
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: Installed:
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: httpd.x86_64 0:2.4.6-97.0.5.el7_9.2
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: Dependency Installed:
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: apr.x86_64 0:1.4.8-7.el7 apr-util.x86_64 0:1.5.2-6.0.1.el7
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2 mailcap.noarch 0:2.1.41-2.el7
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:31 autoscalingwebserver-694639 cloud-init: Complete!
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:32 autoscalingwebserver-694639 cloud-init: success
+</span></span><span class="line"><span class="cl">Jan <span class="m">17</span> 07:03:32 autoscalingwebserver-694639 cloud-init: Created symlink from /etc/systemd/system/multi-user.target.wants/httpd.service to /usr/lib/systemd/system/httpd.service.
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 </ul>
 </li>
 </ol>

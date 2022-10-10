@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>4.4.1 Service Mesh 없는 마이크로서비스 앱 배포 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -88,45 +88,45 @@
 <ol>
 <li>
 <p>앱 배포</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -l version!<span class="o">=</span>v2,version!<span class="o">=</span>v3 -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -l version!<span class="o">=</span>v2,version!<span class="o">=</span>v3 -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>스케일</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl scale deployments --all --replicas <span class="m">3</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl scale deployments --all --replicas <span class="m">3</span>
+</span></span></code></pre></div></li>
 <li>
 <p>외부 접근을 위한 서비스 오픈</p>
 <p>테스트 편의를 위해 Load Balancer 타입으로 오픈합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl patch svc productpage -p <span class="s1">&#39;{&#34;spec&#34;: {&#34;type&#34;: &#34;LoadBalancer&#34;}}&#39;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl patch svc productpage -p <span class="s1">&#39;{&#34;spec&#34;: {&#34;type&#34;: &#34;LoadBalancer&#34;}}&#39;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>배포 상태 확인</p>
 <p>각 앱이 3개의 Pod이며 각 Pod는 Container 1개로 구성된 것을 확인할 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
-NAME                              READY   STATUS    RESTARTS   AGE
-details-v1-79f774bdb9-29z48       1/1     Running   <span class="m">0</span>          21s
-details-v1-79f774bdb9-d5lfq       1/1     Running   <span class="m">0</span>          32s
-details-v1-79f774bdb9-sqp9p       1/1     Running   <span class="m">0</span>          20s
-productpage-v1-6b746f74dc-drgbw   1/1     Running   <span class="m">0</span>          21s
-productpage-v1-6b746f74dc-pc2h2   1/1     Running   <span class="m">0</span>          32s
-productpage-v1-6b746f74dc-qzkqm   1/1     Running   <span class="m">0</span>          20s
-ratings-v1-b6994bb9-6xlq7         1/1     Running   <span class="m">0</span>          32s
-ratings-v1-b6994bb9-j2l78         1/1     Running   <span class="m">0</span>          20s
-ratings-v1-b6994bb9-w748t         1/1     Running   <span class="m">0</span>          20s
-reviews-v1-545db77b95-hg7j8       1/1     Running   <span class="m">0</span>          32s
-reviews-v1-545db77b95-l42v4       1/1     Running   <span class="m">0</span>          20s
-reviews-v1-545db77b95-lgl89       1/1     Running   <span class="m">0</span>          20s
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                              READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-29z48       1/1     Running   <span class="m">0</span>          21s
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-d5lfq       1/1     Running   <span class="m">0</span>          32s
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-sqp9p       1/1     Running   <span class="m">0</span>          20s
+</span></span><span class="line"><span class="cl">productpage-v1-6b746f74dc-drgbw   1/1     Running   <span class="m">0</span>          21s
+</span></span><span class="line"><span class="cl">productpage-v1-6b746f74dc-pc2h2   1/1     Running   <span class="m">0</span>          32s
+</span></span><span class="line"><span class="cl">productpage-v1-6b746f74dc-qzkqm   1/1     Running   <span class="m">0</span>          20s
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-6xlq7         1/1     Running   <span class="m">0</span>          32s
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-j2l78         1/1     Running   <span class="m">0</span>          20s
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-w748t         1/1     Running   <span class="m">0</span>          20s
+</span></span><span class="line"><span class="cl">reviews-v1-545db77b95-hg7j8       1/1     Running   <span class="m">0</span>          32s
+</span></span><span class="line"><span class="cl">reviews-v1-545db77b95-l42v4       1/1     Running   <span class="m">0</span>          20s
+</span></span><span class="line"><span class="cl">reviews-v1-545db77b95-lgl89       1/1     Running   <span class="m">0</span>          20s
+</span></span></code></pre></div></li>
 <li>
 <p>서비스 확인</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get svc
-NAME          TYPE           CLUSTER-IP      EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>          AGE
-details       ClusterIP      10.96.175.211   &lt;none&gt;          9080/TCP         67s
-kubernetes    ClusterIP      10.96.0.1       &lt;none&gt;          443/TCP          16d
-productpage   LoadBalancer   10.96.79.55     146.56.142.95   9080:32649/TCP   66s
-ratings       ClusterIP      10.96.105.212   &lt;none&gt;          9080/TCP         66s
-reviews       ClusterIP      10.96.197.86    &lt;none&gt;          9080/TCP         66s
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get svc
+</span></span><span class="line"><span class="cl">NAME          TYPE           CLUSTER-IP      EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>          AGE
+</span></span><span class="line"><span class="cl">details       ClusterIP      10.96.175.211   &lt;none&gt;          9080/TCP         67s
+</span></span><span class="line"><span class="cl">kubernetes    ClusterIP      10.96.0.1       &lt;none&gt;          443/TCP          16d
+</span></span><span class="line"><span class="cl">productpage   LoadBalancer   10.96.79.55     146.56.142.95   9080:32649/TCP   66s
+</span></span><span class="line"><span class="cl">ratings       ClusterIP      10.96.105.212   &lt;none&gt;          9080/TCP         66s
+</span></span><span class="line"><span class="cl">reviews       ClusterIP      10.96.197.86    &lt;none&gt;          9080/TCP         66s
+</span></span></code></pre></div></li>
 <li>
 <p>메인 페이지 접속</p>
 <ul>
@@ -165,19 +165,19 @@ reviews       ClusterIP      10.96.197.86    &lt;none&gt;          9080/TCP     
 <li>
 <p>실제 호출 로그</p>
 <p>실제 로그를 보면 http://reviews:9080/reviews 로 정상 호출 되었으며, 배포시의 ClusterIP 타입의 reviews Service를 통해 같은 네임스페이스 상에서는 reviews를 주소로하여 정상 호출된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl logs -l <span class="nv">app</span><span class="o">=</span>productpage -f
-...
-DEBUG:urllib3.connectionpool:Starting new HTTP connection <span class="o">(</span>1<span class="o">)</span>: reviews:9080
-send: b<span class="s1">&#39;GET /reviews/0 HTTP/1.1\r\nHost: reviews:9080\r\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36\r\nAccept-Encoding: gzip, deflate\r\nAccept: */*\r\nConnection: keep-alive\r\nX-B3-TraceId: cd0101ed97c6b43f\r\nX-B3-SpanId: cd0101ed97c6b43f\r\nX-B3-Sampled: 1\r\n\r\n&#39;</span>
-reply: <span class="s1">&#39;HTTP/1.1 200 OK\r\n&#39;</span>
-header: X-Powered-By: Servlet/3.1
-header: Content-Type: application/json
-header: Date: Mon, <span class="m">20</span> Dec <span class="m">2021</span> 07:41:55 GMT
-header: Content-Language: en-US
-header: Content-Length: <span class="m">295</span>
-DEBUG:urllib3.connectionpool:http://reviews:9080 <span class="s2">&#34;GET /reviews/0 HTTP/1.1&#34;</span> <span class="m">200</span> <span class="m">295</span>
-INFO:werkzeug:10.244.1.128 - - <span class="o">[</span>20/Dec/2021 07:41:55<span class="o">]</span> <span class="s2">&#34;GET /productpage HTTP/1.1&#34;</span> <span class="m">200</span> 
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl logs -l <span class="nv">app</span><span class="o">=</span>productpage -f
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">DEBUG:urllib3.connectionpool:Starting new HTTP connection <span class="o">(</span>1<span class="o">)</span>: reviews:9080
+</span></span><span class="line"><span class="cl">send: b<span class="s1">&#39;GET /reviews/0 HTTP/1.1\r\nHost: reviews:9080\r\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36\r\nAccept-Encoding: gzip, deflate\r\nAccept: */*\r\nConnection: keep-alive\r\nX-B3-TraceId: cd0101ed97c6b43f\r\nX-B3-SpanId: cd0101ed97c6b43f\r\nX-B3-Sampled: 1\r\n\r\n&#39;</span>
+</span></span><span class="line"><span class="cl">reply: <span class="s1">&#39;HTTP/1.1 200 OK\r\n&#39;</span>
+</span></span><span class="line"><span class="cl">header: X-Powered-By: Servlet/3.1
+</span></span><span class="line"><span class="cl">header: Content-Type: application/json
+</span></span><span class="line"><span class="cl">header: Date: Mon, <span class="m">20</span> Dec <span class="m">2021</span> 07:41:55 GMT
+</span></span><span class="line"><span class="cl">header: Content-Language: en-US
+</span></span><span class="line"><span class="cl">header: Content-Length: <span class="m">295</span>
+</span></span><span class="line"><span class="cl">DEBUG:urllib3.connectionpool:http://reviews:9080 <span class="s2">&#34;GET /reviews/0 HTTP/1.1&#34;</span> <span class="m">200</span> <span class="m">295</span>
+</span></span><span class="line"><span class="cl">INFO:werkzeug:10.244.1.128 - - <span class="o">[</span>20/Dec/2021 07:41:55<span class="o">]</span> <span class="s2">&#34;GET /productpage HTTP/1.1&#34;</span> <span class="m">200</span> 
+</span></span></code></pre></div></li>
 </ul>
 </li>
 </ol>
@@ -186,24 +186,24 @@ INFO:werkzeug:10.244.1.128 - - <span class="o">[</span>20/Dec/2021 07:41:55<span
 <li>
 <p>Reviews Service 확인</p>
 <p>Selector에서 보이는 것처럼 app=reviews 레이블이 달린 Pod로 분배하고 있습니다. 현재 배포되어있는 Reviews v1의 세 개의 Pod의 Endpoints로 분배되고 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe svc reviews
-Name:              reviews
-Namespace:         default
-Labels:            <span class="nv">app</span><span class="o">=</span>reviews
-                   <span class="nv">service</span><span class="o">=</span>reviews
-Annotations:       &lt;none&gt;
-Selector:          <span class="nv">app</span><span class="o">=</span>reviews
-Type:              ClusterIP
-IP Family Policy:  SingleStack
-IP Families:       IPv4
-IP:                10.96.197.86
-IPs:               10.96.197.86
-Port:              http  9080/TCP
-TargetPort:        9080/TCP
-Endpoints:         10.244.2.42:9080,10.244.2.44:9080,10.244.2.45:9080
-Session Affinity:  None
-Events:            &lt;none&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe svc reviews
+</span></span><span class="line"><span class="cl">Name:              reviews
+</span></span><span class="line"><span class="cl">Namespace:         default
+</span></span><span class="line"><span class="cl">Labels:            <span class="nv">app</span><span class="o">=</span>reviews
+</span></span><span class="line"><span class="cl">                   <span class="nv">service</span><span class="o">=</span>reviews
+</span></span><span class="line"><span class="cl">Annotations:       &lt;none&gt;
+</span></span><span class="line"><span class="cl">Selector:          <span class="nv">app</span><span class="o">=</span>reviews
+</span></span><span class="line"><span class="cl">Type:              ClusterIP
+</span></span><span class="line"><span class="cl">IP Family Policy:  SingleStack
+</span></span><span class="line"><span class="cl">IP Families:       IPv4
+</span></span><span class="line"><span class="cl">IP:                10.96.197.86
+</span></span><span class="line"><span class="cl">IPs:               10.96.197.86
+</span></span><span class="line"><span class="cl">Port:              http  9080/TCP
+</span></span><span class="line"><span class="cl">TargetPort:        9080/TCP
+</span></span><span class="line"><span class="cl">Endpoints:         10.244.2.42:9080,10.244.2.44:9080,10.244.2.45:9080
+</span></span><span class="line"><span class="cl">Session Affinity:  None
+</span></span><span class="line"><span class="cl">Events:            &lt;none&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>이 상태에서 Reviews 앱의 새로운 버전인 v2를 개발하여 배포하게 된다면, 아마 배포해서 정상동작 확인후 서비스 라우팅이 되도록 app=review를 추가하게 될 것입니다. 이후 일부 요청을 서비스 하도록 실제 운영하다 문제 발생시 원복시키거나, 문제가 없는 경우, v1로 가는 요청을 줄이고, v2로 가는 요청을 점진적으로 늘려가면서 실제 v2로 이관하게 될 것입니다.</p>
 </li>
@@ -213,60 +213,60 @@ Events:            &lt;none&gt;
 <li>
 <p>Reviews v2 버전을 배포합니다.</p>
 <p>라우팅에서 일단 제외하기 위해 app: reviews_test로 레이블을 변경하여 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> sed <span class="s1">&#39;s/app: reviews/app: reviews_test/&#39;</span> <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews_test,version<span class="o">=</span>v2 -f -
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> sed <span class="s1">&#39;s/app: reviews/app: reviews_test/&#39;</span> <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews_test,version<span class="o">=</span>v2 -f -
+</span></span></code></pre></div></li>
 <li>
 <p>배포 결과 확인</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
-NAME                              READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
-...
-reviews-v1-545db77b95-hg7j8       1/1     Running   <span class="m">0</span>          76m   10.244.2.42    10.0.10.9     &lt;none&gt;           &lt;none&gt;
-reviews-v1-545db77b95-l42v4       1/1     Running   <span class="m">0</span>          76m   10.244.2.45    10.0.10.9     &lt;none&gt;           &lt;none&gt;
-reviews-v1-545db77b95-lgl89       1/1     Running   <span class="m">0</span>          76m   10.244.2.44    10.0.10.9     &lt;none&gt;           &lt;none&gt;
-reviews-v2-7cd8b85558-c2jmw       1/1     Running   <span class="m">0</span>          30s   10.244.2.47    10.0.10.9     &lt;none&gt;           &lt;none&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
+</span></span><span class="line"><span class="cl">NAME                              READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">reviews-v1-545db77b95-hg7j8       1/1     Running   <span class="m">0</span>          76m   10.244.2.42    10.0.10.9     &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">reviews-v1-545db77b95-l42v4       1/1     Running   <span class="m">0</span>          76m   10.244.2.45    10.0.10.9     &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">reviews-v1-545db77b95-lgl89       1/1     Running   <span class="m">0</span>          76m   10.244.2.44    10.0.10.9     &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">reviews-v2-7cd8b85558-c2jmw       1/1     Running   <span class="m">0</span>          30s   10.244.2.47    10.0.10.9     &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>Reviews v2 Pod 테스트</p>
 <p>productpage Pod에서 Reviews v2 Pod로 테스트하면 좋겠지만, productpage Pod에 테스트용 curl 없는 관계로 별도 클라이언트용 Pod를 배포하여 테스트합니다.</p>
 <ul>
 <li>
 <p>테스트 클라이언트 Pod 배포</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/sleep/sleep.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/sleep/sleep.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>테스트</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">REVIEWS_V2_POD_IP</span><span class="o">=</span><span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>reviews_test,version<span class="o">=</span>v2 -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].status.podIP}&#39;</span><span class="k">)</span>
-<span class="nb">echo</span> <span class="nv">$REVIEWS_V2_POD_IP</span>
-kubectl <span class="nb">exec</span> <span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>sleep -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].metadata.name}&#39;</span><span class="k">)</span> -- curl -sS <span class="s2">&#34;</span><span class="nv">$REVIEWS_V2_POD_IP</span><span class="s2">:9080/reviews/7&#34;</span> 
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">REVIEWS_V2_POD_IP</span><span class="o">=</span><span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>reviews_test,version<span class="o">=</span>v2 -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].status.podIP}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="nv">$REVIEWS_V2_POD_IP</span>
+</span></span><span class="line"><span class="cl">kubectl <span class="nb">exec</span> <span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>sleep -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].metadata.name}&#39;</span><span class="k">)</span> -- curl -sS <span class="s2">&#34;</span><span class="nv">$REVIEWS_V2_POD_IP</span><span class="s2">:9080/reviews/7&#34;</span> 
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>테스트 결과</p>
 <p>아래와 같이 v2 버전이 잘 동작함을 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nv">REVIEWS_V2_POD_IP</span><span class="o">=</span><span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>reviews_test,version<span class="o">=</span>v2 -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].status.podIP}&#39;</span><span class="k">)</span>
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nb">echo</span> <span class="nv">$REVIEWS_V2_POD_IP</span>
-10.244.2.47
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl <span class="nb">exec</span> <span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>sleep -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].metadata.name}&#39;</span><span class="k">)</span> -- curl -sS <span class="s2">&#34;</span><span class="nv">$REVIEWS_V2_POD_IP</span><span class="s2">:9080/reviews/7&#34;</span> <span class="o">{</span><span class="s2">&#34;id&#34;</span>: <span class="s2">&#34;7&#34;</span>,<span class="s2">&#34;reviews&#34;</span>: <span class="o">[{</span>  <span class="s2">&#34;reviewer&#34;</span>: <span class="s2">&#34;Reviewer1&#34;</span>,  <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;An extremely entertaining play by Shakespeare. The slapstick humour is refreshing!&#34;</span>, <span class="s2">&#34;rating&#34;</span>: <span class="o">{</span><span class="s2">&#34;stars&#34;</span>: 5, <span class="s2">&#34;color&#34;</span>: <span class="s2">&#34;black&#34;</span><span class="o">}}</span>,<span class="o">{</span>  <span class="s2">&#34;reviewer&#34;</span>: <span class="s2">&#34;Reviewer2&#34;</span>,  <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;Absolutely fun and entertaining. The play lacks thematic depth when compared to other plays by Shakespeare.&#34;</span>, <span class="s2">&#34;rating&#34;</span>: <span class="o">{</span><span class="s2">&#34;stars&#34;</span>: 4, <span class="s2">&#34;color&#34;</span>: <span class="s2">&#34;black&#34;</span><span class="o">}}]}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nv">REVIEWS_V2_POD_IP</span><span class="o">=</span><span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>reviews_test,version<span class="o">=</span>v2 -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].status.podIP}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nb">echo</span> <span class="nv">$REVIEWS_V2_POD_IP</span>
+</span></span><span class="line"><span class="cl">10.244.2.47
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl <span class="nb">exec</span> <span class="k">$(</span>kubectl get pod -l <span class="nv">app</span><span class="o">=</span>sleep -o <span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].metadata.name}&#39;</span><span class="k">)</span> -- curl -sS <span class="s2">&#34;</span><span class="nv">$REVIEWS_V2_POD_IP</span><span class="s2">:9080/reviews/7&#34;</span> <span class="o">{</span><span class="s2">&#34;id&#34;</span>: <span class="s2">&#34;7&#34;</span>,<span class="s2">&#34;reviews&#34;</span>: <span class="o">[{</span>  <span class="s2">&#34;reviewer&#34;</span>: <span class="s2">&#34;Reviewer1&#34;</span>,  <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;An extremely entertaining play by Shakespeare. The slapstick humour is refreshing!&#34;</span>, <span class="s2">&#34;rating&#34;</span>: <span class="o">{</span><span class="s2">&#34;stars&#34;</span>: 5, <span class="s2">&#34;color&#34;</span>: <span class="s2">&#34;black&#34;</span><span class="o">}}</span>,<span class="o">{</span>  <span class="s2">&#34;reviewer&#34;</span>: <span class="s2">&#34;Reviewer2&#34;</span>,  <span class="s2">&#34;text&#34;</span>: <span class="s2">&#34;Absolutely fun and entertaining. The play lacks thematic depth when compared to other plays by Shakespeare.&#34;</span>, <span class="s2">&#34;rating&#34;</span>: <span class="o">{</span><span class="s2">&#34;stars&#34;</span>: 4, <span class="s2">&#34;color&#34;</span>: <span class="s2">&#34;black&#34;</span><span class="o">}}]}</span>
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="reviews-v2의-서비스-라우팅에-추가">Reviews v2의 서비스 라우팅에 추가</h3>
 <ol>
 <li>
 <p>version=v2 레이블이 달린 Review v2 Pod에 app=reviews 레이블을 추가합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl label pod -l <span class="nv">version</span><span class="o">=</span>v2 <span class="nv">app</span><span class="o">=</span>reviews --overwrite
-pod/reviews-v2-7cd8b85558-c2jmw labeled
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl label pod -l <span class="nv">version</span><span class="o">=</span>v2 <span class="nv">app</span><span class="o">=</span>reviews --overwrite
+</span></span><span class="line"><span class="cl">pod/reviews-v2-7cd8b85558-c2jmw labeled
+</span></span></code></pre></div></li>
 <li>
 <p>Reviews Service 재확인</p>
 <p>아래와 같이 v2가 추가가 되어 Endpoints에 이전 3개에서 4개로 변경된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe svc reviews
-Name:              reviews
-...
-Selector:          <span class="nv">app</span><span class="o">=</span>reviews
-...
-Endpoints:         10.244.2.42:9080,10.244.2.44:9080,10.244.2.45:9080 + <span class="m">1</span> more...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe svc reviews
+</span></span><span class="line"><span class="cl">Name:              reviews
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Selector:          <span class="nv">app</span><span class="o">=</span>reviews
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Endpoints:         10.244.2.42:9080,10.244.2.44:9080,10.244.2.45:9080 + <span class="m">1</span> more...
+</span></span></code></pre></div></li>
 <li>
 <p>메인 페이지 접속</p>
 <ul>
@@ -296,16 +296,16 @@ Endpoints:         10.244.2.42:9080,10.244.2.44:9080,10.244.2.45:9080 + <span cl
 <ul>
 <li>위에서 서비스 라우팅을 위해 기존 Pod의 label을 변경했기 때문에, 변경된 Pod(app=reviews)외에 app=reviews_test의 Deployment도 아직 남아 있습니다. 둘다 삭제합니다. (실제로는 이렇게 하면 안되겠네요. 근데, Deployment 내에 정의된 Pod Template의 label은 변경이 안되네요&hellip;)</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl delete deployment reviews-v2
-kubectl delete pod -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl delete deployment reviews-v2
+</span></span><span class="line"><span class="cl">kubectl delete pod -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2
+</span></span></code></pre></div></li>
 <li>
 <p>문제 해결후 재배포</p>
 <p>최종 배포시에는 아래와 같이 배포후 v2의 갯수를 늘리고 v1은 삭제하게 될 것입니다. 실제 상황에서는 점진적으로 v2을 늘리고 v1을 줄이는 요구사항도 있을 것입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2 -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml
-kubectl scale deployment reviews-v2 --replicas<span class="o">=</span><span class="m">3</span>
-kubectl delete deployment reviews-v1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2 -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml
+</span></span><span class="line"><span class="cl">kubectl scale deployment reviews-v2 --replicas<span class="o">=</span><span class="m">3</span>
+</span></span><span class="line"><span class="cl">kubectl delete deployment reviews-v1
+</span></span></code></pre></div></li>
 </ol>
 <h2 id="실제-배포시-대응-방법">실제 배포시 대응 방법</h2>
 <p>실제 환경에서 마이크로 서비스 업데이트시의 안정적인 배포를 위해 새 버전 배포후 테스트, 점진적인 새 버전으로의 이관을 위한 여러가지 방안들이 나왔습니다. 그 대표적인 방법으로 가장 많이 사용하고 있는 것은 크게 Service Mesh와 Netflix&rsquo;s Hystrix를 기반한 방법입니다.</p>
@@ -394,6 +394,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -423,6 +427,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -477,6 +485,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -509,6 +521,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -538,6 +554,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -566,9 +586,17 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -596,6 +624,10 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -625,6 +657,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -655,6 +691,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -687,6 +727,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -716,6 +760,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -744,6 +792,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -779,6 +831,10 @@ kubectl delete deployment reviews-v1
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -805,6 +861,10 @@ kubectl delete deployment reviews-v1
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -856,9 +916,17 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -887,6 +955,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -961,6 +1033,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -988,9 +1064,17 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1023,6 +1107,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1052,6 +1140,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1083,6 +1175,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1159,6 +1255,10 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1188,10 +1288,18 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1219,6 +1327,10 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1249,6 +1361,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1301,6 +1417,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1327,6 +1447,10 @@ kubectl delete deployment reviews-v1
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1353,6 +1477,10 @@ kubectl delete deployment reviews-v1
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1380,6 +1508,10 @@ kubectl delete deployment reviews-v1
 <ul class="sub-menu">
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1433,9 +1565,17 @@ kubectl delete deployment reviews-v1
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1466,6 +1606,10 @@ kubectl delete deployment reviews-v1
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

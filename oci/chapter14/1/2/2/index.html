@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>14.1.2.2 CLI를 통한 파일 업로드 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -72,92 +72,92 @@
 <ol>
 <li>
 <p>Object Storage Namespace을 조회합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os ns get
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os ns get
+</span></span></code></pre></div></li>
 <li>
 <p>Bucket상의 Object 목록 조회</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os object list -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt;
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os object list -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt;
+</span></span></code></pre></div><ul>
 <li>
 <p>실행예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\&gt;</span> oci os ns get
-<span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnzdbcmqu9s8&#34;</span>
-<span class="o">}</span>
-PS D:<span class="se">\&gt;</span> oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
-<span class="o">{</span>
-  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\&gt;</span> oci os ns get
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnzdbcmqu9s8&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\&gt;</span> oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Bucket에 Object 업로드</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt;  --no-multipart
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt;  --no-multipart
+</span></span></code></pre></div><ul>
 <li>
 <p>Windows 실행예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; dir
-
-    디렉터리: D:<span class="se">\F</span>orObjectStorage
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-----      2022-01-12   오후 7:01                images
--a----      2022-01-12   오후 5:27            <span class="m">152</span> index.html
-
-PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI --file index.html
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 02:42:23 GMT&#34;</span>,
-  <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
-<span class="o">}</span>
-PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
-<span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">&#34;archival-state&#34;</span>: null,
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
-      <span class="s2">&#34;md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>,
-      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;index.html&#34;</span>,
-      <span class="s2">&#34;size&#34;</span>: 152,
-      <span class="s2">&#34;storage-tier&#34;</span>: <span class="s2">&#34;Standard&#34;</span>,
-      <span class="s2">&#34;time-created&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>,
-      <span class="s2">&#34;time-modified&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; dir
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    디렉터리: D:<span class="se">\F</span>orObjectStorage
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Mode                 LastWriteTime         Length Name
+</span></span><span class="line"><span class="cl">----                 -------------         ------ ----
+</span></span><span class="line"><span class="cl">d-----      2022-01-12   오후 7:01                images
+</span></span><span class="line"><span class="cl">-a----      2022-01-12   오후 5:27            <span class="m">152</span> index.html
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI --file index.html
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 02:42:23 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;data&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;archival-state&#34;</span>: null,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;index.html&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: 152,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;storage-tier&#34;</span>: <span class="s2">&#34;Standard&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;time-created&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;time-modified&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Bucket에 Object들 벌크 업로드</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os object bulk-upload -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --src-dir &lt;source_directory_location&gt; --no-multipart
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os object bulk-upload -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --src-dir &lt;source_directory_location&gt; --no-multipart
+</span></span></code></pre></div><ul>
 <li>
 <p>Windows 실행예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object bulk-upload -bn ExampleBucketForCLI --src-dir .
-Uploaded images/icons8-oracle-96.png  <span class="o">[</span><span class="c1">####################################]  100%</span>
-Uploaded index.html  <span class="o">[</span><span class="c1">####################################]  100%</span>
-
-<span class="o">{</span>
-  <span class="s2">&#34;skipped-objects&#34;</span>: <span class="o">[]</span>,
-  <span class="s2">&#34;upload-failures&#34;</span>: <span class="o">{}</span>,
-  <span class="s2">&#34;uploaded-objects&#34;</span>: <span class="o">{</span>
-    <span class="s2">&#34;images/icons8-oracle-96.png&#34;</span>: <span class="o">{</span>
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;388a319c-b5d0-4a51-bacf-9d9fe84bc621&#34;</span>,
-      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:04 GMT&#34;</span>,
-      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;HkJF80OO/DlmKI7usBCg4Q==&#34;</span>
-    <span class="o">}</span>,
-    <span class="s2">&#34;index.html&#34;</span>: <span class="o">{</span>
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;883369a7-4701-4bd9-8351-3fbaada61fbe&#34;</span>,
-      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:05 GMT&#34;</span>,
-      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object bulk-upload -bn ExampleBucketForCLI --src-dir .
+</span></span><span class="line"><span class="cl">Uploaded images/icons8-oracle-96.png  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl">Uploaded index.html  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;skipped-objects&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;upload-failures&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;uploaded-objects&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;images/icons8-oracle-96.png&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;388a319c-b5d0-4a51-bacf-9d9fe84bc621&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:04 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;HkJF80OO/DlmKI7usBCg4Q==&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;index.html&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;883369a7-4701-4bd9-8351-3fbaada61fbe&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:05 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
@@ -205,32 +205,32 @@ Uploaded index.html  <span class="o">[</span><span class="c1">##################
 </ol>
 <h5 id="multipart-업로드">Multipart 업로드</h5>
 <p>큰 사이즈의 파일, 예를 들어 Custom Image 파일을 업로드할 때 업로드 시간이 많이 걸리게 됩니다. 이런경우 단일 파일을 여러 파일로 나누어 병렬로 업로드 하면 더 빠르게 업로드 할 수 있습니다. 또한 전송시 네트워크 에러 발생시 에러난 파트별도 재시도를 하여 보다 안정적으로 큰 파일을 업로드 할 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt; --part-size &lt;upload_part_size_in_MB&gt; --parallel-upload-count &lt;maximum_number_parallel_uploads&gt;
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt; --part-size &lt;upload_part_size_in_MB&gt; --parallel-upload-count &lt;maximum_number_parallel_uploads&gt;
+</span></span></code></pre></div><ul>
 <li>
 <p>Windows 실행예시</p>
 <p>2.28GB 파일을 100 MB 단위로 나누어서 동시 5개로 병렬로 업로드하는 예시로 3분 57초 걸림.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; date
-
-2022년 1월 18일 화요일 오후 12:25:22
-
-
-PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso --part-size <span class="m">100</span> --parallel-upload-count <span class="m">5</span>
-Upload ID: 3b38b958-3010-4d6d-5e84-55d189b787cc
-Split file into <span class="m">24</span> parts <span class="k">for</span> upload.
-Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;2217a0e6-2ae3-4ae8-9507-03d2f36a38ec&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:29:18 GMT&#34;</span>,
-  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;mnHbvK3Eed2+o54P1P7VgA==-24&#34;</span>
-<span class="o">}</span>
-PS D:<span class="se">\F</span>orObjectStorage&gt; date
-
-2022년 1월 18일 화요일 오후 12:29:19
-
-
-PS D:<span class="se">\F</span>orObjectStorage&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; date
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2022년 1월 18일 화요일 오후 12:25:22
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso --part-size <span class="m">100</span> --parallel-upload-count <span class="m">5</span>
+</span></span><span class="line"><span class="cl">Upload ID: 3b38b958-3010-4d6d-5e84-55d189b787cc
+</span></span><span class="line"><span class="cl">Split file into <span class="m">24</span> parts <span class="k">for</span> upload.
+</span></span><span class="line"><span class="cl">Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;2217a0e6-2ae3-4ae8-9507-03d2f36a38ec&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:29:18 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;mnHbvK3Eed2+o54P1P7VgA==-24&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; date
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2022년 1월 18일 화요일 오후 12:29:19
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>결과확인</p>
 <p>
@@ -250,16 +250,16 @@ PS D:<span class="se">\F</span>orObjectStorage&gt;
 <blockquote>
 <p>By default, files above 128 MiB will be transferred in multiple parts, then combined.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso
-Upload ID: 75e4106e-bf1f-ffd0-5630-c78b68b6168b
-Split file into <span class="m">19</span> parts <span class="k">for</span> upload.
-Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;cf5d681b-90a3-409c-b732-1e6c6028c046&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:37:46 GMT&#34;</span>,
-  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;eFqxsX7ROrZUQ0HrQYI/zw==-19&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso
+</span></span><span class="line"><span class="cl">Upload ID: 75e4106e-bf1f-ffd0-5630-c78b68b6168b
+</span></span><span class="line"><span class="cl">Split file into <span class="m">19</span> parts <span class="k">for</span> upload.
+</span></span><span class="line"><span class="cl">Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;cf5d681b-90a3-409c-b732-1e6c6028c046&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:37:46 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;eFqxsX7ROrZUQ0HrQYI/zw==-19&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 <br>
 <br>
@@ -270,7 +270,7 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
     </div>
 
  <div class="edit-meta">Last updated on 18 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/1/2/1/" title="14.1.2.1 Object Storage를 위한 IAM Policy 설정"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.1.2.1 Object Storage를 위한 IAM Policy 설정</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter14/2/" title="14.2 Terraform">Next - 14.2 Terraform <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter14/1/2/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -342,6 +342,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -371,6 +375,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -425,6 +433,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -457,6 +469,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -486,6 +502,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -514,9 +534,17 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -544,6 +572,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -573,6 +605,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -603,6 +639,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -635,6 +675,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -664,6 +708,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -692,6 +740,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -727,6 +779,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -753,6 +809,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -804,9 +864,17 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -835,6 +903,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -909,6 +981,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -936,9 +1012,17 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class="sub-menu">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -971,6 +1055,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1000,6 +1088,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1031,6 +1123,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1107,6 +1203,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1136,10 +1236,18 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1167,6 +1275,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1197,6 +1309,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1249,6 +1365,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1275,6 +1395,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1301,6 +1425,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1328,6 +1456,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1381,9 +1513,17 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1414,6 +1554,10 @@ Uploading object  <span class="o">[</span><span class="c1">#####################
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

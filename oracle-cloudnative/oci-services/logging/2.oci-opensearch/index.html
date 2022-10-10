@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -60,16 +60,16 @@
 <p>OpenSearch와 OpenDashboards는 2021년에 ElasticSearch와 Cabana에서 포크되어 별도 오픈소스 프로젝트로 운영되고 있습니다. OCI OpenSearch는 OCI에서 제공하는 관리형 서비스입니다.</p>
 <h2 id="oci-search-서비스-사용을-위한-policy-설정하기">OCI Search 서비스 사용을 위한 Policy 설정하기</h2>
 <h3 id="oci-search-서비스-권한-부여하기">OCI Search 서비스 권한 부여하기</h3>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">Allow service opensearch to manage vnics in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
-Allow service opensearch to manage vcns in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
-Allow service opensearch to use subnets in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
-Allow service opensearch to use network-security-groups in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
-</code></pre></div><h3 id="오라클-클라우드-콘솔에서-oci-search-서비스-관리-권한-부여하기">오라클 클라우드 콘솔에서 OCI Search 서비스 관리 권한 부여하기</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Allow service opensearch to manage vnics in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
+</span></span><span class="line"><span class="cl">Allow service opensearch to manage vcns in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
+</span></span><span class="line"><span class="cl">Allow service opensearch to use subnets in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
+</span></span><span class="line"><span class="cl">Allow service opensearch to use network-security-groups in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt;
+</span></span></code></pre></div><h3 id="오라클-클라우드-콘솔에서-oci-search-서비스-관리-권한-부여하기">오라클 클라우드 콘솔에서 OCI Search 서비스 관리 권한 부여하기</h3>
 <ul>
 <li>사용자가 속한 그룹이 SearchOpenSearchAdmins인 경우 예시</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">Allow group SearchOpenSearchAdmins to manage opensearch-family in compartment &lt;CLUSTER_RESOURCES_COMPARTMENT&gt;
-</code></pre></div><h2 id="oci-opensearch-클러스터-만들기">OCI OpenSearch 클러스터 만들기</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Allow group SearchOpenSearchAdmins to manage opensearch-family in compartment &lt;CLUSTER_RESOURCES_COMPARTMENT&gt;
+</span></span></code></pre></div><h2 id="oci-opensearch-클러스터-만들기">OCI OpenSearch 클러스터 만들기</h2>
 <ol>
 <li>
 <p>오라클 클라우드 콘솔에 로그인합니다.</p>
@@ -235,43 +235,43 @@ Allow service opensearch to use network-security-groups in compartment &lt;NETWO
 <ul>
 <li>OpenSearch Cluster정보 기준, OpenSearch Dashboard private ip가 10.0.20.197인 경우</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ssh -L 5601:10.0.20.197:5601 opc@jumpbox
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ssh -L 5601:10.0.20.197:5601 opc@jumpbox
+</span></span></code></pre></div></li>
 <li>
 <p>jumpbox VM에 접속한후 Dashboard API Endpoint에 접속이 되는지 테스트합니다.</p>
 <ul>
 <li>아래와 같이 접속이 되는 것을 알 수 있으면, 현재 Self Signed 된 인증서를 사용하는 것을 알 수 있습니다.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ ssh -L 5601:10.0.20.197:5601 opc@jumpbox
-Activate the web console with: systemctl <span class="nb">enable</span> --now cockpit.socket
-
-Last login: Fri Jun  <span class="m">3</span> 04:51:54 <span class="m">2022</span> from 192.188.170.86
-
-<span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ curl -v --insecure https://amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com:5601
-...
-* SSL connection using TLSv1.2 / ECDHE-RSA-AES128-GCM-SHA256
-* ALPN, server accepted to use http/1.1
-* Server certificate:
-*  subject: <span class="nv">CN</span><span class="o">=</span>*.opendashboard.ap-chuncheon-1.oci.oracleiaas.com
-*  start date: Apr  <span class="m">5</span> 02:07:20 <span class="m">2022</span> GMT
-*  expire date: Oct  <span class="m">2</span> 02:08:20 <span class="m">2022</span> GMT
-*  issuer: <span class="nv">OU</span><span class="o">=</span>opc-device:71:a6:a1:f5:40:ae:13:ba:7b:10:71:5e:7e:84:e3:a6:6f:c1:f4:21:61:3a:e3:da:8e:30:2a:56:82:30:cc:9d<span class="p">;</span> <span class="nv">CN</span><span class="o">=</span>PKISVC CrossRegion Intermediate r2
-*  SSL certificate verify result: self signed certificate in certificate chain <span class="o">(</span>19<span class="o">)</span>, continuing anyway.
-&gt; GET / HTTP/1.1
-&gt; Host: amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com:5601
-&gt; User-Agent: curl/7.61.1
-&gt; Accept: */*
-&gt;
-&lt; HTTP/1.1 <span class="m">302</span> Found
-&lt; location: /app/home
-&lt; osd-name: kibana-54c5f88dc9-gt57f
-&lt; cache-control: private, no-cache, no-store, must-revalidate
-&lt; content-length: <span class="m">0</span>
-&lt; Date: Fri, <span class="m">03</span> Jun <span class="m">2022</span> 04:58:56 GMT
-&lt; Connection: keep-alive
-&lt;
-* Connection <span class="c1">#0 to host amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com left intact</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ ssh -L 5601:10.0.20.197:5601 opc@jumpbox
+</span></span><span class="line"><span class="cl">Activate the web console with: systemctl <span class="nb">enable</span> --now cockpit.socket
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Last login: Fri Jun  <span class="m">3</span> 04:51:54 <span class="m">2022</span> from 192.188.170.86
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ curl -v --insecure https://amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com:5601
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">* SSL connection using TLSv1.2 / ECDHE-RSA-AES128-GCM-SHA256
+</span></span><span class="line"><span class="cl">* ALPN, server accepted to use http/1.1
+</span></span><span class="line"><span class="cl">* Server certificate:
+</span></span><span class="line"><span class="cl">*  subject: <span class="nv">CN</span><span class="o">=</span>*.opendashboard.ap-chuncheon-1.oci.oracleiaas.com
+</span></span><span class="line"><span class="cl">*  start date: Apr  <span class="m">5</span> 02:07:20 <span class="m">2022</span> GMT
+</span></span><span class="line"><span class="cl">*  expire date: Oct  <span class="m">2</span> 02:08:20 <span class="m">2022</span> GMT
+</span></span><span class="line"><span class="cl">*  issuer: <span class="nv">OU</span><span class="o">=</span>opc-device:71:a6:a1:f5:40:ae:13:ba:7b:10:71:5e:7e:84:e3:a6:6f:c1:f4:21:61:3a:e3:da:8e:30:2a:56:82:30:cc:9d<span class="p">;</span> <span class="nv">CN</span><span class="o">=</span>PKISVC CrossRegion Intermediate r2
+</span></span><span class="line"><span class="cl">*  SSL certificate verify result: self signed certificate in certificate chain <span class="o">(</span>19<span class="o">)</span>, continuing anyway.
+</span></span><span class="line"><span class="cl">&gt; GET / HTTP/1.1
+</span></span><span class="line"><span class="cl">&gt; Host: amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com:5601
+</span></span><span class="line"><span class="cl">&gt; User-Agent: curl/7.61.1
+</span></span><span class="line"><span class="cl">&gt; Accept: */*
+</span></span><span class="line"><span class="cl">&gt;
+</span></span><span class="line"><span class="cl">&lt; HTTP/1.1 <span class="m">302</span> Found
+</span></span><span class="line"><span class="cl">&lt; location: /app/home
+</span></span><span class="line"><span class="cl">&lt; osd-name: kibana-54c5f88dc9-gt57f
+</span></span><span class="line"><span class="cl">&lt; cache-control: private, no-cache, no-store, must-revalidate
+</span></span><span class="line"><span class="cl">&lt; content-length: <span class="m">0</span>
+</span></span><span class="line"><span class="cl">&lt; Date: Fri, <span class="m">03</span> Jun <span class="m">2022</span> 04:58:56 GMT
+</span></span><span class="line"><span class="cl">&lt; Connection: keep-alive
+</span></span><span class="line"><span class="cl">&lt;
+</span></span><span class="line"><span class="cl">* Connection <span class="c1">#0 to host amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com left intact</span>
+</span></span></code></pre></div></li>
 <li>
 <p>SSH 터널링이 되어 있으므로, 로컬에서 브라우저로 OpenSearch Dashboard에 접속을 확인합니다.</p>
 <ul>
@@ -328,64 +328,64 @@ Last login: Fri Jun  <span class="m">3</span> 04:51:54 <span class="m">2022</spa
 <ul>
 <li>클러스터의 OpenSearch API Endpoint</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">openssl s_client -showcerts -connect <span class="si">${</span><span class="nv">OPENSEARCH_API_ENDPOINT</span><span class="si">}</span>:9200 &lt;/dev/null <span class="p">|</span> sed -n -e <span class="s1">&#39;/-.BEGIN/,/-.END/ p&#39;</span> &gt; opensearch-ca.crt
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">openssl s_client -showcerts -connect <span class="si">${</span><span class="nv">OPENSEARCH_API_ENDPOINT</span><span class="si">}</span>:9200 &lt;/dev/null <span class="p">|</span> sed -n -e <span class="s1">&#39;/-.BEGIN/,/-.END/ p&#39;</span> &gt; opensearch-ca.crt
+</span></span></code></pre></div><ul>
 <li>실행 예</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">opc@jumpbox ~<span class="o">]</span>$ openssl s_client -showcerts -connect amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opensearch.ap-chuncheon-1.oci.oracleiaas.com:9200 &lt;/dev/null <span class="p">|</span> sed -n -e <span class="s1">&#39;/-.BEGIN/,/-.END/ p&#39;</span> &gt; opensearch-ca.crt
-<span class="nv">depth</span><span class="o">=</span><span class="m">2</span> <span class="nv">CN</span> <span class="o">=</span> Mission Control Root CA <span class="o">(</span>transitional<span class="o">)</span>
-verify error:num<span class="o">=</span>19:self signed certificate in certificate chain
-verify <span class="k">return</span>:1
-<span class="nv">depth</span><span class="o">=</span><span class="m">2</span> <span class="nv">CN</span> <span class="o">=</span> Mission Control Root CA <span class="o">(</span>transitional<span class="o">)</span>
-verify <span class="k">return</span>:1
-<span class="nv">depth</span><span class="o">=</span><span class="m">1</span> <span class="nv">OU</span> <span class="o">=</span> opc-device:f7:4a:0c:95:4a:8d:a6:06:a2:1c:d2:12:40:6b:61:ae:c3:a0:e2:4c:ca:7b:3e:df:94:85:cc:39:a4:92:df:93, <span class="nv">CN</span> <span class="o">=</span> PKISVC CrossRegion Intermediate r2
-verify <span class="k">return</span>:1
-<span class="nv">depth</span><span class="o">=</span><span class="m">0</span> <span class="nv">CN</span> <span class="o">=</span> *.opensearch.ap-chuncheon-1.oci.oracleiaas.com
-verify <span class="k">return</span>:1
-DONE
-<span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ cat opensearch-ca.crt
------BEGIN CERTIFICATE-----
-MIIE6TCCAtGgAwIBAgIRAOstTmVRjci44g910KG8+YMwDQYJKoZIhvcNAQELBQAw
-...
-<span class="nv">2cTH4OwgiUBHOzI8tQ</span><span class="o">==</span>
------END CERTIFICATE-----
------BEGIN CERTIFICATE-----
-MIIFxTCCA62gAwIBAgIRAM/DvpKazV/tYwL/TDrInwIwDQYJKoZIhvcNAQELBQAw
-...
-37v4yd3CKzhwvmSed7aUsCofDN2WtcVgAp7GA/l12kb+EEafun7QaQI<span class="o">=</span>
------END CERTIFICATE-----
------BEGIN CERTIFICATE-----
-MIIFQzCCAyugAwIBAgIBAjANBgkqhkiG9w0BAQsFADAxMS8wLQYDVQQDEyZNaXNz
-...
-<span class="nv">j3tjZCAkyg</span><span class="o">==</span>
------END CERTIFICATE-----
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">opc@jumpbox ~<span class="o">]</span>$ openssl s_client -showcerts -connect amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opensearch.ap-chuncheon-1.oci.oracleiaas.com:9200 &lt;/dev/null <span class="p">|</span> sed -n -e <span class="s1">&#39;/-.BEGIN/,/-.END/ p&#39;</span> &gt; opensearch-ca.crt
+</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">2</span> <span class="nv">CN</span> <span class="o">=</span> Mission Control Root CA <span class="o">(</span>transitional<span class="o">)</span>
+</span></span><span class="line"><span class="cl">verify error:num<span class="o">=</span>19:self signed certificate in certificate chain
+</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
+</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">2</span> <span class="nv">CN</span> <span class="o">=</span> Mission Control Root CA <span class="o">(</span>transitional<span class="o">)</span>
+</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
+</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">1</span> <span class="nv">OU</span> <span class="o">=</span> opc-device:f7:4a:0c:95:4a:8d:a6:06:a2:1c:d2:12:40:6b:61:ae:c3:a0:e2:4c:ca:7b:3e:df:94:85:cc:39:a4:92:df:93, <span class="nv">CN</span> <span class="o">=</span> PKISVC CrossRegion Intermediate r2
+</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
+</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">0</span> <span class="nv">CN</span> <span class="o">=</span> *.opensearch.ap-chuncheon-1.oci.oracleiaas.com
+</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
+</span></span><span class="line"><span class="cl">DONE
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ cat opensearch-ca.crt
+</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
+</span></span><span class="line"><span class="cl">MIIE6TCCAtGgAwIBAgIRAOstTmVRjci44g910KG8+YMwDQYJKoZIhvcNAQELBQAw
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="nv">2cTH4OwgiUBHOzI8tQ</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
+</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
+</span></span><span class="line"><span class="cl">MIIFxTCCA62gAwIBAgIRAM/DvpKazV/tYwL/TDrInwIwDQYJKoZIhvcNAQELBQAw
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">37v4yd3CKzhwvmSed7aUsCofDN2WtcVgAp7GA/l12kb+EEafun7QaQI<span class="o">=</span>
+</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
+</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
+</span></span><span class="line"><span class="cl">MIIFQzCCAyugAwIBAgIBAjANBgkqhkiG9w0BAQsFADAxMS8wLQYDVQQDEyZNaXNz
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="nv">j3tjZCAkyg</span><span class="o">==</span>
+</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
+</span></span></code></pre></div></li>
 <li>
 <p>kubectl로 대상 OKE 클러스터에 접속 가능한 곳으로 다운로드한 opensearch-ca.crt 파일을 복사합니다.</p>
 </li>
 <li>
 <p>OKE 클러스터에 다음 명령으로 CA를 configmap으로 추가합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl create configmap opensearch-ca.crt --from-file<span class="o">=</span>opensearch-ca.crt -n kube-system
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl create configmap opensearch-ca.crt --from-file<span class="o">=</span>opensearch-ca.crt -n kube-system
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="fluentd-설치">FluentD 설치</h3>
 <ol>
 <li>
 <p>fluentd-daemonset-opensearch.yaml에서 FLUENT_OPENSEARCH_HOST를 대상 OpenSearch 호스트로 변경합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nn">...</span><span class="w">
-</span><span class="w">        </span><span class="nt">env</span><span class="p">:</span><span class="w">
-</span><span class="w">          </span>- <span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l">FLUENT_OPENSEARCH_HOST</span><span class="w">
-</span><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opensearch.ap-chuncheon-1.oci.oracleiaas.com&#34;</span><span class="w">
-</span><span class="w">          </span>- <span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l">FLUENT_OPENSEARCH_PORT</span><span class="w">
-</span><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;9200&#34;</span><span class="w">
-</span><span class="w">          </span><span class="l">...</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l">FLUENT_OPENSEARCH_HOST</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opensearch.ap-chuncheon-1.oci.oracleiaas.com&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l">FLUENT_OPENSEARCH_PORT</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;9200&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="l">...</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>FluentD 설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">kubectl apply -f fluentd-rbac.yaml
-kubectl apply -f fluentd-configmap-opensearch.yaml
-kubectl apply -f fluentd-daemonset-opensearch.yaml
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl apply -f fluentd-rbac.yaml
+</span></span><span class="line"><span class="cl">kubectl apply -f fluentd-configmap-opensearch.yaml
+</span></span><span class="line"><span class="cl">kubectl apply -f fluentd-daemonset-opensearch.yaml
+</span></span></code></pre></div></li>
 <li>
 <p>OKE 클러스터 Worker Node에서 OpenSearch로 로그를 보낼수 있도록 보안규칙을 추가합니다.</p>
 <ul>
@@ -462,22 +462,22 @@ kubectl apply -f fluentd-daemonset-opensearch.yaml
 <li>
 <p>로그 확인</p>
 <p>fluentd Pod가 기동하면, 로그를 통해 OpenSearch와 연결 오류 없이 정상 동작하는 지 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">$ kubectl get pod -n kube-system
-NAME                                   READY   STATUS    RESTARTS      AGE
-...
-fluentd-bz62z                          1/1     Running   <span class="m">0</span>             99s
-fluentd-c54qn                          1/1     Running   <span class="m">0</span>             99s
-fluentd-x5l2h                          1/1     Running   <span class="m">0</span>             99s
-...
-$ kubectl logs -f fluentd-t7p87 -n kube-system -f
-2022-06-03 07:28:46 +0000 <span class="o">[</span>info<span class="o">]</span>: parsing config file is succeeded <span class="nv">path</span><span class="o">=</span><span class="s2">&#34;/fluentd/etc/fluent.conf&#34;</span>
-...
-2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: adding match <span class="nv">pattern</span><span class="o">=</span><span class="s2">&#34;**&#34;</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&#34;opensearch&#34;</span>
-...
-2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 starting fluentd worker pid=15 ppid=7 worker=0</span>
-2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/kube-flannel-ds-stmfq_kube-system_install-cni-f69fde150aaaf779132c4fc2f2315fc30e703e9e6c39127be21fbec137d7b735.log</span>
-2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/proxymux-client-p7nzp_kube-system_proxymux-client-fa4352b8f7ba57325ea3ef2dc6af8016a585df67a0f870058f76761b75c074e7.log</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ kubectl get pod -n kube-system
+</span></span><span class="line"><span class="cl">NAME                                   READY   STATUS    RESTARTS      AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">fluentd-bz62z                          1/1     Running   <span class="m">0</span>             99s
+</span></span><span class="line"><span class="cl">fluentd-c54qn                          1/1     Running   <span class="m">0</span>             99s
+</span></span><span class="line"><span class="cl">fluentd-x5l2h                          1/1     Running   <span class="m">0</span>             99s
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">$ kubectl logs -f fluentd-t7p87 -n kube-system -f
+</span></span><span class="line"><span class="cl">2022-06-03 07:28:46 +0000 <span class="o">[</span>info<span class="o">]</span>: parsing config file is succeeded <span class="nv">path</span><span class="o">=</span><span class="s2">&#34;/fluentd/etc/fluent.conf&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: adding match <span class="nv">pattern</span><span class="o">=</span><span class="s2">&#34;**&#34;</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&#34;opensearch&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 starting fluentd worker pid=15 ppid=7 worker=0</span>
+</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/kube-flannel-ds-stmfq_kube-system_install-cni-f69fde150aaaf779132c4fc2f2315fc30e703e9e6c39127be21fbec137d7b735.log</span>
+</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/proxymux-client-p7nzp_kube-system_proxymux-client-fa4352b8f7ba57325ea3ef2dc6af8016a585df67a0f870058f76761b75c074e7.log</span>
+</span></span></code></pre></div></li>
 </ol>
 <p>OpenSearch Dashboard 설정</p>
 <ol>
@@ -596,7 +596,7 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
     </div>
 
  <div class="edit-meta">Last updated on 31 May 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/" title="5.2.1 OCI Logging을 사용한 로그 모니터링"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 5.2.1 OCI Logging을 사용한 로그 모니터링</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/" title="6. 엔터프라이즈 컨테이너 플랫폼 Verrazzano 사용하기">Next - 6. 엔터프라이즈 컨테이너 플랫폼 Verrazzano 사용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -668,6 +668,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -697,6 +701,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -751,6 +759,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -783,6 +795,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -812,6 +828,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -840,9 +860,17 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -870,6 +898,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -899,6 +931,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -929,6 +965,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -961,6 +1001,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -990,6 +1034,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1018,6 +1066,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1053,6 +1105,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -1079,6 +1135,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1130,9 +1190,17 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1161,6 +1229,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1235,6 +1307,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1262,9 +1338,17 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1297,6 +1381,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1326,6 +1414,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1357,6 +1449,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1433,6 +1529,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1462,10 +1562,18 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1493,6 +1601,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1523,6 +1635,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1575,6 +1691,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1601,6 +1721,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1627,6 +1751,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1654,6 +1782,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1707,9 +1839,17 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <ul class="sub-menu">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1740,6 +1880,10 @@ $ kubectl logs -f fluentd-t7p87 -n kube-system -f
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

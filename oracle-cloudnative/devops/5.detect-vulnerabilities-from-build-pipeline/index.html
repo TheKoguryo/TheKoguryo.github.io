@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -67,21 +67,21 @@
 <ul>
 <li>
 <p>VulnerabilityAudit 예시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">steps</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">VulnerabilityAudit        </span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Vulnerability Audit Step&#34;</span><span class="w">  
-</span><span class="w">    </span><span class="nt">configuration</span><span class="p">:</span><span class="w">                   
-</span><span class="w">      </span><span class="nt">buildType</span><span class="p">:</span><span class="w"> </span><span class="l">maven               </span><span class="w">
-</span><span class="w">      </span><span class="nt">pomFilePath</span><span class="p">:</span><span class="w"> </span><span class="l">${OCI_PRIMARY_SOURCE_DIR}/pom.xml </span><span class="w">
-</span><span class="w">      </span><span class="nt">packagesToIgnore</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span>- <span class="l">com.oracle.*</span><span class="w">
-</span><span class="w">        </span>- <span class="l">org.apache.logging</span><span class="w">
-</span><span class="w">      </span><span class="nt">maxPermissibleCvssV2Score</span><span class="p">:</span><span class="w"> </span><span class="m">10.0</span><span class="w">                
-</span><span class="w">      </span><span class="nt">maxPermissibleCvssV3Score</span><span class="p">:</span><span class="w"> </span><span class="m">10.0</span><span class="w">                
-</span><span class="w">    </span><span class="nt">knowledgeBaseId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.admknowledgebase.oc1.iad.restoftheocid </span><span class="w">
-</span><span class="w">    </span><span class="nt">vulnerabilityAuditCompartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..restoftheocid</span><span class="w">
-</span><span class="w">    </span><span class="nt">vulnerabilityAuditName</span><span class="p">:</span><span class="w"> </span><span class="l">testReport</span><span class="w">
-</span></code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">VulnerabilityAudit        </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Vulnerability Audit Step&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">configuration</span><span class="p">:</span><span class="w">                   
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">buildType</span><span class="p">:</span><span class="w"> </span><span class="l">maven               </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">pomFilePath</span><span class="p">:</span><span class="w"> </span><span class="l">${OCI_PRIMARY_SOURCE_DIR}/pom.xml </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">packagesToIgnore</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">com.oracle.*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">org.apache.logging</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxPermissibleCvssV2Score</span><span class="p">:</span><span class="w"> </span><span class="m">10.0</span><span class="w">                
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxPermissibleCvssV3Score</span><span class="p">:</span><span class="w"> </span><span class="m">10.0</span><span class="w">                
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">knowledgeBaseId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.admknowledgebase.oc1.iad.restoftheocid </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">vulnerabilityAuditCompartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..restoftheocid</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">vulnerabilityAuditName</span><span class="p">:</span><span class="w"> </span><span class="l">testReport</span><span class="w">
+</span></span></span></code></pre></div><ul>
 <li>
 <p>configuration/buildType: 현재는 maven만 지원합니다.</p>
 </li>
@@ -160,9 +160,9 @@
 <ol>
 <li>
 <p>DevOps를 위해 만든 Policy에 다음을 추가합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">Allow dynamic-group BuildDynamicGroup to use adm-knowledge-bases in compartment &lt;YourCompartmentName&gt;
-Allow dynamic-group BuildDynamicGroup to manage adm-vulnerability-audits in compartment &lt;YourCompartmentName&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Allow dynamic-group BuildDynamicGroup to use adm-knowledge-bases in compartment &lt;YourCompartmentName&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group BuildDynamicGroup to manage adm-vulnerability-audits in compartment &lt;YourCompartmentName&gt;
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="devops-프로젝트-만들기">DevOps 프로젝트 만들기</h4>
 <p>진행을 위해 <a href="../1.deploy-app-on-oke-using-devops">3.1 DevOps 서비스를 이용한 Spring Boot 앱을 OKE에 배포 자동화하기</a>을 따라 소스코드를 생성하고, Build Pipeline의 Build Stage까지 만든 상태에서 다음 과정을 추가합니다.</p>
@@ -171,15 +171,15 @@ Allow dynamic-group BuildDynamicGroup to manage adm-vulnerability-audits in comp
 <ol>
 <li>
 <p><strong>소스 코드의 pom.xml 상의 Spring Boot 버전을 낮춥니다. 예, 2.6.5</strong></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml">...
-        <span class="nt">&lt;parent&gt;</span>
-                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
-                <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="nt">&lt;/artifactId&gt;</span>
-                <span class="nt">&lt;version&gt;</span>2.6.5<span class="nt">&lt;/version&gt;</span>
-                <span class="nt">&lt;relativePath/&gt;</span> <span class="c">&lt;!-- lookup parent from repository --&gt;</span>
-        <span class="nt">&lt;/parent&gt;</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-xml" data-lang="xml"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;parent&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;groupId&gt;</span>org.springframework.boot<span class="nt">&lt;/groupId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;artifactId&gt;</span>spring-boot-starter-parent<span class="nt">&lt;/artifactId&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;version&gt;</span>2.6.5<span class="nt">&lt;/version&gt;</span>
+</span></span><span class="line"><span class="cl">                <span class="nt">&lt;relativePath/&gt;</span> <span class="c">&lt;!-- lookup parent from repository --&gt;</span>
+</span></span><span class="line"><span class="cl">        <span class="nt">&lt;/parent&gt;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 </ol>
 <h5 id="build-step에-취약점-검사-추가하기">Build Step에 취약점 검사 추가하기</h5>
 <ol>
@@ -194,100 +194,100 @@ Allow dynamic-group BuildDynamicGroup to manage adm-vulnerability-audits in comp
 <ul>
 <li><strong>기존 빌드스펙에, 코드를 빌드하기 전에 취약점 검사를 위한 Vulnerability Audit Step 단계를 추가합니다.</strong> 취약점 문제로 빌드를 중지하기 위해 스코어를 낮게 지정하였습니다.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">0.1</span><span class="w">
-</span><span class="w"></span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l">build</span><span class="w">
-</span><span class="w"></span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">6000</span><span class="w">
-</span><span class="w"></span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">bash</span><span class="w">
-</span><span class="w"></span><span class="nt">env</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">appName</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;spring-boot-hello&#34;</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span><span class="nt">exportedVariables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="l">APP_NAME</span><span class="w">
-</span><span class="w">    </span>- <span class="l">OCIR_PATH</span><span class="w">
-</span><span class="w">    </span>- <span class="l">TAG</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="nt">steps</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Init exportedVariables&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      APP_NAME=$appName
-</span><span class="sd">      echo $APP_NAME      </span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">VulnerabilityAudit        </span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Vulnerability Audit Step&#34;</span><span class="w">  
-</span><span class="w">    </span><span class="nt">configuration</span><span class="p">:</span><span class="w">                   
-</span><span class="w">      </span><span class="nt">buildType</span><span class="p">:</span><span class="w"> </span><span class="l">maven               </span><span class="w">
-</span><span class="w">      </span><span class="nt">pomFilePath</span><span class="p">:</span><span class="w"> </span><span class="l">${OCI_PRIMARY_SOURCE_DIR}/pom.xml </span><span class="w">
-</span><span class="w">      </span><span class="nt">packagesToIgnore</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span>- <span class="l">com.oracle.*</span><span class="w">
-</span><span class="w">      </span><span class="nt">maxPermissibleCvssV2Score</span><span class="p">:</span><span class="w"> </span><span class="m">9.0</span><span class="w">                
-</span><span class="w">      </span><span class="nt">maxPermissibleCvssV3Score</span><span class="p">:</span><span class="w"> </span><span class="m">9.0</span><span class="w">                
-</span><span class="w">    </span><span class="nt">knowledgeBaseId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.admknowledgebase.oc1.ap-chuncheon-1...</span><span class="w">
-</span><span class="w">    </span><span class="nt">vulnerabilityAuditName</span><span class="p">:</span><span class="w"> </span><span class="l">spring-boot-hello-vulnerability-audit</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      echo &#34;build&#34;
-</span><span class="sd">      mvn clean install      </span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">400</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source - Post&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      echo &#34;add dependency&#34;
-</span><span class="sd">      mkdir -p target/dependency &amp;&amp; (cd target/dependency; jar -xf ../*.jar)      </span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Define Image Tag - Commit ID&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      COMMIT_ID=`echo ${OCI_TRIGGER_COMMIT_HASH} | cut -c 1-7`
-</span><span class="sd">      BUILDRUN_HASH=`echo ${OCI_BUILD_RUN_ID} | rev | cut -c 1-7`
-</span><span class="sd">      [ -z &#34;$COMMIT_ID&#34; ] &amp;&amp; TAG=$BUILDRUN_HASH || TAG=$COMMIT_ID      </span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Define OCIR Path&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      TENANCY_NAMESPACE=`oci os ns get --query data --raw-output`
-</span><span class="sd">      REPO_NAME=$appName
-</span><span class="sd">      OCIR_PATH=$OCI_RESOURCE_PRINCIPAL_REGION.ocir.io/$TENANCY_NAMESPACE/$REPO_NAME      </span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">400</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Containerize&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      docker build -t new-generated-image .
-</span><span class="sd">      docker images      </span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Check exportedVariables&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l">|  </span><span class="w">
-</span><span class="w">      </span><span class="p">[</span><span class="w"> </span>-<span class="l">z &#34;$APP_NAME&#34; ] &amp;&amp; APP_NAME=unknown          </span><span class="w">
-</span><span class="w">      </span><span class="p">[</span><span class="w"> </span>-<span class="l">z &#34;$OCIR_PATH&#34; ] &amp;&amp; OCIR_PATH=unknown    </span><span class="w">
-</span><span class="w">      </span><span class="p">[</span><span class="w"> </span>-<span class="l">z &#34;$TAG&#34; ] &amp;&amp; TAG=unknown</span><span class="w">
-</span><span class="w">      </span><span class="l">echo &#34;APP_NAME: &#34; $APP_NAME      </span><span class="w">
-</span><span class="w">      </span><span class="l">echo &#34;OCIR_PATH: &#34; $OCIR_PATH</span><span class="w">
-</span><span class="w">      </span><span class="l">echo &#34;TAG: &#34; $TAG</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="nt">outputArtifacts</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">output-image</span><span class="w">
-</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">DOCKER_IMAGE</span><span class="w">
-</span><span class="w">    </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="l">new-generated-image  </span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">0.1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l">build</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">6000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">bash</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">appName</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;spring-boot-hello&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">exportedVariables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">APP_NAME</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">OCIR_PATH</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">TAG</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Init exportedVariables&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      APP_NAME=$appName
+</span></span></span><span class="line"><span class="cl"><span class="sd">      echo $APP_NAME      </span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">VulnerabilityAudit        </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Vulnerability Audit Step&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">configuration</span><span class="p">:</span><span class="w">                   
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">buildType</span><span class="p">:</span><span class="w"> </span><span class="l">maven               </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">pomFilePath</span><span class="p">:</span><span class="w"> </span><span class="l">${OCI_PRIMARY_SOURCE_DIR}/pom.xml </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">packagesToIgnore</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="l">com.oracle.*</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxPermissibleCvssV2Score</span><span class="p">:</span><span class="w"> </span><span class="m">9.0</span><span class="w">                
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">maxPermissibleCvssV3Score</span><span class="p">:</span><span class="w"> </span><span class="m">9.0</span><span class="w">                
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">knowledgeBaseId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.admknowledgebase.oc1.ap-chuncheon-1...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">vulnerabilityAuditName</span><span class="p">:</span><span class="w"> </span><span class="l">spring-boot-hello-vulnerability-audit</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      echo &#34;build&#34;
+</span></span></span><span class="line"><span class="cl"><span class="sd">      mvn clean install      </span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">400</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source - Post&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      echo &#34;add dependency&#34;
+</span></span></span><span class="line"><span class="cl"><span class="sd">      mkdir -p target/dependency &amp;&amp; (cd target/dependency; jar -xf ../*.jar)      </span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Define Image Tag - Commit ID&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      COMMIT_ID=`echo ${OCI_TRIGGER_COMMIT_HASH} | cut -c 1-7`
+</span></span></span><span class="line"><span class="cl"><span class="sd">      BUILDRUN_HASH=`echo ${OCI_BUILD_RUN_ID} | rev | cut -c 1-7`
+</span></span></span><span class="line"><span class="cl"><span class="sd">      [ -z &#34;$COMMIT_ID&#34; ] &amp;&amp; TAG=$BUILDRUN_HASH || TAG=$COMMIT_ID      </span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Define OCIR Path&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      TENANCY_NAMESPACE=`oci os ns get --query data --raw-output`
+</span></span></span><span class="line"><span class="cl"><span class="sd">      REPO_NAME=$appName
+</span></span></span><span class="line"><span class="cl"><span class="sd">      OCIR_PATH=$OCI_RESOURCE_PRINCIPAL_REGION.ocir.io/$TENANCY_NAMESPACE/$REPO_NAME      </span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">400</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Containerize&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      docker build -t new-generated-image .
+</span></span></span><span class="line"><span class="cl"><span class="sd">      docker images      </span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Check exportedVariables&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">30</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l">|  </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="p">[</span><span class="w"> </span>-<span class="l">z &#34;$APP_NAME&#34; ] &amp;&amp; APP_NAME=unknown          </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="p">[</span><span class="w"> </span>-<span class="l">z &#34;$OCIR_PATH&#34; ] &amp;&amp; OCIR_PATH=unknown    </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="p">[</span><span class="w"> </span>-<span class="l">z &#34;$TAG&#34; ] &amp;&amp; TAG=unknown</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="l">echo &#34;APP_NAME: &#34; $APP_NAME      </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="l">echo &#34;OCIR_PATH: &#34; $OCIR_PATH</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="l">echo &#34;TAG: &#34; $TAG</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">outputArtifacts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">output-image</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">DOCKER_IMAGE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">location</span><span class="p">:</span><span class="w"> </span><span class="l">new-generated-image  </span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>작성된 코드를 git 명령어를 통해서 Code Repository에 저장합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">git add .
-git commit -m <span class="s2">&#34;build spec&#34;</span>
-git push
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git add .
+</span></span><span class="line"><span class="cl">git commit -m <span class="s2">&#34;build spec&#34;</span>
+</span></span><span class="line"><span class="cl">git push
+</span></span></code></pre></div></li>
 </ol>
 <h5 id="테스트">테스트</h5>
 <ol>
@@ -359,7 +359,7 @@ git push
     </div>
 
  <div class="edit-meta">Last updated on 26 May 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/" title="3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oss/" title="4. OSS(Open Source Software) 활용하기">Next - 4. OSS(Open Source Software) 활용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/devops/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -431,6 +431,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -460,6 +464,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -514,6 +522,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -546,6 +558,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -575,6 +591,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -603,9 +623,17 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -633,6 +661,10 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -662,6 +694,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -692,6 +728,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -724,6 +764,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -753,6 +797,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -781,6 +829,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -816,6 +868,10 @@ git push
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -842,6 +898,10 @@ git push
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -893,9 +953,17 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -924,6 +992,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -998,6 +1070,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1025,9 +1101,17 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1060,6 +1144,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1089,6 +1177,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1120,6 +1212,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1196,6 +1292,10 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1225,10 +1325,18 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1256,6 +1364,10 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1286,6 +1398,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1338,6 +1454,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1364,6 +1484,10 @@ git push
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1390,6 +1514,10 @@ git push
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1417,6 +1545,10 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1470,9 +1602,17 @@ git push
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1503,6 +1643,10 @@ git push
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

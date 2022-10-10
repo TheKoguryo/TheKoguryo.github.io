@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -77,8 +77,8 @@
 </li>
 <li>
 <p>개발 PC에 복사한 주소를 사용해 git clone 명령어를 통해 복제합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">git clone &lt;YourClonewithHTTPS URL&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">git clone &lt;YourClonewithHTTPS URL&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>이때 사용자 인증이 필요합니다. HTTPS기반 사용자 인증시 아래 유저명 형식과 AuthToken을 사용합니다.</p>
 </li>
@@ -88,10 +88,10 @@
 <ol>
 <li>
 <p>복사한 코드 저장소로 이동하여, Helm 차트를 만듭니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ <span class="nb">cd</span> oci-devops-mychart/
-winter@cloudshell:oci-devops-mychart <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ helm create mychart
-Creating mychart
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ <span class="nb">cd</span> oci-devops-mychart/
+</span></span><span class="line"><span class="cl">winter@cloudshell:oci-devops-mychart <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ helm create mychart
+</span></span><span class="line"><span class="cl">Creating mychart
+</span></span></code></pre></div></li>
 <li>
 <p>차트 작성</p>
 <p>생성된 차트는 nginx를 배포하는 샘플 차트입니다. 실제 차트 작성을 위해서는 앱에 맞게 수정하겠지만, 지금은 배포 테스트로 수정없이 그냥 사용합니다.</p>
@@ -101,10 +101,10 @@ Creating mychart
 </li>
 <li>
 <p>코드를 Code Repository에 Push 합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">git add .
-git commit -m <span class="s2">&#34;init&#34;</span>
-git push
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git add .
+</span></span><span class="line"><span class="cl">git commit -m <span class="s2">&#34;init&#34;</span>
+</span></span><span class="line"><span class="cl">git push
+</span></span></code></pre></div></li>
 <li>
 <p>코드 작성 및 반영 완료</p>
 <p>
@@ -197,73 +197,73 @@ git push
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">0.1</span><span class="w">
-</span><span class="w"></span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l">build</span><span class="w">
-</span><span class="w"></span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">6000</span><span class="w">
-</span><span class="w"></span><span class="nt">runAs</span><span class="p">:</span><span class="w"> </span><span class="l">root</span><span class="w">
-</span><span class="w"></span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">bash</span><span class="w">
-</span><span class="w"></span><span class="nt">env</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="c"># these are local variables to the build config</span><span class="w">
-</span><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">ocir_username</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;winter&#34;</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span><span class="c"># the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service</span><span class="w">
-</span><span class="w">  </span><span class="c"># you can then access the value of that secret in your build_spec.yaml commands</span><span class="w">
-</span><span class="w">  </span><span class="nt">vaultVariables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">ocir_authtoken</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;ocid1.vaultsecret...&#34;</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span><span class="c"># exportedVariables are made available to use as parameters in sucessor Build Pipeline stages</span><span class="w">
-</span><span class="w">  </span><span class="c"># For this Build to run, the Build Pipeline needs to have a BUILDRUN_HASH parameter set</span><span class="w">
-</span><span class="w">  </span><span class="nt">exportedVariables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="l">CHART_NAME</span><span class="w">
-</span><span class="w">    </span>- <span class="l">CHART_VERSION</span><span class="w">
-</span><span class="w">    </span>- <span class="l">TENANCY_NAMESPACE</span><span class="w">
-</span><span class="w">    </span>- <span class="l">REPO_NAME</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="c"># Its a native way to fetch artifacts from external or artifact repo or a file path to use before a stage.</span><span class="w">
-</span><span class="w"></span><span class="c"># More about buildspec formats - https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm</span><span class="w">
-</span><span class="w"></span><span class="nt">inputArtifacts</span><span class="p">:</span><span class="w"> 
-</span><span class="w">
-</span><span class="w"></span><span class="nt">steps</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Install Tools&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      mkdir -p ~/.local/bin
-</span><span class="sd">      wget https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd64 -O ~/.local/bin/yq
-</span><span class="sd">      chmod +x ~/.local/bin/yq
-</span><span class="sd">      export PATH=$HOME/.local/bin:$PATH</span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      echo no action
-</span><span class="sd">      echo no action</span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Helm Chart&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      TENANCY_NAMESPACE=`oci os ns get --query data --raw-output`
-</span><span class="sd">      cd ${OCI_PRIMARY_SOURCE_DIR}
-</span><span class="sd">      cd mychart
-</span><span class="sd">      helm package .
-</span><span class="sd">      helm registry login -u $TENANCY_NAMESPACE/$ocir_username ${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io -p $ocir_authtoken
-</span><span class="sd">      export HELM_EXPERIMENTAL_OCI=1
-</span><span class="sd">      helm push ./*.tgz oci://${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io/$TENANCY_NAMESPACE/helm</span><span class="w">      
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
-</span><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
-</span><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Check exportedValues&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
-</span><span class="sd">      cd ${OCI_PRIMARY_SOURCE_DIR}/mychart
-</span><span class="sd">      CHART_NAME=`yq eval &#39;.name&#39; Chart.yaml`
-</span><span class="sd">      CHART_VERSION=`yq eval &#39;.version&#39; Chart.yaml`
-</span><span class="sd">      REPO_NAME=helm/$CHART_NAME</span><span class="w">      
-</span><span class="w">
-</span><span class="w"></span><span class="nt">outputArtifacts</span><span class="p">:</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="m">0.1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">component</span><span class="p">:</span><span class="w"> </span><span class="l">build</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">6000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">runAs</span><span class="p">:</span><span class="w"> </span><span class="l">root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">shell</span><span class="p">:</span><span class="w"> </span><span class="l">bash</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># these are local variables to the build config</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ocir_username</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;winter&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># you can then access the value of that secret in your build_spec.yaml commands</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">vaultVariables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ocir_authtoken</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;ocid1.vaultsecret...&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># exportedVariables are made available to use as parameters in sucessor Build Pipeline stages</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># For this Build to run, the Build Pipeline needs to have a BUILDRUN_HASH parameter set</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">exportedVariables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">CHART_NAME</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">CHART_VERSION</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">TENANCY_NAMESPACE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">REPO_NAME</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># Its a native way to fetch artifacts from external or artifact repo or a file path to use before a stage.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c"># More about buildspec formats - https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">inputArtifacts</span><span class="p">:</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Install Tools&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      mkdir -p ~/.local/bin
+</span></span></span><span class="line"><span class="cl"><span class="sd">      wget https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd64 -O ~/.local/bin/yq
+</span></span></span><span class="line"><span class="cl"><span class="sd">      chmod +x ~/.local/bin/yq
+</span></span></span><span class="line"><span class="cl"><span class="sd">      export PATH=$HOME/.local/bin:$PATH</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      echo no action
+</span></span></span><span class="line"><span class="cl"><span class="sd">      echo no action</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Helm Chart&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      TENANCY_NAMESPACE=`oci os ns get --query data --raw-output`
+</span></span></span><span class="line"><span class="cl"><span class="sd">      cd ${OCI_PRIMARY_SOURCE_DIR}
+</span></span></span><span class="line"><span class="cl"><span class="sd">      cd mychart
+</span></span></span><span class="line"><span class="cl"><span class="sd">      helm package .
+</span></span></span><span class="line"><span class="cl"><span class="sd">      helm registry login -u $TENANCY_NAMESPACE/$ocir_username ${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io -p $ocir_authtoken
+</span></span></span><span class="line"><span class="cl"><span class="sd">      export HELM_EXPERIMENTAL_OCI=1
+</span></span></span><span class="line"><span class="cl"><span class="sd">      helm push ./*.tgz oci://${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io/$TENANCY_NAMESPACE/helm</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Check exportedValues&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      cd ${OCI_PRIMARY_SOURCE_DIR}/mychart
+</span></span></span><span class="line"><span class="cl"><span class="sd">      CHART_NAME=`yq eval &#39;.name&#39; Chart.yaml`
+</span></span></span><span class="line"><span class="cl"><span class="sd">      CHART_VERSION=`yq eval &#39;.version&#39; Chart.yaml`
+</span></span></span><span class="line"><span class="cl"><span class="sd">      REPO_NAME=helm/$CHART_NAME</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">outputArtifacts</span><span class="p">:</span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
@@ -328,22 +328,22 @@ git push
 <ul>
 <li>build_spec.yaml</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">env</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="c"># these are local variables to the build config</span><span class="w">
-</span><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">ocir_username</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;winter&#34;</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span><span class="c"># the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service</span><span class="w">
-</span><span class="w">  </span><span class="c"># you can then access the value of that secret in your build_spec.yaml commands</span><span class="w">
-</span><span class="w">  </span><span class="nt">vaultVariables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">ocir_authtoken</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;ocid1.vaultsecret...&#34;</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">env</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># these are local variables to the build config</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ocir_username</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;winter&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># the value of a vaultVariable is the secret-id (in OCI ID format) stored in the OCI Vault service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="c"># you can then access the value of that secret in your build_spec.yaml commands</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">vaultVariables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ocir_authtoken</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;ocid1.vaultsecret...&#34;</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>소스코드를 Commit &amp; Push 하여 코드를 반영합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">git add build_spec.yaml
-git commit -m <span class="s2">&#34;add build_spec&#34;</span>
-git push
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">git add build_spec.yaml
+</span></span><span class="line"><span class="cl">git commit -m <span class="s2">&#34;add build_spec&#34;</span>
+</span></span><span class="line"><span class="cl">git push
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="deployment-pipeline-만들기">Deployment Pipeline 만들기</h4>
 <p>CI/CD 중에 빌드된 산출물을 가지고 실제 서버에 배포하는 CD 과정에 해당되는 부분을 Deployment Pipeline을 통해 구성이 가능합니다.</p>
@@ -357,16 +357,16 @@ git push
 <ul>
 <li>Name: 예, DevOps-compartment-policy</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group DeployDynamicGroup to <span class="nb">read</span> repos in compartment &lt;YourCompartmentName&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group DeployDynamicGroup to <span class="nb">read</span> repos in compartment &lt;YourCompartmentName&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>Root Compartment 레벨로 다음 Policy를 만듭니다.</p>
 <ul>
 <li>Name: 예, DevOps-root-policy</li>
 </ul>
 <p>OCIR에 Repository를 Push하기 전에 미리 생성하지 않으면 기본적으로 Root Compartment에 이미지가 Push됩니다. 이때 권한으로 에러가 발생하며, Root Compartment에도 허용하고자 하면 다음을 추가합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group BuildDynamicGroup to <span class="nb">read</span> repos in tenancy
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group BuildDynamicGroup to <span class="nb">read</span> repos in tenancy
+</span></span></code></pre></div></li>
 </ol>
 <h5 id="kubernetes-enviroment-등록하기">Kubernetes Enviroment 등록하기</h5>
 <ol>
@@ -406,9 +406,9 @@ git push
 </li>
 <li>
 <p><strong>Value</strong>: 기본 Chart 설정에서 재정의하여 사용할 Chart Value를 입력합니다. 여기서는 테스트용도로 Service Type을 ClusterIP에서 LoadBalancer로 변경하겠습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">service</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">LoadBalancer</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">LoadBalancer</span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 <p>
 
@@ -515,23 +515,23 @@ git push
 </li>
 <li>
 <p>OKE 클러스터에서도 Helm Chart 배포된 것을 볼 수 있습니다. 또는 value.yaml 파일이 반영되어 LoadBalancer 서비스 타입이 만들어 졌습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ helm list
-NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-mychart default         <span class="m">1</span>               2022-05-25 04:09:15.518487366 +0000 UTC deployed        mychart-0.1.0   1.16.0     
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get all
-NAME                           READY   STATUS    RESTARTS   AGE
-pod/mychart-75c4d695c4-gqgn8   1/1     Running   <span class="m">0</span>          26m
-
-NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-service/kubernetes   ClusterIP      10.96.0.1       &lt;none&gt;          443/TCP        13d
-service/mychart      LoadBalancer   10.96.251.103   129.xxx.xxx.xxx 80:32461/TCP   26m
-
-NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/mychart   1/1     <span class="m">1</span>            <span class="m">1</span>           26m
-
-NAME                                 DESIRED   CURRENT   READY   AGE
-replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       26m
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ helm list
+</span></span><span class="line"><span class="cl">NAME    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
+</span></span><span class="line"><span class="cl">mychart default         <span class="m">1</span>               2022-05-25 04:09:15.518487366 +0000 UTC deployed        mychart-0.1.0   1.16.0     
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get all
+</span></span><span class="line"><span class="cl">NAME                           READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/mychart-75c4d695c4-gqgn8   1/1     Running   <span class="m">0</span>          26m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>        AGE
+</span></span><span class="line"><span class="cl">service/kubernetes   ClusterIP      10.96.0.1       &lt;none&gt;          443/TCP        13d
+</span></span><span class="line"><span class="cl">service/mychart      LoadBalancer   10.96.251.103   129.xxx.xxx.xxx 80:32461/TCP   26m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/mychart   1/1     <span class="m">1</span>            <span class="m">1</span>           26m
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                 DESIRED   CURRENT   READY   AGE
+</span></span><span class="line"><span class="cl">replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       26m
+</span></span></code></pre></div></li>
 </ol>
 <br>
 <br>
@@ -614,6 +614,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -643,6 +647,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -697,6 +705,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -729,6 +741,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -758,6 +774,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -786,9 +806,17 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -816,6 +844,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -845,6 +877,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -875,6 +911,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -907,6 +947,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -936,6 +980,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -964,6 +1012,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -999,6 +1051,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -1025,6 +1081,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1076,9 +1136,17 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1107,6 +1175,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1181,6 +1253,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1208,9 +1284,17 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1243,6 +1327,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1272,6 +1360,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1303,6 +1395,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1379,6 +1475,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1408,10 +1508,18 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1439,6 +1547,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1469,6 +1581,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1521,6 +1637,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1547,6 +1667,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1573,6 +1697,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1600,6 +1728,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1653,9 +1785,17 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1686,6 +1826,10 @@ replicaset.apps/mychart-75c4d695c4   <span class="m">1</span>         <span clas
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

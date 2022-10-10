@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>8.2 Mounting and using FSS on a Linux VM - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter08/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -27,8 +27,10 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="8.2 Mounting and using FSS on a Linux VM" />
-<meta property="og:description" content="8.2 Mounting and using FSS (File Storage Service) on a Linux VM  Constraints Even if File Storage is the same subnet as Compute Instance, the following rules must be set in the Security List to open the File Storage firewall.   Create Subnet   Open the navigation menu in the OCI console. Go to Networking &raquo; Virtual Cloud Networks.
-  Click on ExampleVCN, the VCN you created earlier." />
+<meta property="og:description" content="8.2 Mounting and using FSS (File Storage Service) on a Linux VM Constraints Even if File Storage is the same subnet as Compute Instance, the following rules must be set in the Security List to open the File Storage firewall. Create Subnet Open the navigation menu in the OCI console. Go to Networking &raquo; Virtual Cloud Networks.
+Click on ExampleVCN, the VCN you created earlier.
+Click Create Subnets
+Enter creation information: Enter only bold text fields and use default values ​​for the rest." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter08/2/" /><meta property="article:section" content="oci" />
 
@@ -297,70 +299,70 @@ Even if File Storage is the same subnet as Compute Instance, the following rules
 <ul>
 <li>
 <p>Command example</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># Install NFS client</span>
-sudo yum install nfs-utils
-<span class="c1"># create mount folder</span>
-sudo mkdir -p /mnt/FSS-Storage
-<span class="c1"># mount</span>
-sudo mount 10.0.2.105:/FSS-Storage /mnt/FSS-Storage
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Install NFS client</span>
+</span></span><span class="line"><span class="cl">sudo yum install nfs-utils
+</span></span><span class="line"><span class="cl"><span class="c1"># create mount folder</span>
+</span></span><span class="line"><span class="cl">sudo mkdir -p /mnt/FSS-Storage
+</span></span><span class="line"><span class="cl"><span class="c1"># mount</span>
+</span></span><span class="line"><span class="cl">sudo mount 10.0.2.105:/FSS-Storage /mnt/FSS-Storage
+</span></span></code></pre></div></li>
 <li>
 <p>Result check and test</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1"># Check the mount result</span>
-df -h
-<span class="c1"># change permissions</span>
-sudo chmod <span class="m">777</span> /mnt/FSS-Storage
-<span class="c1"># Confirm file creation</span>
-<span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt; /mnt/FSS-Storage/hello1.txt
-ls -la /mnt/FSS-Storage/
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Check the mount result</span>
+</span></span><span class="line"><span class="cl">df -h
+</span></span><span class="line"><span class="cl"><span class="c1"># change permissions</span>
+</span></span><span class="line"><span class="cl">sudo chmod <span class="m">777</span> /mnt/FSS-Storage
+</span></span><span class="line"><span class="cl"><span class="c1"># Confirm file creation</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt; /mnt/FSS-Storage/hello1.txt
+</span></span><span class="line"><span class="cl">ls -la /mnt/FSS-Storage/
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Example Results</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@152.67.220.47
-Last login: Fri Jan <span class="m">14</span> 01:57:59 <span class="m">2022</span> from 223.62.21.154
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Install NFS client</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo yum install nfs-utils
-Loaded plugins: langpacks, ulninfo
-Package 1:nfs-utils-1.3.0-0.68.0.1.el7.2.x86_64 already installed and latest version
-Nothing to <span class="k">do</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Create mount folder</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mkdir -p /mnt/FSS-Storage
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># mount</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mount 10.0.2.105:/FSS-Storage /mnt/FSS-Storage
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Check the mount result</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ df -h
-Filesystem               Size  Used Avail Use% Mounted on
-devtmpfs                 7.7G     <span class="m">0</span>  7.7G   0% /dev
-tmpfs                    7.7G     <span class="m">0</span>  7.7G   0% /dev/shm
-tmpfs                    7.7G  8.8M  7.7G   1% /run
-tmpfs                    7.7G     <span class="m">0</span>  7.7G   0% /sys/fs/cgroup
-/dev/sda3                 39G  3.9G   35G  11% /
-/dev/sda1                200M  7.5M  193M   4% /boot/efi
-tmpfs                    1.6G     <span class="m">0</span>  1.6G   0% /run/user/0
-tmpfs                    1.6G     <span class="m">0</span>  1.6G   0% /run/user/994
-tmpfs                    1.6G     <span class="m">0</span>  1.6G   0% /run/user/1000
-10.0.2.105:/FSS-Storage  8.0E     <span class="m">0</span>  8.0E   0% /mnt/FSS-Storage
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Confirm file creation</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo chmod <span class="m">777</span> /mnt/FSS-Storage
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span><span class="c1"># echo &#39;Hello File Storage&#39; &gt; /mnt/FSS-Storage/hello1.txt</span>
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span><span class="c1"># ls -la /mnt/FSS-Storage/</span>
-total <span class="m">9</span>
-drwxr-xr-x. <span class="m">2</span> root root  <span class="m">1</span> Jan <span class="m">14</span> 01:59 .
-drwxr-xr-x. <span class="m">3</span> root root <span class="m">25</span> Jan <span class="m">14</span> 01:59 ..
-drwxr-xr-x. <span class="m">2</span> root root  <span class="m">0</span> Jan <span class="m">14</span> 01:59 .snapshot
--rw-r--r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 01:59 hello1.txt
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@152.67.220.47
+</span></span><span class="line"><span class="cl">Last login: Fri Jan <span class="m">14</span> 01:57:59 <span class="m">2022</span> from 223.62.21.154
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Install NFS client</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo yum install nfs-utils
+</span></span><span class="line"><span class="cl">Loaded plugins: langpacks, ulninfo
+</span></span><span class="line"><span class="cl">Package 1:nfs-utils-1.3.0-0.68.0.1.el7.2.x86_64 already installed and latest version
+</span></span><span class="line"><span class="cl">Nothing to <span class="k">do</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Create mount folder</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mkdir -p /mnt/FSS-Storage
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># mount</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mount 10.0.2.105:/FSS-Storage /mnt/FSS-Storage
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Check the mount result</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ df -h
+</span></span><span class="line"><span class="cl">Filesystem               Size  Used Avail Use% Mounted on
+</span></span><span class="line"><span class="cl">devtmpfs                 7.7G     <span class="m">0</span>  7.7G   0% /dev
+</span></span><span class="line"><span class="cl">tmpfs                    7.7G     <span class="m">0</span>  7.7G   0% /dev/shm
+</span></span><span class="line"><span class="cl">tmpfs                    7.7G  8.8M  7.7G   1% /run
+</span></span><span class="line"><span class="cl">tmpfs                    7.7G     <span class="m">0</span>  7.7G   0% /sys/fs/cgroup
+</span></span><span class="line"><span class="cl">/dev/sda3                 39G  3.9G   35G  11% /
+</span></span><span class="line"><span class="cl">/dev/sda1                200M  7.5M  193M   4% /boot/efi
+</span></span><span class="line"><span class="cl">tmpfs                    1.6G     <span class="m">0</span>  1.6G   0% /run/user/0
+</span></span><span class="line"><span class="cl">tmpfs                    1.6G     <span class="m">0</span>  1.6G   0% /run/user/994
+</span></span><span class="line"><span class="cl">tmpfs                    1.6G     <span class="m">0</span>  1.6G   0% /run/user/1000
+</span></span><span class="line"><span class="cl">10.0.2.105:/FSS-Storage  8.0E     <span class="m">0</span>  8.0E   0% /mnt/FSS-Storage
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ <span class="c1"># Confirm file creation</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo chmod <span class="m">777</span> /mnt/FSS-Storage
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span><span class="c1"># echo &#39;Hello File Storage&#39; &gt; /mnt/FSS-Storage/hello1.txt</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span><span class="c1"># ls -la /mnt/FSS-Storage/</span>
+</span></span><span class="line"><span class="cl">total <span class="m">9</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">2</span> root root  <span class="m">1</span> Jan <span class="m">14</span> 01:59 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">3</span> root root <span class="m">25</span> Jan <span class="m">14</span> 01:59 ..
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">2</span> root root  <span class="m">0</span> Jan <span class="m">14</span> 01:59 .snapshot
+</span></span><span class="line"><span class="cl">-rw-r--r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 01:59 hello1.txt
+</span></span></code></pre></div></li>
 <li>
 <p>Update /etc/fstab to mount automatically after VM restart.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">#</span>
-<span class="c1"># /etc/fstab</span>
-<span class="c1"># Created by anaconda on Wed Dec 1 01:55:42 2021</span>
-...
-
-10.0.2.105:/FSS-Storage /mnt/FSS-Storage nfs defaults,nofail,nosuid,resvport <span class="m">0</span> <span class="m">0</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># /etc/fstab</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Created by anaconda on Wed Dec 1 01:55:42 2021</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">10.0.2.105:/FSS-Storage /mnt/FSS-Storage nfs defaults,nofail,nosuid,resvport <span class="m">0</span> <span class="m">0</span>
+</span></span></code></pre></div></li>
 </ol>
 <br>
 <br>

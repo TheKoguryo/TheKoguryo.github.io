@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>15.1 Using the Resource Manager - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter15/1/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -90,27 +90,27 @@ Let&rsquo;s use the VCN creation configuration file used in <a href="../../chapt
 <ul>
 <li>
 <p>provider.tf</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-
-provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
-  <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 <li>
 <p>vcn.tf</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
-
-resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
-  <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
-  <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
-  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
-  <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
-<span class="o">}</span>
-
-output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
-  <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">cidr_block</span>     <span class="o">=</span> <span class="s2">&#34;10.0.0.0/16&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">dns_label</span>      <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.compartment_ocid</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">display_name</span>   <span class="o">=</span> <span class="s2">&#34;vcn1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 <ul>
 <li>The following variables are automatically calculated through OCI console information.
@@ -135,79 +135,79 @@ output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
 </li>
 <li>
 <p>provider.tf</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
-
-provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
-  <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">variable <span class="s2">&#34;region&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">provider <span class="s2">&#34;oci&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">region</span>           <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">var</span><span class="p">.region</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 <li>
 <p>Changes to vcn.tf</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
-variable <span class="s2">&#34;vcn_name&#34;</span> <span class="o">{}</span>
-variable <span class="s2">&#34;vcn_dns_label&#34;</span> <span class="o">{}</span>
-variable <span class="s2">&#34;vcn_cidr_block&#34;</span> <span class="o">{}</span>
-
-resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
-  <span class="nv">cidr_block</span>     <span class="o">=</span> var.vcn_cidr_block
-  <span class="nv">dns_label</span>      <span class="o">=</span> var.vcn_dns_label
-  <span class="nv">compartment_id</span> <span class="o">=</span> var.compartment_ocid
-  <span class="nv">display_name</span>   <span class="o">=</span> var.vcn_name
-<span class="o">}</span>
-
-output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
-  <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">variable <span class="s2">&#34;compartment_ocid&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">variable <span class="s2">&#34;vcn_name&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">variable <span class="s2">&#34;vcn_dns_label&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">variable <span class="s2">&#34;vcn_cidr_block&#34;</span> <span class="o">{}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">resource <span class="s2">&#34;oci_core_virtual_network&#34;</span> <span class="s2">&#34;vcn1&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">cidr_block</span>     <span class="o">=</span> var.vcn_cidr_block
+</span></span><span class="line"><span class="cl">  <span class="nv">dns_label</span>      <span class="o">=</span> var.vcn_dns_label
+</span></span><span class="line"><span class="cl">  <span class="nv">compartment_id</span> <span class="o">=</span> var.compartment_ocid
+</span></span><span class="line"><span class="cl">  <span class="nv">display_name</span>   <span class="o">=</span> var.vcn_name
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">output <span class="s2">&#34;vcn1_ocid&#34;</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nv">value</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&#34;</span><span class="si">${</span><span class="nv">oci_core_virtual_network</span><span class="p">.vcn1.id</span><span class="si">}</span><span class="s2">&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 <ul>
 <li>
 <p>schema.yaml</p>
 <p>You can add stack commentary, variable title, commentary, variable UI array syntax, etc. as follows.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Resource Manager Example VCN by TheKoguryo&#34;</span><span class="w">
-</span><span class="w"></span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Create a VCN by Resource Manager&#34;</span><span class="w">
-</span><span class="w"></span><span class="nt">schemaVersion</span><span class="p">:</span><span class="w"> </span><span class="m">1.0.0</span><span class="w">
-</span><span class="w"></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;20220119&#34;</span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="nt">locale</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;en&#34;</span><span class="w">
-</span><span class="w"></span><span class="nt">groupings</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Hidden&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">visible</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="l">compartment_ocid</span><span class="w">
-</span><span class="w">    </span>- <span class="l">tenancy_ocid</span><span class="w">
-</span><span class="w">    </span>- <span class="l">region</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Configuration&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span>- <span class="l">vcn_name</span><span class="w">
-</span><span class="w">    </span>- <span class="l">vcn_dns_label</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Configure VCN&#34;</span><span class="w">
-</span><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w"> 
-</span><span class="w">    </span>- <span class="l">vcn_cidr_block    </span><span class="w">
-</span><span class="w">
-</span><span class="w"></span><span class="nt">variables</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">vcn_name</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
-</span><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN Name</span><span class="w">
-</span><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l">example_vcn</span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span><span class="nt">vcn_dns_label</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
-</span><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN DNS Label</span><span class="w">
-</span><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Only letters and numbers, starting with a letter. 15 characters max.&#34;</span><span class="w"> 
-</span><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l">examplevcn  </span><span class="w">
-</span><span class="w">
-</span><span class="w">  </span><span class="nt">vcn_cidr_block</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">list(string)</span><span class="w">
-</span><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN IPv4 CIDR Block</span><span class="w">
-</span><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Example: 10.0.0.0/16&#34;</span><span class="w">    
-</span><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">    
-</span><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;10.0.0.0/16&#34;</span><span class="p">]</span><span class="w">    
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Resource Manager Example VCN by TheKoguryo&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Create a VCN by Resource Manager&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">schemaVersion</span><span class="p">:</span><span class="w"> </span><span class="m">1.0.0</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;20220119&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">locale</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;en&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">groupings</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Hidden&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">visible</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">compartment_ocid</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">tenancy_ocid</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">region</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Basic Configuration&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">vcn_name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">vcn_dns_label</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Configure VCN&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">vcn_cidr_block    </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">variables</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">vcn_name</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN Name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l">example_vcn</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">vcn_dns_label</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN DNS Label</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Only letters and numbers, starting with a letter. 15 characters max.&#34;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l">examplevcn  </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">vcn_cidr_block</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">list(string)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l">VCN IPv4 CIDR Block</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Example: 10.0.0.0/16&#34;</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&#34;10.0.0.0/16&#34;</span><span class="p">]</span><span class="w">    
+</span></span></span></code></pre></div></li>
 </ul>
 </li>
 <li>

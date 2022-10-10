@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -78,14 +78,14 @@
 <ul>
 <li>
 <p>예, ns-canary-stage, ns-canary-prod</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create ns ns-canary-stage
-kubectl create ns ns-canary-prod
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create ns ns-canary-stage
+</span></span><span class="line"><span class="cl">kubectl create ns ns-canary-prod
+</span></span></code></pre></div></li>
 <li>
 <p>원활한 테스트를 위해 이전 Blue/Green 용 네임스페이스를 미리 삭제합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl delete ns ns-blue
-kubectl delete ns ns-green
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl delete ns ns-blue
+</span></span><span class="line"><span class="cl">kubectl delete ns ns-green
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
@@ -246,12 +246,12 @@ kubectl delete ns ns-green
 </li>
 <li>
 <p>현재 설정 기준으로 변경사항을 발생시키고 코드를 Commit 후 Push 합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">...
-ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.0&#34;</span>
-ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
-ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.0&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>Trigger가 되고 빌드가 시작됩니다.</p>
 </li>
@@ -270,56 +270,56 @@ ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&
 </li>
 <li>
 <p>쿠버네티스 배포 상태를 확인합니다. ns-canary-stage에만 배포된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-stage
-NAME                                     READY   STATUS    RESTARTS   AGE
-pod/webpage-deployment-9bff68bcf-7bjk2   1/1     Running   <span class="m">0</span>          4m24s
-pod/webpage-deployment-9bff68bcf-d8pwq   1/1     Running   <span class="m">0</span>          4m24s
-pod/webpage-deployment-9bff68bcf-v76nt   1/1     Running   <span class="m">0</span>          4m24s
-
-NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
-service/webpage-service   ClusterIP   10.96.35.238   &lt;none&gt;        8080/TCP   4m24s
-
-NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/webpage-deployment   3/3     <span class="m">3</span>            <span class="m">3</span>           4m24s
-
-NAME                                           DESIRED   CURRENT   READY   AGE
-replicaset.apps/webpage-deployment-9bff68bcf   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       4m24s
-
-NAME                                        CLASS    HOSTS   ADDRESS          PORTS   AGE
-ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.147   <span class="m">80</span>      4m23s
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-prod
-No resources found in ns-canary-prod namespace.
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-7bjk2   1/1     Running   <span class="m">0</span>          4m24s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-d8pwq   1/1     Running   <span class="m">0</span>          4m24s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-v76nt   1/1     Running   <span class="m">0</span>          4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+</span></span><span class="line"><span class="cl">service/webpage-service   ClusterIP   10.96.35.238   &lt;none&gt;        8080/TCP   4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/webpage-deployment   3/3     <span class="m">3</span>            <span class="m">3</span>           4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                           DESIRED   CURRENT   READY   AGE
+</span></span><span class="line"><span class="cl">replicaset.apps/webpage-deployment-9bff68bcf   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                        CLASS    HOSTS   ADDRESS          PORTS   AGE
+</span></span><span class="line"><span class="cl">ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.147   <span class="m">80</span>      4m23s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-prod
+</span></span><span class="line"><span class="cl">No resources found in ns-canary-prod namespace.
+</span></span></code></pre></div></li>
 <li>
 <p>실행중인 배포 파이프라인으로 돌아가 approval-stage에서 승인합니다.</p>
 </li>
 <li>
 <p>승인이 되면 Procution namespace인 ns-canary-prod에도 배포됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-stage
-NAME                                     READY   STATUS    RESTARTS   AGE
-pod/webpage-deployment-9bff68bcf-7bjk2   1/1     Running   <span class="m">0</span>          8m2s
-pod/webpage-deployment-9bff68bcf-d8pwq   1/1     Running   <span class="m">0</span>          8m2s
-pod/webpage-deployment-9bff68bcf-v76nt   1/1     Running   <span class="m">0</span>          8m2s
-
-...
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-prod
-NAME                                     READY   STATUS    RESTARTS   AGE
-pod/webpage-deployment-9bff68bcf-4v962   1/1     Running   <span class="m">0</span>          2m14s
-pod/webpage-deployment-9bff68bcf-9w7d5   1/1     Running   <span class="m">0</span>          2m14s
-pod/webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span>          2m14s
-
-NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
-service/webpage-service   ClusterIP   10.96.132.13   &lt;none&gt;        8080/TCP   2m14s
-
-NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/webpage-deployment   3/3     <span class="m">3</span>            <span class="m">3</span>           2m14s
-
-NAME                                           DESIRED   CURRENT   READY   AGE
-replicaset.apps/webpage-deployment-9bff68bcf   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       2m14s
-
-NAME                                        CLASS    HOSTS   ADDRESS          PORTS   AGE
-ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.147   <span class="m">80</span>      2m13s
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-7bjk2   1/1     Running   <span class="m">0</span>          8m2s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-d8pwq   1/1     Running   <span class="m">0</span>          8m2s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-v76nt   1/1     Running   <span class="m">0</span>          8m2s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-4v962   1/1     Running   <span class="m">0</span>          2m14s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-9w7d5   1/1     Running   <span class="m">0</span>          2m14s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span>          2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+</span></span><span class="line"><span class="cl">service/webpage-service   ClusterIP   10.96.132.13   &lt;none&gt;        8080/TCP   2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/webpage-deployment   3/3     <span class="m">3</span>            <span class="m">3</span>           2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                           DESIRED   CURRENT   READY   AGE
+</span></span><span class="line"><span class="cl">replicaset.apps/webpage-deployment-9bff68bcf   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                        CLASS    HOSTS   ADDRESS          PORTS   AGE
+</span></span><span class="line"><span class="cl">ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.147   <span class="m">80</span>      2m13s
+</span></span></code></pre></div></li>
 <li>
 <p>Ingress 주소를 통해 웹페이지에 접속하면, 현재 Blue 앱이 잘 동작하는 것을 볼수 있습니다.</p>
 <ul>
@@ -341,51 +341,51 @@ ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.14
 <ol>
 <li>
 <p>소스로 돌아가서 코드를 변경(예, Dockerfile의 환경변수 변경)하고 Commit &amp; Push 하여 코드를 반영합니다</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">...
-ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.1&#34;</span>
-ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
-ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.1&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>다시 빌드, 배포 파이프라인이 실행되고 approval-stage에서 멈출때까지 기다립니다.</p>
 </li>
 <li>
 <p>쿠버네티스 배포 상태를 확인합니다.</p>
 <p>ns-canary-stage에 새 버전이 배포된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
-NAME                                  READY   STATUS    RESTARTS   AGE
-webpage-deployment-6d8b64947b-2hqm6   1/1     Running   <span class="m">0</span>          2m33s
-webpage-deployment-6d8b64947b-dtl99   1/1     Running   <span class="m">0</span>          2m19s
-webpage-deployment-6d8b64947b-rqtpg   1/1     Running   <span class="m">0</span>          2m26s
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
-NAME                                 READY   STATUS    RESTARTS   AGE
-webpage-deployment-9bff68bcf-4v962   1/1     Running   <span class="m">0</span>          13m
-webpage-deployment-9bff68bcf-9w7d5   1/1     Running   <span class="m">0</span>          13m
-webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span>          13m
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-2hqm6   1/1     Running   <span class="m">0</span>          2m33s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-dtl99   1/1     Running   <span class="m">0</span>          2m19s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-rqtpg   1/1     Running   <span class="m">0</span>          2m26s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                 READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-9bff68bcf-4v962   1/1     Running   <span class="m">0</span>          13m
+</span></span><span class="line"><span class="cl">webpage-deployment-9bff68bcf-9w7d5   1/1     Running   <span class="m">0</span>          13m
+</span></span><span class="line"><span class="cl">webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span>          13m
+</span></span></code></pre></div></li>
 <li>
 <p>ns-canary-stage내의 webpage-ingress의 annotations에서 보면 <strong>canary-weight:</strong> &ldquo;<strong>25</strong>&ldquo;로 변경된 걸 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
-    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
-    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
-    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
-...
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>웹페이지에 접속합니다. 25%의 확률로 ns-canary-stage에 있는 새 버전으로 요청됩니다.</p>
 <p>
@@ -435,39 +435,39 @@ metadata:
 <li>
 <p>쿠버네티스 배포 상태를 다시 확인합니다.</p>
 <p>ns-canary-stage는 그대로 이고, ns-canary-prod로 새 버전이 배포된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
-NAME                                  READY   STATUS    RESTARTS   AGE
-webpage-deployment-6d8b64947b-2hqm6   1/1     Running   <span class="m">0</span>          19m
-webpage-deployment-6d8b64947b-dtl99   1/1     Running   <span class="m">0</span>          18m
-webpage-deployment-6d8b64947b-rqtpg   1/1     Running   <span class="m">0</span>          19m
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
-NAME                                  READY   STATUS    RESTARTS   AGE
-webpage-deployment-6d8b64947b-fxnf8   1/1     Running   <span class="m">0</span>          117s
-webpage-deployment-6d8b64947b-lm44m   1/1     Running   <span class="m">0</span>          2m4s
-webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>          <span class="m">111</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-2hqm6   1/1     Running   <span class="m">0</span>          19m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-dtl99   1/1     Running   <span class="m">0</span>          18m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-rqtpg   1/1     Running   <span class="m">0</span>          19m
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-fxnf8   1/1     Running   <span class="m">0</span>          117s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-lm44m   1/1     Running   <span class="m">0</span>          2m4s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>          <span class="m">111</span>
+</span></span></code></pre></div></li>
 <li>
 <p>ns-canary-stage내의 webpage-ingress의 annotations에서 보면 <strong>canary-weight:</strong> &ldquo;<strong>0</strong>&ldquo;로 변경된 걸 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
-    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
-    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;0&#34;</span>
-    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
-...
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;0&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>웹페이지에 접속합니다. 이제 새 버전이 배포된 ns-canary-prod 쪽으로만 요청됩니다.</p>
 <p>ns-canary-stage 쪽에는 액세스 로그로 확인해도 요청사항이 없습니다.</p>
@@ -511,52 +511,52 @@ metadata:
 
 <img class="img-fluid1" src="../images/image-20220421131421587.png" alt='image-20220421131421587' onerror="this.onerror=null;this.src='images\/image-20220421131421587.png';" />
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl logs -lapp<span class="o">=</span>webpage -n ns-canary-stage -f
-
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl logs -lapp<span class="o">=</span>webpage -n ns-canary-stage -f
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="테스트---추가적인-변경-사항-배포---red-배포">테스트 - 추가적인 변경 사항 배포 - Red 배포</h4>
 <ol>
 <li>
 <p>소스로 돌아가서 코드를 변경(예, Dockerfile의 환경변수 변경)하고 Commit &amp; Push 하여 코드를 반영합니다</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">...
-ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.2&#34;</span>
-ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
-ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.2&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>다시 빌드, 배포 파이프라인이 실행되고 approval-stage에서 멈출때까지 기다립니다.</p>
 </li>
 <li>
 <p>쿠버네티스 배포 상태를 확인합니다.</p>
 <p>ns-canary-stage에 새 버전이 배포된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
-NAME                                  READY   STATUS    RESTARTS   AGE
-webpage-deployment-79fd4f869b-2kvn4   1/1     Running   <span class="m">0</span>          98s
-webpage-deployment-79fd4f869b-khbvk   1/1     Running   <span class="m">0</span>          110s
-webpage-deployment-79fd4f869b-vwzmn   1/1     Running   <span class="m">0</span>          91s
-<span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
-NAME                                  READY   STATUS    RESTARTS   AGE
-webpage-deployment-6d8b64947b-fxnf8   1/1     Running   <span class="m">0</span>          23m
-webpage-deployment-6d8b64947b-lm44m   1/1     Running   <span class="m">0</span>          23m
-webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>          23m
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-79fd4f869b-2kvn4   1/1     Running   <span class="m">0</span>          98s
+</span></span><span class="line"><span class="cl">webpage-deployment-79fd4f869b-khbvk   1/1     Running   <span class="m">0</span>          110s
+</span></span><span class="line"><span class="cl">webpage-deployment-79fd4f869b-vwzmn   1/1     Running   <span class="m">0</span>          91s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-fxnf8   1/1     Running   <span class="m">0</span>          23m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-lm44m   1/1     Running   <span class="m">0</span>          23m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>          23m
+</span></span></code></pre></div></li>
 <li>
 <p>ns-canary-stage내의 webpage-ingress의 annotations에서 보면 <strong>canary-weight:</strong> &ldquo;<strong>25</strong>&ldquo;로 변경된 걸 볼 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
-    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
-    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
-    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>웹페이지에 접속합니다. 25%의 확률로 ns-canary-stage에 있는 새 버전으로 요청됩니다.</p>
 </li>
@@ -575,18 +575,18 @@ metadata:
 
 <img class="img-fluid1" src="../images/image-20220421140427539.png" alt='image-20220421140427539' onerror="this.onerror=null;this.src='images\/image-20220421140427539.png';" />
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  annotations:
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
-    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
-    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;0&#34;</span>
-    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;0&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="테스트---롤백">테스트 - 롤백</h4>
 <p>신규 버전으로 서비스를 하다, 문제가 발생하면 이전 버전으로 롤백이 기능합니다.</p>
@@ -746,6 +746,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -775,6 +779,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -829,6 +837,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -861,6 +873,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -890,6 +906,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -918,9 +938,17 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -948,6 +976,10 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -977,6 +1009,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1007,6 +1043,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1039,6 +1079,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1068,6 +1112,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1096,6 +1144,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1131,6 +1183,10 @@ metadata:
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -1157,6 +1213,10 @@ metadata:
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1208,9 +1268,17 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1239,6 +1307,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1313,6 +1385,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1340,9 +1416,17 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1375,6 +1459,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1404,6 +1492,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1435,6 +1527,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1511,6 +1607,10 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1540,10 +1640,18 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1571,6 +1679,10 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1601,6 +1713,10 @@ metadata:
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1653,6 +1769,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1679,6 +1799,10 @@ metadata:
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1705,6 +1829,10 @@ metadata:
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1732,6 +1860,10 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1785,9 +1917,17 @@ metadata:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1818,6 +1958,10 @@ metadata:
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

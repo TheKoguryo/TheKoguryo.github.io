@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.6.5 Mount Block Volume - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -104,20 +104,20 @@
 </li>
 <li>
 <p>Connect the compute instance with ssh and check the device path.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ ls -la /dev/oracleoci/
-total <span class="m">0</span>
-drwxr-xr-x.  <span class="m">2</span> root root  <span class="m">140</span> Jan <span class="m">10</span> 07:25 .
-drwxr-xr-x. <span class="m">20</span> root root <span class="m">3200</span> Jan <span class="m">10</span> 07:25 ..
-lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">6</span> Jan <span class="m">10</span> 05:41 oraclevda -&gt; ../sda
-lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">7</span> Jan <span class="m">10</span> 05:41 oraclevda1 -&gt; ../sda1
-lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">7</span> Jan <span class="m">10</span> 05:41 oraclevda2 -&gt; ../sda2
-lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">7</span> Jan <span class="m">10</span> 05:41 oraclevda3 -&gt; ../sda3
-lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">6</span> Jan <span class="m">10</span> 07:35 oraclevdb -&gt; ../sdb
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ ls -la /dev/oracleoci/
+</span></span><span class="line"><span class="cl">total <span class="m">0</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x.  <span class="m">2</span> root root  <span class="m">140</span> Jan <span class="m">10</span> 07:25 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">20</span> root root <span class="m">3200</span> Jan <span class="m">10</span> 07:25 ..
+</span></span><span class="line"><span class="cl">lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">6</span> Jan <span class="m">10</span> 05:41 oraclevda -&gt; ../sda
+</span></span><span class="line"><span class="cl">lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">7</span> Jan <span class="m">10</span> 05:41 oraclevda1 -&gt; ../sda1
+</span></span><span class="line"><span class="cl">lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">7</span> Jan <span class="m">10</span> 05:41 oraclevda2 -&gt; ../sda2
+</span></span><span class="line"><span class="cl">lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">7</span> Jan <span class="m">10</span> 05:41 oraclevda3 -&gt; ../sda3
+</span></span><span class="line"><span class="cl">lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">6</span> Jan <span class="m">10</span> 07:35 oraclevdb -&gt; ../sdb
+</span></span></code></pre></div></li>
 <li>
 <p>Create a directory to mount</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo mkdir /mnt/vol1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo mkdir /mnt/vol1
+</span></span></code></pre></div></li>
 <li>
 <p>/etc/fstab update</p>
 <p><code>sudo vi /etc/fstab</code> Add the following contents based on the device path you confirmed by performing the command.</p>
@@ -125,65 +125,65 @@ lrwxrwxrwx.  <span class="m">1</span> root root    <span class="m">6</span> Jan 
 <ul>
 <li>
 <p><a href="https://docs.oracle.com/en-us/iaas/Content/Block/References/fstaboptionsconsistentdevicepaths.htm#Use_the__netdev_and_nofail_Options">Use the _netdev and nofail Options</a></p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo vi /etc/fstab
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo vi /etc/fstab
+</span></span></code></pre></div></li>
 <li>
 <p>Update example</p>
 <p>Add a line of mount information at the bottom of the existing content.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="c1">#</span>
-<span class="c1"># /etc/fstab</span>
-<span class="c1"># Created by anaconda on Wed Dec  1 01:55:42 2021</span>
-...
-
-<span class="c1">## https://docs.us-phoenix-1.oraclecloud.com/Content/Block/Tasks/connectingtoavolume.htm</span>
-/dev/oracleoci/oraclevdb /mnt/vol1 xfs defaults,_netdev,nofail <span class="m">0</span> <span class="m">2</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># /etc/fstab</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Created by anaconda on Wed Dec  1 01:55:42 2021</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">## https://docs.us-phoenix-1.oraclecloud.com/Content/Block/Tasks/connectingtoavolume.htm</span>
+</span></span><span class="line"><span class="cl">/dev/oracleoci/oraclevdb /mnt/vol1 xfs defaults,_netdev,nofail <span class="m">0</span> <span class="m">2</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Mount</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">sudo mount -a
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo mount -a
+</span></span></code></pre></div><ul>
 <li>
 <p>Mount result</p>
 <p>You can see that /dev/sdb is mounted on /mnt/vol1.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mount -a
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ df -h
-Filesystem      Size  Used Avail Use% Mounted on
-devtmpfs        310M     <span class="m">0</span>  310M   0% /dev
-tmpfs           341M     <span class="m">0</span>  341M   0% /dev/shm
-tmpfs           341M  5.1M  336M   2% /run
-tmpfs           341M     <span class="m">0</span>  341M   0% /sys/fs/cgroup
-/dev/sda3        39G  3.1G   36G   8% /
-/dev/sda1       200M  7.5M  193M   4% /boot/efi
-tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/0
-tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/1000
-tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/994
-/dev/sdb         50G   33M   50G   1% /mnt/vol1
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mount -a
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ df -h
+</span></span><span class="line"><span class="cl">Filesystem      Size  Used Avail Use% Mounted on
+</span></span><span class="line"><span class="cl">devtmpfs        310M     <span class="m">0</span>  310M   0% /dev
+</span></span><span class="line"><span class="cl">tmpfs           341M     <span class="m">0</span>  341M   0% /dev/shm
+</span></span><span class="line"><span class="cl">tmpfs           341M  5.1M  336M   2% /run
+</span></span><span class="line"><span class="cl">tmpfs           341M     <span class="m">0</span>  341M   0% /sys/fs/cgroup
+</span></span><span class="line"><span class="cl">/dev/sda3        39G  3.1G   36G   8% /
+</span></span><span class="line"><span class="cl">/dev/sda1       200M  7.5M  193M   4% /boot/efi
+</span></span><span class="line"><span class="cl">tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/0
+</span></span><span class="line"><span class="cl">tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/1000
+</span></span><span class="line"><span class="cl">tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/994
+</span></span><span class="line"><span class="cl">/dev/sdb         50G   33M   50G   1% /mnt/vol1
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Restart the instance</p>
 <p>Since it is added to /etc/fstab, it is automatically mounted even when the instance restarts. Check if it mounts without any problems as shown below. Even after restarting, you can see that it is mounted as /mnt/vol1.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo reboot
-Connection to 146.56.171.40 closed by remote host.
-Connection to 146.56.171.40 closed.
-
-ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
-Last login: Mon Jan <span class="m">10</span> 08:26:13 <span class="m">2022</span> from 223.62.21.xx
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ df -h
-Filesystem      Size  Used Avail Use% Mounted on
-devtmpfs        310M     <span class="m">0</span>  310M   0% /dev
-tmpfs           341M     <span class="m">0</span>  341M   0% /dev/shm
-tmpfs           341M  5.0M  336M   2% /run
-tmpfs           341M     <span class="m">0</span>  341M   0% /sys/fs/cgroup
-/dev/sda3        39G  3.1G   36G   8% /
-/dev/sda1       200M  7.5M  193M   4% /boot/efi
-/dev/sdb         50G   33M   50G   1% /mnt/vol1
-tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/0
-tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/1000
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo reboot
+</span></span><span class="line"><span class="cl">Connection to 146.56.171.40 closed by remote host.
+</span></span><span class="line"><span class="cl">Connection to 146.56.171.40 closed.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
+</span></span><span class="line"><span class="cl">Last login: Mon Jan <span class="m">10</span> 08:26:13 <span class="m">2022</span> from 223.62.21.xx
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ df -h
+</span></span><span class="line"><span class="cl">Filesystem      Size  Used Avail Use% Mounted on
+</span></span><span class="line"><span class="cl">devtmpfs        310M     <span class="m">0</span>  310M   0% /dev
+</span></span><span class="line"><span class="cl">tmpfs           341M     <span class="m">0</span>  341M   0% /dev/shm
+</span></span><span class="line"><span class="cl">tmpfs           341M  5.0M  336M   2% /run
+</span></span><span class="line"><span class="cl">tmpfs           341M     <span class="m">0</span>  341M   0% /sys/fs/cgroup
+</span></span><span class="line"><span class="cl">/dev/sda3        39G  3.1G   36G   8% /
+</span></span><span class="line"><span class="cl">/dev/sda1       200M  7.5M  193M   4% /boot/efi
+</span></span><span class="line"><span class="cl">/dev/sdb         50G   33M   50G   1% /mnt/vol1
+</span></span><span class="line"><span class="cl">tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/0
+</span></span><span class="line"><span class="cl">tmpfs            69M     <span class="m">0</span>   69M   0% /run/user/1000
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="mount-with-uuid">Mount with UUID</h4>
 <p>According to the OCI document, if there are more than one volume other than the root volume, the order in which the device name and the actual device correspond to each other may be different after the server restarts if the device name is mounted. So to be precise, I mount it based on the UUID of the <strong>Volume.</strong></p>

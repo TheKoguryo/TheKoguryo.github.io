@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.3 Creating a Key Pair for SSH Connections - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter03/3/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -86,31 +86,31 @@ To create a key pair, you need a key generation tool, if you don&rsquo;t have on
 <li>
 <p>Generate Key Pair via ssh-keygen.</p>
 <p>When you issue the command, it additionally requires you to enter a passphrase value. If this is set to the password for the generated private key file, each ssh connection will require additional input. If not, just enter without entering a value.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ssh-keygen -t rsa -b <span class="m">2048</span> -C <span class="s2">&#34;&lt;comment&gt;&#34;</span> -f &lt;output_keyfile&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ ssh-keygen -t rsa -b <span class="m">2048</span> -C <span class="s2">&#34;&lt;comment&gt;&#34;</span> -f &lt;output_keyfile&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>You can see that your personal and public keys are generated in the &lt;output_keyfile&gt;, &lt;output_keyfile&gt;.pub file, respectively.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ubuntu@NOTEBOOK-WORK:~$ ssh-keygen -t rsa -b <span class="m">2048</span> -C <span class="s2">&#34;my ssh key&#34;</span> -f mysshkey
-Generating public/private rsa key pair.
-Enter passphrase <span class="o">(</span>empty <span class="k">for</span> no passphrase<span class="o">)</span>:
-Enter same passphrase again:
-Your identification has been saved in mysshkey
-Your public key has been saved in mysshkey.pub
-The key fingerprint is:
-SHA256:iWtp5RtNqW9prdInSQ0rE8PJjivXMdMeY3LuY5EUAkk my ssh key
-The key<span class="err">&#39;</span>s randomart image is:
-+---<span class="o">[</span>RSA 2048<span class="o">]</span>----+
-<span class="p">|</span>     .Eo         <span class="p">|</span>
-<span class="p">|</span>      . . .      <span class="p">|</span>
-<span class="p">|</span>       o o .     <span class="p">|</span>
-<span class="p">|</span>       .*.o.     <span class="p">|</span>
-<span class="p">|</span>      .oS<span class="o">=</span><span class="nv">o</span><span class="o">=</span>     <span class="p">|</span>
-<span class="p">|</span>      .<span class="o">=</span>O+@ .    <span class="p">|</span>
-<span class="p">|</span>      <span class="o">=</span>o+#.B     <span class="p">|</span>
-<span class="p">|</span>    .oo o+% o    <span class="p">|</span>
-<span class="p">|</span>     o  .*+<span class="o">=</span>     <span class="p">|</span>
-+----<span class="o">[</span>SHA256<span class="o">]</span>-----+
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ubuntu@NOTEBOOK-WORK:~$ ssh-keygen -t rsa -b <span class="m">2048</span> -C <span class="s2">&#34;my ssh key&#34;</span> -f mysshkey
+</span></span><span class="line"><span class="cl">Generating public/private rsa key pair.
+</span></span><span class="line"><span class="cl">Enter passphrase <span class="o">(</span>empty <span class="k">for</span> no passphrase<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">Enter same passphrase again:
+</span></span><span class="line"><span class="cl">Your identification has been saved in mysshkey
+</span></span><span class="line"><span class="cl">Your public key has been saved in mysshkey.pub
+</span></span><span class="line"><span class="cl">The key fingerprint is:
+</span></span><span class="line"><span class="cl">SHA256:iWtp5RtNqW9prdInSQ0rE8PJjivXMdMeY3LuY5EUAkk my ssh key
+</span></span><span class="line"><span class="cl">The key<span class="err">&#39;</span>s randomart image is:
+</span></span><span class="line"><span class="cl">+---<span class="o">[</span>RSA 2048<span class="o">]</span>----+
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     .Eo         <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>      . . .      <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>       o o .     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>       .*.o.     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>      .oS<span class="o">=</span><span class="nv">o</span><span class="o">=</span>     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>      .<span class="o">=</span>O+@ .    <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>      <span class="o">=</span>o+#.B     <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>    .oo o+% o    <span class="p">|</span>
+</span></span><span class="line"><span class="cl"><span class="p">|</span>     o  .*+<span class="o">=</span>     <span class="p">|</span>
+</span></span><span class="line"><span class="cl">+----<span class="o">[</span>SHA256<span class="o">]</span>-----+
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="creating-an-ssh-key-pair-in-a-windows-environment">Creating an SSH Key Pair in a Windows Environment</h3>
 <ol>
@@ -187,12 +187,12 @@ The key<span class="err">&#39;</span>s randomart image is:
 <ul>
 <li>Example (mysshkey)</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-YAML" data-lang="YAML"><span class="nn">---</span>--<span class="l">BEGIN RSA PRIVATE KEY-----</span><span class="w">
-</span><span class="w"></span><span class="l">MIIEpQIBAAKCAQEArKWHqta/NDy9DsuBpq4SSiS+p3VfUk96la8Q+/LgSJRU+RPI</span><span class="w">
-</span><span class="w"></span><span class="nn">...</span><span class="w">
-</span><span class="w"></span><span class="l">HCSSOnUJxQR3xDOnrz4ywSh1bheoxUUjaHI1PtxTQtcNWHW7K2hPblE=</span><span class="w">
-</span><span class="w"></span><span class="nn">---</span>--<span class="l">END RSA PRIVATE KEY-----</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-YAML" data-lang="YAML"><span class="line"><span class="cl"><span class="nn">---</span>--<span class="l">BEGIN RSA PRIVATE KEY-----</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">MIIEpQIBAAKCAQEArKWHqta/NDy9DsuBpq4SSiS+p3VfUk96la8Q+/LgSJRU+RPI</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">HCSSOnUJxQR3xDOnrz4ywSh1bheoxUUjaHI1PtxTQtcNWHW7K2hPblE=</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span>--<span class="l">END RSA PRIVATE KEY-----</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>Save public key</p>
 <p>
@@ -210,8 +210,8 @@ The key<span class="err">&#39;</span>s randomart image is:
 <ul>
 <li>Example (mysshkey.pub)</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCspYeq1r80PL0Oy4GmrhJKJL6ndV9ST3qVrxD78uBIlFT5E8gV+lbDma+aZN6QpYRTboccyngd5.........qeL5YOmSw2p7Uu5kqflg+45xP3cbm42R1zMLFs81a2+5vHy/nSV523el1 rsa-key-20220110</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCspYeq1r80PL0Oy4GmrhJKJL6ndV9ST3qVrxD78uBIlFT5E8gV+lbDma+aZN6QpYRTboccyngd5.........qeL5YOmSw2p7Uu5kqflg+45xP3cbm42R1zMLFs81a2+5vHy/nSV523el1 rsa-key-20220110</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>After verifying the file path and file name, the public key is used to connect to the instance using SSH when creating the compute instance.</p>
 </li>

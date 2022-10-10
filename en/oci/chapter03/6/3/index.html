@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.6.3 Connecting to Block Volume - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -28,8 +28,8 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="3.6.3 Connecting to Block Volume" />
 <meta property="og:description" content="3.6.3 Connecting to Block Volume After mounting the Block Volume, you need to establish an iSCSI connection. It is executed by the iscsiadm command, and the command to be executed is provided by the mounted Block Volume, so you can copy it and run it as it is.
-  Open the navigation menu in the OCI console. Go to Compute &raquo; Instances.
-  Click on the name of the target Instance you created earlier." />
+Open the navigation menu in the OCI console. Go to Compute &raquo; Instances.
+Click on the name of the target Instance you created earlier." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter03/6/3/" /><meta property="article:section" content="oci" />
 
@@ -114,45 +114,45 @@
 </li>
 <li>
 <p>Copy the commands in <strong>Connect Commands</strong> and run them one by one in order in your SSH session.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
-Last login: Mon Jan <span class="m">10</span> 07:24:34 <span class="m">2022</span> from 223.62.21.xx
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260
-sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260 -lNew iSCSI node <span class="o">[</span>tcp:<span class="o">[</span><span class="nv">hw</span><span class="o">=</span>,ip<span class="o">=</span>,net_if<span class="o">=</span>, <span class="nv">iscsi_if</span><span class="o">=</span>default<span class="o">]</span> 169.254.2.3,3260,-1 iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec<span class="o">]</span> added
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -n node.startup -v automatic
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260 -l
-Logging in to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span> <span class="o">(</span>multiple<span class="o">)</span>
-Login to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span> successful.
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i privateKey opc@146.56.171.xx
+</span></span><span class="line"><span class="cl">Last login: Mon Jan <span class="m">10</span> 07:24:34 <span class="m">2022</span> from 223.62.21.xx
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o new -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260
+</span></span><span class="line"><span class="cl">sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260 -lNew iSCSI node <span class="o">[</span>tcp:<span class="o">[</span><span class="nv">hw</span><span class="o">=</span>,ip<span class="o">=</span>,net_if<span class="o">=</span>, <span class="nv">iscsi_if</span><span class="o">=</span>default<span class="o">]</span> 169.254.2.3,3260,-1 iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec<span class="o">]</span> added
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -o update -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -n node.startup -v automatic
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo iscsiadm -m node -T iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec -p 169.254.2.3:3260 -l
+</span></span><span class="line"><span class="cl">Logging in to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span> <span class="o">(</span>multiple<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Login to <span class="o">[</span>iface: default, target: iqn.2015-12.com.oracleiaas:2626c782-30e1-43c2-847a-2504080445ec, portal: 169.254.2.3,3260<span class="o">]</span> successful.
+</span></span></code></pre></div></li>
 <li>
 <p>After performing all iSCSI commands for mounting, you can now format and mount as you would a hard disk in Linux. First, run the following command to check whether it is mounted or not.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo fdisk -l
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo fdisk -l
+</span></span></code></pre></div><ul>
 <li>
 <p>Execution result</p>
 <ul>
 <li>If you look at the bottom, you can see that Disk /dev/sdb is mounted.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo fdisk -l
-WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
-
-Disk /dev/sda: 50.0 GB, <span class="m">50010783744</span> bytes, <span class="m">97677312</span> sectors
-<span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
-Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
-I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
-Disk label type: gpt
-Disk identifier: BBBA97C2-4E47-43B0-9059-2702FDB720E7
-
-
-<span class="c1">#         Start          End    Size  Type            Name</span>
- <span class="m">1</span>         <span class="m">2048</span>       <span class="m">411647</span>    200M  EFI System      EFI System Partition
- <span class="m">2</span>       <span class="m">411648</span>     <span class="m">17188863</span>      8G  Linux swap
- <span class="m">3</span>     <span class="m">17188864</span>     <span class="m">97675263</span>   38.4G  Microsoft basic
-
-Disk /dev/sdb: 53.7 GB, <span class="m">53687091200</span> bytes, <span class="m">104857600</span> sectors
-<span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
-Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
-I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo fdisk -l
+</span></span><span class="line"><span class="cl">WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Disk /dev/sda: 50.0 GB, <span class="m">50010783744</span> bytes, <span class="m">97677312</span> sectors
+</span></span><span class="line"><span class="cl"><span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+</span></span><span class="line"><span class="cl">Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
+</span></span><span class="line"><span class="cl">I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
+</span></span><span class="line"><span class="cl">Disk label type: gpt
+</span></span><span class="line"><span class="cl">Disk identifier: BBBA97C2-4E47-43B0-9059-2702FDB720E7
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#         Start          End    Size  Type            Name</span>
+</span></span><span class="line"><span class="cl"> <span class="m">1</span>         <span class="m">2048</span>       <span class="m">411647</span>    200M  EFI System      EFI System Partition
+</span></span><span class="line"><span class="cl"> <span class="m">2</span>       <span class="m">411648</span>     <span class="m">17188863</span>      8G  Linux swap
+</span></span><span class="line"><span class="cl"> <span class="m">3</span>     <span class="m">17188864</span>     <span class="m">97675263</span>   38.4G  Microsoft basic
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Disk /dev/sdb: 53.7 GB, <span class="m">53687091200</span> bytes, <span class="m">104857600</span> sectors
+</span></span><span class="line"><span class="cl"><span class="nv">Units</span> <span class="o">=</span> sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+</span></span><span class="line"><span class="cl">Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">4096</span> bytes
+</span></span><span class="line"><span class="cl">I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">4096</span> bytes / <span class="m">1048576</span> bytes
+</span></span></code></pre></div><ul>
 <li>If you look at the bottom, you can see that Disk /dev/sdb is mounted.</li>
 </ul>
 </li>

@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>1.7 Kubernetes 버전 업그레이드 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -190,15 +190,15 @@
 </li>
 <li>
 <p>kubectl로 노드를 조회해도 동일한 결과가 나옵니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes
-NAME          STATUS   ROLES   AGE     VERSION
-10.0.10.185   Ready    node    23h     v1.19.12
-10.0.10.226   Ready    node    23h     v1.19.12
-10.0.10.234   Ready    node    6m53s   v1.18.10
-10.0.10.43    Ready    node    6m30s   v1.18.10
-10.0.10.44    Ready    node    23h     v1.19.12
-10.0.10.78    Ready    node    6m41s   v1.18.10
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE     VERSION
+</span></span><span class="line"><span class="cl">10.0.10.185   Ready    node    23h     v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.226   Ready    node    23h     v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.234   Ready    node    6m53s   v1.18.10
+</span></span><span class="line"><span class="cl">10.0.10.43    Ready    node    6m30s   v1.18.10
+</span></span><span class="line"><span class="cl">10.0.10.44    Ready    node    23h     v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.78    Ready    node    6m41s   v1.18.10
+</span></span></code></pre></div></li>
 </ol>
 <h2 id="oke-클러스터-버전-업그레이드">OKE 클러스터 버전 업그레이드</h2>
 <h3 id="control-plane-업그레이드">Control Plane 업그레이드</h3>
@@ -310,47 +310,47 @@ NAME          STATUS   ROLES   AGE     VERSION
 <ol>
 <li>
 <p>kubectl 명령으로 Worker Node와 배포된 POD를 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes
-NAME          STATUS   ROLES   AGE   VERSION
-10.0.10.185   Ready    node    24h   v1.19.12
-10.0.10.226   Ready    node    24h   v1.19.12
-10.0.10.44    Ready    node    24h   v1.19.12
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
-NAME                             READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
-nginx-bvs-pvc-7b574c9c5c-b46nd   1/1     Running   <span class="m">0</span>          72m   10.244.1.4     10.0.10.44    &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-5t5bh    1/1     Running   <span class="m">0</span>          39m   10.244.0.137   10.0.10.226   &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-7tsjf    1/1     Running   <span class="m">0</span>          39m   10.244.1.8     10.0.10.44    &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-fzlxj    1/1     Running   <span class="m">0</span>          40m   10.244.0.136   10.0.10.226   &lt;none&gt;           &lt;none&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE   VERSION
+</span></span><span class="line"><span class="cl">10.0.10.185   Ready    node    24h   v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.226   Ready    node    24h   v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.44    Ready    node    24h   v1.19.12
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
+</span></span><span class="line"><span class="cl">NAME                             READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-bvs-pvc-7b574c9c5c-b46nd   1/1     Running   <span class="m">0</span>          72m   10.244.1.4     10.0.10.44    &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-5t5bh    1/1     Running   <span class="m">0</span>          39m   10.244.0.137   10.0.10.226   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-7tsjf    1/1     Running   <span class="m">0</span>          39m   10.244.1.8     10.0.10.44    &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-fzlxj    1/1     Running   <span class="m">0</span>          40m   10.244.0.136   10.0.10.226   &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets --delete-emptydir-data </code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
 <blockquote>
 <p>emptydir을 사용하는 Pod가 있는 경우 drain시 에러가 발생합니다. emptydir을 임시데이터를 사용하는 용도임으로 &ndash;delete-emptydir-data 옵션을 통해 drain 시킵니다. 테스트시는 elasticsearch가 설치된 상태에서 관련 이슈가 발생하였습니다.</p>
 <p>참고: <a href="https://pet2cattle.com/2021/08/cannot-delete-pods-with-local-storage">https://pet2cattle.com/2021/08/cannot-delete-pods-with-local-storage</a></p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.44 --ignore-daemonsets --delete-emptydir-data
-node/10.0.10.44 already cordoned
-WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-7hc28, kube-system/kube-flannel-ds-b4dp6, kube-system/kube-proxy-f8qmp, kube-system/proxymux-client-6qs4x
-evicting pod default/nginx-fss-pvc-9fb98454f-7tsjf
-evicting pod default/nginx-bvs-pvc-7b574c9c5c-b46nd
-pod/nginx-bvs-pvc-7b574c9c5c-b46nd evicted
-pod/nginx-fss-pvc-9fb98454f-7tsjf evicted
-node/10.0.10.44 evicted
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.44 --ignore-daemonsets --delete-emptydir-data
+</span></span><span class="line"><span class="cl">node/10.0.10.44 already cordoned
+</span></span><span class="line"><span class="cl">WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-7hc28, kube-system/kube-flannel-ds-b4dp6, kube-system/kube-proxy-f8qmp, kube-system/proxymux-client-6qs4x
+</span></span><span class="line"><span class="cl">evicting pod default/nginx-fss-pvc-9fb98454f-7tsjf
+</span></span><span class="line"><span class="cl">evicting pod default/nginx-bvs-pvc-7b574c9c5c-b46nd
+</span></span><span class="line"><span class="cl">pod/nginx-bvs-pvc-7b574c9c5c-b46nd evicted
+</span></span><span class="line"><span class="cl">pod/nginx-fss-pvc-9fb98454f-7tsjf evicted
+</span></span><span class="line"><span class="cl">node/10.0.10.44 evicted
+</span></span></code></pre></div></li>
 <li>
 <p>아래와 같이 44번 노드가 컨테이너 스케줄링에서 제외된 것을 볼 수 있습니다. POD가 다른 Node로 다 이동한 걸 확인후 다음 작업으로 진행합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes
-NAME          STATUS                     ROLES   AGE   VERSION
-10.0.10.185   Ready                      node    25h   v1.19.12
-10.0.10.226   Ready                      node    25h   v1.19.12
-10.0.10.44    Ready,SchedulingDisabled   node    25h   v1.19.12
-oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
-NAME                             READY   STATUS    RESTARTS   AGE     IP             NODE          NOMINATED NODE   READINESS GATES
-nginx-bvs-pvc-7b574c9c5c-9smhh   1/1     Running   <span class="m">0</span>          3m20s   10.244.0.138   10.0.10.226   &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-5t5bh    1/1     Running   <span class="m">0</span>          45m     10.244.0.137   10.0.10.226   &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-8zkn2    1/1     Running   <span class="m">0</span>          3m20s   10.244.0.6     10.0.10.185   &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-fzlxj    1/1     Running   <span class="m">0</span>          46m     10.244.0.136   10.0.10.226   &lt;none&gt;           &lt;none&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes
+</span></span><span class="line"><span class="cl">NAME          STATUS                     ROLES   AGE   VERSION
+</span></span><span class="line"><span class="cl">10.0.10.185   Ready                      node    25h   v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.226   Ready                      node    25h   v1.19.12
+</span></span><span class="line"><span class="cl">10.0.10.44    Ready,SchedulingDisabled   node    25h   v1.19.12
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
+</span></span><span class="line"><span class="cl">NAME                             READY   STATUS    RESTARTS   AGE     IP             NODE          NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-bvs-pvc-7b574c9c5c-9smhh   1/1     Running   <span class="m">0</span>          3m20s   10.244.0.138   10.0.10.226   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-5t5bh    1/1     Running   <span class="m">0</span>          45m     10.244.0.137   10.0.10.226   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-8zkn2    1/1     Running   <span class="m">0</span>          3m20s   10.244.0.6     10.0.10.185   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-fzlxj    1/1     Running   <span class="m">0</span>          46m     10.244.0.136   10.0.10.226   &lt;none&gt;           &lt;none&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>종료할 Node의 노드 이름을 확인합니다.</p>
 <pre tabindex="0"><code>oke_admin@cloudshell:~ (ap-seoul-1)$ kubectl get nodes -L displayName
@@ -413,23 +413,23 @@ NAME          STATUS                     ROLES   AGE   VERSION    DISPLAYNAME
 </li>
 <li>
 <p>kubectl 명령으로 노드를 조회하면, 1.20.2 버전으로 신규 노드가 생성되었습니다. docker 런타임의 deprecate 예정으로 인해 참고로 1.20 부터는 컨테이너 런타임이 cri-o 변경되었습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -o wide
-NAME          STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                  KERNEL-VERSION                    CONTAINER-RUNTIME
-10.0.10.170   Ready    node    7m25s   v1.20.11   10.0.10.170   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
-10.0.10.185   Ready    node    25h     v1.19.12   10.0.10.185   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   docker://19.3.11
-10.0.10.226   Ready    node    25h     v1.19.12   10.0.10.226   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   docker://19.3.11
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -o wide
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                  KERNEL-VERSION                    CONTAINER-RUNTIME
+</span></span><span class="line"><span class="cl">10.0.10.170   Ready    node    7m25s   v1.20.11   10.0.10.170   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+</span></span><span class="line"><span class="cl">10.0.10.185   Ready    node    25h     v1.19.12   10.0.10.185   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   docker://19.3.11
+</span></span><span class="line"><span class="cl">10.0.10.226   Ready    node    25h     v1.19.12   10.0.10.226   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   docker://19.3.11
+</span></span></code></pre></div></li>
 <li>
 <p>기존 노드에 대해서 순서대로 모두 진행합니다.</p>
 </li>
 <li>
 <p>완료 결과</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -o wide
-NAME          STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                  KERNEL-VERSION                    CONTAINER-RUNTIME
-10.0.10.128   Ready    node    6m10s   v1.20.11   10.0.10.128   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
-10.0.10.146   Ready    node    35s     v1.20.11   10.0.10.146   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
-10.0.10.170   Ready    node    23m     v1.20.11   10.0.10.170   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -o wide
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                  KERNEL-VERSION                    CONTAINER-RUNTIME
+</span></span><span class="line"><span class="cl">10.0.10.128   Ready    node    6m10s   v1.20.11   10.0.10.128   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+</span></span><span class="line"><span class="cl">10.0.10.146   Ready    node    35s     v1.20.11   10.0.10.146   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+</span></span><span class="line"><span class="cl">10.0.10.170   Ready    node    23m     v1.20.11   10.0.10.170   &lt;none&gt;        Oracle Linux Server 7.9   5.4.17-2102.206.1.el7uek.x86_64   cri-o://1.20.2
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="worker-node-업그레이드---out-of-place-업그레이드">Worker Node 업그레이드 - out-of-place 업그레이드</h3>
 <p>OKE 클러스터가 업그레이드로 인해 Control Plane 만 업그레이드 된 상태이며, 이제 Node Pool 단위로 업그레이드 가능한 상태입니다. out-of-place 업그레이드 방식은 업그레이드 버전의 Node Pool 신규 생성 -&gt; 기존 Node Pool의 모든 노드 Drain -&gt; 기존 Node Pool 삭제 순으로 업그레이드 합니다.</p>
@@ -487,34 +487,34 @@ NAME          STATUS   ROLES   AGE     VERSION    INTERNAL-IP   EXTERNAL-IP   OS
 <ol>
 <li>
 <p>구동 중인 앱들이 기존 Node Pool에서 동작하고 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
-NAME                             READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
-nginx-bvs-pvc-7b574c9c5c-8jj2d   1/1     Running   <span class="m">0</span>          18m   10.244.0.134   10.0.10.29    &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-2jbp8    1/1     Running   <span class="m">0</span>          18m   10.244.0.5     10.0.10.242   &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-nwqfd    1/1     Running   <span class="m">0</span>          19m   10.244.1.5     10.0.10.61    &lt;none&gt;           &lt;none&gt;
-nginx-fss-pvc-9fb98454f-twx4h    1/1     Running   <span class="m">0</span>          18m   10.244.1.6     10.0.10.61    &lt;none&gt;           &lt;none&gt;
-oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
-NAME          STATUS   ROLES   AGE     VERSION    NAME
-10.0.10.242   Ready    node    71m     v1.19.12   pool1
-10.0.10.29    Ready    node    71m     v1.19.12   pool1
-10.0.10.61    Ready    node    71m     v1.19.12   pool1
-10.0.10.12    Ready    node    4m25s   v1.20.11   pool2
-10.0.10.126   Ready    node    4m48s   v1.20.11   pool2
-10.0.10.191   Ready    node    4m42s   v1.20.11   pool2
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -o wide
+</span></span><span class="line"><span class="cl">NAME                             READY   STATUS    RESTARTS   AGE   IP             NODE          NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-bvs-pvc-7b574c9c5c-8jj2d   1/1     Running   <span class="m">0</span>          18m   10.244.0.134   10.0.10.29    &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-2jbp8    1/1     Running   <span class="m">0</span>          18m   10.244.0.5     10.0.10.242   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-nwqfd    1/1     Running   <span class="m">0</span>          19m   10.244.1.5     10.0.10.61    &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-fss-pvc-9fb98454f-twx4h    1/1     Running   <span class="m">0</span>          18m   10.244.1.6     10.0.10.61    &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE     VERSION    NAME
+</span></span><span class="line"><span class="cl">10.0.10.242   Ready    node    71m     v1.19.12   pool1
+</span></span><span class="line"><span class="cl">10.0.10.29    Ready    node    71m     v1.19.12   pool1
+</span></span><span class="line"><span class="cl">10.0.10.61    Ready    node    71m     v1.19.12   pool1
+</span></span><span class="line"><span class="cl">10.0.10.12    Ready    node    4m25s   v1.20.11   pool2
+</span></span><span class="line"><span class="cl">10.0.10.126   Ready    node    4m48s   v1.20.11   pool2
+</span></span><span class="line"><span class="cl">10.0.10.191   Ready    node    4m42s   v1.20.11   pool2
+</span></span></code></pre></div></li>
 <li>
 <p>아래와 같이 <code>kubectl drain &lt;node_name&gt; --ignore-daemonsets --delete-emptydir-data</code> 명령으로 하나의 노드를 스케줄에서 제외시킵니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.242 --ignore-daemonsets --delete-emptydir-data
-node/10.0.10.242 already cordoned
-WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-l62xw, kube-system/kube-flannel-ds-7dv8l, kube-system/kube-proxy-zv4ks, kube-system/proxymux-client-24nmv
-evicting pod kube-system/coredns-c5d4bf466-wv8fb
-evicting pod default/nginx-fss-pvc-9fb98454f-2jbp8
-evicting pod kube-system/coredns-c5d4bf466-h5rrm
-pod/coredns-c5d4bf466-wv8fb evicted
-pod/nginx-fss-pvc-9fb98454f-2jbp8 evicted
-pod/coredns-c5d4bf466-h5rrm evicted
-node/10.0.10.242 evicted
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl drain 10.0.10.242 --ignore-daemonsets --delete-emptydir-data
+</span></span><span class="line"><span class="cl">node/10.0.10.242 already cordoned
+</span></span><span class="line"><span class="cl">WARNING: ignoring DaemonSet-managed Pods: kube-system/csi-oci-node-l62xw, kube-system/kube-flannel-ds-7dv8l, kube-system/kube-proxy-zv4ks, kube-system/proxymux-client-24nmv
+</span></span><span class="line"><span class="cl">evicting pod kube-system/coredns-c5d4bf466-wv8fb
+</span></span><span class="line"><span class="cl">evicting pod default/nginx-fss-pvc-9fb98454f-2jbp8
+</span></span><span class="line"><span class="cl">evicting pod kube-system/coredns-c5d4bf466-h5rrm
+</span></span><span class="line"><span class="cl">pod/coredns-c5d4bf466-wv8fb evicted
+</span></span><span class="line"><span class="cl">pod/nginx-fss-pvc-9fb98454f-2jbp8 evicted
+</span></span><span class="line"><span class="cl">pod/coredns-c5d4bf466-h5rrm evicted
+</span></span><span class="line"><span class="cl">node/10.0.10.242 evicted
+</span></span></code></pre></div></li>
 <li>
 <p>아래와 같이 242번 노드가 컨테이너 스케줄링에서 제외된 것을 볼 수 있습니다. POD가 다른 Node로 다 이동한 걸 확인후 다음 작업으로 진행합니다.</p>
 <pre tabindex="0"><code>oke_admin@cloudshell:file-storage (ap-seoul-1)$ kubectl get nodes -L name --sort-by=.metadata.labels.name
@@ -534,15 +534,15 @@ nginx-fss-pvc-9fb98454f-twx4h    1/1     Running   0          22m   10.244.1.6  
 </code></pre></li>
 <li>
 <p>나머지 기존 Node Pool에 있는 Node들도 drain합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
-NAME          STATUS                     ROLES   AGE   VERSION    NAME
-10.0.10.242   Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
-10.0.10.29    Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
-10.0.10.61    Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
-10.0.10.12    Ready                      node    11m   v1.20.11   pool2
-10.0.10.126   Ready                      node    12m   v1.20.11   pool2
-10.0.10.191   Ready                      node    12m   v1.20.11   pool2
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
+</span></span><span class="line"><span class="cl">NAME          STATUS                     ROLES   AGE   VERSION    NAME
+</span></span><span class="line"><span class="cl">10.0.10.242   Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
+</span></span><span class="line"><span class="cl">10.0.10.29    Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
+</span></span><span class="line"><span class="cl">10.0.10.61    Ready,SchedulingDisabled   node    79m   v1.19.12   pool1
+</span></span><span class="line"><span class="cl">10.0.10.12    Ready                      node    11m   v1.20.11   pool2
+</span></span><span class="line"><span class="cl">10.0.10.126   Ready                      node    12m   v1.20.11   pool2
+</span></span><span class="line"><span class="cl">10.0.10.191   Ready                      node    12m   v1.20.11   pool2
+</span></span></code></pre></div></li>
 </ol>
 <h4 id="기존-node-pool-삭제">기존 Node Pool 삭제</h4>
 <ol>
@@ -567,12 +567,12 @@ NAME          STATUS                     ROLES   AGE   VERSION    NAME
 </li>
 <li>
 <p>업그레이드가 완료되었습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
-NAME          STATUS   ROLES   AGE   VERSION    NAME
-10.0.10.12    Ready    node    18m   v1.20.11   pool2
-10.0.10.126   Ready    node    19m   v1.20.11   pool2
-10.0.10.191   Ready    node    19m   v1.20.11   pool2
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:file-storage <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get nodes -L name --sort-by<span class="o">=</span>.metadata.labels.name
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE   VERSION    NAME
+</span></span><span class="line"><span class="cl">10.0.10.12    Ready    node    18m   v1.20.11   pool2
+</span></span><span class="line"><span class="cl">10.0.10.126   Ready    node    19m   v1.20.11   pool2
+</span></span><span class="line"><span class="cl">10.0.10.191   Ready    node    19m   v1.20.11   pool2
+</span></span></code></pre></div></li>
 </ol>
 <br>
 <br>
@@ -582,8 +582,8 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 14 Nov 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/" title="1.6.2 File Storage 사용하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.6.2 File Storage 사용하기</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/ocir/" title="2. 컨테이너 레지스트리인 OCIR 사용하기">Next - 2. 컨테이너 레지스트리인 OCIR 사용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+ <div class="edit-meta">Last updated on 14 Nov 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/images/" title=""><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - </a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oke/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -655,6 +655,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -684,6 +688,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -738,6 +746,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -770,6 +782,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -799,6 +815,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -827,9 +847,17 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -857,6 +885,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -886,6 +918,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -916,6 +952,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -948,6 +988,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -977,6 +1021,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1005,6 +1053,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1040,6 +1092,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -1066,6 +1122,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1117,9 +1177,17 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1148,6 +1216,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1222,6 +1294,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1249,9 +1325,17 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1284,6 +1368,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1313,6 +1401,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1344,6 +1436,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1420,6 +1516,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1449,10 +1549,18 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1480,6 +1588,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1510,6 +1622,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1562,6 +1678,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1588,6 +1708,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1614,6 +1738,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1641,6 +1769,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1694,9 +1826,17 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1727,6 +1867,10 @@ NAME          STATUS   ROLES   AGE   VERSION    NAME
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

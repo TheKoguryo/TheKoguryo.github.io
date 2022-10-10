@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>5.1 OKE에서 OCI 자원관리를 위한 Service Operator - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -84,31 +84,31 @@
 <ul>
 <li>
 <p>아래 명령어로 설치하여 operator-sdk cli가 정상동작하는 지 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">echo</span> Download the release binary
-<span class="nb">export</span> <span class="nv">ARCH</span><span class="o">=</span><span class="k">$(case</span> <span class="k">$(</span>uname -m<span class="k">)</span> in x86_64<span class="k">)</span> <span class="nb">echo</span> -n amd64 <span class="p">;;</span> aarch64<span class="o">)</span> <span class="nb">echo</span> -n arm64 <span class="p">;;</span> *<span class="o">)</span> <span class="nb">echo</span> -n <span class="k">$(</span>uname -m<span class="k">)</span> <span class="p">;;</span> <span class="k">esac</span><span class="o">)</span>
-<span class="nb">export</span> <span class="nv">OS</span><span class="o">=</span><span class="k">$(</span>uname <span class="p">|</span> awk <span class="s1">&#39;{print tolower($0)}&#39;</span><span class="k">)</span>
-<span class="nb">export</span> <span class="nv">OPERATOR_SDK_DL_URL</span><span class="o">=</span>https://github.com/operator-framework/operator-sdk/releases/download/v1.19.1
-curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>
-
-<span class="nb">echo</span> Verify the downloaded binary
-gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E
-curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/checksums.txt
-curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/checksums.txt.asc
-gpg -u <span class="s2">&#34;Operator SDK (release) &lt;cncf-operator-sdk@cncf.io&gt;&#34;</span> --verify checksums.txt.asc
-grep operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> checksums.txt <span class="p">|</span> sha256sum -c -
-
-<span class="nb">echo</span> Install the release binary in your PATH
-mkdir -p ~/.local/bin
-chmod +x operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> <span class="o">&amp;&amp;</span> mv operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> ~/.local/bin/operator-sdk
-
-operator-sdk version
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">echo</span> Download the release binary
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">ARCH</span><span class="o">=</span><span class="k">$(case</span> <span class="k">$(</span>uname -m<span class="k">)</span> in x86_64<span class="k">)</span> <span class="nb">echo</span> -n amd64 <span class="p">;;</span> aarch64<span class="o">)</span> <span class="nb">echo</span> -n arm64 <span class="p">;;</span> *<span class="o">)</span> <span class="nb">echo</span> -n <span class="k">$(</span>uname -m<span class="k">)</span> <span class="p">;;</span> <span class="k">esac</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">OS</span><span class="o">=</span><span class="k">$(</span>uname <span class="p">|</span> awk <span class="s1">&#39;{print tolower($0)}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">OPERATOR_SDK_DL_URL</span><span class="o">=</span>https://github.com/operator-framework/operator-sdk/releases/download/v1.19.1
+</span></span><span class="line"><span class="cl">curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> Verify the downloaded binary
+</span></span><span class="line"><span class="cl">gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E
+</span></span><span class="line"><span class="cl">curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/checksums.txt
+</span></span><span class="line"><span class="cl">curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/checksums.txt.asc
+</span></span><span class="line"><span class="cl">gpg -u <span class="s2">&#34;Operator SDK (release) &lt;cncf-operator-sdk@cncf.io&gt;&#34;</span> --verify checksums.txt.asc
+</span></span><span class="line"><span class="cl">grep operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> checksums.txt <span class="p">|</span> sha256sum -c -
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> Install the release binary in your PATH
+</span></span><span class="line"><span class="cl">mkdir -p ~/.local/bin
+</span></span><span class="line"><span class="cl">chmod +x operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> <span class="o">&amp;&amp;</span> mv operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> ~/.local/bin/operator-sdk
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">operator-sdk version
+</span></span></code></pre></div></li>
 </ul>
 <h3 id="operator-lifecycle-manager-olm-설치">Operator Lifecycle Manager (OLM) 설치</h3>
 <p>아래 명령으로 현재 OKE 클러스터에 OLM 자원을 설치 및 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">operator-sdk olm install --version 0.20.0
-operator-sdk olm status
-</code></pre></div><h3 id="oci-service-operator-for-kubernetes-설치">OCI Service Operator for Kubernetes 설치</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">operator-sdk olm install --version 0.20.0
+</span></span><span class="line"><span class="cl">operator-sdk olm status
+</span></span></code></pre></div><h3 id="oci-service-operator-for-kubernetes-설치">OCI Service Operator for Kubernetes 설치</h3>
 <h4 id="권한-설정">권한 설정</h4>
 <p>OCI Service Operator for Kubernetes가 OCI 서비스에 대한 작업을 위한 권한이 필요합니다. OSOK가 OCI 내부에 있는 OKE에 같이 설치되어 있는 경우, Instance Principal을 통해 권한을 부여할 수 있습니다. OSOK가 OCI 외부 환경에 설치된 경우 또는 OSOK가 사용할 사용자 그룹에 권한을 부여하고자 하는 경우 User Principal을 통해 권한을 부여할 수 있습니다. 일반적으로 OKE에서 권한을 설정할 것이므로 여기서는 Instance Principal을 사용합니다.</p>
 <h5 id="instance-principal">Instance Principal</h5>
@@ -126,9 +126,9 @@ operator-sdk olm status
 <ol>
 <li>
 <p>좌측 <strong>Policies</strong> 메뉴로 이동하여 만든 Dynamic Group에 아래와 같이 권한을 부여합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group &lt;DYNAMICGROUP_NAME&gt; to manage &lt;OCI_SERVICE_1&gt; in compartment &lt;COMPARTMENT_NAME&gt;
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group &lt;DYNAMICGROUP_NAME&gt; to manage &lt;OCI_SERVICE_1&gt; in compartment &lt;COMPARTMENT_NAME&gt;
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 <li>
 <p>예시</p>
 <ul>
@@ -143,31 +143,31 @@ operator-sdk olm status
 </li>
 <li>
 <p>Autonomous Database Service</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group oke-labs-dynamic-group to manage autonomous-database-family in compartment oke-labs
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to manage autonomous-database-family in compartment oke-labs
+</span></span></code></pre></div></li>
 <li>
 <p>MySQL DB System Service</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Allow dynamic-group oke-labs-dynamic-group to manage mysql-family in compartment oke-labs
-Allow dynamic-group oke-labs-dynamic-group to <span class="o">{</span>SUBNET_READ, SUBNET_ATTACH, SUBNET_DETACH, VCN_READ, COMPARTMENT_INSPECT<span class="o">}</span> in compartment oke-labs
-Allow dynamic-group oke-labs-dynamic-group to use tag-namespaces in compartment oke-labs
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to manage mysql-family in compartment oke-labs
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to <span class="o">{</span>SUBNET_READ, SUBNET_ATTACH, SUBNET_DETACH, VCN_READ, COMPARTMENT_INSPECT<span class="o">}</span> in compartment oke-labs
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to use tag-namespaces in compartment oke-labs
+</span></span></code></pre></div></li>
 <li>
 <p>Service Mesh 서비스</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage service-mesh-family in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to use metrics in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to use log-content in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to use tag-namespaces in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage leaf-certificates in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage leaf-certificate-family in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to use certificate-authority-delegate in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to use certificate-authority-family in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to inspect vault in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to {MESH_PROXY_DETAILS_READ} in tenancy
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage certificate-associations in compartment &lt;your-compartment-name&gt;
-Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage certificate-authority-associations in compartment &lt;your-compartment-name&gt;
-Allow any-user to manage keys in compartment &lt;your-compartment-name&gt; where any {request.principal.type=&#39;certificate&#39;, request.principal.type=&#39;certificateauthority&#39;}
-Allow any-user to manage object-family in compartment &lt;your-compartment-name&gt; where any {request.principal.type=&#39;certificate&#39;, request.principal.type=&#39;certificateauthority&#39;}
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage service-mesh-family in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use metrics in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use log-content in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use tag-namespaces in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage leaf-certificates in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage leaf-certificate-family in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use certificate-authority-delegate in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use certificate-authority-family in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to inspect vault in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to {MESH_PROXY_DETAILS_READ} in tenancy
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage certificate-associations in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage certificate-authority-associations in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow any-user to manage keys in compartment &lt;your-compartment-name&gt; where any {request.principal.type=&#39;certificate&#39;, request.principal.type=&#39;certificateauthority&#39;}
+</span></span><span class="line"><span class="cl">Allow any-user to manage object-family in compartment &lt;your-compartment-name&gt; where any {request.principal.type=&#39;certificate&#39;, request.principal.type=&#39;certificateauthority&#39;}
+</span></span></code></pre></div></li>
 </ul>
 </li>
 </ol>
@@ -179,29 +179,29 @@ Allow any-user to manage object-family in compartment &lt;your-compartment-name&
 <ol>
 <li>
 <p>OSOK가 배포될 namespace를 만듭니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create ns oci-service-operator-system
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create ns oci-service-operator-system
+</span></span></code></pre></div></li>
 <li>
 <p>OSOK Operator 설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">docker pull iad.ocir.io/oracle/oci-service-operator-bundle:1.1.0
-operator-sdk run bundle iad.ocir.io/oracle/oci-service-operator-bundle:1.1.0 -n oci-service-operator-system --timeout 5m
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker pull iad.ocir.io/oracle/oci-service-operator-bundle:1.1.0
+</span></span><span class="line"><span class="cl">operator-sdk run bundle iad.ocir.io/oracle/oci-service-operator-bundle:1.1.0 -n oci-service-operator-system --timeout 5m
+</span></span></code></pre></div></li>
 <li>
 <p>OSOK 설치후 OCI 서비스를 위한 CustomResource가 추가된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl api-resources <span class="p">|</span> grep oci.oracle.com
-autonomousdatabases                            oci.oracle.com/v1beta1                 <span class="nb">true</span>         AutonomousDatabases
-mysqldbsystems                                 oci.oracle.com/v1beta1                 <span class="nb">true</span>         MySqlDbSystem
-streams                                        oci.oracle.com/v1beta1                 <span class="nb">true</span>         Stream
-accesspolicies                                 servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         AccessPolicy
-ingressgatewaydeployments                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGatewayDeployment
-ingressgatewayroutetables                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGatewayRouteTable
-ingressgateways                                servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGateway
-meshes                                         servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         Mesh
-virtualdeploymentbindings                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualDeploymentBinding
-virtualdeployments                             servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualDeployment
-virtualserviceroutetables                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualServiceRouteTable
-virtualservices                                servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualService
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl api-resources <span class="p">|</span> grep oci.oracle.com
+</span></span><span class="line"><span class="cl">autonomousdatabases                            oci.oracle.com/v1beta1                 <span class="nb">true</span>         AutonomousDatabases
+</span></span><span class="line"><span class="cl">mysqldbsystems                                 oci.oracle.com/v1beta1                 <span class="nb">true</span>         MySqlDbSystem
+</span></span><span class="line"><span class="cl">streams                                        oci.oracle.com/v1beta1                 <span class="nb">true</span>         Stream
+</span></span><span class="line"><span class="cl">accesspolicies                                 servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         AccessPolicy
+</span></span><span class="line"><span class="cl">ingressgatewaydeployments                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGatewayDeployment
+</span></span><span class="line"><span class="cl">ingressgatewayroutetables                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGatewayRouteTable
+</span></span><span class="line"><span class="cl">ingressgateways                                servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGateway
+</span></span><span class="line"><span class="cl">meshes                                         servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         Mesh
+</span></span><span class="line"><span class="cl">virtualdeploymentbindings                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualDeploymentBinding
+</span></span><span class="line"><span class="cl">virtualdeployments                             servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualDeployment
+</span></span><span class="line"><span class="cl">virtualserviceroutetables                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualServiceRouteTable
+</span></span><span class="line"><span class="cl">virtualservices                                servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualService
+</span></span></code></pre></div></li>
 </ol>
 <h2 id="osok로-autonomous-database-service-관리하기">OSOK로 Autonomous Database Service 관리하기</h2>
 <p>참고 문서</p>
@@ -225,18 +225,18 @@ virtualservices                                servicemesh.oci.oracle.com/v1beta
 </ul>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;AUTONOMOUS_DATABASE_OCID&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;AUTONOMOUS_DATABASE_OCID&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>실행 예시</p>
 <ul>
@@ -245,76 +245,76 @@ virtualservices                                servicemesh.oci.oracle.com/v1beta
 <ul>
 <li>The wallet download password should contain at least 1 number or special character</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create secret generic ociadb-wallet-password-secret --from-literal<span class="o">=</span><span class="nv">walletPassword</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret generic ociadb-wallet-password-secret --from-literal<span class="o">=</span><span class="nv">walletPassword</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>실행</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">cat &lt;&lt;EOF &gt; autonomousdatabases-bind.yaml</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqamlmtqcttftib5w724cu4yfcsfzxru3prohr65637rlbq</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-secret</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-password-secret</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span><span class="w"></span><span class="l">kubectl apply -f autonomousdatabases-bind.yaml</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF &gt; autonomousdatabases-bind.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqamlmtqcttftib5w724cu4yfcsfzxru3prohr65637rlbq</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">kubectl apply -f autonomousdatabases-bind.yaml</span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>결과 확인</p>
 <p>kubectl describe 명령을 통해 에러없이 바인딩이 성공했는지 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get autonomousdatabases
-NAME     DBWORKLOAD   STATUS   AGE
-ociadb                Active   15s
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadb
-Name:         ociadb
-...
-Kind:         AutonomousDatabases
-...
-Status:
-  Status:
-    Conditions:
-      Last Transition Time:  2022-04-28T05:00:57Z
-      Message:               AutonomousDatabase Bound success
-...
-Events:
-  Type    Reason   Age                From                 Message
-  ----    ------   ----               ----                 -------
-  Normal  Success  27s                AutonomousDatabases  Finalizer is added to the object
-  Normal  Success  25s <span class="o">(</span>x2 over 25s<span class="o">)</span>  AutonomousDatabases  Create or Update of resource succeeded
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get autonomousdatabases
+</span></span><span class="line"><span class="cl">NAME     DBWORKLOAD   STATUS   AGE
+</span></span><span class="line"><span class="cl">ociadb                Active   15s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadb
+</span></span><span class="line"><span class="cl">Name:         ociadb
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Kind:         AutonomousDatabases
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Status:
+</span></span><span class="line"><span class="cl">  Status:
+</span></span><span class="line"><span class="cl">    Conditions:
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:00:57Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Bound success
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Events:
+</span></span><span class="line"><span class="cl">  Type    Reason   Age                From                 Message
+</span></span><span class="line"><span class="cl">  ----    ------   ----               ----                 -------
+</span></span><span class="line"><span class="cl">  Normal  Success  27s                AutonomousDatabases  Finalizer is added to the object
+</span></span><span class="line"><span class="cl">  Normal  Success  25s <span class="o">(</span>x2 over 25s<span class="o">)</span>  AutonomousDatabases  Create or Update of resource succeeded
+</span></span></code></pre></div></li>
 <li>
 <p>wallet 확인</p>
 <p>바인딩 결과 ociadb-wallet-secret secret이 생성되며, 내용을 보면 wallet 상에 있는 파일들이 Base64로 인코딩된 형태로 있는 것을 확인할 수 있습니다. 애플리케이션 컨테이너에서 secret을 마운트하여 ADB 연결시 사용하면 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret
-NAME                              TYPE                                  DATA   AGE
-...
-ociadb-wallet-password-secret   Opaque                                <span class="m">1</span>      4m27s
-ociadb-wallet-secret            Opaque                                <span class="m">8</span>      2m8
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret ociadb-wallet-secret -o yaml
-apiVersion: v1
-data:
-  README: V2FsbGV0IE...
-  cwallet.sso: ofhONgAAAA...
-  ewallet.p12: MIIZ/AIBAz...
-  keystore.jks: /u3+7QAAA...
-  ojdbc.properties: IyBDb2...
-  sqlnet.ora: V0FMTE...
-  tnsnames.ora: b2NpYWR...
-  truststore.jks: /u3+7QAAAA...
-kind: Secret
-metadata:
-...
-  name: ociadb-wallet-secret
-...
-type: Opaque
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret
+</span></span><span class="line"><span class="cl">NAME                              TYPE                                  DATA   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ociadb-wallet-password-secret   Opaque                                <span class="m">1</span>      4m27s
+</span></span><span class="line"><span class="cl">ociadb-wallet-secret            Opaque                                <span class="m">8</span>      2m8
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret ociadb-wallet-secret -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">data:
+</span></span><span class="line"><span class="cl">  README: V2FsbGV0IE...
+</span></span><span class="line"><span class="cl">  cwallet.sso: ofhONgAAAA...
+</span></span><span class="line"><span class="cl">  ewallet.p12: MIIZ/AIBAz...
+</span></span><span class="line"><span class="cl">  keystore.jks: /u3+7QAAA...
+</span></span><span class="line"><span class="cl">  ojdbc.properties: IyBDb2...
+</span></span><span class="line"><span class="cl">  sqlnet.ora: V0FMTE...
+</span></span><span class="line"><span class="cl">  tnsnames.ora: b2NpYWR...
+</span></span><span class="line"><span class="cl">  truststore.jks: /u3+7QAAAA...
+</span></span><span class="line"><span class="cl">kind: Secret
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">  name: ociadb-wallet-secret
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">type: Opaque
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="adbautonomous-database-provisioning">ADB(Autonomous Database) Provisioning</h3>
 <ol>
@@ -326,36 +326,36 @@ type: Opaque
 <li>walletPassword.secret.secretName: wallet에 사용할 암호가 저장된 secret 이름, 바인딩 전에 미리 secret을 생성합니다.</li>
 <li>나머지 항목은 OCI 콘솔에서 ADB 생성시 입력하는 것과 동일하게 원하는 값 입력 - <a href="https://github.com/oracle/oci-service-operator/blob/main/docs/adb.md#autonomous-database-specification-parameters">항목 명세 참조</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COMPARTMENT_OCID&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DISPLAY_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DB_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;OLTP/DW&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ORABLE_DB_VERSION&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;SIZE_IN_TBs&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COUNT&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ADMIN_PASSWORD_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;true/false&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;BRING_YOUR_OWN_LICENSE/LICENSE_INCLUDEE&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">freeformTags</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">definedTags</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">&lt;TAGNAMESPACE1&gt;</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COMPARTMENT_OCID&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DISPLAY_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DB_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;OLTP/DW&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ORABLE_DB_VERSION&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;SIZE_IN_TBs&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COUNT&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ADMIN_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;true/false&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;BRING_YOUR_OWN_LICENSE/LICENSE_INCLUDEE&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">freeformTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">definedTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;TAGNAMESPACE1&gt;</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>실행 예시</p>
 <ul>
@@ -364,93 +364,93 @@ type: Opaque
 <ul>
 <li>The wallet download password should contain at least 1 number or special character</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">kubectl create secret generic ociadb-by-osok-admin-password-secret --from-literal<span class="o">=</span><span class="nv">password</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
-kubectl create secret generic ociadb-by-osok-wallet-password-secret --from-literal<span class="o">=</span><span class="nv">walletPassword</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret generic ociadb-by-osok-admin-password-secret --from-literal<span class="o">=</span><span class="nv">password</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
+</span></span><span class="line"><span class="cl">kubectl create secret generic ociadb-by-osok-wallet-password-secret --from-literal<span class="o">=</span><span class="nv">walletPassword</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
+</span></span></code></pre></div></li>
 <li>
 <p>실행</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="l">cat &lt;&lt;EOF &gt; autonomousdatabases-provision.yaml</span><span class="w">
-</span><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaaa2jcbfqjyz24y4hbbqurdxjegmsp6eqhzq4r2gni5bocoh2axb4a</span><span class="w">
-</span><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">OCIADBbyOSOK</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">OLTP</span><span class="w">
-</span><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">19c</span><span class="w">
-</span><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
-</span><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
-</span><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-admin-password-secret</span><span class="w">
-</span><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">LICENSE_INCLUDED</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-secret</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-password-secret</span><span class="w">
-</span><span class="w"></span><span class="l">EOF</span><span class="w">
-</span><span class="w"></span><span class="l">kubectl apply -f autonomousdatabases-provision.yaml</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF &gt; autonomousdatabases-provision.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaaa2jcbfqjyz24y4hbbqurdxjegmsp6eqhzq4r2gni5bocoh2axb4a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">OCIADBbyOSOK</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">OLTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">19c</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-admin-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">LICENSE_INCLUDED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">kubectl apply -f autonomousdatabases-provision.yaml</span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>결과 확인</p>
 <p>kubectl describe 명령을 통해 에러없이 바인딩이 성공했는지 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get autonomousdatabases
-NAME           DBWORKLOAD   STATUS   AGE
-...
-ociadbbyosok   OLTP         Active   3m4s
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadbbyosok
-Name:         ociadbbyosok
-...
-Kind:         AutonomousDatabases
-...
-Status:
-  Status:
-    Conditions:
-      Last Transition Time:  2022-04-28T05:08:06Z
-      Message:               AutonomousDatabase Provisioning
-      Status:                True
-...
-Events:
-  Type    Reason   Age                From                 Message
-  ----    ------   ----               ----                 -------
-  Normal  Success  3m10s              AutonomousDatabases  Finalizer is added to the object
-  Normal  Success  58s <span class="o">(</span>x2 over 58s<span class="o">)</span>  AutonomousDatabases  Create or Update of resource succeeded
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get autonomousdatabases
+</span></span><span class="line"><span class="cl">NAME           DBWORKLOAD   STATUS   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ociadbbyosok   OLTP         Active   3m4s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadbbyosok
+</span></span><span class="line"><span class="cl">Name:         ociadbbyosok
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Kind:         AutonomousDatabases
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Status:
+</span></span><span class="line"><span class="cl">  Status:
+</span></span><span class="line"><span class="cl">    Conditions:
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:08:06Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Provisioning
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Events:
+</span></span><span class="line"><span class="cl">  Type    Reason   Age                From                 Message
+</span></span><span class="line"><span class="cl">  ----    ------   ----               ----                 -------
+</span></span><span class="line"><span class="cl">  Normal  Success  3m10s              AutonomousDatabases  Finalizer is added to the object
+</span></span><span class="line"><span class="cl">  Normal  Success  58s <span class="o">(</span>x2 over 58s<span class="o">)</span>  AutonomousDatabases  Create or Update of resource succeeded
+</span></span></code></pre></div></li>
 <li>
 <p>wallet 확인</p>
 <p>바인딩 결과 ociadb-wallet-secret secret이 생성되며, 내용을 보면 wallet 상에 있는 파일들이 Base64로 인코딩된 형태로 있는 것을 확인할 수 있습니다. 애플리케이션 컨테이너에서 secret을 마운트하여 ADB 연결시 사용하면 됩니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret
-NAME                                    TYPE                                  DATA   AGE
-...
-ociadb-by-osok-admin-password-secret    Opaque                                <span class="m">1</span>      7m22s
-ociadb-by-osok-wallet-password-secret   Opaque                                <span class="m">1</span>      7m11s
-ociadb-by-osok-wallet-secret            Opaque                                <span class="m">8</span>      3m13s
-winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret ociadb-by-osok-wallet-secret -o yaml
-apiVersion: v1
-data:
-  README: V2FsbGV0IE...
-  cwallet.sso: ofhONgAAAA...
-  ewallet.p12: MIIZ/AIBAz...
-  keystore.jks: /u3+7QAAA...
-  ojdbc.properties: IyBDb2...
-  sqlnet.ora: V0FMTE...
-  tnsnames.ora: b2NpYWR...
-  truststore.jks: /u3+7QAAAA...
-kind: Secret
-metadata:
-...
-  name: ociadb-by-osok-wallet-secret
-...
-type: Opaque
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret
+</span></span><span class="line"><span class="cl">NAME                                    TYPE                                  DATA   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ociadb-by-osok-admin-password-secret    Opaque                                <span class="m">1</span>      7m22s
+</span></span><span class="line"><span class="cl">ociadb-by-osok-wallet-password-secret   Opaque                                <span class="m">1</span>      7m11s
+</span></span><span class="line"><span class="cl">ociadb-by-osok-wallet-secret            Opaque                                <span class="m">8</span>      3m13s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret ociadb-by-osok-wallet-secret -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">data:
+</span></span><span class="line"><span class="cl">  README: V2FsbGV0IE...
+</span></span><span class="line"><span class="cl">  cwallet.sso: ofhONgAAAA...
+</span></span><span class="line"><span class="cl">  ewallet.p12: MIIZ/AIBAz...
+</span></span><span class="line"><span class="cl">  keystore.jks: /u3+7QAAA...
+</span></span><span class="line"><span class="cl">  ojdbc.properties: IyBDb2...
+</span></span><span class="line"><span class="cl">  sqlnet.ora: V0FMTE...
+</span></span><span class="line"><span class="cl">  tnsnames.ora: b2NpYWR...
+</span></span><span class="line"><span class="cl">  truststore.jks: /u3+7QAAAA...
+</span></span><span class="line"><span class="cl">kind: Secret
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">  name: ociadb-by-osok-wallet-secret
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">type: Opaque
+</span></span></code></pre></div></li>
 </ol>
 <h3 id="adbautonomous-database-update">ADB(Autonomous Database) Update</h3>
 <p>OCI API에서 제공하는 Autonomous Database에 대한 Update 지원 항목내에서 OSOK GitHub 문서의 예시를 참고합니다.</p>
@@ -460,36 +460,36 @@ type: Opaque
 </li>
 <li>
 <p>GitHub 문서 기준</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;AUTONOMOUS_DATABASE_OCID&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DISPLAY_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DB_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;OLTP/DW&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ORABLE_DB_VERSION&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;SIZE_IN_TBs&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COUNT&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ADMIN_PASSWORD_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;true/false&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;BRING_YOUR_OWN_LICENSE/LICENSE_INCLUDEE&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">freeformTags</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
-</span><span class="w">  </span><span class="nt">definedTags</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">&lt;TAGNAMESPACE1&gt;</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;AUTONOMOUS_DATABASE_OCID&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DISPLAY_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DB_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;OLTP/DW&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ORABLE_DB_VERSION&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;SIZE_IN_TBs&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COUNT&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ADMIN_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;true/false&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;BRING_YOUR_OWN_LICENSE/LICENSE_INCLUDEE&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">freeformTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">definedTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;TAGNAMESPACE1&gt;</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 <h4 id="binding-한-경우">Binding 한 경우</h4>
 <p>기존 YAML 또는 배포된 YAML에 업데이트 항목을 추가 하여 반영합니다.</p>
@@ -497,51 +497,51 @@ type: Opaque
 <li>
 <p>스토리지 증가 예시</p>
 <p>앞선 autonomousdatabases-bind.yaml 파일에 <strong>dataStorageSizeInTBs</strong> 항목을 추가하여 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqamlmtqcttftib5w724cu4yfcsfzxru3prohr65637rlbq</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-secret</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-password-secret</span><span class="w">
-</span><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqamlmtqcttftib5w724cu4yfcsfzxru3prohr65637rlbq</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span></code></pre></div></li>
 </ul>
 <h4 id="provisioning-한-경우">Provisioning 한 경우</h4>
 <ul>
 <li>
 <p>스토리지 증가 예시</p>
 <p>앞선 autonomousdatabases-provision.yaml 파일에 생성된 ADB의 OCID를 <strong>spec.id에 추가</strong>합니다. 그리고 <strong>dataStorageSizeInTBs</strong> 값을 변경합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
-</span><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
-</span><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
-</span><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqa4ix636vselpdrig6i2peeczd2fgkevel34bph6feb46a</span><span class="w">
-</span><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaafz2jdbc6csuogmfpmpce7t3cianevguuzbtjgaitqxf7yosvzkca</span><span class="w">
-</span><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">OCIADBbyOSOK</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">OLTP</span><span class="w">
-</span><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">19c</span><span class="w">
-</span><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
-</span><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
-</span><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-admin-password-secret</span><span class="w">
-</span><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-</span><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">LICENSE_INCLUDED</span><span class="w">
-</span><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-secret</span><span class="w">
-</span><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
-</span><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
-</span><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-password-secret</span><span class="w">
-</span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqa4ix636vselpdrig6i2peeczd2fgkevel34bph6feb46a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaafz2jdbc6csuogmfpmpce7t3cianevguuzbtjgaitqxf7yosvzkca</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">OCIADBbyOSOK</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">OLTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">19c</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-admin-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">LICENSE_INCLUDED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-password-secret</span><span class="w">
+</span></span></span></code></pre></div></li>
 <li>
 <p>업데이트 실행결과</p>
 <p>
@@ -554,27 +554,27 @@ type: Opaque
 
 <img class="img-fluid1" src="../images/image-20211223142835787.png" alt='image-20211223142835787' onerror="this.onerror=null;this.src='images\/image-20211223142835787.png';" />
 </p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadbbyosok
-Name:         ociadbbyosok
-...
-Status:
-  Status:
-    Conditions:
-      Last Transition Time:  2022-04-28T05:08:06Z
-      Message:               AutonomousDatabase Provisioning
-      Status:                True
-      Type:                  Provisioning
-      Last Transition Time:  2022-04-28T05:10:15Z
-      Message:               AutonomousDatabase OCIADBbyOSOK is Active
-      Status:                True
-      Type:                  Active
-      Last Transition Time:  2022-04-28T05:25:21Z
-      Message:               AutonomousDatabase Update success
-      Status:                True
-      Type:                  Active
-    Ocid:                    ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqa4ix636vselpdrig6i2peeczd2fgkevel34bph6feb46a
-...
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadbbyosok
+</span></span><span class="line"><span class="cl">Name:         ociadbbyosok
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Status:
+</span></span><span class="line"><span class="cl">  Status:
+</span></span><span class="line"><span class="cl">    Conditions:
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:08:06Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Provisioning
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">      Type:                  Provisioning
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:10:15Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase OCIADBbyOSOK is Active
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">      Type:                  Active
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:25:21Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Update success
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">      Type:                  Active
+</span></span><span class="line"><span class="cl">    Ocid:                    ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqa4ix636vselpdrig6i2peeczd2fgkevel34bph6feb46a
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
 </ul>
 <h3 id="adbautonomous-database-delete">ADB(Autonomous Database) Delete</h3>
 <p>현재 버전 기준으로 Delete 기능을 따로 제공하지 않아, OKE 클러스터에서 autonomousdatabases 자원을 kubectl delete 명령으로 삭제해도 실제 ADB 인스턴스가 OCI에서 삭제되지는 않습니다.</p>
@@ -659,6 +659,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -688,6 +692,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -742,6 +750,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -774,6 +786,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -803,6 +819,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -831,9 +851,17 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -861,6 +889,10 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -890,6 +922,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -920,6 +956,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -952,6 +992,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -981,6 +1025,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1009,6 +1057,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1044,6 +1096,10 @@ Status:
 
 
 
+
+
+
+
 </ul>
   
 </li>
@@ -1070,6 +1126,10 @@ Status:
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1121,9 +1181,17 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1152,6 +1220,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1226,6 +1298,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1253,9 +1329,17 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1288,6 +1372,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1317,6 +1405,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1348,6 +1440,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1424,6 +1520,10 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1453,10 +1553,18 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1484,6 +1592,10 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1514,6 +1626,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1566,6 +1682,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1592,6 +1712,10 @@ Status:
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1618,6 +1742,10 @@ Status:
  
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1645,6 +1773,10 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
+
+
+
+
 </ul>
   
 </li>
@@ -1698,9 +1830,17 @@ Status:
 <ul class=" hidden">
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
+
+
+
+
 </ul>
   
 </li>
+
+
+
+
 </ul>
   
 </li>
@@ -1731,6 +1871,10 @@ Status:
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
+
+
+
+
 </ul>
   
 </li>

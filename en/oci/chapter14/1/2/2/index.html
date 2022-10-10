@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>14.1.2.2 File Upload via CLI - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -80,92 +80,92 @@
 <ol>
 <li>
 <p>Query the Object Storage Namespace.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os ns get
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os ns get
+</span></span></code></pre></div></li>
 <li>
 <p>Search the list of objects on the bucket</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os object list -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt;
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os object list -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt;
+</span></span></code></pre></div><ul>
 <li>
 <p>Examples of execution</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\&gt;</span> oci os ns get
-<span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnzdbcmqu9s8&#34;</span>
-<span class="o">}</span>
-PS D:<span class="se">\&gt;</span> oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
-<span class="o">{</span>
-  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\&gt;</span> oci os ns get
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnzdbcmqu9s8&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\&gt;</span> oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Bucket에 Object upload</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt;  --no-multipart
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt;  --no-multipart
+</span></span></code></pre></div><ul>
 <li>
 <p>Windows Examples of execution</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; dir
-
-    디렉터리: D:<span class="se">\F</span>orObjectStorage
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
-d-----      2022-01-12   오후 7:01                images
--a----      2022-01-12   오후 5:27            <span class="m">152</span> index.html
-
-PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI --file index.html
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 02:42:23 GMT&#34;</span>,
-  <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
-<span class="o">}</span>
-PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
-<span class="o">{</span>
-  <span class="s2">&#34;data&#34;</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">&#34;archival-state&#34;</span>: null,
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
-      <span class="s2">&#34;md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>,
-      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;index.html&#34;</span>,
-      <span class="s2">&#34;size&#34;</span>: 152,
-      <span class="s2">&#34;storage-tier&#34;</span>: <span class="s2">&#34;Standard&#34;</span>,
-      <span class="s2">&#34;time-created&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>,
-      <span class="s2">&#34;time-modified&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; dir
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    디렉터리: D:<span class="se">\F</span>orObjectStorage
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Mode                 LastWriteTime         Length Name
+</span></span><span class="line"><span class="cl">----                 -------------         ------ ----
+</span></span><span class="line"><span class="cl">d-----      2022-01-12   오후 7:01                images
+</span></span><span class="line"><span class="cl">-a----      2022-01-12   오후 5:27            <span class="m">152</span> index.html
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI --file index.html
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 02:42:23 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object list -ns cnzdbcmqu9s8 -bn ExampleBucketForCLI
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;data&#34;</span>: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;archival-state&#34;</span>: null,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;4235d07c-1ef4-42db-b64a-4fb045de2fcd&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;name&#34;</span>: <span class="s2">&#34;index.html&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;size&#34;</span>: 152,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;storage-tier&#34;</span>: <span class="s2">&#34;Standard&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;time-created&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;time-modified&#34;</span>: <span class="s2">&#34;2022-01-18T02:42:23.945000+00:00&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;prefixes&#34;</span>: <span class="o">[]</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Bulk upload objects to the Bucket</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">oci os object bulk-upload -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --src-dir &lt;source_directory_location&gt; --no-multipart
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os object bulk-upload -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --src-dir &lt;source_directory_location&gt; --no-multipart
+</span></span></code></pre></div><ul>
 <li>
 <p>Windows Examples of execution</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object bulk-upload -bn ExampleBucketForCLI --src-dir .
-Uploaded images/icons8-oracle-96.png  <span class="o">[</span><span class="c1">####################################]  100%</span>
-Uploaded index.html  <span class="o">[</span><span class="c1">####################################]  100%</span>
-
-<span class="o">{</span>
-  <span class="s2">&#34;skipped-objects&#34;</span>: <span class="o">[]</span>,
-  <span class="s2">&#34;upload-failures&#34;</span>: <span class="o">{}</span>,
-  <span class="s2">&#34;uploaded-objects&#34;</span>: <span class="o">{</span>
-    <span class="s2">&#34;images/icons8-oracle-96.png&#34;</span>: <span class="o">{</span>
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;388a319c-b5d0-4a51-bacf-9d9fe84bc621&#34;</span>,
-      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:04 GMT&#34;</span>,
-      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;HkJF80OO/DlmKI7usBCg4Q==&#34;</span>
-    <span class="o">}</span>,
-    <span class="s2">&#34;index.html&#34;</span>: <span class="o">{</span>
-      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;883369a7-4701-4bd9-8351-3fbaada61fbe&#34;</span>,
-      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:05 GMT&#34;</span>,
-      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
-    <span class="o">}</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object bulk-upload -bn ExampleBucketForCLI --src-dir .
+</span></span><span class="line"><span class="cl">Uploaded images/icons8-oracle-96.png  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl">Uploaded index.html  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;skipped-objects&#34;</span>: <span class="o">[]</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;upload-failures&#34;</span>: <span class="o">{}</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;uploaded-objects&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;images/icons8-oracle-96.png&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;388a319c-b5d0-4a51-bacf-9d9fe84bc621&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:04 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;HkJF80OO/DlmKI7usBCg4Q==&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>,
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;index.html&#34;</span>: <span class="o">{</span>
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;883369a7-4701-4bd9-8351-3fbaada61fbe&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:05:05 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">      <span class="s2">&#34;opc-content-md5&#34;</span>: <span class="s2">&#34;B8Iehaa6j58u+qMiWnNldg==&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">  <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
@@ -213,32 +213,32 @@ Uploaded index.html  <span class="o">[</span><span class="c1">##################
 </ol>
 <h5 id="multipart-upload">Multipart Upload</h5>
 <p>When uploading a large size file, such as a Custom Image file, it will take a lot of time to upload. In this case, you can upload a single file into multiple files and upload them in parallel for faster uploads. In addition, when a network error occurs during transmission, it is possible to upload a larger file more stably by retrying each part in error.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt; --part-size &lt;upload_part_size_in_MB&gt; --parallel-upload-count &lt;maximum_number_parallel_uploads&gt;
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-Shell" data-lang="Shell"><span class="line"><span class="cl">oci os object put -ns &lt;object_storage_namespace&gt; -bn &lt;bucket_name&gt; --file &lt;file_location&gt; --name &lt;object_name&gt; --part-size &lt;upload_part_size_in_MB&gt; --parallel-upload-count &lt;maximum_number_parallel_uploads&gt;
+</span></span></code></pre></div><ul>
 <li>
 <p>Windows execution example</p>
 <p>This is an example of uploading a 2.28GB file into 100 MB units and uploading them in parallel at the same time, taking 3 minutes and 57 seconds.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; date
-
-2022년 1월 18일 화요일 오후 12:25:22
-
-
-PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso --part-size <span class="m">100</span> --parallel-upload-count <span class="m">5</span>
-Upload ID: 3b38b958-3010-4d6d-5e84-55d189b787cc
-Split file into <span class="m">24</span> parts <span class="k">for</span> upload.
-Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;2217a0e6-2ae3-4ae8-9507-03d2f36a38ec&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:29:18 GMT&#34;</span>,
-  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;mnHbvK3Eed2+o54P1P7VgA==-24&#34;</span>
-<span class="o">}</span>
-PS D:<span class="se">\F</span>orObjectStorage&gt; date
-
-2022년 1월 18일 화요일 오후 12:29:19
-
-
-PS D:<span class="se">\F</span>orObjectStorage&gt;
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; date
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2022년 1월 18일 화요일 오후 12:25:22
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso --part-size <span class="m">100</span> --parallel-upload-count <span class="m">5</span>
+</span></span><span class="line"><span class="cl">Upload ID: 3b38b958-3010-4d6d-5e84-55d189b787cc
+</span></span><span class="line"><span class="cl">Split file into <span class="m">24</span> parts <span class="k">for</span> upload.
+</span></span><span class="line"><span class="cl">Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;2217a0e6-2ae3-4ae8-9507-03d2f36a38ec&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:29:18 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;mnHbvK3Eed2+o54P1P7VgA==-24&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; date
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2022년 1월 18일 화요일 오후 12:29:19
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt;
+</span></span></code></pre></div></li>
 <li>
 <p>Check the result</p>
 <p>
@@ -257,16 +257,16 @@ PS D:<span class="se">\F</span>orObjectStorage&gt;
 <blockquote>
 <p>By default, files above 128 MiB will be transferred in multiple parts, then combined.</p>
 </blockquote>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso
-Upload ID: 75e4106e-bf1f-ffd0-5630-c78b68b6168b
-Split file into <span class="m">19</span> parts <span class="k">for</span> upload.
-Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
-<span class="o">{</span>
-  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;cf5d681b-90a3-409c-b732-1e6c6028c046&#34;</span>,
-  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:37:46 GMT&#34;</span>,
-  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;eFqxsX7ROrZUQ0HrQYI/zw==-19&#34;</span>
-<span class="o">}</span>
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">PS D:<span class="se">\F</span>orObjectStorage&gt; oci os object put -bn ExampleBucketForCLI  --file big_file.iso
+</span></span><span class="line"><span class="cl">Upload ID: 75e4106e-bf1f-ffd0-5630-c78b68b6168b
+</span></span><span class="line"><span class="cl">Split file into <span class="m">19</span> parts <span class="k">for</span> upload.
+</span></span><span class="line"><span class="cl">Uploading object  <span class="o">[</span><span class="c1">####################################]  100%</span>
+</span></span><span class="line"><span class="cl"><span class="o">{</span>
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;etag&#34;</span>: <span class="s2">&#34;cf5d681b-90a3-409c-b732-1e6c6028c046&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;last-modified&#34;</span>: <span class="s2">&#34;Tue, 18 Jan 2022 03:37:46 GMT&#34;</span>,
+</span></span><span class="line"><span class="cl">  <span class="s2">&#34;opc-multipart-md5&#34;</span>: <span class="s2">&#34;eFqxsX7ROrZUQ0HrQYI/zw==-19&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></div></li>
 </ul>
 <br>
 <br>

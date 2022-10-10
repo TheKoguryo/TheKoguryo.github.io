@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.6.4 Formatting Block Volumes - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -27,9 +27,9 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="3.6.4 Formatting Block Volumes" />
-<meta property="og:description" content="3.6.4 Formatting Block Volumes   After connecting to the Compute Instance with SSH, format the Block Volume. You can format the file system type by changing it to anything you want.
-sudo mkfs -t &lt;fs type&gt; /dev/sdb   Examples of execution
- After looking up the Block Volume as shown below, it was formatted.  [opc@examplelinuxinstance ~]$ lsblk -f NAME FSTYPE LABEL UUID MOUNTPOINT sdb sda ├─sda2 swap 7c02c8fa-405c-4583-bf26-72fcfff63ccf [SWAP] ├─sda3 xfs daec0eb0-26cf-43cb-bcb1-896cdc193242 / └─sda1 vfat 61E0-20B8 /boot/efi [opc@examplelinuxinstance ~]$ sudo mkfs -t xfs /dev/sdb meta-data=/dev/sdb isize=256 agcount=4, agsize=3276800 blks = sectsz=4096 attr=2, projid32bit=1 = crc=0 finobt=0, sparse=0, rmapbt=0 = reflink=0 data = bsize=4096 blocks=13107200, imaxpct=25 = sunit=0 swidth=0 blks naming =version 2 bsize=4096 ascii-ci=0, ftype=1 log =internal log bsize=4096 blocks=6400, version=2 = sectsz=4096 sunit=1 blks, lazy-count=1 realtime =none extsz=4096 blocks=0, rtextents=0 [opc@examplelinuxinstance ~]$ lsblk -f NAME FSTYPE LABEL UUID MOUNTPOINT sdb xfs c15dcf4c-e7af-4150-b1f8-07953032464a sda ├─sda2 swap 7c02c8fa-405c-4583-bf26-72fcfff63ccf [SWAP] ├─sda3 xfs daec0eb0-26cf-43cb-bcb1-896cdc193242 / └─sda1 vfat 61E0-20B8 /boot/efi     " />
+<meta property="og:description" content="3.6.4 Formatting Block Volumes After connecting to the Compute Instance with SSH, format the Block Volume. You can format the file system type by changing it to anything you want.
+sudo mkfs -t &lt;fs type&gt; /dev/sdb Examples of execution
+After looking up the Block Volume as shown below, it was formatted. [opc@examplelinuxinstance ~]$ lsblk -f NAME FSTYPE LABEL UUID MOUNTPOINT sdb sda ├─sda2 swap 7c02c8fa-405c-4583-bf26-72fcfff63ccf [SWAP] ├─sda3 xfs daec0eb0-26cf-43cb-bcb1-896cdc193242 / └─sda1 vfat 61E0-20B8 /boot/efi [opc@examplelinuxinstance ~]$ sudo mkfs -t xfs /dev/sdb meta-data=/dev/sdb isize=256 agcount=4, agsize=3276800 blks = sectsz=4096 attr=2, projid32bit=1 = crc=0 finobt=0, sparse=0, rmapbt=0 = reflink=0 data = bsize=4096 blocks=13107200, imaxpct=25 = sunit=0 swidth=0 blks naming =version 2 bsize=4096 ascii-ci=0, ftype=1 log =internal log bsize=4096 blocks=6400, version=2 = sectsz=4096 sunit=1 blks, lazy-count=1 realtime =none extsz=4096 blocks=0, rtextents=0 [opc@examplelinuxinstance ~]$ lsblk -f NAME FSTYPE LABEL UUID MOUNTPOINT sdb xfs c15dcf4c-e7af-4150-b1f8-07953032464a sda ├─sda2 swap 7c02c8fa-405c-4583-bf26-72fcfff63ccf [SWAP] ├─sda3 xfs daec0eb0-26cf-43cb-bcb1-896cdc193242 / └─sda1 vfat 61E0-20B8 /boot/efi " />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter03/6/4/" /><meta property="article:section" content="oci" />
 
@@ -74,41 +74,41 @@ sudo mkfs -t &lt;fs type&gt; /dev/sdb   Examples of execution
 <ol>
 <li>
 <p>After connecting to the Compute Instance with SSH, format the Block Volume. You can format the file system type by changing it to anything you want.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo mkfs -t &lt;fs type&gt; /dev/sdb
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mkfs -t &lt;fs type&gt; /dev/sdb
+</span></span></code></pre></div><ul>
 <li>
 <p>Examples of execution</p>
 <ul>
 <li>After looking up the Block Volume as shown below, it was formatted.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ lsblk -f
-NAME   FSTYPE LABEL UUID                                 MOUNTPOINT
-sdb
-sda
-├─sda2 swap         7c02c8fa-405c-4583-bf26-72fcfff63ccf <span class="o">[</span>SWAP<span class="o">]</span>
-├─sda3 xfs          daec0eb0-26cf-43cb-bcb1-896cdc193242 /
-└─sda1 vfat         61E0-20B8                            /boot/efi
-
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mkfs -t xfs /dev/sdb
-meta-data<span class="o">=</span>/dev/sdb               <span class="nv">isize</span><span class="o">=</span><span class="m">256</span>    <span class="nv">agcount</span><span class="o">=</span>4, <span class="nv">agsize</span><span class="o">=</span><span class="m">3276800</span> <span class="nv">blks</span>
-         <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span><span class="m">4096</span>  <span class="nv">attr</span><span class="o">=</span>2, <span class="nv">projid32bit</span><span class="o">=</span><span class="nv">1</span>
-         <span class="o">=</span>                       <span class="nv">crc</span><span class="o">=</span><span class="m">0</span>        <span class="nv">finobt</span><span class="o">=</span>0, <span class="nv">sparse</span><span class="o">=</span>0, <span class="nv">rmapbt</span><span class="o">=</span><span class="nv">0</span>
-         <span class="o">=</span>                       <span class="nv">reflink</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">data</span>     <span class="o">=</span>                       <span class="nv">bsize</span><span class="o">=</span><span class="m">4096</span>   <span class="nv">blocks</span><span class="o">=</span>13107200, <span class="nv">imaxpct</span><span class="o">=</span><span class="nv">25</span>
-         <span class="o">=</span>                       <span class="nv">sunit</span><span class="o">=</span><span class="m">0</span>      <span class="nv">swidth</span><span class="o">=</span><span class="m">0</span> blks
-<span class="nv">naming</span>   <span class="o">=</span>version <span class="m">2</span>              <span class="nv">bsize</span><span class="o">=</span><span class="m">4096</span>   ascii-ci<span class="o">=</span>0, <span class="nv">ftype</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">log</span>      <span class="o">=</span>internal log           <span class="nv">bsize</span><span class="o">=</span><span class="m">4096</span>   <span class="nv">blocks</span><span class="o">=</span>6400, <span class="nv">version</span><span class="o">=</span><span class="nv">2</span>
-         <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span><span class="m">4096</span>  <span class="nv">sunit</span><span class="o">=</span><span class="m">1</span> blks, lazy-count<span class="o">=</span><span class="m">1</span>
-<span class="nv">realtime</span> <span class="o">=</span>none                   <span class="nv">extsz</span><span class="o">=</span><span class="m">4096</span>   <span class="nv">blocks</span><span class="o">=</span>0, <span class="nv">rtextents</span><span class="o">=</span><span class="m">0</span>
-
-<span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ lsblk -f
-NAME   FSTYPE LABEL UUID                                 MOUNTPOINT
-sdb    xfs          c15dcf4c-e7af-4150-b1f8-07953032464a
-sda
-├─sda2 swap         7c02c8fa-405c-4583-bf26-72fcfff63ccf <span class="o">[</span>SWAP<span class="o">]</span>
-├─sda3 xfs          daec0eb0-26cf-43cb-bcb1-896cdc193242 /
-└─sda1 vfat         61E0-20B8                            /boot/efi
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ lsblk -f
+</span></span><span class="line"><span class="cl">NAME   FSTYPE LABEL UUID                                 MOUNTPOINT
+</span></span><span class="line"><span class="cl">sdb
+</span></span><span class="line"><span class="cl">sda
+</span></span><span class="line"><span class="cl">├─sda2 swap         7c02c8fa-405c-4583-bf26-72fcfff63ccf <span class="o">[</span>SWAP<span class="o">]</span>
+</span></span><span class="line"><span class="cl">├─sda3 xfs          daec0eb0-26cf-43cb-bcb1-896cdc193242 /
+</span></span><span class="line"><span class="cl">└─sda1 vfat         61E0-20B8                            /boot/efi
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ sudo mkfs -t xfs /dev/sdb
+</span></span><span class="line"><span class="cl">meta-data<span class="o">=</span>/dev/sdb               <span class="nv">isize</span><span class="o">=</span><span class="m">256</span>    <span class="nv">agcount</span><span class="o">=</span>4, <span class="nv">agsize</span><span class="o">=</span><span class="m">3276800</span> <span class="nv">blks</span>
+</span></span><span class="line"><span class="cl">         <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span><span class="m">4096</span>  <span class="nv">attr</span><span class="o">=</span>2, <span class="nv">projid32bit</span><span class="o">=</span><span class="nv">1</span>
+</span></span><span class="line"><span class="cl">         <span class="o">=</span>                       <span class="nv">crc</span><span class="o">=</span><span class="m">0</span>        <span class="nv">finobt</span><span class="o">=</span>0, <span class="nv">sparse</span><span class="o">=</span>0, <span class="nv">rmapbt</span><span class="o">=</span><span class="nv">0</span>
+</span></span><span class="line"><span class="cl">         <span class="o">=</span>                       <span class="nv">reflink</span><span class="o">=</span><span class="m">0</span>
+</span></span><span class="line"><span class="cl"><span class="nv">data</span>     <span class="o">=</span>                       <span class="nv">bsize</span><span class="o">=</span><span class="m">4096</span>   <span class="nv">blocks</span><span class="o">=</span>13107200, <span class="nv">imaxpct</span><span class="o">=</span><span class="nv">25</span>
+</span></span><span class="line"><span class="cl">         <span class="o">=</span>                       <span class="nv">sunit</span><span class="o">=</span><span class="m">0</span>      <span class="nv">swidth</span><span class="o">=</span><span class="m">0</span> blks
+</span></span><span class="line"><span class="cl"><span class="nv">naming</span>   <span class="o">=</span>version <span class="m">2</span>              <span class="nv">bsize</span><span class="o">=</span><span class="m">4096</span>   ascii-ci<span class="o">=</span>0, <span class="nv">ftype</span><span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="nv">log</span>      <span class="o">=</span>internal log           <span class="nv">bsize</span><span class="o">=</span><span class="m">4096</span>   <span class="nv">blocks</span><span class="o">=</span>6400, <span class="nv">version</span><span class="o">=</span><span class="nv">2</span>
+</span></span><span class="line"><span class="cl">         <span class="o">=</span>                       <span class="nv">sectsz</span><span class="o">=</span><span class="m">4096</span>  <span class="nv">sunit</span><span class="o">=</span><span class="m">1</span> blks, lazy-count<span class="o">=</span><span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="nv">realtime</span> <span class="o">=</span>none                   <span class="nv">extsz</span><span class="o">=</span><span class="m">4096</span>   <span class="nv">blocks</span><span class="o">=</span>0, <span class="nv">rtextents</span><span class="o">=</span><span class="m">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance ~<span class="o">]</span>$ lsblk -f
+</span></span><span class="line"><span class="cl">NAME   FSTYPE LABEL UUID                                 MOUNTPOINT
+</span></span><span class="line"><span class="cl">sdb    xfs          c15dcf4c-e7af-4150-b1f8-07953032464a
+</span></span><span class="line"><span class="cl">sda
+</span></span><span class="line"><span class="cl">├─sda2 swap         7c02c8fa-405c-4583-bf26-72fcfff63ccf <span class="o">[</span>SWAP<span class="o">]</span>
+</span></span><span class="line"><span class="cl">├─sda3 xfs          daec0eb0-26cf-43cb-bcb1-896cdc193242 /
+</span></span><span class="line"><span class="cl">└─sda1 vfat         61E0-20B8                            /boot/efi
+</span></span></code></pre></div></li>
 </ul>
 </li>
 </ol>

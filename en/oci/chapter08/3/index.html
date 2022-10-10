@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>8.3 Export Option for Access Control - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.89.2" />
+<meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oci/chapter08/3/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -27,9 +27,10 @@
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:title" content="8.3 Export Option for Access Control" />
-<meta property="og:description" content="8.3 Export Option for Access Control Permission control through Export Option setting   Move to the detail screen of the file system created earlier. Click Export created in the Export list as shown in the figure below.
-   At the bottom of the Export detail screen, NFS Export Options are displayed as shown in the figure.
-The default created option is accessible as Read/Write from all clients (0." />
+<meta property="og:description" content="8.3 Export Option for Access Control Permission control through Export Option setting Move to the detail screen of the file system created earlier. Click Export created in the Export list as shown in the figure below.
+At the bottom of the Export detail screen, NFS Export Options are displayed as shown in the figure.
+The default created option is accessible as Read/Write from all clients (0.0.0.0/0).
+Click Edit NFS Export Options." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oci/chapter08/3/" /><meta property="article:section" content="oci" />
 
@@ -138,34 +139,34 @@ The default created option is accessible as Read/Write from all clients (0." />
 </li>
 <li>
 <p>Check if the existing file can be read.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell">ls -la /mnt/FSS-Storage/
-cat /mnt/FSS-Storage/hello1.txt
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ls -la /mnt/FSS-Storage/
+</span></span><span class="line"><span class="cl">cat /mnt/FSS-Storage/hello1.txt
+</span></span></code></pre></div><ul>
 <li>
 <p>Execution result</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ ls -la /mnt/FSS-Storage/
-total <span class="m">17</span>
-drwxr-xr-x. <span class="m">2</span> root root  <span class="m">2</span> Jan <span class="m">14</span> 02:35 .
-drwxr-xr-x. <span class="m">3</span> root root <span class="m">25</span> Jan <span class="m">14</span> 01:59 ..
-drwxr-xr-x. <span class="m">2</span> root root  <span class="m">0</span> Jan <span class="m">14</span> 05:34 .snapshot
--rw-r--r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 02:18 hello1.txt
-<span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ cat /mnt/FSS-Storage/hello1.txt
-Hello File Storage
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ ls -la /mnt/FSS-Storage/
+</span></span><span class="line"><span class="cl">total <span class="m">17</span>
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">2</span> root root  <span class="m">2</span> Jan <span class="m">14</span> 02:35 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">3</span> root root <span class="m">25</span> Jan <span class="m">14</span> 01:59 ..
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">2</span> root root  <span class="m">0</span> Jan <span class="m">14</span> 05:34 .snapshot
+</span></span><span class="line"><span class="cl">-rw-r--r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 02:18 hello1.txt
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ cat /mnt/FSS-Storage/hello1.txt
+</span></span><span class="line"><span class="cl">Hello File Storage
+</span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>Attempt to write a new file.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt;/mnt/FSS-Storage/hello2.txt
-</code></pre></div><ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt;/mnt/FSS-Storage/hello2.txt
+</span></span></code></pre></div><ul>
 <li>
 <p>Execution result</p>
 <p>As shown below, it corresponds to Public Subnet (10.0.0.0/24) and an error occurs when writing.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ hostname -I
-10.0.0.12
-<span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ <span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt;/mnt/FSS-Storage/hello2.txt
--bash: /mnt/FSS-Storage/hello2.txt: Read-only file system
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ hostname -I
+</span></span><span class="line"><span class="cl">10.0.0.12
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ <span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt;/mnt/FSS-Storage/hello2.txt
+</span></span><span class="line"><span class="cl">-bash: /mnt/FSS-Storage/hello2.txt: Read-only file system
+</span></span></code></pre></div></li>
 </ul>
 </li>
 </ol>
@@ -202,15 +203,15 @@ Hello File Storage
 </li>
 <li>
 <p>Go back to the test VM and try to write to the remounted file system.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ <span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt;/mnt/FSS-Storage/hello2.txt
-<span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ ls -la
-total <span class="m">17</span>
-drwxrwxrwx. <span class="m">2</span> root root  <span class="m">4</span> Jan <span class="m">14</span> 05:50 .
-drwxr-xr-x. <span class="m">3</span> root root <span class="m">25</span> Jan <span class="m">14</span> 01:59 ..
-drwxrwxrwx. <span class="m">2</span> root root  <span class="m">0</span> Jan <span class="m">14</span> 05:50 .snapshot
--rw-rw-r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 02:18 hello1.txt
--rw-rw-r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 05:50 hello2.txt
-</code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ <span class="nb">echo</span> <span class="s1">&#39;Hello File Storage&#39;</span> &gt;/mnt/FSS-Storage/hello2.txt
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@examplelinuxinstance FSS-Storage<span class="o">]</span>$ ls -la
+</span></span><span class="line"><span class="cl">total <span class="m">17</span>
+</span></span><span class="line"><span class="cl">drwxrwxrwx. <span class="m">2</span> root root  <span class="m">4</span> Jan <span class="m">14</span> 05:50 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. <span class="m">3</span> root root <span class="m">25</span> Jan <span class="m">14</span> 01:59 ..
+</span></span><span class="line"><span class="cl">drwxrwxrwx. <span class="m">2</span> root root  <span class="m">0</span> Jan <span class="m">14</span> 05:50 .snapshot
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 02:18 hello1.txt
+</span></span><span class="line"><span class="cl">-rw-rw-r--. <span class="m">1</span> opc  opc  <span class="m">19</span> Jan <span class="m">14</span> 05:50 hello2.txt
+</span></span></code></pre></div></li>
 <li>
 <p>First, you can see that the file is written according to the matching 0.0.0.0/0 Read/Write permission.</p>
 </li>

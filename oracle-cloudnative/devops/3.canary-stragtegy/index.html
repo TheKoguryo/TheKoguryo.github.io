@@ -51,6 +51,10 @@
 <li ><a href="/tags">Tag</a></li>
 <li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
 <li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">English</a>
+</li>
+
 
 </ul>
 </nav>
@@ -77,7 +81,7 @@
 <p>두 개의 네임스페이스를 생성합니다.</p>
 <ul>
 <li>
-<p>예, ns-canary-stage, ns-canary-prod</p>
+<p>예) ns-canary-stage, ns-canary-prod</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create ns ns-canary-stage
 </span></span><span class="line"><span class="cl">kubectl create ns ns-canary-prod
 </span></span></code></pre></div></li>
@@ -91,7 +95,7 @@
 <li>
 <p>OCIR에서 이미지 가져오기</p>
 <blockquote>
-<p>OCIR 리파지토지(예, webpage)가 사전에 없는 경우 Root Compartment에 Private 형태로 만들어집니다. OKE에서 가져오기 위해서는 각각 네임스페이스에 imagepullsecret을 사전에 생성하거나, 리파지토리를 미리 Public으로 생성합니다.</p>
+<p>OCIR 리파지토지(예시, webpage)가 사전에 없는 경우 Root Compartment에 Private 형태로 만들어집니다. OKE에서 가져오기 위해서는 각각 네임스페이스에 imagepullsecret을 사전에 생성하거나, 리파지토리를 미리 Public으로 생성합니다.</p>
 </blockquote>
 </li>
 </ol>
@@ -103,7 +107,7 @@
 <li>
 <p><strong>Create pipeline</strong>을 클릭하여 파이프라인을 생성합니다.</p>
 <ul>
-<li>Name: 예, webpage-canary-deployment-pipeline</li>
+<li>Name: 예) webpage-canary-deployment-pipeline</li>
 </ul>
 </li>
 <li>
@@ -128,7 +132,7 @@
 <li>
 <p><strong>Canary namespace</strong>: 테스트 버전이 배포될 네임스페이스 이름을 입력합니다.</p>
 <ul>
-<li>예, ns-canary-stage</li>
+<li>예) ns-canary-stage</li>
 </ul>
 </li>
 <li>
@@ -149,8 +153,8 @@
 <li>
 <p>Shift traffic: 트래픽 전환용 스테이지를 추가합니다.</p>
 <ul>
-<li>Name: 예, shift-traffic-stage</li>
-<li><strong>Ramp Limit</strong>: 전체 요청중 테스트 버전에게 전달할 비중을 퍼센트로 입력합니다. 예, 25 퍼센트</li>
+<li>Name: 예) shift-traffic-stage</li>
+<li><strong>Ramp Limit</strong>: 전체 요청중 테스트 버전에게 전달할 비중을 퍼센트로 입력합니다. 예) 25 퍼센트</li>
 </ul>
 <p>
 
@@ -166,7 +170,7 @@
 <li>
 <p>Approval: 배포까지만 자동으로 진행하고, 승인후 트래픽을 전환하기 위해 추가합니다. 트래픽 전환 스위치 정도라고 생각하면 될 것 같습니다.</p>
 <ul>
-<li>Name: 예, approval-stage</li>
+<li>Name: 예) approval-stage</li>
 </ul>
 <p>
 
@@ -182,10 +186,10 @@
 <li>
 <p>Production canary</p>
 <ol>
-<li>Name: 예, switch-to-production-stage</li>
+<li>Name: 예) switch-to-production-stage</li>
 <li><strong>Production namespace</strong>: 실 서비스 버전이 배포될 네임스페이스 이름을 입력합니다.
 <ul>
-<li>예, ns-canary-prod</li>
+<li>예) ns-canary-prod</li>
 </ul>
 </li>
 </ol>
@@ -340,7 +344,7 @@
 <h4 id="테스트---새-버전-배포---green-버전">테스트 - 새 버전 배포 - Green 버전</h4>
 <ol>
 <li>
-<p>소스로 돌아가서 코드를 변경(예, Dockerfile의 환경변수 변경)하고 Commit &amp; Push 하여 코드를 반영합니다</p>
+<p>소스로 돌아가서 코드를 변경(예시, Dockerfile의 환경변수 변경)하고 Commit &amp; Push 하여 코드를 반영합니다</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
 </span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.1&#34;</span>
 </span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
@@ -519,7 +523,7 @@
 <h4 id="테스트---추가적인-변경-사항-배포---red-배포">테스트 - 추가적인 변경 사항 배포 - Red 배포</h4>
 <ol>
 <li>
-<p>소스로 돌아가서 코드를 변경(예, Dockerfile의 환경변수 변경)하고 Commit &amp; Push 하여 코드를 반영합니다</p>
+<p>소스로 돌아가서 코드를 변경(예시, Dockerfile의 환경변수 변경)하고 Commit &amp; Push 하여 코드를 반영합니다</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
 </span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.2&#34;</span>
 </span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>

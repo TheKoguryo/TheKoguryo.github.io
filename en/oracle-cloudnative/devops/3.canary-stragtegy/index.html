@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3.3 Deploying as a Canary Deployment Strategy for DevOps Services - TheKoguryo&#39;s Tech Blog</title>
+<meta name="generator" content="Hugo 0.104.3" />
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:title" content="3.3 Deploying as a Canary Deployment Strategy for DevOps Services" />
+<meta property="og:description" content="3.3 Deploying as a canary deployment strategy for DevOps services Use the Code Repository, Build Pipeline, Trigger, etc. created in 2.2 Deploying with Blue/Green Deployment Strategy of DevOps Service.
+In this case, we will create a new Deployment Pipeline with only the deployment strategy where changes occur.
+And change the Deployment Pipeline called in the last step of the Build Pipeline from the old Blue/Green to the Canary Deployment Pipeline." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/" /><meta property="article:section" content="oracle-cloudnative" />
+
+<meta property="article:modified_time" content="2022-04-20T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
+
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s Tech Blog</h1>
+
+ <span class="version">Version 2022.10.11</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/archives">Archives</a></li>
+<li ><a href="/tags">Tag</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">한국어</a>
+</li>
+
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main>
+<div class="panel panel-caution">
+<div class="panel-header">
+    <h3><svg class="svg-inline--fa fa-life-saver fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="life-saver" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><g><path fill="currentColor" d="M156.5,447.7l-12.6,29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7C127.6,430.5,141.5,440,156.5,447.7z M40.6,272H8.5 c1.4,21.2,5.4,41.7,11.7,61.1L50,321.2C45.1,305.5,41.8,289,40.6,272z M40.6,240c1.4-18.8,5.2-37,11.1-54.1l-29.5-12.6 C14.7,194.3,10,216.7,8.5,240H40.6z M64.3,156.5c7.8-14.9,17.2-28.8,28.1-41.5L69.7,92.3c-13.7,15.6-25.5,32.8-34.9,51.5 L64.3,156.5z M397,419.6c-13.9,12-29.4,22.3-46.1,30.4l11.9,29.8c20.7-9.9,39.8-22.6,56.9-37.6L397,419.6z M115,92.4 c13.9-12,29.4-22.3,46.1-30.4l-11.9-29.8c-20.7,9.9-39.8,22.6-56.8,37.6L115,92.4z M447.7,355.5c-7.8,14.9-17.2,28.8-28.1,41.5 l22.7,22.7c13.7-15.6,25.5-32.9,34.9-51.5L447.7,355.5z M471.4,272c-1.4,18.8-5.2,37-11.1,54.1l29.5,12.6 c7.5-21.1,12.2-43.5,13.6-66.8H471.4z M321.2,462c-15.7,5-32.2,8.2-49.2,9.4v32.1c21.2-1.4,41.7-5.4,61.1-11.7L321.2,462z M240,471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6,29.5c21.1,7.5,43.5,12.2,66.8,13.6V471.4z M462,190.8c5,15.7,8.2,32.2,9.4,49.2h32.1 c-1.4-21.2-5.4-41.7-11.7-61.1L462,190.8z M92.4,397c-12-13.9-22.3-29.4-30.4-46.1l-29.8,11.9c9.9,20.7,22.6,39.8,37.6,56.9 L92.4,397z M272,40.6c18.8,1.4,36.9,5.2,54.1,11.1l12.6-29.5C317.7,14.7,295.3,10,272,8.5V40.6z M190.8,50 c15.7-5,32.2-8.2,49.2-9.4V8.5c-21.2,1.4-41.7,5.4-61.1,11.7L190.8,50z M442.3,92.3L419.6,115c12,13.9,22.3,29.4,30.5,46.1 l29.8-11.9C470,128.5,457.3,109.4,442.3,92.3z M397,92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6,29.5 C370.4,72.1,384.4,81.5,397,92.4z"></path><circle fill="currentColor" cx="256" cy="364" r="28"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="r" values="28;14;28;28;14;28;"></animate><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;1;1;0;1;"></animate></circle><path fill="currentColor" opacity="1" d="M263.7,312h-16c-6.6,0-12-5.4-12-12c0-71,77.4-63.9,77.4-107.8c0-20-17.8-40.2-57.4-40.2c-29.1,0-44.3,9.6-59.2,28.7 c-3.9,5-11.1,6-16.2,2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2c21.2-27.2,46.4-44.7,91.2-44.7c52.3,0,97.4,29.8,97.4,80.2 c0,67.6-77.4,63.5-77.4,107.8C275.7,306.6,270.3,312,263.7,312z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;0;0;0;1;"></animate></path><path fill="currentColor" opacity="0" d="M232.5,134.5l7,168c0.3,6.4,5.6,11.5,12,11.5h9c6.4,0,11.7-5.1,12-11.5l7-168c0.3-6.8-5.2-12.5-12-12.5h-23 C237.7,122,232.2,127.7,232.5,134.5z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="0;0;1;1;0;0;"></animate></path></g></svg> Warning</h3>
+</div>
+<div class="panel-body">
+<p>This content has been generated by machine translation. The translations are automated and have not undergone human review or validation. </p>
+</div>
+</div><h1 id="33-deploying-as-a-canary-deployment-strategy-for-devops-services">3.3 Deploying as a canary deployment strategy for DevOps services</h1>
+<p>Use the Code Repository, Build Pipeline, Trigger, etc. created in <a href="2.bluegreen-stragtegy">2.2 Deploying with Blue/Green Deployment Strategy of DevOps Service</a>.</p>
+<p>In this case, we will create a new Deployment Pipeline with only the deployment strategy where changes occur.</p>
+<p>And change the Deployment Pipeline called in the last step of the Build Pipeline from the old Blue/Green to the Canary Deployment Pipeline.</p>
+<h4 id="create-a-canary-deployment-pipeline">Create a Canary Deployment Pipeline</h4>
+<p>It is possible to configure the part corresponding to the CD process of distributing the products built during CI/CD to the actual server through the Deployment Pipeline.</p>
+<p>Deploying to Kubernetes with the canary strategy requires two things: a deployment environment, a Kubernets Manifest file to deploy, and a Kubernetes Namespace to be used for deployment.</p>
+<h5 id="registering-the-kubernetes-environment">Registering the Kubernetes Environment</h5>
+<p>Use the same environment as the Blue/Green deployment lab.</p>
+<h5 id="prepare-the-manifest-file-for-deployment-to-kubernetes">Prepare the manifest file for deployment to Kubernetes</h5>
+<p>Use the same files as the Blue/Green deployment exercise.</p>
+<h5 id="create-a-namespace-to-deploy-to-kubernetes">Create a namespace to deploy to Kubernetes</h5>
+<p>We need two namespaces where the test version and the live service will be deployed.</p>
+<ol>
+<li>
+<p>Connect to the environment where the kubectl command can be executed through Cloud Shell.</p>
+</li>
+<li>
+<p>Create two namespaces.</p>
+<ul>
+<li>
+<p>Ex) ns-canary-stage, ns-canary-prod</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create ns ns-canary-stage
+</span></span><span class="line"><span class="cl">kubectl create ns ns-canary-prod
+</span></span></code></pre></div></li>
+<li>
+<p>Pre-delete the old namespace for Blue/Green for smooth testing.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl delete ns ns-blue
+</span></span><span class="line"><span class="cl">kubectl delete ns ns-green
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Import images from OCIR</p>
+<blockquote>
+<p>If OCIR repository land (eg, webpage) does not exist in advance, it is created in a private form in the Root Compartment. To import from OKE, either create an imagepullsecret in each namespace in advance, or create a public repository in advance.</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="create-a-kubernetes-deployment-stage-with-canary-strategy">Create a Kubernetes deployment stage with canary strategy</h5>
+<ol>
+<li>
+<p>Go to <strong>Projects page</strong> and go to <strong>Deployment Pipelines</strong> in the left menu.</p>
+</li>
+<li>
+<p>Click <strong>Create pipeline</strong> to create the pipeline.</p>
+<ul>
+<li>Name: Ex) webpage-canary-deployment-pipeline</li>
+</ul>
+</li>
+<li>
+<p>Click the created pipeline to add the <strong>Canary Strategy</strong> Stage.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421121836306.png" alt='image-20220421121836306' onerror="this.onerror=null;this.src='images\/image-20220421121836306.png';" />
+</p>
+</li>
+<li>
+<p>Select the deployment type as OKE, and select the deployment environment and manifest file.</p>
+</li>
+<li>
+<p>Make additional settings for canary deployment.</p>
+<ul>
+<li>
+<p><strong>Canary namespace</strong>: Enter the namespace name where the test version will be deployed.</p>
+<ul>
+<li>Ex) ns-canary-stage</li>
+</ul>
+</li>
+<li>
+<p><strong>NGINX ingress namespace</strong>: Enter the ingress resource name of the deployment app defined in the deployment manifest file.</p>
+</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421122128866.png" alt='image-20220421122128866' onerror="this.onerror=null;this.src='images\/image-20220421122128866.png';" />
+</p>
+</li>
+<li>
+<p>Shift traffic: Add a stage for traffic diversion.</p>
+<ul>
+<li>Name: Ex) shift-traffic-stage</li>
+<li><strong>Ramp Limit</strong>: Enter the percentage of the total request to be delivered to the test version. Ex) 25 percent</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421122426742.png" alt='image-20220421122426742' onerror="this.onerror=null;this.src='images\/image-20220421122426742.png';" />
+</p>
+</li>
+<li>
+<p>Approval: Automatically proceed up to deployment, and add to divert traffic after approval. You can think of it as a traffic changeover switch.</p>
+<ul>
+<li>Name: Ex) approval-stage</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421122801280.png" alt='image-20220421122801280' onerror="this.onerror=null;this.src='images\/image-20220421122801280.png';" />
+</p>
+</li>
+<li>
+<p>Production canary</p>
+<ol>
+<li>Name: Ex) switch-to-production-stage</li>
+<li><strong>Production namespace</strong>: Enter the namespace name where the actual service version will be deployed.
+<ul>
+<li>Ex) ns-canary-prod</li>
+</ul>
+</li>
+</ol>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421122913960.png" alt='image-20220421122913960' onerror="this.onerror=null;this.src='images\/image-20220421122913960.png';" />
+</p>
+</li>
+<li>
+<p>Once the setup is complete, the following pipeline is complete.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421123142650.png" alt='image-20220421123142650' onerror="this.onerror=null;this.src='images\/image-20220421123142650.png';" />
+</p>
+</li>
+</ol>
+<h4 id="calling-deployment-pipeline-from-build-pipeline">Calling Deployment Pipeline from Build Pipeline</h4>
+<p>After the Build Pipeline we created earlier is finished, we add a call to the Deployment Pipeline so that it can be deployed.</p>
+<ol>
+<li>
+<p>Go to the <strong>Build Pipelines</strong> you created earlier.</p>
+</li>
+<li>
+<p>At the end of the pipeline, right-click the three dots on the Trigger Deployment Stage &gt; select View details.</p>
+</li>
+<li>
+<p>Choose <strong>Edit Stage</strong> to edit.</p>
+</li>
+<li>
+<p>Click Select deployment pipeline to save the changes to the newly created Deployment Pipeline for Canary deployment.</p>
+</li>
+<li>
+<p>The whole flow of post-build deployment is complete.</p>
+</li>
+</ol>
+<h4 id="testing---first-app-deployment">Testing - first app deployment</h4>
+<ol>
+<li>
+<p>Random changes are made to the oci-devops-oke-webpage source code specified in Trigger and reflected in the Code Repository.</p>
+</li>
+<li>
+<p>Go to Cloud Shell with the code you are working on.</p>
+</li>
+<li>
+<p>You can change html/index.html, but for convenience, change the Dockerfile set as an environment variable.</p>
+</li>
+<li>
+<p>Changes are made based on the current setting, and the code is committed and then pushed.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.0&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;blue&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>It becomes a Trigger and the build starts.</p>
+</li>
+<li>
+<p>The build succeeds, the deployment pipeline runs, and waits in approval-stage.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421124924679.png" alt='image-20220421124924679' onerror="this.onerror=null;this.src='images\/image-20220421124924679.png';" />
+</p>
+</li>
+<li>
+<p>Check the Kubernetes deployment status. You can see that it is deployed only to ns-canary-stage.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-7bjk2   1/1     Running   <span class="m">0</span>          4m24s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-d8pwq   1/1     Running   <span class="m">0</span>          4m24s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-v76nt   1/1     Running   <span class="m">0</span>          4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+</span></span><span class="line"><span class="cl">service/webpage-service   ClusterIP   10.96.35.238   &lt;none&gt;        8080/TCP   4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/webpage-deployment   3/3     <span class="m">3</span>            <span class="m">3</span>           4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                           DESIRED   CURRENT   READY   AGE
+</span></span><span class="line"><span class="cl">replicaset.apps/webpage-deployment-9bff68bcf   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       4m24s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                        CLASS    HOSTS   ADDRESS          PORTS   AGE
+</span></span><span class="line"><span class="cl">ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.147   <span class="m">80</span>      4m23s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-prod
+</span></span><span class="line"><span class="cl">No resources found in ns-canary-prod namespace.
+</span></span></code></pre></div></li>
+<li>
+<p>Return to the running deployment pipeline and approve in approval-stage.</p>
+</li>
+<li>
+<p>If approved, it will also be deployed to the Procution namespace, ns-canary-prod.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-7bjk2   1/1     Running   <span class="m">0</span>          8m2s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-d8pwq   1/1     Running   <span class="m">0</span>          8m2s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-v76nt   1/1     Running   <span class="m">0</span>          8m2s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get all,ingress -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                     READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-4v962   1/1     Running   <span class="m">0</span>          2m14s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-9w7d5   1/1     Running   <span class="m">0</span>          2m14s
+</span></span><span class="line"><span class="cl">pod/webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span>          2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                      TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+</span></span><span class="line"><span class="cl">service/webpage-service   ClusterIP   10.96.132.13   &lt;none&gt;        8080/TCP   2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/webpage-deployment   3/3     <span class="m">3</span>            <span class="m">3</span>           2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                           DESIRED   CURRENT   READY   AGE
+</span></span><span class="line"><span class="cl">replicaset.apps/webpage-deployment-9bff68bcf   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       2m14s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                        CLASS    HOSTS   ADDRESS          PORTS   AGE
+</span></span><span class="line"><span class="cl">ingress.networking.k8s.io/webpage-ingress   &lt;none&gt;   *       146.56.118.147   <span class="m">80</span>      2m13s
+</span></span></code></pre></div></li>
+<li>
+<p>If you access the webpage through the Ingress address, you can see that the Blue app is currently working well.</p>
+<ul>
+<li>Address example) http://146.56.118.147/webpage</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421125634335.png" alt='image-20220421125634335' onerror="this.onerror=null;this.src='images\/image-20220421125634335.png';" />
+</p>
+</li>
+</ol>
+<h4 id="test---deploy-new-version---green-version">Test - Deploy new version - Green version</h4>
+<ol>
+<li>
+<p>Go back to the source and change the code (e.g., change the environment variable of Dockerfile) and apply the code by Commit &amp; Push</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.1&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;green&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Rebuild, wait for the deployment pipeline to run and stop at approval-stage.</p>
+</li>
+<li>
+<p>Check the Kubernetes deployment status.</p>
+<p>You can see that a new version has been deployed to ns-canary-stage.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-2hqm6   1/1     Running   <span class="m">0</span>          2m33s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-dtl99   1/1     Running   <span class="m">0</span>          2m19s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-rqtpg   1/1     Running   <span class="m">0</span>          2m26s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                 READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-9bff68bcf-4v962   1/1     Running   <span class="m">0</span>          13m
+</span></span><span class="line"><span class="cl">webpage-deployment-9bff68bcf-9w7d5   1/1     Running   <span class="m">0</span>          13m
+</span></span><span class="line"><span class="cl">webpage-deployment-9bff68bcf-tqcck   1/1     Running   <span class="m">0</span>          13m
+</span></span></code></pre></div></li>
+<li>
+<p>If you look at the annotations of webpage-ingress in ns-canary-stage, you can see that <strong>canary-weight:</strong> has been changed to “<strong>25</strong>”.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Access the web page. Requested with a new version in ns-canary-stage with a 25% chance.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131352915.png" alt='image-20220421131352915' onerror="this.onerror=null;this.src='images\/image-20220421131352915.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131352915.png" alt='image-20220421131352915' onerror="this.onerror=null;this.src='images\/image-20220421131352915.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131352915.png" alt='image-20220421131352915' onerror="this.onerror=null;this.src='images\/image-20220421131352915.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131421587.png" alt='image-20220421131421587' onerror="this.onerror=null;this.src='images\/image-20220421131421587.png';" />
+</p>
+</li>
+<li>
+<p>Go back to the running deployment pipeline and approve in approval-stage.</p>
+</li>
+<li>
+<p>Check the Kubernetes deployment status again.</p>
+<p>ns-canary-stage remains the same, and you can see that a new version has been deployed with ns-canary-prod.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-2hqm6   1/1     Running   <span class="m">0</span>          19m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-dtl99   1/1     Running   <span class="m">0</span>          18m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-rqtpg   1/1     Running   <span class="m">0</span>          19m
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-fxnf8   1/1     Running   <span class="m">0</span>          117s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-lm44m   1/1     Running   <span class="m">0</span>          2m4s
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>          <span class="m">111</span>
+</span></span></code></pre></div></li>
+<li>
+<p>If you look at the annotations of webpage-ingress in ns-canary-stage, you can see that <strong>canary-weight:</strong> has been changed to “<strong>0</strong>”.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;0&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-prod -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Access the web page. Now the new version is only requested towards the deployed ns-canary-prod.</p>
+<p>On the ns-canary-stage side, there is no request even if you check the access log.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131421587.png" alt='image-20220421131421587' onerror="this.onerror=null;this.src='images\/image-20220421131421587.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131421587.png" alt='image-20220421131421587' onerror="this.onerror=null;this.src='images\/image-20220421131421587.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131421587.png" alt='image-20220421131421587' onerror="this.onerror=null;this.src='images\/image-20220421131421587.png';" />
+
+
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421131421587.png" alt='image-20220421131421587' onerror="this.onerror=null;this.src='images\/image-20220421131421587.png';" />
+</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl logs -lapp<span class="o">=</span>webpage -n ns-canary-stage -f
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ol>
+<h4 id="test---deploy-additional-changes---red-deploy">Test - Deploy Additional Changes - Red Deploy</h4>
+<ol>
+<li>
+<p>Go back to the source and change the code (e.g., change the environment variable of Dockerfile) and apply the code by Commit &amp; Push</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ENV <span class="nv">VERSION</span><span class="o">=</span><span class="s2">&#34;2.2&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">MESSAGE</span><span class="o">=</span><span class="s2">&#34;Hello OCI DevOps Canary&#34;</span>
+</span></span><span class="line"><span class="cl">ENV <span class="nv">BACKGROUND</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Rebuild, wait for the deployment pipeline to run and stop at approval-stage.</p>
+</li>
+<li>
+<p>Check the Kubernetes deployment status.</p>
+<p>You can see that a new version has been deployed to ns-canary-stage.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-stage
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-79fd4f869b-2kvn4   1/1     Running   <span class="m">0</span>          98s
+</span></span><span class="line"><span class="cl">webpage-deployment-79fd4f869b-khbvk   1/1     Running   <span class="m">0</span>          110s
+</span></span><span class="line"><span class="cl">webpage-deployment-79fd4f869b-vwzmn   1/1     Running   <span class="m">0</span>          91s
+</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get pod -n ns-canary-prod
+</span></span><span class="line"><span class="cl">NAME                                  READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-fxnf8   1/1     Running   <span class="m">0</span>          23m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-lm44m   1/1     Running   <span class="m">0</span>          23m
+</span></span><span class="line"><span class="cl">webpage-deployment-6d8b64947b-zv8p8   1/1     Running   <span class="m">0</span>          23m
+</span></span></code></pre></div></li>
+<li>
+<p>If you look at the annotations of webpage-ingress in ns-canary-stage, you can see that <strong>canary-weight:</strong> has been changed to “<strong>25</strong>”.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;25&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Access the web page. Requested with a new version in ns-canary-stage with a 25% chance.</p>
+</li>
+<li>
+<p>After approval in approval-stage, the new version is distributed to ns-canary-prod in the same way as before, and all requests are forwarded to the new version.</p>
+</li>
+<li>
+<p>If the approval-stage rejects, the weight on the ns-canary-stage side is changed to <strong>canary-weight:</strong> &ldquo;<strong>0</strong>&rdquo;, and the request for the test version is stopped.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421140427539.png" alt='image-20220421140427539' onerror="this.onerror=null;this.src='images\/image-20220421140427539.png';" />
+</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox-945115 oci-devops-oke-webpage<span class="o">]</span>$ kubectl get ingress webpage-ingress -n ns-canary-stage -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: networking.k8s.io/v1
+</span></span><span class="line"><span class="cl">kind: Ingress
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  annotations:
+</span></span><span class="line"><span class="cl">    kubernetes.io/ingress.class: nginx
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary: <span class="s2">&#34;true&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-by-header: redirect-to-canary
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/canary-weight: <span class="s2">&#34;0&#34;</span>
+</span></span><span class="line"><span class="cl">    nginx.ingress.kubernetes.io/rewrite-target: /<span class="nv">$2</span>
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ol>
+<h4 id="test---rollback">test - rollback</h4>
+<p>If a problem occurs while servicing the new version, rollback to the previous version is available.</p>
+<ol>
+<li>
+<p>Navigate to the deployment pipeline that deployed the current version in the deployment history.</p>
+</li>
+<li>
+<p>From the Traffic Shift menu, click <strong>Revert traffic shift</strong>.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421142926469.png" alt='image-20220421142926469' onerror="this.onerror=null;this.src='images\/image-20220421142926469.png';" />
+</p>
+</li>
+<li>
+<p>Choose what to restore during history.</p>
+<ul>
+<li>
+<p>Choose from history</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421144936135.png" alt='image-20220421144936135' onerror="this.onerror=null;this.src='images\/image-20220421144936135.png';" />
+</p>
+</li>
+<li>
+<p>I want to know which one to choose, but let&rsquo;s choose first.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421145320151.png" alt='image-20220421145320151' onerror="this.onerror=null;this.src='images\/image-20220421145320151.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Manual rollback operation is complete.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421145930115.png" alt='image-20220421145930115' onerror="this.onerror=null;this.src='images\/image-20220421145930115.png';" />
+</p>
+</li>
+<li>
+<p>When you access the webpage, you can see that you have returned to the previous app.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20220421150130933.png" alt='image-20220421150130933' onerror="this.onerror=null;this.src='images\/image-20220421150130933.png';" />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+<div class="panel-body">
+<p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions. </p>
+</div>
+</div>
+
+ <div class="edit-meta">Last updated on 20 Apr 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/" title="3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/" title="3.4 Automating Deployments with Helm Charts via DevOps Services">Next - 3.4 Automating Deployments with Helm Charts via DevOps Services <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/">
+    OCI(Oracle Cloud Infrastructure)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter01/">
+    1. OCI Basic Concept
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/2/">1.2 Fault Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/3/">1.3 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/6/">1.6 Map of offerings between cloud service providers</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter02/">
+    2. Get started with OCI Services
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/1/">2.1 Creating an Oracle Cloud Free Tier Account</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/2/">2.2 Connecting to the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/3/">2.3 Using the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/4/">2.4 Initial Cloud Account (Tenancy) Architecture</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/">
+    3. Use the OCI Compute VM
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/1/">3.1 Creating a Work Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/2/">3.2 Creating a VCN for a Virtual Network Environment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/3/">3.3 Creating a Key Pair for SSH Connections</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/4/">3.4 Creating a Linux Instance</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/5/">
+    3.5 Connecting to a Linux Instance
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/1/">3.5.1 Access from Linux, Mac</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/2/">3.5.2 Connecting to PuTTY on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/3/">3.5.3 Changing the PEM &lt;-&gt; PPK Format</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/6/">
+    3.6 Block Volume like hard drive
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/1/">3.6.1 Creating a Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/2/">3.6.2 Mounting Block Volume to Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">3.6.3 Connecting to Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">3.6.4 Formatting Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">3.6.5 Mount Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">3.6.6 Unmounting Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/7/">3.6.7 Deleting Block Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/7/">
+    3.7 Utilizing Block Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/1/">3.7.1 Backing up Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/2/">3.7.2 Creating a New Volume from Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/3/">3.7.3 Copying Backups to Another Region</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/4/">3.7.4 Backing up Policy-Based Block Volumes</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/8/">
+    3.8 Utilizing Boot Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/1/">3.8.1 Backing Up Boot Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/2/">3.8.2 Creating a New Boot Volume from a Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/3/">3.8.3 Creating a New Instance with Boot Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter04/">
+    4. Reserved Public IP for Static IP Allocation
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/1/">4.1 Creating a Reserved Public IP</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/2/">4.2 Allocating Reserved Public IP</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter05/">
+    5. Using Security Lists to Configure Firewalls
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/1/">5.1 Installing Apache HTTP Server on Linux Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/2/">5.2 Updating the Default Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/3/">5.3 Adding a Custom Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/4/">5.4 Testing Apache HTTP Server Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter06/">
+    6. Using IAM to Set User Permissions
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/1/">6.1 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/2/">6.2 Creating Users</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/3/">6.3 Creating Groups</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/4/">6.4 Creating a Policy</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/5/">6.5 Grabbing the Policy Concept</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter07/">
+    7. Using Object Storage
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/1/">7.1 Creating a Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/2/">7.2 Uploading Files to Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/3/">7.3 Object Permission Management - Pre-authentication</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/4/">7.4 Object Rights Management - Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/5/">7.5 Hosting Static Websites with Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/6/">7.6 Uploading Files via CloudBerry Explorer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/7/">7.7 Setting up an Archive via Lifecycle</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter08/">
+    8. Using File Storage, a Network File System
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/1/">8.1 Example File Storage Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/2/">8.2 Mounting and using FSS on a Linux VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/3/">8.3 Export Option for Access Control</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/4/">8.4 Snapshot for Backup</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter09/">
+    9. Machine Image
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/1/">9.1 OS Image provided by default</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/2/">9.2 Create Custom Image from Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter10/">
+    10. Using Load Balancer for High Availability
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/1/">10.1 Load Balancer Configuration Example</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/2/">10.2 VCN Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/3/">10.3 Creating a Backend Web Server</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/4/">10.4 Creating a Subnet for a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/5/">10.5 Creating a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/6/">10.6 Checking the Load Balancer Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter11/">
+    11. Domain Name System (DNS)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter11/1/">11.1 Mapping with Domain Names</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/">
+    12. Monitoring for OCI resource monitoring
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/1/">12.1 Enabling Compute Instance Monitoring</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/2/">12.2 Creating Monitoring Alarm</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/3/">
+    12.3 OCI Grafana Plugin
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/1/">12.3.1 Installing Grafana on Compute VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/2/">12.3.2 Grafana Configuration</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter13/">
+    13. Autoscaling Based on Metric
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/1/">13.1 Preparation for Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/2/">13.2 Configuring Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/3/">13.3 Autoscaling Test</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/">
+    14. Using Developer Tools
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/">
+    14.1 OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/">
+    14.1.1 Installing the OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/1/">14.1.1.1 Installing OCI CLI on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/2/">14.1.1.2 Installing OCI CLI on Linux</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/3/">14.1.1.3 Config File Settings</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/4/">14.1.1.4 Registering API Public Key</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/5/">14.1.1.5 Verifying OCI CLI Installation</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/">
+    14.1.2 Using Object Storage as CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/1/">14.1.2.1 Setting IAM Policy for Object Storage</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">14.1.2.2 File Upload via CLI</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/2/">
+    14.2 Terraform
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/1/">14.2.1 Installing Terraform</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/2/">14.2.2 Creating Terraform Configurations</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/3/">14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/4/">14.2.4 Running Terraform Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/5/">14.2.5 Using workspaces for multiple environments</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">14.2.6 Example, Creating Users Using List and Count</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/7/">14.2.7 OCI Terraform Usage Example</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/">
+    14.3 REST API
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">14.3.2 Bash Sample Client</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/3/">14.3.3 Insomnia - Calling the OCI REST API</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/4/">14.3.4 Postman - Calling the OCI REST API</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter15/">
+    15. Using Resource Manager
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/1/">15.1 Using the Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/2/">15.2 Stack Template for Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/3/">15.3 Configuring a Private Git Server for Resource Manager</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/">
+    Oracle Cloud Native
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/">
+    1. Using Managed Kubernetes OKE
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/">1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 Creating an OKE Cluster</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 Connecting the OKE Cluster
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Connecting to a Cluster with Cloud Shell</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 Connecting to a Cluster in a Local Environment</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 Deploying Apps and Using Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 Using OCIR Images</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Using Persistent Volumes
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Using Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 Using File Storage</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Upgrading the Kubernetes Version</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/">
+    2. Using OCIR, a container registry
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/">2.1 Scanning Container Images</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/">2.2 Using Helm Chart Repository</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/">
+    3. Using OCI DevOps Services as CI/CD
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 Automating Deployments with Helm Charts via DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

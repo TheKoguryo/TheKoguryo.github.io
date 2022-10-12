@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>4.4.2 Applying Service Mesh - Istio to Microservices Apps - TheKoguryo&#39;s Tech Blog</title>
+<meta name="generator" content="Hugo 0.104.3" />
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:title" content="4.4.2 Applying Service Mesh - Istio to Microservices Apps" />
+<meta property="og:description" content="4.4.2 Applying Service Mesh - Istio to microservices apps Installation is possible with istioctl, Helm, or manual. Here, we will install the istioctl standard described as an example in the OKE document and check that it is applied to the service according to the Istio document.
+Official documentation https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengistio-intro-topic.htm https://istio.io/latest/docs/examples/microservices-istio/add-istio/ Install Istio Connect to Cloud Shell or work environment.
+Download Istio
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.12.1 TARGET_ARCH=x86_64 sh - Go to the Istio route" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/" /><meta property="article:section" content="oracle-cloudnative" />
+
+<meta property="article:modified_time" content="2021-12-21T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
+
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s Tech Blog</h1>
+
+ <span class="version">Version 2022.10.11</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/archives">Archives</a></li>
+<li ><a href="/tags">Tag</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">한국어</a>
+</li>
+
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main>
+<div class="panel panel-caution">
+<div class="panel-header">
+    <h3><svg class="svg-inline--fa fa-life-saver fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="life-saver" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><g><path fill="currentColor" d="M156.5,447.7l-12.6,29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7C127.6,430.5,141.5,440,156.5,447.7z M40.6,272H8.5 c1.4,21.2,5.4,41.7,11.7,61.1L50,321.2C45.1,305.5,41.8,289,40.6,272z M40.6,240c1.4-18.8,5.2-37,11.1-54.1l-29.5-12.6 C14.7,194.3,10,216.7,8.5,240H40.6z M64.3,156.5c7.8-14.9,17.2-28.8,28.1-41.5L69.7,92.3c-13.7,15.6-25.5,32.8-34.9,51.5 L64.3,156.5z M397,419.6c-13.9,12-29.4,22.3-46.1,30.4l11.9,29.8c20.7-9.9,39.8-22.6,56.9-37.6L397,419.6z M115,92.4 c13.9-12,29.4-22.3,46.1-30.4l-11.9-29.8c-20.7,9.9-39.8,22.6-56.8,37.6L115,92.4z M447.7,355.5c-7.8,14.9-17.2,28.8-28.1,41.5 l22.7,22.7c13.7-15.6,25.5-32.9,34.9-51.5L447.7,355.5z M471.4,272c-1.4,18.8-5.2,37-11.1,54.1l29.5,12.6 c7.5-21.1,12.2-43.5,13.6-66.8H471.4z M321.2,462c-15.7,5-32.2,8.2-49.2,9.4v32.1c21.2-1.4,41.7-5.4,61.1-11.7L321.2,462z M240,471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6,29.5c21.1,7.5,43.5,12.2,66.8,13.6V471.4z M462,190.8c5,15.7,8.2,32.2,9.4,49.2h32.1 c-1.4-21.2-5.4-41.7-11.7-61.1L462,190.8z M92.4,397c-12-13.9-22.3-29.4-30.4-46.1l-29.8,11.9c9.9,20.7,22.6,39.8,37.6,56.9 L92.4,397z M272,40.6c18.8,1.4,36.9,5.2,54.1,11.1l12.6-29.5C317.7,14.7,295.3,10,272,8.5V40.6z M190.8,50 c15.7-5,32.2-8.2,49.2-9.4V8.5c-21.2,1.4-41.7,5.4-61.1,11.7L190.8,50z M442.3,92.3L419.6,115c12,13.9,22.3,29.4,30.5,46.1 l29.8-11.9C470,128.5,457.3,109.4,442.3,92.3z M397,92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6,29.5 C370.4,72.1,384.4,81.5,397,92.4z"></path><circle fill="currentColor" cx="256" cy="364" r="28"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="r" values="28;14;28;28;14;28;"></animate><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;1;1;0;1;"></animate></circle><path fill="currentColor" opacity="1" d="M263.7,312h-16c-6.6,0-12-5.4-12-12c0-71,77.4-63.9,77.4-107.8c0-20-17.8-40.2-57.4-40.2c-29.1,0-44.3,9.6-59.2,28.7 c-3.9,5-11.1,6-16.2,2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2c21.2-27.2,46.4-44.7,91.2-44.7c52.3,0,97.4,29.8,97.4,80.2 c0,67.6-77.4,63.5-77.4,107.8C275.7,306.6,270.3,312,263.7,312z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;0;0;0;1;"></animate></path><path fill="currentColor" opacity="0" d="M232.5,134.5l7,168c0.3,6.4,5.6,11.5,12,11.5h9c6.4,0,11.7-5.1,12-11.5l7-168c0.3-6.8-5.2-12.5-12-12.5h-23 C237.7,122,232.2,127.7,232.5,134.5z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="0;0;1;1;0;0;"></animate></path></g></svg> Warning</h3>
+</div>
+<div class="panel-body">
+<p>This content has been generated by machine translation. The translations are automated and have not undergone human review or validation. </p>
+</div>
+</div><h1 id="442-applying-service-mesh---istio-to-microservices-apps">4.4.2 Applying Service Mesh - Istio to microservices apps</h1>
+<p>Installation is possible with istioctl, Helm, or manual. Here, we will install the istioctl standard described as an example in the OKE document and check that it is applied to the service according to the Istio document.</p>
+<ul>
+<li>Official documentation
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengistio-intro-topic.htm">https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengistio-intro-topic.htm</a></li>
+<li><a href="https://istio.io/latest/docs/examples/microservices-istio/add-istio/">https://istio.io/latest/docs/examples/microservices-istio/add-istio/</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="install-istio">Install Istio</h2>
+<ol>
+<li>
+<p>Connect to Cloud Shell or work environment.</p>
+</li>
+<li>
+<p>Download Istio</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -L https://istio.io/downloadIstio <span class="p">|</span> <span class="nv">ISTIO_VERSION</span><span class="o">=</span>1.12.1 <span class="nv">TARGET_ARCH</span><span class="o">=</span>x86_64 sh -
+</span></span></code></pre></div></li>
+<li>
+<p>Go to the Istio route</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">cd</span> istio-1.12.1
+</span></span></code></pre></div></li>
+<li>
+<p>Add to PATH environment variable</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PWD</span>/bin:<span class="nv">$PATH</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Run pre-verification</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">istioctl x precheck
+</span></span></code></pre></div></li>
+<li>
+<p>Installation</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">istioctl install --set <span class="nv">profile</span><span class="o">=</span>demo
+</span></span></code></pre></div></li>
+<li>
+<p>Scale</p>
+<p>Scale beyond 2 to account for upgrades that are set to pod&rsquo;s disruption budget default of 1.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istio-egressgateway
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istio-ingressgateway
+</span></span><span class="line"><span class="cl">kubectl scale --replicas<span class="o">=</span><span class="m">2</span> deployment -n istio-system istiod
+</span></span></code></pre></div></li>
+</ol>
+<h2 id="istio-enable">Istio Enable</h2>
+<h3 id="productpage-service-istio-enable">productpage service Istio Enable</h3>
+<ol>
+<li>
+<p>Redistributing by adding Istio sidecar</p>
+<p>Add sidecar to productpage app only with istioctl kube-inject command.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> sed <span class="s1">&#39;s/replicas: 1/replicas: 3/g&#39;</span> <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>productpage,version<span class="o">=</span>v1 -f -
+</span></span></code></pre></div></li>
+<li>
+<p>Check the results</p>
+<p>You can see that the istio-proxy container has been added in the product Pod.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-29z48     1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-d5lfq     1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">details-v1-79f774bdb9-sqp9p     1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-6g754   2/2     Running   <span class="m">0</span>          16s
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-r9l8l   2/2     Running   <span class="m">0</span>          19s
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-sz9mf   2/2     Running   <span class="m">0</span>          14s
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-6xlq7       1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-j2l78       1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">ratings-v1-b6994bb9-w748t       1/1     Running   <span class="m">0</span>          89m
+</span></span><span class="line"><span class="cl">reviews-v2-7bf8c9648f-4rh4z     1/1     Running   <span class="m">0</span>          7m16s
+</span></span><span class="line"><span class="cl">reviews-v2-7bf8c9648f-6vhlq     1/1     Running   <span class="m">0</span>          7m18s
+</span></span><span class="line"><span class="cl">reviews-v2-7bf8c9648f-8zjcw     1/1     Running   <span class="m">0</span>          7m16s
+</span></span><span class="line"><span class="cl">sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          12m
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe pod productpage-v1-c6885474-6g75
+</span></span><span class="line"><span class="cl">Name:         productpage-v1-c6885474-6g754
+</span></span><span class="line"><span class="cl">Namespace:    default
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Containers:
+</span></span><span class="line"><span class="cl">  productpage:
+</span></span><span class="line"><span class="cl">    Container ID:   cri-o://95f68b2fcb5e8168879e1a5703bf520a94729664cc410edbe0d3255113344149
+</span></span><span class="line"><span class="cl">    Image:          docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">  istio-proxy:
+</span></span><span class="line"><span class="cl">    Container ID:  cri-o://74f2707caa99b8b12b3e293a129f74234c5ac1ab36729f70045de640eeb2b4b4
+</span></span><span class="line"><span class="cl">    Image:         docker.io/istio/proxyv2:1.12.1    
+</span></span><span class="line"><span class="cl">    ...
+</span></span></code></pre></div></li>
+<li>
+<p>Access the productpage page as before.</p>
+<ul>
+<li>http://{productpage external ip}:9080/productpage</li>
+</ul>
+</li>
+<li>
+<p>Check the istio-proxy log</p>
+<p>You can see that the web page is accessed as before and additionally goes through istio-proxy.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl logs -l <span class="nv">app</span><span class="o">=</span>productpage -c istio-proxy -f
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2021-12-20T09:16:54.826Z<span class="o">]</span> <span class="s2">&#34;GET /details/0 HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">178</span> <span class="m">2</span> <span class="m">2</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;details:9080&#34;</span> <span class="s2">&#34;10.244.2.43:9080&#34;</span> outbound<span class="p">|</span>9080<span class="o">||</span>details.default.svc.cluster.local 10.244.2.149:41122 10.96.175.211:9080 10.244.2.149:55324 - default
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2021-12-20T09:16:54.842Z<span class="o">]</span> <span class="s2">&#34;GET /reviews/0 HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">379</span> <span class="m">591</span> <span class="m">591</span> <span class="s2">&#34;-&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;reviews:9080&#34;</span> <span class="s2">&#34;10.244.2.51:9080&#34;</span> outbound<span class="p">|</span>9080<span class="o">||</span>reviews.default.svc.cluster.local 10.244.2.149:45512 10.96.197.86:9080 10.244.2.149:35752 - default
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2021-12-20T09:16:54.820Z<span class="o">]</span> <span class="s2">&#34;GET /productpage HTTP/1.1&#34;</span> <span class="m">200</span> - via_upstream - <span class="s2">&#34;-&#34;</span> <span class="m">0</span> <span class="m">5183</span> <span class="m">616</span> <span class="m">615</span> <span class="s2">&#34;10.179.87.76&#34;</span> <span class="s2">&#34;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36&#34;</span> <span class="s2">&#34;adeb5dbb-261c-9982-9d66-523cc3890e2b&#34;</span> <span class="s2">&#34;146.56.142.95:9080&#34;</span> <span class="s2">&#34;10.244.2.149:9080&#34;</span> inbound<span class="p">|</span>9080<span class="o">||</span> 127.0.0.6:41867 10.244.2.149:9080 10.179.87.76:0 - default
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="full-service-istio-enable">Full Service Istio Enable</h3>
+<ol>
+<li>
+<p>Enable Istio for Review v2 and other services with the following command.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l app!<span class="o">=</span>reviews -f -
+</span></span><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v2 -f -
+</span></span></code></pre></div></li>
+<li>
+<p>Execution result</p>
+<p>If Istio-proxy is added and you see 2 containers per Pod, bookinfo.yaml is reapplied to note that replica=1.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">details-v1-5c6d488c49-ltw8r     2/2     Running   <span class="m">0</span>          69s
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-6g754   2/2     Running   <span class="m">0</span>          15h
+</span></span><span class="line"><span class="cl">ratings-v1-7dfc8d4bbf-p8n2f     2/2     Running   <span class="m">0</span>          68s
+</span></span><span class="line"><span class="cl">reviews-v2-5ff75858c7-zhn57     2/2     Running   <span class="m">0</span>          64s
+</span></span><span class="line"><span class="cl">sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          16h
+</span></span></code></pre></div></li>
+<li>
+<p>Note</p>
+<p>If you label istio-injection as shown below, pods deployed in that namespace will automatically have istio sidecar added.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl label namespace &lt;NAMESPACE_NAME&gt; istio-injection<span class="o">=</span>enabled
+</span></span></code></pre></div></li>
+</ol>
+<h2 id="set-up-istio-ingress-gateway">Set up Istio Ingress Gateway</h2>
+<p>Earlier in another chapter, we used the nginx ingress controller as the Ingress Controller. To control microservices, configure Istio&rsquo;s Ingress Gateway for services.</p>
+<ul>
+<li>
+<p>References</p>
+<ul>
+<li><a href="https://istio.io/latest/docs/examples/microservices-istio/istio-ingress-gateway/">https://istio.io/latest/docs/examples/microservices-istio/istio-ingress-gateway/</a></li>
+</ul>
+</li>
+<li>
+<p>Gateway: Describes the load balancer information for incoming and outgoing traffic to and from the service mesh.</p>
+</li>
+<li>
+<p>VirtualService: Specifies routing rules for traffic.</p>
+</li>
+</ul>
+<ol>
+<li>
+<p>Create an Istio Ingress Gateway for the example book-info with the contents below.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl apply -f - &lt;&lt;EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">bookinfo-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w"> </span><span class="c"># use Istio default gateway implementation</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;*&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">bookinfo</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;*&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">bookinfo-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">match</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/productpage</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/login</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">exact</span><span class="p">:</span><span class="w"> </span><span class="l">/logout</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">uri</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l">/static</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">productpage</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">9080</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Check the IP for access through the Istio Ingress Gateway.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get svc -n istio-system
+</span></span><span class="line"><span class="cl">NAME                   TYPE           CLUSTER-IP     EXTERNAL-IP     PORT<span class="o">(</span>S<span class="o">)</span>                                                                      AGE
+</span></span><span class="line"><span class="cl">istio-egressgateway    ClusterIP      10.96.59.144   &lt;none&gt;          80/TCP,443/TCP                                                               66m
+</span></span><span class="line"><span class="cl">istio-ingressgateway   LoadBalancer   10.96.150.51   146.56.186.52   15021:32250/TCP,80:32707/TCP,443:32572/TCP,31400:32532/TCP,15443:31522/TCP   66m
+</span></span><span class="line"><span class="cl">istiod                 ClusterIP      10.96.188.42   &lt;none&gt;          15010/TCP,15012/TCP,443/TCP,15014/TCP                                        66m
+</span></span></code></pre></div></li>
+<li>
+<p>Check the connection</p>
+<ul>
+<li>Example, http://146.56.186.52:80/productpage</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221112639038.png" alt='image-20211221112639038' onerror="this.onerror=null;this.src='images\/image-20211221112639038.png';" />
+</p>
+</li>
+</ol>
+<h2 id="metric-monitoring">Metric monitoring</h2>
+<ol>
+<li>
+<p>Install Prometheus &amp; Grafana</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/prometheus.yaml
+</span></span><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/grafana.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>External access to the installed Grafana dashboard</p>
+<ul>
+<li>Option #1:
+<ul>
+<li>You can connect through a local proxy with the istioctl dashboard grafana command. Cloud Shell does not allow public IP and external access, so if external access is required, relevant settings are required.</li>
+</ul>
+</li>
+<li>Option #2:
+<ul>
+<li>You can set up external access through the Istio Ingress Gateway.</li>
+<li>Set up external access through settings - <a href="https://istio.io/latest/docs/tasks/observability/gateways/">https://istio.io/latest/docs/tasks/observability/gateways/</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Set up external access by referring to the official documentation.</p>
+<ul>
+<li><a href="https://istio.io/latest/docs/tasks/observability/gateways/#option-2-insecure-access-http">https://istio.io/latest/docs/tasks/observability/gateways/#option-2-insecure-access-http</a></li>
+</ul>
+</li>
+<li>
+<p>Example of external connection setting</p>
+<ul>
+<li>
+<p>Domain settings for settings</p>
+<ul>
+<li>
+<p>Check the Istio Ingress Gateway&rsquo;s External IP and set it in the DNS server or in the client&rsquo;s /etc/hosts file. Enter the domain address you want to use.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Open external connection</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;grafana.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana-vs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;grafana.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">grafana-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">3000</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">grafana</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Test data generation</p>
+<ul>
+<li>Generate test data by connecting through Istio Ingress Gateway of productpage.
+<ul>
+<li>Example test app page, http://146.56.186.52:80/productpage</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Access Grafana</p>
+<ul>
+<li>
+<p>Ex) <a href="http://grafana.istio.thekoguryo.ml">http://grafana.istio.thekoguryo.ml</a></p>
+</li>
+<li>
+<p>If you connect to the set address, you can check the basic dashboard provided by Istio.</p>
+</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221123432063.png" alt='image-20211221123432063' onerror="this.onerror=null;this.src='images\/image-20211221123432063.png';" />
+</p>
+<ul>
+<li>You can check the processing information of each service by looking at the Grafana dashboard.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221123914692.png" alt='image-20211221123914692' onerror="this.onerror=null;this.src='images\/image-20211221123914692.png';" />
+</p>
+</li>
+</ol>
+<h2 id="distributed-tracing">Distributed Tracing</h2>
+<p>A microservice processes a client&rsquo;s request through a decentralized service and then responds to the client. The Bookinfo app used as an example also provides the client with information collected by the productpage service from the backend service. In such a distributed environment, there are various tools for tracing call information between services for a client&rsquo;s request. Istio leverages Envoy&rsquo;s distributed tracing capabilities to leverage tools such as Jaeger, Zipkin, and LightStep. Here we will see how to do it via Zipkin. For other tools, please refer to the related page.</p>
+<ul>
+<li><a href="https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/">https://istio.io/latest/docs/tasks/observability/distributed-tracing/overview/</a></li>
+</ul>
+<h3 id="zipkin">Zipkin</h3>
+<ol>
+<li>
+<p>Install Zipkin</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/extras/zipkin.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>Access the installed Zipkin page from outside</p>
+<ul>
+<li>Same as Grafana Option #2: Use external access.</li>
+<li>Set up external access by referring to the official documentation.
+<ul>
+<li><a href="https://istio.io/latest/docs/tasks/observability/gateways/#option-2-insecure-access-http">https://istio.io/latest/docs/tasks/observability/gateways/#option-2-insecure-access-http</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Example of external connection setting</p>
+<ul>
+<li>
+<p>Domain settings for settings</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Open external connection</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;tracing.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing-vs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;tracing.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">tracing-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">tracing</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Test data generation</p>
+<ul>
+<li>Generate test data by connecting through Istio Ingress Gateway of productpage.
+<ul>
+<li>Example test app page, http://146.56.186.52:80/productpage</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Access the Zipkin page.</p>
+<ul>
+<li>Ex) <a href="http://tracing.istio.thekogury.ml">http://tracing.istio.thekogury.ml</a></li>
+</ul>
+</li>
+<li>
+<p>Service trace test</p>
+<ul>
+<li>On the <strong>Find a trace</strong> screen, click the <strong>red plus sign</strong> to set the service to search and run the query.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221132104691.png" alt='image-20211221132104691' onerror="this.onerror=null;this.src='images\/image-20211221132104691.png';" />
+</p>
+<ul>
+<li>
+<p>Check the search results and click <strong>SHOW</strong> on the right for the item you want to track.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221133039612.png" alt='image-20211221133039612' onerror="this.onerror=null;this.src='images\/image-20211221133039612.png';" />
+</p>
+</li>
+<li>
+<p>You can see the call relationship between services for the request, the time, and tag information for each service.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221133331040.png" alt='image-20211221133331040' onerror="this.onerror=null;this.src='images\/image-20211221133331040.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Trace by Trace ID</p>
+<ul>
+<li>
+<p>For each request, it can be traced through Span ID (Trace ID). You can check it in the log.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221132634370.png" alt='image-20211221132634370' onerror="this.onerror=null;this.src='images\/image-20211221132634370.png';" />
+</p>
+</li>
+<li>
+<p>If you search directly through the Trace ID search box at the top right of the screen, you can check the request immediately.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221134349660.png" alt='image-20211221134349660' onerror="this.onerror=null;this.src='images\/image-20211221134349660.png';" />
+</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="service-mesh-visualization">service mesh visualization</h2>
+<p>A microservice processes a client&rsquo;s request through a decentralized service and then responds to the client. The Bookinfo app used as an example also provides the client with information collected by the productpage service from the backend service. In such a distributed environment, Kiali provides visualization of call information between services for client requests.</p>
+<ul>
+<li><a href="https://istio.io/latest/docs/tasks/observability/kiali/">https://istio.io/latest/docs/tasks/observability/kiali/</a></li>
+</ul>
+<ol>
+<li>
+<p>Install Kiali</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.12/samples/addons/kiali.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>External access to installed Kiali page</p>
+<ul>
+<li>Same as Grafana Option #2: Use external access.</li>
+<li>Set up external access by referring to the official documentation.
+<ul>
+<li><a href="https://istio.io/latest/docs/tasks/observability/gateways/#option-2-insecure-access-http">https://istio.io/latest/docs/tasks/observability/gateways/#option-2-insecure-access-http</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Example of external connection setting</p>
+<ul>
+<li>
+<p>Domain settings for settings</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">INGRESS_DOMAIN</span><span class="o">=</span><span class="s2">&#34;istio.thekoguryo.ml&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Open external connection</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF | kubectl apply -f -</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">istio</span><span class="p">:</span><span class="w"> </span><span class="l">ingressgateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">servers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">http-kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">protocol</span><span class="p">:</span><span class="w"> </span><span class="l">HTTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="s2">&#34;kiali.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">VirtualService</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali-vs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="s2">&#34;kiali.${INGRESS_DOMAIN}&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">gateways</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">kiali-gateway</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">route</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">destination</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">20001</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.istio.io/v1alpha3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">DestinationRule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l">istio-system</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">kiali</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">trafficPolicy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l">DISABLE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">---</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Test data generation</p>
+<ul>
+<li>Generate test data by connecting through Istio Ingress Gateway of productpage.
+<ul>
+<li>Example test app page, http://146.56.186.52:80/productpage</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Access Kiali Dashboard.</p>
+<ul>
+<li>Ex) <a href="http://kiali.istio.thekoguryo.ml">http://kiali.istio.thekoguryo.ml</a></li>
+</ul>
+</li>
+<li>
+<p>If you click Graph in the navigation menu, you can visualize the call information between services.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221141550099.png" alt='image-20211221141550099' onerror="this.onerror=null;this.src='images\/image-20211221141550099.png';" />
+</p>
+</li>
+</ol>
+<h2 id="reviews-new-version-release">Reviews New version release</h2>
+<h3 id="reviews-v3-distribution">Reviews v3 distribution</h3>
+<ol>
+<li>
+<p>Deploy the Reviews v3 version.</p>
+<p>Deploy v3 assuming version update with Istio enabled.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -s https://raw.githubusercontent.com/istio/istio/release-1.12/samples/bookinfo/platform/kube/bookinfo.yaml <span class="p">|</span> istioctl kube-inject -f - <span class="p">|</span> kubectl apply -l <span class="nv">app</span><span class="o">=</span>reviews,version<span class="o">=</span>v3 -f -
+</span></span></code></pre></div></li>
+<li>
+<p>Check the deployment result</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">reviews-v2-5ff75858c7-hwrgv     2/2     Running   <span class="m">0</span>          5h15m
+</span></span><span class="line"><span class="cl">reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>          3m8s
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Test by connecting through Istio Ingress Gateway in productpage.</p>
+<ul>
+<li>Example test app page, http://146.56.186.52:80/productpage</li>
+<li>Reviews v2 and Reviews v3 are routed once, as each Pod is not set according to the distribution rule. You can see that Reviews v2 (black star) and Reviews v3 (red star) are displayed at once.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221161551911.png" alt='image-20211221161551911' onerror="this.onerror=null;this.src='images\/image-20211221161551911.png';" />
+</p>
+</li>
+</ol>
+<h3 id="weighted-routing">Weighted Routing</h3>
+<p>Let&rsquo;s look at a scenario where only some requests based on weight are routed for validation before the new version is fully serviced.</p>
+<ol>
+<li>
+<p>Check the version label of the deployed Reviews Pod. Version=v2 and version=v2 are assigned respectively.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod -L version
+</span></span><span class="line"><span class="cl">NAME                            READY   STATUS    RESTARTS   AGE     VERSION
+</span></span><span class="line"><span class="cl">details-v1-5c6d488c49-m5t7j     2/2     Running   <span class="m">0</span>          5h28m   v1
+</span></span><span class="line"><span class="cl">productpage-v1-c6885474-qkpx9   2/2     Running   <span class="m">0</span>          5h28m   v1
+</span></span><span class="line"><span class="cl">ratings-v1-7dfc8d4bbf-97p6z     2/2     Running   <span class="m">0</span>          5h28m   v1
+</span></span><span class="line"><span class="cl">reviews-v2-5ff75858c7-hwrgv     2/2     Running   <span class="m">0</span>          5h28m   v2
+</span></span><span class="line"><span class="cl">reviews-v3-5484f6cbd6-685b6     2/2     Running   <span class="m">0</span>          15m     v3
+</span></span><span class="line"><span class="cl">sleep-557747455f-jxk5z          1/1     Running   <span class="m">0</span>          22h
+</span></span></code></pre></div></li>
+<li>
+<p>Deploy the below settings required by Istio for routing by label.</p>
+<ul>
+<li>DestinationRule: Filter by labels for service endpoints. In the test example, only the Pod, not the Service Type, has a version label. It seems to be the label of the pod</li>
+<li>VirtualService: Distributed based on weight for the defined destination. The sum of the weights should be 100. 90 times out of 100 times, 10 times, it is guessed by probability, not by exact distribution.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f - <span class="s">&lt;&lt;EOF
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: VirtualService
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  hosts:
+</span></span></span><span class="line"><span class="cl"><span class="s">    - reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">  http:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - route:
+</span></span></span><span class="line"><span class="cl"><span class="s">    - destination:
+</span></span></span><span class="line"><span class="cl"><span class="s">        host: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">        subset: v2
+</span></span></span><span class="line"><span class="cl"><span class="s">      weight: 90
+</span></span></span><span class="line"><span class="cl"><span class="s">    - destination:
+</span></span></span><span class="line"><span class="cl"><span class="s">        host: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">        subset: v3
+</span></span></span><span class="line"><span class="cl"><span class="s">      weight: 10
+</span></span></span><span class="line"><span class="cl"><span class="s">---
+</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: networking.istio.io/v1alpha3
+</span></span></span><span class="line"><span class="cl"><span class="s">kind: DestinationRule
+</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
+</span></span></span><span class="line"><span class="cl"><span class="s">  name: reviews
+</span></span></span><span class="line"><span class="cl"><span class="s">spec:
+</span></span></span><span class="line"><span class="cl"><span class="s">  host: reviews   
+</span></span></span><span class="line"><span class="cl"><span class="s">  subsets:
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">    labels:
+</span></span></span><span class="line"><span class="cl"><span class="s">      version: v1
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v2
+</span></span></span><span class="line"><span class="cl"><span class="s">    labels:
+</span></span></span><span class="line"><span class="cl"><span class="s">      version: v2
+</span></span></span><span class="line"><span class="cl"><span class="s">  - name: v3
+</span></span></span><span class="line"><span class="cl"><span class="s">    labels:
+</span></span></span><span class="line"><span class="cl"><span class="s">      version: v3
+</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Repeat the test as shown below.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">counter</span><span class="o">=</span>1<span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">while</span> <span class="o">[</span> <span class="nv">$counter</span> -lt <span class="m">20</span> <span class="o">]</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">do</span>
+</span></span><span class="line"><span class="cl">   curl -s http://146.56.186.52/productpage <span class="p">|</span> grep color <span class="p">|</span> head -1<span class="p">;</span>
+</span></span><span class="line"><span class="cl">   <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span> <span class="nv">$counter</span> <span class="o">+</span> <span class="m">1</span> <span class="k">))</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="k">done</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Test results</p>
+<p>You can see that 18 out of 20 are black asterisks and 2 red asterisks. Chances are it won&rsquo;t be accurate.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ <span class="nv">counter</span><span class="o">=</span>1<span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; <span class="k">while</span> <span class="o">[</span> <span class="nv">$counter</span> -lt <span class="m">20</span> <span class="o">]</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; <span class="k">do</span>
+</span></span><span class="line"><span class="cl">&gt;    curl -s http://146.56.186.52/productpage <span class="p">|</span> grep color <span class="p">|</span> head -1<span class="p">;</span>
+</span></span><span class="line"><span class="cl">&gt;    <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span> <span class="nv">$counter</span> <span class="o">+</span> <span class="m">1</span> <span class="k">))</span><span class="p">;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; <span class="k">done</span>
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;red&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span><span class="line"><span class="cl">        &lt;font <span class="nv">color</span><span class="o">=</span><span class="s2">&#34;black&#34;</span>&gt;
+</span></span></code></pre></div></li>
+<li>
+<p>Check the call flow to Kiali</p>
+<p>As you can see in the picture below, you can see that it is distributed according to the weights set in Reviews v2 and v3.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211221171751998.png" alt='image-20211221171751998' onerror="this.onerror=null;this.src='images\/image-20211221171751998.png';" />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+<div class="panel-body">
+<p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions. </p>
+</div>
+</div>
+
+ <div class="edit-meta">Last updated on 21 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/" title="4.4.1 Deploying Microservices Apps Without Service Mesh"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 4.4.1 Deploying Microservices Apps Without Service Mesh</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/">
+    OCI(Oracle Cloud Infrastructure)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter01/">
+    1. OCI Basic Concept
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/2/">1.2 Fault Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/3/">1.3 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/6/">1.6 Map of offerings between cloud service providers</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter02/">
+    2. Get started with OCI Services
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/1/">2.1 Creating an Oracle Cloud Free Tier Account</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/2/">2.2 Connecting to the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/3/">2.3 Using the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/4/">2.4 Initial Cloud Account (Tenancy) Architecture</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/">
+    3. Use the OCI Compute VM
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/1/">3.1 Creating a Work Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/2/">3.2 Creating a VCN for a Virtual Network Environment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/3/">3.3 Creating a Key Pair for SSH Connections</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/4/">3.4 Creating a Linux Instance</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/5/">
+    3.5 Connecting to a Linux Instance
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/1/">3.5.1 Access from Linux, Mac</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/2/">3.5.2 Connecting to PuTTY on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/3/">3.5.3 Changing the PEM &lt;-&gt; PPK Format</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/6/">
+    3.6 Block Volume like hard drive
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/1/">3.6.1 Creating a Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/2/">3.6.2 Mounting Block Volume to Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">3.6.3 Connecting to Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">3.6.4 Formatting Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">3.6.5 Mount Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">3.6.6 Unmounting Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/7/">3.6.7 Deleting Block Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/7/">
+    3.7 Utilizing Block Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/1/">3.7.1 Backing up Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/2/">3.7.2 Creating a New Volume from Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/3/">3.7.3 Copying Backups to Another Region</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/4/">3.7.4 Backing up Policy-Based Block Volumes</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/8/">
+    3.8 Utilizing Boot Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/1/">3.8.1 Backing Up Boot Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/2/">3.8.2 Creating a New Boot Volume from a Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/3/">3.8.3 Creating a New Instance with Boot Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter04/">
+    4. Reserved Public IP for Static IP Allocation
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/1/">4.1 Creating a Reserved Public IP</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/2/">4.2 Allocating Reserved Public IP</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter05/">
+    5. Using Security Lists to Configure Firewalls
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/1/">5.1 Installing Apache HTTP Server on Linux Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/2/">5.2 Updating the Default Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/3/">5.3 Adding a Custom Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/4/">5.4 Testing Apache HTTP Server Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter06/">
+    6. Using IAM to Set User Permissions
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/1/">6.1 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/2/">6.2 Creating Users</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/3/">6.3 Creating Groups</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/4/">6.4 Creating a Policy</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/5/">6.5 Grabbing the Policy Concept</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter07/">
+    7. Using Object Storage
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/1/">7.1 Creating a Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/2/">7.2 Uploading Files to Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/3/">7.3 Object Permission Management - Pre-authentication</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/4/">7.4 Object Rights Management - Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/5/">7.5 Hosting Static Websites with Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/6/">7.6 Uploading Files via CloudBerry Explorer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/7/">7.7 Setting up an Archive via Lifecycle</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter08/">
+    8. Using File Storage, a Network File System
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/1/">8.1 Example File Storage Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/2/">8.2 Mounting and using FSS on a Linux VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/3/">8.3 Export Option for Access Control</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/4/">8.4 Snapshot for Backup</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter09/">
+    9. Machine Image
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/1/">9.1 OS Image provided by default</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/2/">9.2 Create Custom Image from Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter10/">
+    10. Using Load Balancer for High Availability
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/1/">10.1 Load Balancer Configuration Example</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/2/">10.2 VCN Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/3/">10.3 Creating a Backend Web Server</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/4/">10.4 Creating a Subnet for a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/5/">10.5 Creating a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/6/">10.6 Checking the Load Balancer Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter11/">
+    11. Domain Name System (DNS)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter11/1/">11.1 Mapping with Domain Names</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/">
+    12. Monitoring for OCI resource monitoring
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/1/">12.1 Enabling Compute Instance Monitoring</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/2/">12.2 Creating Monitoring Alarm</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/3/">
+    12.3 OCI Grafana Plugin
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter13/">
+    13. Autoscaling Based on Metric
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/1/">13.1 Preparation for Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/2/">13.2 Configuring Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/3/">13.3 Autoscaling Test</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/">
+    14. Using Developer Tools
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/">
+    14.1 OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/">
+    14.1.1 Installing the OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/1/">14.1.1.1 Installing OCI CLI on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/2/">14.1.1.2 Installing OCI CLI on Linux</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/3/">14.1.1.3 Config File Settings</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/4/">14.1.1.4 Registering API Public Key</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/5/">14.1.1.5 Verifying OCI CLI Installation</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/">
+    14.1.2 Using Object Storage as CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/1/">14.1.2.1 Setting IAM Policy for Object Storage</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">14.1.2.2 File Upload via CLI</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/2/">
+    14.2 Terraform
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/1/">14.2.1 Installing Terraform</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/2/">14.2.2 Creating Terraform Configurations</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/3/">14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/4/">14.2.4 Running Terraform Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/5/">14.2.5 Using workspaces for multiple environments</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">14.2.6 Example, Creating Users Using List and Count</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/7/">14.2.7 OCI Terraform Usage Example</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/">
+    14.3 REST API
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">14.3.2 Bash Sample Client</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/3/">14.3.3 Insomnia - Calling the OCI REST API</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/4/">14.3.4 Postman - Calling the OCI REST API</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter15/">
+    15. Using Resource Manager
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/1/">15.1 Using the Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/2/">15.2 Stack Template for Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/3/">15.3 Configuring a Private Git Server for Resource Manager</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/">
+    Oracle Cloud Native
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/">
+    1. Using Managed Kubernetes OKE
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/">1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 Creating an OKE Cluster</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 Connecting the OKE Cluster
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Connecting to a Cluster with Cloud Shell</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 Connecting to a Cluster in a Local Environment</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 Deploying Apps and Using Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 Using OCIR Images</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Using Persistent Volumes
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Using Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 Using File Storage</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Upgrading the Kubernetes Version</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/">
+    2. Using OCIR, a container registry
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/">2.1 Scanning Container Images</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/">2.2 Using Helm Chart Repository</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/">
+    3. Using OCI DevOps Services as CI/CD
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 Automating Deployments with Helm Charts via DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/">
+    4. Leveraging Open Source Software (OSS)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 Installing the NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 TLS termination in NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 Getting Client IP from NGINX Ingress Controller</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 Installing EFK</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Installing Prometheus&amp;Grafana</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Deploying Microservices Apps Without Service Mesh</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/">
+    5. Utilizing OCI Service
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 Service Operator for OCI Resource Management in OKE</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/">
+    5.2 Logging Service
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 Log Monitoring Using OCI Logging</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service Based on OpenSearch</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

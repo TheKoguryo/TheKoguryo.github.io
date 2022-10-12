@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>5.1 Service Operator for OCI Resource Management in OKE - TheKoguryo&#39;s Tech Blog</title>
+<meta name="generator" content="Hugo 0.104.3" />
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:title" content="5.1 Service Operator for OCI Resource Management in OKE" />
+<meta property="og:description" content="5.1 Using Service Operator for OCI resource management in OKE OCI Service Operator for Kubernetes (OSOK) is a tool that helps you manage OCI resources through the Kubernetes API. You can understand the Autonomous Database service as allowing you to create, delete, etc. instances through the Kubernetes API, kubectl. It is built on the open source Operator Framework used by Kubernetes. Related reference sites are as follows. OCI Service Operator" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/" /><meta property="article:section" content="oracle-cloudnative" />
+
+<meta property="article:modified_time" content="2022-04-28T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
+
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s Tech Blog</h1>
+
+ <span class="version">Version 2022.10.11</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/archives">Archives</a></li>
+<li ><a href="/tags">Tag</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">한국어</a>
+</li>
+
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main>
+<div class="panel panel-caution">
+<div class="panel-header">
+    <h3><svg class="svg-inline--fa fa-life-saver fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="life-saver" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><g><path fill="currentColor" d="M156.5,447.7l-12.6,29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7C127.6,430.5,141.5,440,156.5,447.7z M40.6,272H8.5 c1.4,21.2,5.4,41.7,11.7,61.1L50,321.2C45.1,305.5,41.8,289,40.6,272z M40.6,240c1.4-18.8,5.2-37,11.1-54.1l-29.5-12.6 C14.7,194.3,10,216.7,8.5,240H40.6z M64.3,156.5c7.8-14.9,17.2-28.8,28.1-41.5L69.7,92.3c-13.7,15.6-25.5,32.8-34.9,51.5 L64.3,156.5z M397,419.6c-13.9,12-29.4,22.3-46.1,30.4l11.9,29.8c20.7-9.9,39.8-22.6,56.9-37.6L397,419.6z M115,92.4 c13.9-12,29.4-22.3,46.1-30.4l-11.9-29.8c-20.7,9.9-39.8,22.6-56.8,37.6L115,92.4z M447.7,355.5c-7.8,14.9-17.2,28.8-28.1,41.5 l22.7,22.7c13.7-15.6,25.5-32.9,34.9-51.5L447.7,355.5z M471.4,272c-1.4,18.8-5.2,37-11.1,54.1l29.5,12.6 c7.5-21.1,12.2-43.5,13.6-66.8H471.4z M321.2,462c-15.7,5-32.2,8.2-49.2,9.4v32.1c21.2-1.4,41.7-5.4,61.1-11.7L321.2,462z M240,471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6,29.5c21.1,7.5,43.5,12.2,66.8,13.6V471.4z M462,190.8c5,15.7,8.2,32.2,9.4,49.2h32.1 c-1.4-21.2-5.4-41.7-11.7-61.1L462,190.8z M92.4,397c-12-13.9-22.3-29.4-30.4-46.1l-29.8,11.9c9.9,20.7,22.6,39.8,37.6,56.9 L92.4,397z M272,40.6c18.8,1.4,36.9,5.2,54.1,11.1l12.6-29.5C317.7,14.7,295.3,10,272,8.5V40.6z M190.8,50 c15.7-5,32.2-8.2,49.2-9.4V8.5c-21.2,1.4-41.7,5.4-61.1,11.7L190.8,50z M442.3,92.3L419.6,115c12,13.9,22.3,29.4,30.5,46.1 l29.8-11.9C470,128.5,457.3,109.4,442.3,92.3z M397,92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6,29.5 C370.4,72.1,384.4,81.5,397,92.4z"></path><circle fill="currentColor" cx="256" cy="364" r="28"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="r" values="28;14;28;28;14;28;"></animate><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;1;1;0;1;"></animate></circle><path fill="currentColor" opacity="1" d="M263.7,312h-16c-6.6,0-12-5.4-12-12c0-71,77.4-63.9,77.4-107.8c0-20-17.8-40.2-57.4-40.2c-29.1,0-44.3,9.6-59.2,28.7 c-3.9,5-11.1,6-16.2,2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2c21.2-27.2,46.4-44.7,91.2-44.7c52.3,0,97.4,29.8,97.4,80.2 c0,67.6-77.4,63.5-77.4,107.8C275.7,306.6,270.3,312,263.7,312z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;0;0;0;1;"></animate></path><path fill="currentColor" opacity="0" d="M232.5,134.5l7,168c0.3,6.4,5.6,11.5,12,11.5h9c6.4,0,11.7-5.1,12-11.5l7-168c0.3-6.8-5.2-12.5-12-12.5h-23 C237.7,122,232.2,127.7,232.5,134.5z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="0;0;1;1;0;0;"></animate></path></g></svg> Warning</h3>
+</div>
+<div class="panel-body">
+<p>This content has been generated by machine translation. The translations are automated and have not undergone human review or validation. </p>
+</div>
+</div><h1 id="51-using-service-operator-for-oci-resource-management-in-oke">5.1 Using Service Operator for OCI resource management in OKE</h1>
+<p>OCI Service Operator for Kubernetes (OSOK) is a tool that helps you manage OCI resources through the Kubernetes API. You can understand the Autonomous Database service as allowing you to create, delete, etc. instances through the Kubernetes API, kubectl. It is built on the open source Operator Framework used by Kubernetes. Related reference sites are as follows.</p>
+<ul>
+<li><a href="https://github.com/oracle/oci-service-operator">OCI Service Operator for Kubernetes GitHub</a></li>
+<li><a href="https://github.com/oracle/oci-service-operator/blob/main/docs/README.md#oci-service-operator-for-kubernetes">OCI Service Operator for Kubernetes GitHub Documentation</a></li>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengaddingosok.htm">OCI Docs Documentation &gt; Adding OCI Service Operator for Kubernetes to Clusters</a></li>
+</ul>
+<p>The OCI services currently supported as of v1.1.0 are as follows.</p>
+<ul>
+<li>Autonomous Database service</li>
+<li>MySQL Database service</li>
+<li>Streaming service</li>
+<li>Service Mesh service</li>
+</ul>
+<h2 id="install-oci-service-operator-for-kubernetes-on-oke-cluster">Install OCI Service Operator for Kubernetes on OKE Cluster</h2>
+<p>It is installed according to the product installation document. For details, refer to the document below.</p>
+<ul>
+<li>[oci-service-operator/installation.md at main oracle/oci-service-operator (github.com)](<a href="https://github.com/oracle/oci-service-operator/blob/main/docs/">https://github.com/oracle/oci-service-operator/blob/main/docs/</a> installation.md#installation)</li>
+</ul>
+<h3 id="install-operator-sdk">Install Operator SDK</h3>
+<p>Install according to the official installation documentation.</p>
+<ul>
+<li><a href="https://sdk.operatorframework.io/docs/installation/#install-from-github-release">Installation the Operator SDK CLI</a></li>
+</ul>
+<p>Example of an installation command based on Cloud Shell</p>
+<ul>
+<li>
+<p>Check if operator-sdk cli operates normally by installing it with the command below.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">echo</span> Download the release binary
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">ARCH</span><span class="o">=</span><span class="k">$(case</span> <span class="k">$(</span>uname -m<span class="k">)</span> in x86_64<span class="k">)</span> <span class="nb">echo</span> -n amd64 <span class="p">;;</span> aarch64<span class="o">)</span> <span class="nb">echo</span> -n arm64 <span class="p">;;</span> *<span class="o">)</span> <span class="nb">echo</span> -n <span class="k">$(</span>uname -m<span class="k">)</span> <span class="p">;;</span> <span class="k">esac</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">OS</span><span class="o">=</span><span class="k">$(</span>uname <span class="p">|</span> awk <span class="s1">&#39;{print tolower($0)}&#39;</span><span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">export</span> <span class="nv">OPERATOR_SDK_DL_URL</span><span class="o">=</span>https://github.com/operator-framework/operator-sdk/releases/download/v1.19.1
+</span></span><span class="line"><span class="cl">curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> Verify the downloaded binary
+</span></span><span class="line"><span class="cl">gpg --keyserver keyserver.ubuntu.com --recv-keys 052996E2A20B5C7E
+</span></span><span class="line"><span class="cl">curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/checksums.txt
+</span></span><span class="line"><span class="cl">curl -LO <span class="si">${</span><span class="nv">OPERATOR_SDK_DL_URL</span><span class="si">}</span>/checksums.txt.asc
+</span></span><span class="line"><span class="cl">gpg -u <span class="s2">&#34;Operator SDK (release) &lt;cncf-operator-sdk@cncf.io&gt;&#34;</span> --verify checksums.txt.asc
+</span></span><span class="line"><span class="cl">grep operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> checksums.txt <span class="p">|</span> sha256sum -c -
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> Install the release binary in your PATH
+</span></span><span class="line"><span class="cl">mkdir -p ~/.local/bin
+</span></span><span class="line"><span class="cl">chmod +x operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> <span class="o">&amp;&amp;</span> mv operator-sdk_<span class="si">${</span><span class="nv">OS</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ARCH</span><span class="si">}</span> ~/.local/bin/operator-sdk
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">operator-sdk version
+</span></span></code></pre></div></li>
+</ul>
+<h3 id="install-operator-lifecycle-manager-olm">Install Operator Lifecycle Manager (OLM)</h3>
+<p>Install and check the OLM resource in the current OKE cluster with the command below.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">operator-sdk olm install --version 0.20.0
+</span></span><span class="line"><span class="cl">operator-sdk olm status
+</span></span></code></pre></div><h3 id="install-oci-service-operator-for-kubernetes">Install OCI Service Operator for Kubernetes</h3>
+<h4 id="set-permissions">Set Permissions</h4>
+<p>OCI Service Operator for Kubernetes requires permission to work with OCI services. If OSOK is installed in OKE inside OCI, you can grant permission through Instance Principal. If OSOK is installed in an environment outside of OCI, or if you want to grant permissions to a user group that OSOK will use, you can grant permissions via User Principal. Normally we&rsquo;ll set the permissions in OKE, so we&rsquo;ll use the Instance Principal here.</p>
+<h5 id="instance-principal">Instance Principal</h5>
+<h6 id="create-dynamic-group-for-oke-worker-node">Create Dynamic Group for OKE Worker Node</h6>
+<ol>
+<li>Log in to the OCI console and go to <strong>Identity &amp; Security</strong> &gt; <strong>Identity</strong> &gt; <strong>Compartments</strong> and copy the OCID of the Compartment where the OKE cluster is located.</li>
+<li>Go to the <strong>Dynamic Group</strong> menu on the left and create a Dynamic Group with the following rules using the copied OCID.
+<ul>
+<li>Name: ex) <code>oke-labs-dynamic-group</code></li>
+<li>Rule: <code>instance.compartment.id = '&lt;compartment-ocid&gt;'</code></li>
+</ul>
+</li>
+</ol>
+<h6 id="create-policy-for-dynamic-group">Create Policy for Dynamic Group</h6>
+<ol>
+<li>
+<p>Go to the <strong>Policies</strong> menu on the left and grant the following rights to the created Dynamic Group.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group &lt;DYNAMICGROUP_NAME&gt; to manage &lt;OCI_SERVICE_1&gt; in compartment &lt;COMPARTMENT_NAME&gt;
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Examples</p>
+<ul>
+<li>
+<p>Policy Name: <code>oke-labs-osok-policy</code></p>
+</li>
+<li>
+<p>COMPARTMENT_NAME: <code>oke-labs</code></p>
+</li>
+<li>
+<p>DYNAMICGROUP_NAME: <code>oke-labs-dynamic-group</code></p>
+</li>
+<li>
+<p>Autonomous Database Service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to manage autonomous-database-family in compartment oke-labs
+</span></span></code></pre></div></li>
+<li>
+<p>MySQL DB System Service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to manage mysql-family in compartment oke-labs
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to <span class="o">{</span>SUBNET_READ, SUBNET_ATTACH, SUBNET_DETACH, VCN_READ, COMPARTMENT_INSPECT<span class="o">}</span> in compartment oke-labs
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-labs-dynamic-group to use tag-namespaces in compartment oke-labs
+</span></span></code></pre></div></li>
+<li>
+<p>Service Mesh Service</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage service-mesh-family in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use metrics in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use log-content in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use tag-namespaces in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage leaf-certificates in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage leaf-certificate-family in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use certificate-authority-delegate in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to use certificate-authority-family in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to inspect vault in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to {MESH_PROXY_DETAILS_READ} in tenancy
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage certificate-associations in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow dynamic-group &lt;your-dynamic-group-name&gt; to manage certificate-authority-associations in compartment &lt;your-compartment-name&gt;
+</span></span><span class="line"><span class="cl">Allow any-user to manage keys in compartment &lt;your-compartment-name&gt; where any {request.principal.type=&#39;certificate&#39;, request.principal.type=&#39;certificateauthority&#39;}
+</span></span><span class="line"><span class="cl">Allow any-user to manage object-family in compartment &lt;your-compartment-name&gt; where any {request.principal.type=&#39;certificate&#39;, request.principal.type=&#39;certificateauthority&#39;}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h5 id="enable-user-principal">Enable User Principal</h5>
+<ul>
+<li>OCI Service Operator 사이트에 있는 <a href="https://github.com/oracle/oci-service-operator/blob/main/docs/installation.md#enable-user-principal">Enable User Principal</a>를 참고하여 구성합니다.</li>
+</ul>
+<h3 id="oci-service-operator-for-kubernetes-osok-deployment">OCI Service Operator for Kubernetes (OSOK) deployment</h3>
+<ol>
+<li>
+<p>Create a namespace where OSOK will be deployed.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create ns oci-service-operator-system
+</span></span></code></pre></div></li>
+<li>
+<p>OSOK Operator installation</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker pull iad.ocir.io/oracle/oci-service-operator-bundle:1.1.0
+</span></span><span class="line"><span class="cl">operator-sdk run bundle iad.ocir.io/oracle/oci-service-operator-bundle:1.1.0 -n oci-service-operator-system --timeout 5m
+</span></span></code></pre></div></li>
+<li>
+<p>After OSOK installation, you can see that CustomResource for OCI service has been added.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl api-resources <span class="p">|</span> grep oci.oracle.com
+</span></span><span class="line"><span class="cl">autonomousdatabases                            oci.oracle.com/v1beta1                 <span class="nb">true</span>         AutonomousDatabases
+</span></span><span class="line"><span class="cl">mysqldbsystems                                 oci.oracle.com/v1beta1                 <span class="nb">true</span>         MySqlDbSystem
+</span></span><span class="line"><span class="cl">streams                                        oci.oracle.com/v1beta1                 <span class="nb">true</span>         Stream
+</span></span><span class="line"><span class="cl">accesspolicies                                 servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         AccessPolicy
+</span></span><span class="line"><span class="cl">ingressgatewaydeployments                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGatewayDeployment
+</span></span><span class="line"><span class="cl">ingressgatewayroutetables                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGatewayRouteTable
+</span></span><span class="line"><span class="cl">ingressgateways                                servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         IngressGateway
+</span></span><span class="line"><span class="cl">meshes                                         servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         Mesh
+</span></span><span class="line"><span class="cl">virtualdeploymentbindings                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualDeploymentBinding
+</span></span><span class="line"><span class="cl">virtualdeployments                             servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualDeployment
+</span></span><span class="line"><span class="cl">virtualserviceroutetables                      servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualServiceRouteTable
+</span></span><span class="line"><span class="cl">virtualservices                                servicemesh.oci.oracle.com/v1beta1     <span class="nb">true</span>         VirtualService
+</span></span></code></pre></div></li>
+</ol>
+<h2 id="manage-autonomous-database-service-with-osok">Manage Autonomous Database Service with OSOK</h2>
+<p>References</p>
+<ul>
+<li>[oci-service-operator/adb.md at main oracle/oci-service-operator (github.com)](<a href="https://github.com/oracle/oci-service-operator/blob/main/docs/">https://github.com/oracle/oci-service-operator/blob/main/docs/</a> adb.md#oracle-autonomous-database-service)</li>
+</ul>
+<h3 id="autonomous-database-adb-binding">Autonomous Database (ADB) Binding</h3>
+<p>This is a case of binding the ADB instance created in the OCI console as a resource in Kubernetes.</p>
+<ol>
+<li>
+<p>Log in to the OCI console and create an instance of Autonomous Database to bind to.</p>
+</li>
+<li>
+<p>Check and write the required specification yaml for binding.</p>
+<ul>
+<li>spec.id: Enter the OCID of the existing ADB to bind to.</li>
+<li>walletName: Enter the name of the kubernetes secret where the wallet will be stored after binding</li>
+<li>walletPassword.secret.secretName: The secret name where the password to be used for the wallet is stored, and a secret is created in advance before binding.
+<ul>
+<li>The wallet download password should contain at least 1 number or special character</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;AUTONOMOUS_DATABASE_OCID&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Execution example</p>
+<ul>
+<li>
+<p>Create walletPassword</p>
+<ul>
+<li>The wallet download password should contain at least 1 number or special character</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret generic ociadb-wallet-password-secret --from-literal<span class="o">=</span><span class="nv">walletPassword</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Execution</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF &gt; autonomousdatabases-bind.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqamlmtqcttftib5w724cu4yfcsfzxru3prohr65637rlbq</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">kubectl apply -f autonomousdatabases-bind.yaml</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Check the results</p>
+<p>Check if the binding was successful without any errors using the kubectl describe command.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get autonomousdatabases
+</span></span><span class="line"><span class="cl">NAME     DBWORKLOAD   STATUS   AGE
+</span></span><span class="line"><span class="cl">ociadb                Active   15s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadb
+</span></span><span class="line"><span class="cl">Name:         ociadb
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Kind:         AutonomousDatabases
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Status:
+</span></span><span class="line"><span class="cl">  Status:
+</span></span><span class="line"><span class="cl">    Conditions:
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:00:57Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Bound success
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Events:
+</span></span><span class="line"><span class="cl">  Type    Reason   Age                From                 Message
+</span></span><span class="line"><span class="cl">  ----    ------   ----               ----                 -------
+</span></span><span class="line"><span class="cl">  Normal  Success  27s                AutonomousDatabases  Finalizer is added to the object
+</span></span><span class="line"><span class="cl">  Normal  Success  25s <span class="o">(</span>x2 over 25s<span class="o">)</span>  AutonomousDatabases  Create or Update of resource succeeded
+</span></span></code></pre></div></li>
+<li>
+<p>Check your wallet</p>
+<p>As a result of binding, the ociadb-wallet-secret secret is created, and if you look at the contents, you can see that the files in the wallet are in Base64 encoded form. You can mount the secret in the application container and use it when connecting to ADB.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret
+</span></span><span class="line"><span class="cl">NAME                              TYPE                                  DATA   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ociadb-wallet-password-secret   Opaque                                <span class="m">1</span>      4m27s
+</span></span><span class="line"><span class="cl">ociadb-wallet-secret            Opaque                                <span class="m">8</span>      2m8
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret ociadb-wallet-secret -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">data:
+</span></span><span class="line"><span class="cl">  README: V2FsbGV0IE...
+</span></span><span class="line"><span class="cl">  cwallet.sso: ofhONgAAAA...
+</span></span><span class="line"><span class="cl">  ewallet.p12: MIIZ/AIBAz...
+</span></span><span class="line"><span class="cl">  keystore.jks: /u3+7QAAA...
+</span></span><span class="line"><span class="cl">  ojdbc.properties: IyBDb2...
+</span></span><span class="line"><span class="cl">  sqlnet.ora: V0FMTE...
+</span></span><span class="line"><span class="cl">  tnsnames.ora: b2NpYWR...
+</span></span><span class="line"><span class="cl">  truststore.jks: /u3+7QAAAA...
+</span></span><span class="line"><span class="cl">kind: Secret
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">  name: ociadb-wallet-secret
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">type: Opaque
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="autonomous-database-adb-provisioning">Autonomous Database (ADB) Provisioning</h3>
+<ol>
+<li>
+<p>Check and fill out the required specification yaml for Provisioning.</p>
+<ul>
+<li>spec.compartmentId: Enter the OCID of the compartment where the ADB to be created will be located</li>
+<li>walletName: Enter the name of the kubernetes secret where the wallet will be stored after binding</li>
+<li>walletPassword.secret.secretName: The secret name where the password to be used for the wallet is stored, and a secret is created in advance before binding.</li>
+<li>For the rest of the items, enter the desired values the same as those entered when creating ADB in the OCI console - [Refer to item specification] (<a href="https://github.com/oracle/oci-service-operator/blob/main/docs/adb.md">https://github.com/oracle/oci-service-operator/blob/main/docs/adb.md</a> #autonomous-database-specification-parameters)</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COMPARTMENT_OCID&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DISPLAY_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DB_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;OLTP/DW&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ORABLE_DB_VERSION&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;SIZE_IN_TBs&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COUNT&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ADMIN_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;true/false&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;BRING_YOUR_OWN_LICENSE/LICENSE_INCLUDEE&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">freeformTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">definedTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;TAGNAMESPACE1&gt;</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Execution example</p>
+<ul>
+<li>
+<p>Create adminPassword and walletPassword</p>
+</li>
+<li>
+<p>The wallet download password should contain at least 1 number or special character</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret generic ociadb-by-osok-admin-password-secret --from-literal<span class="o">=</span><span class="nv">password</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
+</span></span><span class="line"><span class="cl">kubectl create secret generic ociadb-by-osok-wallet-password-secret --from-literal<span class="o">=</span><span class="nv">walletPassword</span><span class="o">=</span><span class="s1">&#39;xxxxxxxxxxxx&#39;</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>Execution</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">cat &lt;&lt;EOF &gt; autonomousdatabases-provision.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaaa2jcbfqjyz24y4hbbqurdxjegmsp6eqhzq4r2gni5bocoh2axb4a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">OCIADBbyOSOK</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">OLTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">19c</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-admin-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">LICENSE_INCLUDED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">EOF</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="l">kubectl apply -f autonomousdatabases-provision.yaml</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Result</p>
+<p>Check if the binding was successful without any errors using the kubectl describe command.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get autonomousdatabases
+</span></span><span class="line"><span class="cl">NAME           DBWORKLOAD   STATUS   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ociadbbyosok   OLTP         Active   3m4s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadbbyosok
+</span></span><span class="line"><span class="cl">Name:         ociadbbyosok
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Kind:         AutonomousDatabases
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Status:
+</span></span><span class="line"><span class="cl">  Status:
+</span></span><span class="line"><span class="cl">    Conditions:
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:08:06Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Provisioning
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Events:
+</span></span><span class="line"><span class="cl">  Type    Reason   Age                From                 Message
+</span></span><span class="line"><span class="cl">  ----    ------   ----               ----                 -------
+</span></span><span class="line"><span class="cl">  Normal  Success  3m10s              AutonomousDatabases  Finalizer is added to the object
+</span></span><span class="line"><span class="cl">  Normal  Success  58s <span class="o">(</span>x2 over 58s<span class="o">)</span>  AutonomousDatabases  Create or Update of resource succeeded
+</span></span></code></pre></div></li>
+<li>
+<p>Check your wallet</p>
+<p>As a result of binding, the ociadb-wallet-secret secret is created, and if you look at the contents, you can see that the files in the wallet are in Base64 encoded form. You can mount the secret in the application container and use it when connecting to ADB.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret
+</span></span><span class="line"><span class="cl">NAME                                    TYPE                                  DATA   AGE
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">ociadb-by-osok-admin-password-secret    Opaque                                <span class="m">1</span>      7m22s
+</span></span><span class="line"><span class="cl">ociadb-by-osok-wallet-password-secret   Opaque                                <span class="m">1</span>      7m11s
+</span></span><span class="line"><span class="cl">ociadb-by-osok-wallet-secret            Opaque                                <span class="m">8</span>      3m13s
+</span></span><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl get secret ociadb-by-osok-wallet-secret -o yaml
+</span></span><span class="line"><span class="cl">apiVersion: v1
+</span></span><span class="line"><span class="cl">data:
+</span></span><span class="line"><span class="cl">  README: V2FsbGV0IE...
+</span></span><span class="line"><span class="cl">  cwallet.sso: ofhONgAAAA...
+</span></span><span class="line"><span class="cl">  ewallet.p12: MIIZ/AIBAz...
+</span></span><span class="line"><span class="cl">  keystore.jks: /u3+7QAAA...
+</span></span><span class="line"><span class="cl">  ojdbc.properties: IyBDb2...
+</span></span><span class="line"><span class="cl">  sqlnet.ora: V0FMTE...
+</span></span><span class="line"><span class="cl">  tnsnames.ora: b2NpYWR...
+</span></span><span class="line"><span class="cl">  truststore.jks: /u3+7QAAAA...
+</span></span><span class="line"><span class="cl">kind: Secret
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">  name: ociadb-by-osok-wallet-secret
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">type: Opaque
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="autonomous-database-adb-update">Autonomous Database (ADB) Update</h3>
+<p>Refer to the example of OSOK GitHub document in Update support for Autonomous Database provided by OCI API.</p>
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en-us/iaas/api/#/en/database/20160918/datatypes/UpdateAutonomousDatabaseDetails">Oracle Cloud Infrastructure API Reference and Endpoints / UpdateAutonomousDatabaseDetails Reference</a></p>
+</li>
+<li>
+<p>Based on GitHub documentation</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;CR_OBJECT_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;AUTONOMOUS_DATABASE_OCID&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DISPLAY_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;DB_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;OLTP/DW&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ORABLE_DB_VERSION&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;SIZE_IN_TBs&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;COUNT&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;ADMIN_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;true/false&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;false/true&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;BRING_YOUR_OWN_LICENSE/LICENSE_INCLUDEE&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;WALLET_PASSWORD_SECRET_NAME&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">freeformTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">definedTags</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">&lt;TAGNAMESPACE1&gt;</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">&lt;KEY1&gt;</span><span class="p">:</span><span class="w"> </span><span class="l">&lt;VALUE1&gt;</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+<h4 id="binding-case">Binding Case</h4>
+<p>Add updates to existing YAML or deployed YAML to reflect them.</p>
+<ul>
+<li>
+<p>Example of storage increase</p>
+<p>Deploy by adding <strong>dataStorageSizeInTBs</strong> entry to the above autonomousdatabases-bind.yaml file.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqamlmtqcttftib5w724cu4yfcsfzxru3prohr65637rlbq</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-wallet-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+<h4 id="provisioning-case">Provisioning Case</h4>
+<ul>
+<li>
+<p>Example of storage increase</p>
+<p>Add the OCID of ADB created in the above autonomousdatabases-provision.yaml file to <strong>spec.id</strong>. And change the <strong>dataStorageSizeInTBs</strong> value.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oracle.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">AutonomousDatabases</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqa4ix636vselpdrig6i2peeczd2fgkevel34bph6feb46a</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">compartmentId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.compartment.oc1..aaaaaaaafz2jdbc6csuogmfpmpce7t3cianevguuzbtjgaitqxf7yosvzkca</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l">OCIADBbyOSOK</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadbbyosok</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbWorkload</span><span class="p">:</span><span class="w"> </span><span class="l">OLTP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isDedicated</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dbVersion</span><span class="p">:</span><span class="w"> </span><span class="l">19c</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">dataStorageSizeInTBs</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">cpuCoreCount</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">adminPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-admin-password-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isAutoScalingEnabled</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">isFreeTier</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">licenseModel</span><span class="p">:</span><span class="w"> </span><span class="l">LICENSE_INCLUDED</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">wallet</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">walletPassword</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">secret</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ociadb-by-osok-wallet-password-secret</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Update execution result</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211223142835787.png" alt='image-20211223142835787' onerror="this.onerror=null;this.src='images\/image-20211223142835787.png';" />
+</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ kubectl describe autonomousdatabases ociadbbyosok
+</span></span><span class="line"><span class="cl">Name:         ociadbbyosok
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Status:
+</span></span><span class="line"><span class="cl">  Status:
+</span></span><span class="line"><span class="cl">    Conditions:
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:08:06Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Provisioning
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">      Type:                  Provisioning
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:10:15Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase OCIADBbyOSOK is Active
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">      Type:                  Active
+</span></span><span class="line"><span class="cl">      Last Transition Time:  2022-04-28T05:25:21Z
+</span></span><span class="line"><span class="cl">      Message:               AutonomousDatabase Update success
+</span></span><span class="line"><span class="cl">      Status:                True
+</span></span><span class="line"><span class="cl">      Type:                  Active
+</span></span><span class="line"><span class="cl">    Ocid:                    ocid1.autonomousdatabase.oc1.ap-chuncheon-1.an4w4ljrbgdxvpqa4ix636vselpdrig6i2peeczd2fgkevel34bph6feb46a
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ul>
+<h3 id="autonomous-database-adb-delete">Autonomous Database (ADB) Delete</h3>
+<p>As the Delete function is not provided separately based on the current version, deleting the autonomousdatabases resource in the OKE cluster with the kubectl delete command does not delete the actual ADB instance from OCI.</p>
+<br>
+<br>
+<div class="panel panel-caution">
+<div class="panel-body">
+<p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions. </p>
+</div>
+</div>
+
+ <div class="edit-meta">Last updated on 28 Apr 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/" title="5. Utilizing OCI Service"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 5. Utilizing OCI Service</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/" title="5.2 Logging Service">Next - 5.2 Logging Service <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/">
+    OCI(Oracle Cloud Infrastructure)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter01/">
+    1. OCI Basic Concept
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/2/">1.2 Fault Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/3/">1.3 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/6/">1.6 Map of offerings between cloud service providers</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter02/">
+    2. Get started with OCI Services
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/1/">2.1 Creating an Oracle Cloud Free Tier Account</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/2/">2.2 Connecting to the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/3/">2.3 Using the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/4/">2.4 Initial Cloud Account (Tenancy) Architecture</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/">
+    3. Use the OCI Compute VM
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/1/">3.1 Creating a Work Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/2/">3.2 Creating a VCN for a Virtual Network Environment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/3/">3.3 Creating a Key Pair for SSH Connections</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/4/">3.4 Creating a Linux Instance</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/5/">
+    3.5 Connecting to a Linux Instance
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/1/">3.5.1 Access from Linux, Mac</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/2/">3.5.2 Connecting to PuTTY on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/3/">3.5.3 Changing the PEM &lt;-&gt; PPK Format</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/6/">
+    3.6 Block Volume like hard drive
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/1/">3.6.1 Creating a Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/2/">3.6.2 Mounting Block Volume to Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">3.6.3 Connecting to Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">3.6.4 Formatting Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">3.6.5 Mount Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">3.6.6 Unmounting Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/7/">3.6.7 Deleting Block Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/7/">
+    3.7 Utilizing Block Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/1/">3.7.1 Backing up Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/2/">3.7.2 Creating a New Volume from Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/3/">3.7.3 Copying Backups to Another Region</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/4/">3.7.4 Backing up Policy-Based Block Volumes</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/8/">
+    3.8 Utilizing Boot Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/1/">3.8.1 Backing Up Boot Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/2/">3.8.2 Creating a New Boot Volume from a Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/3/">3.8.3 Creating a New Instance with Boot Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter04/">
+    4. Reserved Public IP for Static IP Allocation
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/1/">4.1 Creating a Reserved Public IP</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/2/">4.2 Allocating Reserved Public IP</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter05/">
+    5. Using Security Lists to Configure Firewalls
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/1/">5.1 Installing Apache HTTP Server on Linux Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/2/">5.2 Updating the Default Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/3/">5.3 Adding a Custom Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/4/">5.4 Testing Apache HTTP Server Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter06/">
+    6. Using IAM to Set User Permissions
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/1/">6.1 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/2/">6.2 Creating Users</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/3/">6.3 Creating Groups</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/4/">6.4 Creating a Policy</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/5/">6.5 Grabbing the Policy Concept</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter07/">
+    7. Using Object Storage
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/1/">7.1 Creating a Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/2/">7.2 Uploading Files to Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/3/">7.3 Object Permission Management - Pre-authentication</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/4/">7.4 Object Rights Management - Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/5/">7.5 Hosting Static Websites with Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/6/">7.6 Uploading Files via CloudBerry Explorer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/7/">7.7 Setting up an Archive via Lifecycle</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter08/">
+    8. Using File Storage, a Network File System
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/1/">8.1 Example File Storage Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/2/">8.2 Mounting and using FSS on a Linux VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/3/">8.3 Export Option for Access Control</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/4/">8.4 Snapshot for Backup</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter09/">
+    9. Machine Image
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/1/">9.1 OS Image provided by default</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/2/">9.2 Create Custom Image from Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter10/">
+    10. Using Load Balancer for High Availability
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/1/">10.1 Load Balancer Configuration Example</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/2/">10.2 VCN Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/3/">10.3 Creating a Backend Web Server</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/4/">10.4 Creating a Subnet for a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/5/">10.5 Creating a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/6/">10.6 Checking the Load Balancer Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter11/">
+    11. Domain Name System (DNS)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter11/1/">11.1 Mapping with Domain Names</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/">
+    12. Monitoring for OCI resource monitoring
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/1/">12.1 Enabling Compute Instance Monitoring</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/2/">12.2 Creating Monitoring Alarm</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/3/">
+    12.3 OCI Grafana Plugin
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/1/">12.3.1 Installing Grafana on Compute VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/2/">12.3.2 Grafana Configuration</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter13/">
+    13. Autoscaling Based on Metric
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/1/">13.1 Preparation for Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/2/">13.2 Configuring Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/3/">13.3 Autoscaling Test</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/">
+    14. Using Developer Tools
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/">
+    14.1 OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/">
+    14.1.1 Installing the OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/1/">14.1.1.1 Installing OCI CLI on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/2/">14.1.1.2 Installing OCI CLI on Linux</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/3/">14.1.1.3 Config File Settings</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/4/">14.1.1.4 Registering API Public Key</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/5/">14.1.1.5 Verifying OCI CLI Installation</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/">
+    14.1.2 Using Object Storage as CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/1/">14.1.2.1 Setting IAM Policy for Object Storage</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">14.1.2.2 File Upload via CLI</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/2/">
+    14.2 Terraform
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/1/">14.2.1 Installing Terraform</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/2/">14.2.2 Creating Terraform Configurations</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/3/">14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/4/">14.2.4 Running Terraform Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/5/">14.2.5 Using workspaces for multiple environments</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">14.2.6 Example, Creating Users Using List and Count</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/7/">14.2.7 OCI Terraform Usage Example</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/">
+    14.3 REST API
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">14.3.2 Bash Sample Client</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/3/">14.3.3 Insomnia - Calling the OCI REST API</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/4/">14.3.4 Postman - Calling the OCI REST API</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter15/">
+    15. Using Resource Manager
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/1/">15.1 Using the Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/2/">15.2 Stack Template for Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/3/">15.3 Configuring a Private Git Server for Resource Manager</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/">
+    Oracle Cloud Native
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/">
+    1. Using Managed Kubernetes OKE
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/">1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 Creating an OKE Cluster</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 Connecting the OKE Cluster
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Connecting to a Cluster with Cloud Shell</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 Connecting to a Cluster in a Local Environment</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 Deploying Apps and Using Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 Using OCIR Images</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Using Persistent Volumes
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Using Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 Using File Storage</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Upgrading the Kubernetes Version</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/">
+    2. Using OCIR, a container registry
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/">2.1 Scanning Container Images</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/">2.2 Using Helm Chart Repository</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/">
+    3. Using OCI DevOps Services as CI/CD
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 Automating Deployments with Helm Charts via DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/">
+    4. Leveraging Open Source Software (OSS)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 Installing the NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 TLS termination in NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 Getting Client IP from NGINX Ingress Controller</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 Installing EFK</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Installing Prometheus&amp;Grafana</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Deploying Microservices Apps Without Service Mesh</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/">
+    5. Utilizing OCI Service
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 Service Operator for OCI Resource Management in OKE</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/">
+    5.2 Logging Service
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 Log Monitoring Using OCI Logging</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service Based on OpenSearch</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

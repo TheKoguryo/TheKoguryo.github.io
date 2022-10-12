@@ -1,0 +1,1780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>4.1.4 TLS termination in NGINX Ingress Controller - TheKoguryo&#39;s Tech Blog</title>
+<meta name="generator" content="Hugo 0.104.3" />
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:title" content="4.1.4 TLS termination in NGINX Ingress Controller" />
+<meta property="og:description" content="4.1.4 TLS termination on NGINX Ingress Controller (feats. Let&rsquo;s Encrypt) Check the settings for SSL external ingress in the Ingress Controller.
+Using Self-Signed Certificates Learn how to create and use Self-Signed certificates for testing purposes. In a real environment, a certificate issued by an authorized certification authority is used. Only the self-signed certificate issuance process is replaced, and the TLS Secret registration process is the same.
+References
+https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupingresscontroller.htm Create a certificate Create a certificate with the following command in Cloud Shell or your environment." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/" /><meta property="article:section" content="oracle-cloudnative" />
+
+<meta property="article:modified_time" content="2021-12-07T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
+
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s Tech Blog</h1>
+
+ <span class="version">Version 2022.10.11</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/archives">Archives</a></li>
+<li ><a href="/tags">Tag</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+<li style="float:right">
+  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">한국어</a>
+</li>
+
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main>
+<div class="panel panel-caution">
+<div class="panel-header">
+    <h3><svg class="svg-inline--fa fa-life-saver fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="life-saver" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><g><path fill="currentColor" d="M156.5,447.7l-12.6,29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7C127.6,430.5,141.5,440,156.5,447.7z M40.6,272H8.5 c1.4,21.2,5.4,41.7,11.7,61.1L50,321.2C45.1,305.5,41.8,289,40.6,272z M40.6,240c1.4-18.8,5.2-37,11.1-54.1l-29.5-12.6 C14.7,194.3,10,216.7,8.5,240H40.6z M64.3,156.5c7.8-14.9,17.2-28.8,28.1-41.5L69.7,92.3c-13.7,15.6-25.5,32.8-34.9,51.5 L64.3,156.5z M397,419.6c-13.9,12-29.4,22.3-46.1,30.4l11.9,29.8c20.7-9.9,39.8-22.6,56.9-37.6L397,419.6z M115,92.4 c13.9-12,29.4-22.3,46.1-30.4l-11.9-29.8c-20.7,9.9-39.8,22.6-56.8,37.6L115,92.4z M447.7,355.5c-7.8,14.9-17.2,28.8-28.1,41.5 l22.7,22.7c13.7-15.6,25.5-32.9,34.9-51.5L447.7,355.5z M471.4,272c-1.4,18.8-5.2,37-11.1,54.1l29.5,12.6 c7.5-21.1,12.2-43.5,13.6-66.8H471.4z M321.2,462c-15.7,5-32.2,8.2-49.2,9.4v32.1c21.2-1.4,41.7-5.4,61.1-11.7L321.2,462z M240,471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6,29.5c21.1,7.5,43.5,12.2,66.8,13.6V471.4z M462,190.8c5,15.7,8.2,32.2,9.4,49.2h32.1 c-1.4-21.2-5.4-41.7-11.7-61.1L462,190.8z M92.4,397c-12-13.9-22.3-29.4-30.4-46.1l-29.8,11.9c9.9,20.7,22.6,39.8,37.6,56.9 L92.4,397z M272,40.6c18.8,1.4,36.9,5.2,54.1,11.1l12.6-29.5C317.7,14.7,295.3,10,272,8.5V40.6z M190.8,50 c15.7-5,32.2-8.2,49.2-9.4V8.5c-21.2,1.4-41.7,5.4-61.1,11.7L190.8,50z M442.3,92.3L419.6,115c12,13.9,22.3,29.4,30.5,46.1 l29.8-11.9C470,128.5,457.3,109.4,442.3,92.3z M397,92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6,29.5 C370.4,72.1,384.4,81.5,397,92.4z"></path><circle fill="currentColor" cx="256" cy="364" r="28"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="r" values="28;14;28;28;14;28;"></animate><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;1;1;0;1;"></animate></circle><path fill="currentColor" opacity="1" d="M263.7,312h-16c-6.6,0-12-5.4-12-12c0-71,77.4-63.9,77.4-107.8c0-20-17.8-40.2-57.4-40.2c-29.1,0-44.3,9.6-59.2,28.7 c-3.9,5-11.1,6-16.2,2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2c21.2-27.2,46.4-44.7,91.2-44.7c52.3,0,97.4,29.8,97.4,80.2 c0,67.6-77.4,63.5-77.4,107.8C275.7,306.6,270.3,312,263.7,312z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;0;0;0;1;"></animate></path><path fill="currentColor" opacity="0" d="M232.5,134.5l7,168c0.3,6.4,5.6,11.5,12,11.5h9c6.4,0,11.7-5.1,12-11.5l7-168c0.3-6.8-5.2-12.5-12-12.5h-23 C237.7,122,232.2,127.7,232.5,134.5z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="0;0;1;1;0;0;"></animate></path></g></svg> Warning</h3>
+</div>
+<div class="panel-body">
+<p>This content has been generated by machine translation. The translations are automated and have not undergone human review or validation. </p>
+</div>
+</div><h1 id="414-tls-termination-on-nginx-ingress-controller-feats-lets-encrypt">4.1.4 TLS termination on NGINX Ingress Controller (feats. Let&rsquo;s Encrypt)</h1>
+<p>Check the settings for SSL external ingress in the Ingress Controller.</p>
+<h2 id="using-self-signed-certificates">Using Self-Signed Certificates</h2>
+<p>Learn how to create and use Self-Signed certificates for testing purposes. In a real environment, a certificate issued by an authorized certification authority is used. Only the self-signed certificate issuance process is replaced, and the TLS Secret registration process is the same.</p>
+<p>References</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupingresscontroller.htm">https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupingresscontroller.htm</a></li>
+</ul>
+<h3 id="create-a-certificate">Create a certificate</h3>
+<ol>
+<li>
+<p>Create a certificate with the following command in Cloud Shell or your environment. It is not necessary to use a certificate issued by an authorized certification authority.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">openssl req -x509 -nodes -days <span class="m">365</span> -newkey rsa:2048 -keyout tls.key -out tls.crt -subj <span class="s2">&#34;/CN=nginxsvc/O=nginxsvc&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Create a TLS Secret.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret tls tls-secret --key tls.key --cert tls.crt
+</span></span></code></pre></div></li>
+<li>
+<p>Execution result</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ openssl req -x509 -nodes -days <span class="m">365</span> -newkey rsa:2048 -keyout tls.key -out tls.crt -subj <span class="s2">&#34;/CN=nginxsvc/O=nginxsvc&#34;</span>
+</span></span><span class="line"><span class="cl">Generating a <span class="m">2048</span> bit RSA private key
+</span></span><span class="line"><span class="cl">*************************************************************************************************************************************************************+++++
+</span></span><span class="line"><span class="cl">****************************************************************************************************************************+++++
+</span></span><span class="line"><span class="cl">writing new private key to <span class="s1">&#39;tls.key&#39;</span>
+</span></span><span class="line"><span class="cl">-----
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl create secret tls tls-secret --key tls.key --cert tls.crt
+</span></span><span class="line"><span class="cl">secret/tls-secret created
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="deploy-tls-ingress-resources">Deploy TLS Ingress resources</h3>
+<ol>
+<li>
+<p>Deploy the sample app for testing. Use the same app you used for PATH-based routing.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deployment nginx-blue --image<span class="o">=</span>thekoguryo/nginx-hello:blue
+</span></span><span class="line"><span class="cl">kubectl expose deployment nginx-blue --name nginx-blue-svc --port <span class="m">80</span>
+</span></span><span class="line"><span class="cl">kubectl create deployment nginx-green --image<span class="o">=</span>thekoguryo/nginx-hello:green
+</span></span><span class="line"><span class="cl">kubectl expose deployment nginx-green --name nginx-green-svc --port <span class="m">80</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Write the ingress setup YAML (<code>tls-termination.yaml</code>).</p>
+<ul>
+<li>Use the self-signed certificate name you created earlier as spec.tls.secretName.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-tls-termination</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">tls-secret</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">blue.ingress.thekoguryo.ml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-blue-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">green.ingress.thekoguryo.ml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-green-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Delete the existing test ingress and deploy the created <code>tls-termination.yaml</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f tls-termination.yaml 
+</span></span><span class="line"><span class="cl">ingress.networking.k8s.io/ingress-tls-termination created
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get ingress
+</span></span><span class="line"><span class="cl">NAME                      CLASS    HOSTS                                                    ADDRESS   PORTS     AGE
+</span></span><span class="line"><span class="cl">ingress-tls-termination   &lt;none&gt;   blue.ingress.thekoguryo.ml,green.ingress.thekoguryo.ml             80, <span class="m">443</span>   5s
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="validate-tls-application-result">Validate TLS application result</h3>
+<ol>
+<li>
+<p>Connect to each host name applied in the ingress rule and check the result.</p>
+<p>As shown below, you will be connected via https and a warning message will appear due to the Self-Signed certificate.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207124621301.png" alt='image-20211207124621301' onerror="this.onerror=null;this.src='images\/image-20211207124621301.png';" />
+</p>
+</li>
+<li>
+<p>Click <strong>Advanced</strong> and select Go to that page.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207124712582.png" alt='image-20211207124712582' onerror="this.onerror=null;this.src='images\/image-20211207124712582.png';" />
+</p>
+</li>
+<li>
+<p>Check the certificate information through the browser address bar menu. With Self-Signed Certificates, you can see warnings that the root certificate is not trusted.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207125115259.png" alt='image-20211207125115259' onerror="this.onerror=null;this.src='images\/image-20211207125115259.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207125154597.png" alt='image-20211207125154597' onerror="this.onerror=null;this.src='images\/image-20211207125154597.png';" />
+</p>
+</li>
+</ol>
+<h2 id="using-lets-encrypt--cert-manager">Using Let&rsquo;s Encrypt &amp; Cert Manager</h2>
+<p>Let&rsquo;s Encrypt is a free certificate issuing site where you can get a certificate to use for TLS. Instead, it is only valid for 90 days and must be renewed before expiration. Kubernetes can automatically renew through Cert Manager.</p>
+<ul>
+<li><a href="https://letsencrypt.org/2015/11/09/why-90-days.html">https://letsencrypt.org/2015/11/09/why-90-days.html</a></li>
+</ul>
+<p>Installation notes</p>
+<ul>
+<li><a href="https://cert-manager.io/docs/tutorials/acme/ingress/">https://cert-manager.io/docs/tutorials/acme/ingress/</a></li>
+</ul>
+<h3 id="deploy-cert-manager">Deploy Cert Manager</h3>
+<ol>
+<li>
+<p>Deploy Cert Manager in Cloud Shell or in your environment.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>Check the installation</p>
+<p>Check that the resources in the cert-manager namespace are running normally.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get all -n cert-manager
+</span></span><span class="line"><span class="cl">NAME                                          READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/cert-manager-55658cdf68-sk5nj             1/1     Running   <span class="m">0</span>          18s
+</span></span><span class="line"><span class="cl">pod/cert-manager-cainjector-967788869-b77w2   1/1     Running   <span class="m">0</span>          18s
+</span></span><span class="line"><span class="cl">pod/cert-manager-webhook-7b86bc6578-pnxtg     1/1     Running   <span class="m">0</span>          18s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>    AGE
+</span></span><span class="line"><span class="cl">service/cert-manager           ClusterIP   10.96.100.11   &lt;none&gt;        9402/TCP   19s
+</span></span><span class="line"><span class="cl">service/cert-manager-webhook   ClusterIP   10.96.212.15   &lt;none&gt;        443/TCP    19s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                      READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">deployment.apps/cert-manager              1/1     <span class="m">1</span>            <span class="m">1</span>           19s
+</span></span><span class="line"><span class="cl">deployment.apps/cert-manager-cainjector   1/1     <span class="m">1</span>            <span class="m">1</span>           19s
+</span></span><span class="line"><span class="cl">deployment.apps/cert-manager-webhook      1/1     <span class="m">1</span>            <span class="m">1</span>           19s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                                DESIRED   CURRENT   READY   AGE
+</span></span><span class="line"><span class="cl">replicaset.apps/cert-manager-55658cdf68             <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       19s
+</span></span><span class="line"><span class="cl">replicaset.apps/cert-manager-cainjector-967788869   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       19s
+</span></span><span class="line"><span class="cl">replicaset.apps/cert-manager-webhook-7b86bc6578     <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       18s
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="configure-lets-encrypt-issuer">Configure Let&rsquo;s Encrypt Issuer</h3>
+<p>In this example, Staging Issuer and Production Issuer provided by Let&rsquo;s Encrypt can be used. Here we will use the Staging Issuer for testing purposes.</p>
+<ol>
+<li>
+<p>Let&rsquo;s Encrypt Staging Issuer Setup</p>
+<p>In the <a href="https://cert-manager.io/docs/tutorials/acme/example/staging-issuer.yaml">https://cert-manager.io/docs/tutorials/acme/example/staging-issuer.yaml</a> file, only the <strong>email part is modified</strong> and reflected.</p>
+<p>Use the ClusterIssuer type for use with the entire Kubernetes cluster, rather than an Issuer used only for namespaces.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">cert-manager.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">ClusterIssuer</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">letsencrypt-staging</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">acme</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># The ACME server URL</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">server</span><span class="p">:</span><span class="w"> </span><span class="l">https://acme-staging-v02.api.letsencrypt.org/directory</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># Email address used for ACME registration</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">email</span><span class="p">:</span><span class="w"> </span><span class="l">user@example.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># Name of a secret used to store the ACME account private key</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">privateKeySecretRef</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">letsencrypt-staging</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c"># Enable the HTTP-01 challenge provider</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">solvers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">http01</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">ingress</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Let&rsquo;s Encrypt Production Issuer</p>
+<p>The Production Issuer can be installed in the same way using the <a href="https://cert-manager.io/docs/tutorials/acme/example/production-issuer.yaml">https://cert-manager.io/docs/tutorials/acme/example/production-issuer.yaml</a> file. However, if you repeat deletion and creation due to usage limit, you may be hit by the rate limit.</p>
+</li>
+<li>
+<p>Apply settings</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:$ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl create --edit -f https://cert-manager.io/docs/tutorials/acme/example/staging-issuer.yaml
+</span></span><span class="line"><span class="cl">issuer.cert-manager.io/letsencrypt-staging created
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="deploy-tls-ingress-resources-1">Deploy TLS Ingress resources</h3>
+<ol>
+<li>
+<p>Use the test app as it was before.</p>
+</li>
+<li>
+<p>Write the ingress setup YAML (<code>tls-termination-cert-manager.yaml</code>).</p>
+<ul>
+<li><strong>As of the document creation date (STAGING) Due to the expiration of the Doctored Durian Root CA, the certificate may appear as invalid even when using a staging issuer.</strong> The cert manager issuer will use the production issuer. Instead, the production issuer may hit the limit if it repeats the creation.</li>
+<li>cert-manager.io/cluster-issuer: letsencrypt-staging config we just created, use cluster-issuer not issuer.</li>
+<li>Specify the storage name to store tls under spec.tls and the domain name to be issued and used</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">networking.k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Ingress</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-tls-termination-cert-manager</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">kubernetes.io/ingress.class</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cert-manager.io/cluster-issuer</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;letsencrypt-staging&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">tls</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l">ingress-thekoguryo-ml-tls</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">hosts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">green.ingress.thekoguryo.ml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">blue.ingress.thekoguryo.ml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">rules</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">green.ingress.thekoguryo.ml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-green-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l">blue.ingress.thekoguryo.ml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">http</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">paths</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">pathType</span><span class="p">:</span><span class="w"> </span><span class="l">Prefix</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">backend</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">service</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-blue-svc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">number</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Delete the existing test ingress and distribute the created <code>tls-termination-cert-manager.yaml</code>.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:ingress-nginx <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f tls-termination-cert-manager.yaml 
+</span></span><span class="line"><span class="cl">ingress.networking.k8s.io/ingress-tls-termination-cert-manager created
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:ingress-nginx <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get ingress
+</span></span><span class="line"><span class="cl">NAME                                   CLASS    HOSTS                                                    ADDRESS   PORTS     AGE
+</span></span><span class="line"><span class="cl">ingress-tls-termination-cert-manager   &lt;none&gt;   blue.ingress.thekoguryo.ml,green.ingress.thekoguryo.ml             80, <span class="m">443</span>   9s
+</span></span></code></pre></div></li>
+<li>
+<p>Confirm issuance of the certificate</p>
+<p>A secret is created with the specified spec.tls.secretName, and when the certificate status (READY) becomes True, it was issued normally.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:ingress-nginx <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get secret
+</span></span><span class="line"><span class="cl">NAME                        TYPE                                  DATA   AGE
+</span></span><span class="line"><span class="cl">default-token-jbv7p         kubernetes.io/service-account-token   <span class="m">3</span>      3d19h
+</span></span><span class="line"><span class="cl">ingress-thekoguryo-ml-tls   kubernetes.io/tls                     <span class="m">2</span>      15m
+</span></span><span class="line"><span class="cl">letsencrypt-staging         Opaque                                <span class="m">1</span>      16m
+</span></span><span class="line"><span class="cl">oke_admin@cloudshell:ingress-nginx <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get certificate
+</span></span><span class="line"><span class="cl">NAME                        READY   SECRET                      AGE
+</span></span><span class="line"><span class="cl">ingress-thekoguryo-ml-tls   True    ingress-thekoguryo-ml-tls   16m
+</span></span></code></pre></div></li>
+</ol>
+<h3 id="validate-tls-application-result-1">Validate TLS application result</h3>
+<ol>
+<li>
+<p>Connect to each host name applied in the ingress rule and check the result.</p>
+<p>As shown below, it is accessed via https and is displayed as a valid certificate without warning unlike Self-Signed certificates.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207185839881.png" alt='image-20211207185839881' onerror="this.onerror=null;this.src='images\/image-20211207185839881.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207185954775.png" alt='image-20211207185954775' onerror="this.onerror=null;this.src='images\/image-20211207185954775.png';" />
+</p>
+</li>
+<li>
+<p>All the requested hosts are registered in the DNS alternative address, and the blue app is also connected without an authentication error.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207190233212.png" alt='image-20211207190233212' onerror="this.onerror=null;this.src='images\/image-20211207190233212.png';" />
+</p>
+</li>
+</ol>
+<h3 id="resolve-authentication-error-due-to-lets-encrypt-root-ca-change">Resolve authentication error due to Let&rsquo;s Encrypt Root CA change</h3>
+<ol>
+<li>
+<p>When using Staging Issuer, an authentication error may occur when accessing a web browser due to the expiration of (STAGING) Doctored Durian Root CA X3. Production Issuers don&rsquo;t have that issue.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207190731003.png" alt='image-20211207190731003' onerror="this.onerror=null;this.src='images\/image-20211207190731003.png';" />
+</p>
+</li>
+<li>
+<p>If this error occurs, download the changed new Root CA from the let&rsquo;s encrypt site and register it in the browser.</p>
+</li>
+<li>
+<p>Download the file</p>
+<p><a href="https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem">https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem</a></p>
+</li>
+<li>
+<p>Add the downloaded Root CA to your browser (based on Chrome browser)</p>
+<ul>
+<li>
+<p>Go to <strong>Chrome Browser</strong> &gt; <strong>Settings</strong> &gt; Privacy &amp; Security &gt; <strong>Certificate Management</strong></p>
+</li>
+<li>
+<p>Click Import Certificate</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207190758097.png" alt='image-20211207190758097' onerror="this.onerror=null;this.src='images\/image-20211207190758097.png';" />
+</p>
+</li>
+<li>
+<p>Select the downloaded file</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207190827049.png" alt='image-20211207190827049' onerror="this.onerror=null;this.src='images\/image-20211207190827049.png';" />
+</p>
+</li>
+<li>
+<p>Install certificate</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207190845774.png" alt='image-20211207190845774' onerror="this.onerror=null;this.src='images\/image-20211207190845774.png';" />
+</p>
+</li>
+<li>
+<p>Check after certificate registration</p>
+<p>I see the certificate I just enrolled (STAGING) with Trusted Root Certification Authorities</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207190923997.png" alt='image-20211207190923997' onerror="this.onerror=null;this.src='images\/image-20211207190923997.png';" />
+</p>
+</li>
+<li>
+<p>If you access the web page of the app again after the certificate is registered, no authentication error occurs and the authentication path is displayed as shown below.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20211207185954775.png" alt='image-20211207185954775' onerror="this.onerror=null;this.src='images\/image-20211207185954775.png';" />
+</p>
+</li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>
+<p>Reference link</p>
+<p><a href="https://github.com/vancluever/terraform-provider-acme/issues/161">https://github.com/vancluever/terraform-provider-acme/issues/161</a></p>
+</li>
+</ul>
+<br>
+<br>
+<div class="panel panel-caution">
+<div class="panel-body">
+<p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions. </p>
+</div>
+</div>
+
+ <div class="edit-meta">Last updated on 7 Dec 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/" title="4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/" title="4.1.5 Getting Client IP from NGINX Ingress Controller">Next - 4.1.5 Getting Client IP from NGINX Ingress Controller <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/">
+    OCI(Oracle Cloud Infrastructure)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter01/">
+    1. OCI Basic Concept
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/2/">1.2 Fault Domains</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/3/">1.3 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/6/">1.6 Map of offerings between cloud service providers</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter02/">
+    2. Get started with OCI Services
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/1/">2.1 Creating an Oracle Cloud Free Tier Account</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/2/">2.2 Connecting to the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/3/">2.3 Using the OCI Console</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/4/">2.4 Initial Cloud Account (Tenancy) Architecture</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/">
+    3. Use the OCI Compute VM
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/1/">3.1 Creating a Work Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/2/">3.2 Creating a VCN for a Virtual Network Environment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/3/">3.3 Creating a Key Pair for SSH Connections</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/4/">3.4 Creating a Linux Instance</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/5/">
+    3.5 Connecting to a Linux Instance
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/1/">3.5.1 Access from Linux, Mac</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/2/">3.5.2 Connecting to PuTTY on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/3/">3.5.3 Changing the PEM &lt;-&gt; PPK Format</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/6/">
+    3.6 Block Volume like hard drive
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/1/">3.6.1 Creating a Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/2/">3.6.2 Mounting Block Volume to Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">3.6.3 Connecting to Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">3.6.4 Formatting Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">3.6.5 Mount Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">3.6.6 Unmounting Block Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/7/">3.6.7 Deleting Block Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/7/">
+    3.7 Utilizing Block Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/1/">3.7.1 Backing up Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/2/">3.7.2 Creating a New Volume from Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/3/">3.7.3 Copying Backups to Another Region</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/4/">3.7.4 Backing up Policy-Based Block Volumes</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter03/8/">
+    3.8 Utilizing Boot Volume Backups
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/1/">3.8.1 Backing Up Boot Volume</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/2/">3.8.2 Creating a New Boot Volume from a Backup</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/3/">3.8.3 Creating a New Instance with Boot Volume</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter04/">
+    4. Reserved Public IP for Static IP Allocation
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/1/">4.1 Creating a Reserved Public IP</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/2/">4.2 Allocating Reserved Public IP</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter05/">
+    5. Using Security Lists to Configure Firewalls
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/1/">5.1 Installing Apache HTTP Server on Linux Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/2/">5.2 Updating the Default Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/3/">5.3 Adding a Custom Security List</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/4/">5.4 Testing Apache HTTP Server Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter06/">
+    6. Using IAM to Set User Permissions
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/1/">6.1 Compartment</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/2/">6.2 Creating Users</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/3/">6.3 Creating Groups</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/4/">6.4 Creating a Policy</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/5/">6.5 Grabbing the Policy Concept</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter07/">
+    7. Using Object Storage
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/1/">7.1 Creating a Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/2/">7.2 Uploading Files to Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/3/">7.3 Object Permission Management - Pre-authentication</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/4/">7.4 Object Rights Management - Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/5/">7.5 Hosting Static Websites with Public Bucket</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/6/">7.6 Uploading Files via CloudBerry Explorer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/7/">7.7 Setting up an Archive via Lifecycle</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter08/">
+    8. Using File Storage, a Network File System
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/1/">8.1 Example File Storage Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/2/">8.2 Mounting and using FSS on a Linux VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/3/">8.3 Export Option for Access Control</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/4/">8.4 Snapshot for Backup</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter09/">
+    9. Machine Image
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/1/">9.1 OS Image provided by default</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/2/">9.2 Create Custom Image from Instance</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter10/">
+    10. Using Load Balancer for High Availability
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/1/">10.1 Load Balancer Configuration Example</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/2/">10.2 VCN Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/3/">10.3 Creating a Backend Web Server</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/4/">10.4 Creating a Subnet for a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/5/">10.5 Creating a Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/6/">10.6 Checking the Load Balancer Connection</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter11/">
+    11. Domain Name System (DNS)
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter11/1/">11.1 Mapping with Domain Names</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/">
+    12. Monitoring for OCI resource monitoring
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/1/">12.1 Enabling Compute Instance Monitoring</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/2/">12.2 Creating Monitoring Alarm</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter12/3/">
+    12.3 OCI Grafana Plugin
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/1/">12.3.1 Installing Grafana on Compute VM</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/2/">12.3.2 Grafana Configuration</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter13/">
+    13. Autoscaling Based on Metric
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/1/">13.1 Preparation for Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/2/">13.2 Configuring Autoscaling</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/3/">13.3 Autoscaling Test</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/">
+    14. Using Developer Tools
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/">
+    14.1 OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/">
+    14.1.1 Installing the OCI CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/1/">14.1.1.1 Installing OCI CLI on Windows</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/2/">14.1.1.2 Installing OCI CLI on Linux</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/3/">14.1.1.3 Config File Settings</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/4/">14.1.1.4 Registering API Public Key</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/5/">14.1.1.5 Verifying OCI CLI Installation</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/">
+    14.1.2 Using Object Storage as CLI
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/1/">14.1.2.1 Setting IAM Policy for Object Storage</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">14.1.2.2 File Upload via CLI</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/2/">
+    14.2 Terraform
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/1/">14.2.1 Installing Terraform</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/2/">14.2.2 Creating Terraform Configurations</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/3/">14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/4/">14.2.4 Running Terraform Configuration</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/5/">14.2.5 Using workspaces for multiple environments</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">14.2.6 Example, Creating Users Using List and Count</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/7/">14.2.7 OCI Terraform Usage Example</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/">
+    14.3 REST API
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">14.3.2 Bash Sample Client</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/3/">14.3.3 Insomnia - Calling the OCI REST API</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/4/">14.3.4 Postman - Calling the OCI REST API</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oci/chapter15/">
+    15. Using Resource Manager
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/1/">15.1 Using the Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/2/">15.2 Stack Template for Resource Manager</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/3/">15.3 Configuring a Private Git Server for Resource Manager</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/">
+    Oracle Cloud Native
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/">
+    1. Using Managed Kubernetes OKE
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/">1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 Creating an OKE Cluster</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/">
+    1.3 Connecting the OKE Cluster
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Connecting to a Cluster with Cloud Shell</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 Connecting to a Cluster in a Local Environment</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 Deploying Apps and Using Load Balancer</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 Using OCIR Images</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/">
+    1.6 Using Persistent Volumes
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Using Block Volumes</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 Using File Storage</a></li>
+
+
+
+
+</ul>
+  
+</li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Upgrading the Kubernetes Version</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/">
+    2. Using OCIR, a container registry
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/">2.1 Scanning Container Images</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/">2.2 Using Helm Chart Repository</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/">
+    3. Using OCI DevOps Services as CI/CD
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 Automating Deployments with Helm Charts via DevOps Services</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/">
+    4. Leveraging Open Source Software (OSS)
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+
+
+
+<li class="parent has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/">
+    4.1 Ingress Controller
+    <button type="button" class="toggleButton">
+      <span class="right  hidden">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down " >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class="sub-menu">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 Installing the NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 TLS termination in NGINX Ingress Controller</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 Getting Client IP from NGINX Ingress Controller</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/">
+    4.2 Logging - EFK
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 Installing EFK</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/">
+    4.3 Monitoring - Prometheus&amp;Grafana
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Installing Prometheus&amp;Grafana</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/">
+    4.4 Service Mesh - Istio
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Deploying Microservices Apps Without Service Mesh</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/">
+    5. Utilizing OCI Service
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 Service Operator for OCI Resource Management in OKE</a></li>
+
+
+
+<li class=" has-sub-menu">
+  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/">
+    5.2 Logging Service
+    <button type="button" class="toggleButton">
+      <span class="right ">
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+        </svg></span>
+      <span class="down  hidden" >
+        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+        </svg>
+      </span>
+    </button>
+  </a>
+     
+
+ 
+<ul class=" hidden">
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 Log Monitoring Using OCI Logging</a></li>
+<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service Based on OpenSearch</a></li>
+
+
+
+
+</ul>
+  
+</li>
+
+
+
+
+</ul>
+  
+</li>
+</ul>
+  
+</li>
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

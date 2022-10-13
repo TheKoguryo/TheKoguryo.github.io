@@ -3,7 +3,7 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>5.2.2 Log Monitoring Using OCI Search Service Based on OpenSearch - TheKoguryo&#39;s Tech Blog</title>
+<title>5.2.2 Log Monitoring Using OCI Search Service with OpenSearch - TheKoguryo&#39;s Tech Blog</title>
 <meta name="generator" content="Hugo 0.104.3" />
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">
@@ -26,13 +26,13 @@
   gtag('config', 'UA-106207316-1');
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
-     crossorigin="anonymous"></script><meta property="og:title" content="5.2.2 Log Monitoring Using OCI Search Service Based on OpenSearch" />
+     crossorigin="anonymous"></script><meta property="og:title" content="5.2.2 Log Monitoring Using OCI Search Service with OpenSearch" />
 <meta property="og:description" content="5.2.2 Log monitoring using OCI Search service OpenSearch and OpenDashboards will be forked from ElasticSearch and Cabana in 2021 and are operating as separate open source projects. OCI OpenSearch is a managed service provided by OCI.
 Setting policy to use OCI Search service Granting OCI Search service permission Allow service opensearch to manage vnics in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt; Allow service opensearch to manage vcns in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt; Allow service opensearch to use subnets in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt; Allow service opensearch to use network-security-groups in compartment &lt;NETWORK_RESOURCES_COMPARTMENT&gt; Granting OCI Search Service Management Permissions in Oracle Cloud Console Example when the group the user belongs to is SearchOpenSearchAdmins Allow group SearchOpenSearchAdmins to manage opensearch-family in compartment &lt;CLUSTER_RESOURCES_COMPARTMENT&gt; Create an OCI OpenSearch cluster Log in to the Oracle Cloud Console." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/" /><meta property="article:section" content="oracle-cloudnative" />
 
-<meta property="article:modified_time" content="2022-05-31T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
+<meta property="article:modified_time" content="2022-10-14T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
 
 
 </head>
@@ -110,7 +110,7 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 <p>Select the node configuration to create. There are three possible configurations, here we choose the Development configuration.</p>
 <ul>
 <li>Development: 1 Master Node, 1 Data Node, 1 OpenSearch Dashboard Node</li>
-<li>Application Search, Log Analytics: 3 master nodes, 3 data nodes, 3 OpenSearch dashboard nodes are the same, but the data nodes have different CPU sizes.</li>
+<li>Application Search, Log Analytics: 3 Master Nodes, 3 Data Nodes, 3 OpenSearch Dashboard Nodes</li>
 <li>After selecting the configuration, all node sizes can be modified. You can also change the size after cluster creation.</li>
 </ul>
 <p>
@@ -139,16 +139,6 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 </li>
 <li>
 <p>Confirm the configuration information to select and create the cluster.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20220531171825297.png" alt='image-20220531171825297' onerror="this.onerror=null;this.src='images\/image-20220531171825297.png';" />
-</p>
 </li>
 <li>
 <p>Based on the test date based on the development configuration, the creation time took about 20 minutes.</p>
@@ -156,7 +146,7 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 <li>
 <p>Created Cluster Information</p>
 <ul>
-<li><strong>As you can see from the cluster information, both OpenSearch and OpenSearch Dashboard have only Private IP and Private FQDN. As of the end of May 2022, public IP is not yet supported.</strong></li>
+<li><strong>As you can see from the cluster information, both OpenSearch and OpenSearch Dashboard have only Private IP and Private FQDN. As of mid-October 2022, public IP is not yet supported.</strong></li>
 </ul>
 <p>
 
@@ -166,14 +156,28 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 
 
 
-<img class="img-fluid1" src="../images/image-20220531173539321.png" alt='image-20220531173539321' onerror="this.onerror=null;this.src='images\/image-20220531173539321.png';" />
+<img class="img-fluid1" src="../images/image-20221013231148309.png" alt='image-20221013231148309' onerror="this.onerror=null;this.src='images\/image-20221013231148309.png';" />
 </p>
 </li>
 <li>
 <p>Check the OpenSearch API Endpoint, Private IP of the cluster and the API Endpoint and Private IP of the OpenSearch Dashboard.</p>
+<ul>
+<li>
+<p>As of September 15, 2022, the endpoint domain has been changed from oci.oracleiaas.com to oci.oraclecloud.com. And the certificate was also changed from Self-Signed certificate to DigiCert certificate. So, you no longer need to add a self-signed certificate to the client when calling the API.</p>
+<ul>
+<li>See Note in [OCI Documentation &gt; Search Service with OpenSearch &gt; Connection to a Cluster] (<a href="https://docs.oracle.com/en-us/iaas/Content/search-opensearch/Tasks/ingestingociopensearchdata.htm#connecttocluster">https://docs.oracle.com/en-us/iaas/Content/search-opensearch/Tasks/ingestingociopensearchdata.htm#connecttocluster</a>)</li>
+</ul>
+</li>
+<li>
+<p>If the cluster or endpoint domain created before September 15, 2022 ends with oci.oracleiaas.com, refer to the previous document for the integration procedure.</p>
+<ul>
+<li>[5.2.2 Log monitoring using OpenSearch based OCI Search service - Self-Signed](../../../../archives/oracle-cloudnative/oci-services/logging/2.oci-opensearch- self-signed/)</li>
+</ul>
+</li>
+</ul>
 </li>
 </ol>
-<h2 id="setting-up-to-connect-to-a-cluster">Setting up to connect to a cluster</h2>
+<h2 id="setting-up-to-connect-to-the-cluster">Setting up to connect to the cluster</h2>
 <h3 id="create-a-jumpbox-vm">Create a JumpBox VM</h3>
 <p>OpenSearch Dashboard does not currently support Public IP. Create additional JumpBox VM with public IP to access OpenSearch Dashboard.</p>
 <ol>
@@ -246,49 +250,15 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 <li>
 <p>Access the OpenSearch Dashboard through the jumpbox VM through SSH tunneling.</p>
 <ul>
-<li>Based on OpenSearch Cluster information, if OpenSearch Dashboard private ip is 10.0.20.197</li>
+<li>Based on OpenSearch Cluster information, if OpenSearch Dashboard private ip is 10.0.20.218</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ssh -L 5601:10.0.20.197:5601 opc@jumpbox
-</span></span></code></pre></div></li>
-<li>
-<p>After connecting to the jumpbox VM, test whether it can connect to the Dashboard API Endpoint.</p>
-<ul>
-<li>If you can see the connection as shown below, you can see that the current self-signed certificate is being used.</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ ssh -L 5601:10.0.20.197:5601 opc@jumpbox
-</span></span><span class="line"><span class="cl">Activate the web console with: systemctl <span class="nb">enable</span> --now cockpit.socket
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Last login: Fri Jun  <span class="m">3</span> 04:51:54 <span class="m">2022</span> from 192.188.170.86
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ curl -v --insecure https://amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com:5601
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">* SSL connection using TLSv1.2 / ECDHE-RSA-AES128-GCM-SHA256
-</span></span><span class="line"><span class="cl">* ALPN, server accepted to use http/1.1
-</span></span><span class="line"><span class="cl">* Server certificate:
-</span></span><span class="line"><span class="cl">*  subject: <span class="nv">CN</span><span class="o">=</span>*.opendashboard.ap-chuncheon-1.oci.oracleiaas.com
-</span></span><span class="line"><span class="cl">*  start date: Apr  <span class="m">5</span> 02:07:20 <span class="m">2022</span> GMT
-</span></span><span class="line"><span class="cl">*  expire date: Oct  <span class="m">2</span> 02:08:20 <span class="m">2022</span> GMT
-</span></span><span class="line"><span class="cl">*  issuer: <span class="nv">OU</span><span class="o">=</span>opc-device:71:a6:a1:f5:40:ae:13:ba:7b:10:71:5e:7e:84:e3:a6:6f:c1:f4:21:61:3a:e3:da:8e:30:2a:56:82:30:cc:9d<span class="p">;</span> <span class="nv">CN</span><span class="o">=</span>PKISVC CrossRegion Intermediate r2
-</span></span><span class="line"><span class="cl">*  SSL certificate verify result: self signed certificate in certificate chain <span class="o">(</span>19<span class="o">)</span>, continuing anyway.
-</span></span><span class="line"><span class="cl">&gt; GET / HTTP/1.1
-</span></span><span class="line"><span class="cl">&gt; Host: amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com:5601
-</span></span><span class="line"><span class="cl">&gt; User-Agent: curl/7.61.1
-</span></span><span class="line"><span class="cl">&gt; Accept: */*
-</span></span><span class="line"><span class="cl">&gt;
-</span></span><span class="line"><span class="cl">&lt; HTTP/1.1 <span class="m">302</span> Found
-</span></span><span class="line"><span class="cl">&lt; location: /app/home
-</span></span><span class="line"><span class="cl">&lt; osd-name: kibana-54c5f88dc9-gt57f
-</span></span><span class="line"><span class="cl">&lt; cache-control: private, no-cache, no-store, must-revalidate
-</span></span><span class="line"><span class="cl">&lt; content-length: <span class="m">0</span>
-</span></span><span class="line"><span class="cl">&lt; Date: Fri, <span class="m">03</span> Jun <span class="m">2022</span> 04:58:56 GMT
-</span></span><span class="line"><span class="cl">&lt; Connection: keep-alive
-</span></span><span class="line"><span class="cl">&lt;
-</span></span><span class="line"><span class="cl">* Connection <span class="c1">#0 to host amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opendashboard.ap-chuncheon-1.oci.oracleiaas.com left intact</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ssh -L 5601:10.0.20.218:5601 opc@jumpbox
 </span></span></code></pre></div></li>
 <li>
 <p>Since SSH tunneling is done, check the connection to the OpenSearch Dashboard with a browser locally.</p>
 <ul>
 <li>Access address: https://localhost:5601</li>
+<li>Choose Explore on my own</li>
 </ul>
 <p>
 
@@ -331,56 +301,6 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 
 </li>
 </ol>
-<h3 id="register-self-signed-ca-used-by-opensearch-dashboard">Register Self Signed CA used by OpenSearch Dashboard</h3>
-<ol>
-<li>
-<p>Go back to the jumpbox VM connected via SSH.</p>
-</li>
-<li>
-<p>Download Self Signed CA of OpenSearch Endpoint with the following command.</p>
-<ul>
-<li>OpenSearch API Endpoint in the cluster</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">openssl s_client -showcerts -connect <span class="si">${</span><span class="nv">OPENSEARCH_API_ENDPOINT</span><span class="si">}</span>:9200 &lt;/dev/null <span class="p">|</span> sed -n -e <span class="s1">&#39;/-.BEGIN/,/-.END/ p&#39;</span> &gt; opensearch-ca.crt
-</span></span></code></pre></div><ul>
-<li>Execution example</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">opc@jumpbox ~<span class="o">]</span>$ openssl s_client -showcerts -connect amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opensearch.ap-chuncheon-1.oci.oracleiaas.com:9200 &lt;/dev/null <span class="p">|</span> sed -n -e <span class="s1">&#39;/-.BEGIN/,/-.END/ p&#39;</span> &gt; opensearch-ca.crt
-</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">2</span> <span class="nv">CN</span> <span class="o">=</span> Mission Control Root CA <span class="o">(</span>transitional<span class="o">)</span>
-</span></span><span class="line"><span class="cl">verify error:num<span class="o">=</span>19:self signed certificate in certificate chain
-</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
-</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">2</span> <span class="nv">CN</span> <span class="o">=</span> Mission Control Root CA <span class="o">(</span>transitional<span class="o">)</span>
-</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
-</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">1</span> <span class="nv">OU</span> <span class="o">=</span> opc-device:f7:4a:0c:95:4a:8d:a6:06:a2:1c:d2:12:40:6b:61:ae:c3:a0:e2:4c:ca:7b:3e:df:94:85:cc:39:a4:92:df:93, <span class="nv">CN</span> <span class="o">=</span> PKISVC CrossRegion Intermediate r2
-</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
-</span></span><span class="line"><span class="cl"><span class="nv">depth</span><span class="o">=</span><span class="m">0</span> <span class="nv">CN</span> <span class="o">=</span> *.opensearch.ap-chuncheon-1.oci.oracleiaas.com
-</span></span><span class="line"><span class="cl">verify <span class="k">return</span>:1
-</span></span><span class="line"><span class="cl">DONE
-</span></span><span class="line"><span class="cl"><span class="o">[</span>opc@jumpbox ~<span class="o">]</span>$ cat opensearch-ca.crt
-</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
-</span></span><span class="line"><span class="cl">MIIE6TCCAtGgAwIBAgIRAOstTmVRjci44g910KG8+YMwDQYJKoZIhvcNAQELBQAw
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl"><span class="nv">2cTH4OwgiUBHOzI8tQ</span><span class="o">==</span>
-</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
-</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
-</span></span><span class="line"><span class="cl">MIIFxTCCA62gAwIBAgIRAM/DvpKazV/tYwL/TDrInwIwDQYJKoZIhvcNAQELBQAw
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">37v4yd3CKzhwvmSed7aUsCofDN2WtcVgAp7GA/l12kb+EEafun7QaQI<span class="o">=</span>
-</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
-</span></span><span class="line"><span class="cl">-----BEGIN CERTIFICATE-----
-</span></span><span class="line"><span class="cl">MIIFQzCCAyugAwIBAgIBAjANBgkqhkiG9w0BAQsFADAxMS8wLQYDVQQDEyZNaXNz
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl"><span class="nv">j3tjZCAkyg</span><span class="o">==</span>
-</span></span><span class="line"><span class="cl">-----END CERTIFICATE-----
-</span></span></code></pre></div></li>
-<li>
-<p>Copy the downloaded opensearch-ca.crt file to a location accessible to the target OKE cluster with kubectl.</p>
-</li>
-<li>
-<p>Add the CA as configmap to the OKE cluster with the following command:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl create configmap opensearch-ca.crt --from-file<span class="o">=</span>opensearch-ca.crt -n kube-system
-</span></span></code></pre></div></li>
-</ol>
 <h3 id="install-fluentd">Install FluentD</h3>
 <ol>
 <li>
@@ -388,7 +308,7 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">...</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">env</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l">FLUENT_OPENSEARCH_HOST</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;amaaaaaauzduwfyafs5lx2a77vnnbvz5wt6gbez6r3apldbqzn725kszn2xq.opensearch.ap-chuncheon-1.oci.oracleiaas.com&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;amaaaaaavsea7yia3enl6q6yrwekrd7qpi3yqaphhcvwowtmzftkt45jel7a.opendashboard.ap-chuncheon-1.oci.oraclecloud.com&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">          </span>- <span class="nt">name</span><span class="p">:</span><span class="w">  </span><span class="l">FLUENT_OPENSEARCH_PORT</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;9200&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="l">...</span><span class="w">
@@ -474,22 +394,22 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 </li>
 <li>
 <p>Check the log</p>
-<p>When the fluentd Pod starts up, check the log to see if it operates normally without any connection errors with OpenSearch.</p>
+<p>When the fluentd Pod starts up, check the logs to see if it operates normally without any connection errors with OpenSearch.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ kubectl get pod -n kube-system
 </span></span><span class="line"><span class="cl">NAME                                   READY   STATUS    RESTARTS      AGE
 </span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">fluentd-bz62z                          1/1     Running   <span class="m">0</span>             99s
-</span></span><span class="line"><span class="cl">fluentd-c54qn                          1/1     Running   <span class="m">0</span>             99s
-</span></span><span class="line"><span class="cl">fluentd-x5l2h                          1/1     Running   <span class="m">0</span>             99s
+</span></span><span class="line"><span class="cl">fluentd-7hbht                          1/1     Running   <span class="m">0</span>             99s
+</span></span><span class="line"><span class="cl">fluentd-qwrg4                          1/1     Running   <span class="m">0</span>             99s
+</span></span><span class="line"><span class="cl">fluentd-zfgfz                          1/1     Running   <span class="m">0</span>             99s
 </span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">$ kubectl logs -f fluentd-t7p87 -n kube-system -f
-</span></span><span class="line"><span class="cl">2022-06-03 07:28:46 +0000 <span class="o">[</span>info<span class="o">]</span>: parsing config file is succeeded <span class="nv">path</span><span class="o">=</span><span class="s2">&#34;/fluentd/etc/fluent.conf&#34;</span>
+</span></span><span class="line"><span class="cl">$ kubectl logs -f fluentd-7hbht -n kube-system -f
+</span></span><span class="line"><span class="cl">2022-10-13 15:31:30 +0000 <span class="o">[</span>info<span class="o">]</span>: parsing config file is succeeded <span class="nv">path</span><span class="o">=</span><span class="s2">&#34;/fluentd/etc/fluent.conf&#34;</span>
 </span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: adding match <span class="nv">pattern</span><span class="o">=</span><span class="s2">&#34;**&#34;</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&#34;opensearch&#34;</span>
+</span></span><span class="line"><span class="cl">2022-10-13 15:31:32 +0000 <span class="o">[</span>info<span class="o">]</span>: adding match <span class="nv">pattern</span><span class="o">=</span><span class="s2">&#34;**&#34;</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&#34;opensearch&#34;</span>
 </span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 starting fluentd worker pid=15 ppid=7 worker=0</span>
-</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/kube-flannel-ds-stmfq_kube-system_install-cni-f69fde150aaaf779132c4fc2f2315fc30e703e9e6c39127be21fbec137d7b735.log</span>
-</span></span><span class="line"><span class="cl">2022-06-03 07:28:48 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/proxymux-client-p7nzp_kube-system_proxymux-client-fa4352b8f7ba57325ea3ef2dc6af8016a585df67a0f870058f76761b75c074e7.log</span>
+</span></span><span class="line"><span class="cl">2022-10-13 15:31:32 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 starting fluentd worker pid=14 ppid=6 worker=0</span>
+</span></span><span class="line"><span class="cl">2022-10-13 15:31:32 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/proxymux-client-s75ds_kube-system_proxymux-client-eca8e5e37a2dbf317be4f25cddcce1f4659c5bf9adecccdf522f1f2317b17dc3.log</span>
+</span></span><span class="line"><span class="cl">2022-10-13 15:31:32 +0000 <span class="o">[</span>info<span class="o">]</span>: <span class="c1">#0 [in_tail_container_logs] following tail of /var/log/containers/csi-oci-node-vlgnm_kube-system_csi-node-driver-d566fd830f5a575b4d3724946f4a09a23bdf7615527b511a42cbae57c27bab0d.log</span>
 </span></span></code></pre></div></li>
 </ol>
 <h3 id="opensearch-dashboard-settings">OpenSearch Dashboard Settings</h3>
@@ -596,7 +516,7 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 
 
 
-<img class="img-fluid1" src="../images/image-20220603165356384.png" alt='image-20220603165356384' onerror="this.onerror=null;this.src='images\/image-20220603165356384.png';" />
+<img class="img-fluid1" src="../images/image-20221013235819689.png" alt='image-20221013235819689' onerror="this.onerror=null;this.src='images\/image-20221013235819689.png';" />
 </p>
 </li>
 </ol>
@@ -608,7 +528,7 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
 </div>
 </div>
 
- <div class="edit-meta">Last updated on 31 May 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/" title="5.2.1 Log Monitoring Using OCI Logging"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 5.2.1 Log Monitoring Using OCI Logging</a>
+ <div class="edit-meta">Last updated on 14 Oct 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/" title="5.2.1 Log Monitoring Using OCI Logging"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 5.2.1 Log Monitoring Using OCI Logging</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/images/" title="">Next -  <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
@@ -1845,7 +1765,7 @@ Setting policy to use OCI Search service Granting OCI Search service permission 
  
 <ul class="sub-menu">
 <li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 Log Monitoring Using OCI Logging</a></li>
-<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service Based on OpenSearch</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service with OpenSearch</a></li>
 
 
 

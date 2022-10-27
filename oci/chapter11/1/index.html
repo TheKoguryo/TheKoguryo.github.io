@@ -61,7 +61,7 @@
 </div>
 <div class="content-container">
 <main><h2 id="111-domain-name과-매핑하기">11.1 Domain Name과 매핑하기</h2>
-<p>이미 구입한 Domain Name이 있다는 전제하에 설정하는 과정입니다. 테스트를 위해 <a href="https://freenom.com/">freenom</a> 사이트에서 발급받은 무료 Domain Name(thekoguryo.ml)을 사용하였습니다.</p>
+<p>이미 구입한 Domain Name이 있다는 전제하에 설정하는 과정입니다. 테스트를 위해 <a href="https://freenom.com/"><strong>freenom</strong></a> 사이트에서 발급받은 무료 Domain Name(thekoguryo.ml)을 사용하였습니다.</p>
 <p>앞선 과정에서 Load Balancer를 사용해 Apache 웹서버와 연동하였습니다. 가지고 있는 Domain Name을 Load Balancer의 IP와 매핑하도록 하겠습니다.</p>
 <h3 id="oci-dns-서비스-설정">OCI DNS 서비스 설정</h3>
 <ol>
@@ -69,8 +69,8 @@
 <p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Networking</strong> &raquo; <strong>DNS Management</strong> &raquo; <strong>Zones</strong> 항목으로 이동합니다.</p>
 </li>
 <li>
-<p><strong>Create Zone</strong> 클릭
-
+<p><strong>Create Zone</strong> 클릭</p>
+<p>
 
 
 
@@ -83,11 +83,16 @@
 </li>
 <li>
 <p>생성정보 입력</p>
-<ol>
-<li><strong>METHOD</strong>: <strong>Manual</strong></li>
-<li><strong>ZONE NAME</strong>: 가지고 있는 Domain Name 입력</li>
-<li><strong>ZONE TYPE</strong>: <em>Primary</em>
-
+<ul>
+<li>
+<p><strong>METHOD</strong>: <strong>Manual</strong></p>
+</li>
+<li>
+<p><strong>ZONE NAME</strong>: 가지고 있는 Domain Name 입력</p>
+</li>
+<li>
+<p><strong>ZONE TYPE</strong>: <em>Primary</em></p>
+<p>
 
 
 
@@ -96,15 +101,16 @@
 
 
 <img class="img-fluid1" src="../images/image-20220116214121321.png" alt='image-20220116214121321' onerror="this.onerror=null;this.src='images\/image-20220116214121321.png';" />
+</p>
 </li>
-</ol>
+</ul>
 </li>
 <li>
 <p><strong>Create</strong> 클릭</p>
 </li>
 <li>
-<p>Resources &raquo; Records로 이동하면 생성된 항목을 볼 수 있습니다. Zone 내부에 NS 유형과 SOA 유형의 레코드가 생성되어 있습니다. NS는 네임 서버 레코드, SOA는 권한 시작 레코드입니다.
-
+<p>Resources &raquo; Records로 이동하면 생성된 항목을 볼 수 있습니다. Zone 내부에 NS 유형과 SOA 유형의 레코드가 생성되어 있습니다. NS는 네임 서버 레코드, SOA는 권한 시작 레코드입니다.</p>
+<p>
 
 
 
@@ -118,12 +124,21 @@
 <li>
 <p>앞서 웹서버를 Load Balancer의 IP 대신 특정 주소(<a href="https://www.thekoguryo.ml">www.thekoguryo.ml</a>)로 접속이 되게 레코드를 추가해 봈니다.</p>
 <ul>
-<li><strong>Record Type</strong>: <strong>A - IPv4 Address</strong></li>
-<li><strong>NAME</strong>: <strong>www</strong></li>
-<li><strong>TTL</strong>: <em>300</em>, 우측 자물쇠는 클릭하여 잠금 해제 후 TTL 값 입력</li>
-<li><strong>RDATA MODE</strong>: <strong>Basic</strong></li>
-<li><strong>ADDRESS</strong>: 매핑할 IP, 여기서는 앞서 만든 Load Balancer의 IP 입력
-
+<li>
+<p><strong>Record Type</strong>: <strong>A - IPv4 Address</strong></p>
+</li>
+<li>
+<p><strong>NAME</strong>: <strong>www</strong></p>
+</li>
+<li>
+<p><strong>TTL</strong>: <em>300</em>, 우측 자물쇠는 클릭하여 잠금 해제 후 TTL 값 입력</p>
+</li>
+<li>
+<p><strong>RDATA MODE</strong>: <strong>Basic</strong></p>
+</li>
+<li>
+<p><strong>ADDRESS</strong>: 매핑할 IP, 여기서는 앞서 만든 Load Balancer의 IP 입력</p>
+<p>
 
 
 
@@ -132,6 +147,7 @@
 
 
 <img class="img-fluid1" src="../images/image-20220116214441173.png" alt='image-20220116214441173' onerror="this.onerror=null;this.src='images\/image-20220116214441173.png';" />
+</p>
 </li>
 </ul>
 </li>
@@ -142,8 +158,8 @@
 <p>변경분을 반영하기 위해 <strong>Publish Change</strong> 클릭</p>
 </li>
 <li>
-<p>확인 창이 뜨면 한번 더 <strong>Publish Change</strong> 클릭
-
+<p>확인 창이 뜨면 한번 더 <strong>Publish Change</strong> 클릭</p>
+<p>
 
 
 
@@ -155,8 +171,8 @@
 </p>
 </li>
 <li>
-<p>레코드 추가 및 반영 완료
-
+<p>레코드 추가 및 반영 완료</p>
+<p>
 
 
 
@@ -174,9 +190,12 @@
 <h3 id="domain-name-제공-측에-설정">Domain Name 제공 측에 설정</h3>
 <p>이제 Domain Name을 구입한 사이트에서 설정이 필요합니다. 아래 과정은 freenom 기준 설정입니다. 구입한 사이트에서 비슷한 방식으로 설정합니다.</p>
 <ol>
-<li>freenom 사이트에 접속하여 <strong>Services</strong> &raquo; <strong>My Domains</strong>으로 이동합니다.</li>
-<li><strong>My Domain</strong>에서 사용할 도메인 네임 우측의 <strong>[Manage Domain]</strong> 클릭
-
+<li>
+<p>freenom 사이트에 접속하여 <strong>Services</strong> &raquo; <strong>My Domains</strong>으로 이동합니다.</p>
+</li>
+<li>
+<p><strong>My Domain</strong>에서 사용할 도메인 네임 우측의 <strong>[Manage Domain]</strong> 클릭</p>
+<p>
 
 
 
@@ -185,10 +204,14 @@
 
 
 <img class="img-fluid1" src="../images/image-20220116213412432.png" alt='image-20220116213412432' onerror="this.onerror=null;this.src='images\/image-20220116213412432.png';" />
+</p>
 </li>
-<li><strong>Management Tools</strong> &raquo; <strong>Nameservers</strong>를 선택한 다음 **Use custom nameservers (enter below)**를 선택합니다.</li>
-<li>앞서 OCI DNS Zone 에서 복사해둔 네임서버 주소를 차례대로 입력한 후 <strong>Change Nameservers</strong> 클릭
-
+<li>
+<p><strong>Management Tools</strong> &raquo; <strong>Nameservers</strong>를 선택한 다음 **Use custom nameservers (enter below)**를 선택합니다.</p>
+</li>
+<li>
+<p>앞서 OCI DNS Zone 에서 복사해둔 네임서버 주소를 차례대로 입력한 후 <strong>Change Nameservers</strong> 클릭</p>
+<p>
 
 
 
@@ -197,6 +220,7 @@
 
 
 <img class="img-fluid1" src="../images/image-20220116213641105.png" alt='image-20220116213641105' onerror="this.onerror=null;this.src='images\/image-20220116213641105.png';" />
+</p>
 </li>
 </ol>
 <h3 id="테스트">테스트</h3>
@@ -205,8 +229,8 @@
 <p>브라우저를 통해 Domain Name으로 접속해 봅니다.</p>
 </li>
 <li>
-<p>그림과 같이 Domain Name을 통해 접속되는 것을 확인할 수 있습니다.
-
+<p>그림과 같이 Domain Name을 통해 접속되는 것을 확인할 수 있습니다.</p>
+<p>
 
 
 

@@ -1,2030 +1,280 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>ARM-Based Server Performance Comparison: OCI vs. AWS - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.104.3" />
-<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
-<link rel="canonical" href="https://thekoguryo.github.io/en/blog/arm-based-server-performance/">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
-<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
-<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
-<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
-<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-106207316-1');
-</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
-     crossorigin="anonymous"></script><meta property="og:title" content="ARM-Based Server Performance Comparison: OCI vs. AWS" />
-<meta property="og:description" content="ARM-based server performance comparison: OCI vs. AWS OCI Ampere Altra A1 Oracle will make the Arm-based Ampere A1 Compute Shape available in virtual machines starting in May 2021.
-Release Notes - Arm-based Ampere A1 Compute shape now available Ampere A1 Compute Introduction Page OCI Ampere A1 Performance Measurements Performance Measurement References In the recent API Gateway Apache APISIX blog, we compared the performance of cloud ARM-based servers. Based on the contents, we will configure the environment as similar as possible in OCI and measure the performance once." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://thekoguryo.github.io/en/blog/arm-based-server-performance/" /><meta property="og:image" content="https://thekoguryo.github.io/blog/images/compute-shape-arm.png" /><meta property="article:section" content="blog" />
-
-<meta property="article:modified_time" content="2022-09-27T00:00:01+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
-
-
-</head>
-<body>
-<div class="container"><header>
-<h1>TheKoguryo&#39;s Tech Blog</h1>
-
- <span class="version">Version 2022.10.11</span>
-<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
-</header>
-<div class="menu">
-<nav>
-<ul>
-<li ><a href="/">Home</a></li>
-<li ><a href="/release-notes">OCI Release Notes</a></li>
-<li ><a href="/archives">Archives</a></li>
-<li ><a href="/tags">Tag</a></li>
-<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
-<li ><a href="/link">Link</a></li>
-<li style="float:right">
-  <a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">한국어</a>
-</li>
-
-
-</ul>
-</nav>
-</div>
-<div class="content-container">
-<main><h1 id="arm-based-server-performance-comparison-oci-vs-aws">ARM-based server performance comparison: OCI vs. AWS</h1>
-<h2 id="oci-ampere-altra-a1">OCI Ampere Altra A1</h2>
-<p>Oracle will make the Arm-based Ampere A1 Compute Shape available in virtual machines starting in May 2021.</p>
-<ul>
-<li>Release Notes - <a href="https://docs.oracle.com/en-us/iaas/releasenotes/changes/be1f5b9b-70ce-42fb-9866-a8640b68fd41/">Arm-based Ampere A1 Compute shape now available</a></li>
-<li><a href="https://www.oracle.com/kr/cloud/compute/arm/">Ampere A1 Compute Introduction Page</a></li>
-</ul>
-<h2 id="oci-ampere-a1-performance-measurements">OCI Ampere A1 Performance Measurements</h2>
-<h3 id="performance-measurement-references">Performance Measurement References</h3>
-<p>In the recent API Gateway <a href="https://apisix.apache.org/">Apache APISIX</a> blog, we compared the performance of cloud ARM-based servers. Based on the contents, we will configure the environment as similar as possible in OCI and measure the performance once.</p>
-<ul>
-<li>[#One. June 7, 2022, Installation and performance testing of API Gateway Apache APISIX on AWS Graviton3](<a href="https://apisix.apache.org/blog/2022/06/07/installation-performance-test-of-apigateway-apisix-on">https://apisix.apache.org/blog/2022/06/07/installation-performance-test-of-apigateway-apisix-on</a> -aws-graviton3/)</li>
-<li><a href="https://apisix.apache.org/blog/2022/08/12/arm-performance-google-aws-azure-with-apisix">#2. August 12, 2022, GCP, AWS, and Azure ARM-based server performance comparison</a></li>
-</ul>
-<h3 id="create-arm-ubuntu-vm">Create ARM Ubuntu VM</h3>
-<blockquote>
-<p>Environments tested in the referenced documentation</p>
-<ul>
-<li>AWS Graviton3: Based on ARM architecture</li>
-<li>AWS EC2 c7g.large (2vCPU, 4GiB Memory)</li>
-<li>Ubuntu 20.04</li>
-</ul>
-</blockquote>
-<ol>
-<li>
-<p>In OCI, configure the following environment:</p>
-<ul>
-<li>OCI Ampere A1: based on ARM architecture</li>
-<li>VM.Standard.A1.Flex: Free configuration, same choice of 2OCPU, 4GB memory</li>
-<li>Ubuntu 22.04 Minimal aarch64: Select 22.04 to minimize installation errors of benchmark test module</li>
-</ul>
-</li>
-<li>
-<p>On the Create Compute instance screen, choose <strong>Shape</strong> type as <strong>Ampere</strong>.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/compute-shape-arm.png" alt='' onerror="this.onerror=null;this.src='images\/compute-shape-arm.png';" />
-</p>
-</li>
-<li>
-<p>Change OS image to <strong>Ubuntu</strong>, change to default 22.04 Minimal aarch64.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/compute-image-ubuntu-22.04.png" alt='' onerror="this.onerror=null;this.src='images\/compute-image-ubuntu-22.04.png';" />
-</p>
-</li>
-<li>
-<p>Select one <strong>VM.Standard.A1.Flex</strong> Shape. A1 means Arm-based Ampere A1, and Flex means free choice of CPU and Memory. Choose <strong>2 OCPU, 4GB memory</strong>.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/compute-shape-size.png" alt='' onerror="this.onerror=null;this.src='images\/compute-shape-size.png';" />
-</p>
-</li>
-<li>
-<p>OS Image and Arm Server Shape selected.</p>
-<ul>
-<li>Network bandwith increases according to the number of OCPUs in Flex Shape.</li>
-<li>Network bandwith of VM.Standard.A1.Flex is 1 Gbps per OCPU, up to 40 Gbps.
-<ul>
-<li>Reference: [Oracle Cloud Infrastructure Documentation &gt; Compute &gt; Compute Shapes] (<a href="https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#vm-standard">https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#vm-standard</a>)</li>
-</ul>
-</li>
-<li>2 OCPUs were selected, resulting in 2 Gbps as shown.</li>
-</ul>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/compute-image-n-shape-22.04.png" alt='' onerror="this.onerror=null;this.src='images\/compute-image-n-shape-22.04.png';" />
-</p>
-</li>
-<li>
-<p>Create an instance by specifying the rest of the name, VCN, SSH Key, etc. as desired values.</p>
-</li>
-<li>
-<p>Connect to the created instance with SSH.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ssh ubuntu@&lt;PUBLIC-IP-OF-COMPUTE-INSTANCE&gt;
-</span></span></code></pre></div></li>
-</ol>
-<h3 id="install-apisix-on-arm-ubuntu-vm">Install APISIX on ARM Ubuntu VM</h3>
-<p>See also: [How to build APISIX in ARM Ubuntu] (<a href="https://apisix.apache.org/blog/2022/01/11/building-apisix-in-ubuntu-for-arm/">https://apisix.apache.org/blog/2022/01/11/building-apisix-in-ubuntu-for-arm/</a>)</p>
-<h4 id="install-requirements">Install Requirements</h4>
-<ol>
-<li>
-<p>Source code cloning</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get update
-</span></span><span class="line"><span class="cl">sudo apt-get install git
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">git clone https://github.com/apache/apisix.git
-</span></span><span class="line"><span class="cl"><span class="nb">cd</span> apisix
-</span></span><span class="line"><span class="cl">git checkout release/2.15
-</span></span></code></pre></div></li>
-<li>
-<p>Install OpenResty. Install for Ubuntu 22.04, ARM.</p>
-<ul>
-<li>
-<p>Note: (<a href="https://openresty.org/en/linux-packages.html#ubuntu">https://openresty.org/en/linux-packages.html#ubuntu</a>)</p>
-</li>
-<li>
-<p>Step 1: we should install some prerequisites needed by adding GPG public keys (could be removed later):</p>
-</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get -y install --no-install-recommends wget gnupg ca-certificates
-</span></span></code></pre></div><ul>
-<li>Step 2: import our GPG key:</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># For ubuntu 22</span>
-</span></span><span class="line"><span class="cl">wget -O - https://openresty.org/package/pubkey.gpg <span class="p">|</span> sudo gpg --dearmor -o /usr/share/keyrings/openresty.gpg
-</span></span></code></pre></div><ul>
-<li>Step 3: then add the our official APT repository.</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># for arm64 or aarch64 system</span>
-</span></span><span class="line"><span class="cl"><span class="c1"># For ubuntu 22 or above</span>
-</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;deb [arch=</span><span class="k">$(</span>dpkg --print-architecture<span class="k">)</span><span class="s2"> signed-by=/usr/share/keyrings/openresty.gpg] http://openresty.org/package/arm64/ubuntu </span><span class="k">$(</span>lsb_release -sc<span class="k">)</span><span class="s2"> main&#34;</span> <span class="p">|</span> sudo tee /etc/apt/sources.list.d/openresty.list &gt; /dev/null
-</span></span></code></pre></div><ul>
-<li>Step 4: update the APT index &amp; install openresty</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get update
-</span></span><span class="line"><span class="cl">sudo apt-get -y install openresty
-</span></span></code></pre></div></li>
-<li>
-<p>Install Dependencies</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">bash utils/install-dependencies.sh
-</span></span><span class="line"><span class="cl">sudo apt install wget sudo unzip
-</span></span><span class="line"><span class="cl">sudo apt-get install make gcc
-</span></span><span class="line"><span class="cl">curl https://raw.githubusercontent.com/apache/apisix/master/utils/linux-install-luarocks.sh -sL <span class="p">|</span> bash -
-</span></span><span class="line"><span class="cl"><span class="nv">LUAROCKS_SERVER</span><span class="o">=</span>https://luarocks.cn make deps
-</span></span></code></pre></div></li>
-<li>
-<p>Install APISIX</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo make install
-</span></span></code></pre></div></li>
-</ol>
-<h4 id="install-etcd">Install ETCD</h4>
-<ol>
-<li>
-<p>Install Docker</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install docker.io
-</span></span></code></pre></div></li>
-<li>
-<p>Start etcd</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo docker run -d --name etcd -p 2379:2379 -e <span class="nv">ETCD_UNSUPPORTED_ARCH</span><span class="o">=</span>arm64 -e <span class="nv">ETCD_LISTEN_CLIENT_URLS</span><span class="o">=</span>http://0.0.0.0:2379 -e <span class="nv">ETCD_ADVERTISE_CLIENT_URLS</span><span class="o">=</span>http://0.0.0.0:2379 gcr.io/etcd-development/etcd:v3.5.1-arm64
-</span></span></code></pre></div></li>
-<li>
-<p>OK
-Make sure STATUS is Up.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo docker ps -a
-</span></span></code></pre></div></li>
-</ol>
-<h4 id="start-apisix">Start APISIX</h4>
-<ol>
-<li>
-<p>Go to the source code location</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~/apisix
-</span></span></code></pre></div></li>
-<li>
-<p>Install Dependencies</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">make deps
-</span></span><span class="line"><span class="cl">sudo make install
-</span></span></code></pre></div></li>
-<li>
-<p>Add settings</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;ulimit -n 4096&#34;</span> &gt;&gt; ~/.bashrc
-</span></span><span class="line"><span class="cl"><span class="nb">source</span> ~/.bashrc
-</span></span></code></pre></div></li>
-<li>
-<p>Start APISIX</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">apisix init
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># start APISIX</span>
-</span></span><span class="line"><span class="cl">apisix start
-</span></span></code></pre></div></li>
-<li>
-<p>Register the test route</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl <span class="s2">&#34;http://127.0.0.1:9080/apisix/admin/routes/1&#34;</span> <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>-H <span class="s2">&#34;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#34;</span> -X PUT -d <span class="s1">&#39;
-</span></span></span><span class="line"><span class="cl"><span class="s1">{
-</span></span></span><span class="line"><span class="cl"><span class="s1">  &#34;uri&#34;: &#34;/anything/*&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">  &#34;upstream&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;type&#34;: &#34;roundrobin&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;nodes&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;httpbin.org:80&#34;: 1
-</span></span></span><span class="line"><span class="cl"><span class="s1">    }
-</span></span></span><span class="line"><span class="cl"><span class="s1">  }
-</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span>
-</span></span></code></pre></div></li>
-<li>
-<p>Test</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl -i http://127.0.0.1:9080/anything/das
-</span></span></code></pre></div><p>test result</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">HTTP/1.1 <span class="m">200</span> OK
-</span></span><span class="line"><span class="cl">.....
-</span></span></code></pre></div></li>
-</ol>
-<h3 id="performance-measurement">Performance measurement</h3>
-<blockquote>
-<p>For performance testing, the Apache APISIX official benchmark [script] mentioned in Reference #1 was used (<a href="https://github.com/apache/apisix/blob/master/benchmark/run.sh)">https://github.com/apache/apisix/blob/master/benchmark/run.sh)</a>.</p>
-</blockquote>
-<h4 id="prepare-for-performance-measurements">Prepare for Performance Measurements</h4>
-<ol>
-<li>
-<p>Install the HTTP benchmark tool wrk on the created ubuntu VM.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install wrk
-</span></span></code></pre></div></li>
-</ol>
-<h4 id="measurement-scenario">Measurement Scenario</h4>
-<p>We used the two scenarios below, which are included in the benchmark test script to be used. Each scenario requires an Nginx node serviced at 127.0.0.1:1980 to be routed by APISIX. That part is also included in the test script.</p>
-<ol>
-<li>
-<p>Scenario 1: Single upstream​</p>
-<ul>
-<li>First scenario in Reference #1, without plugins, using a single upstream. It is intended for APISIX performance testing in pure proxy back-to-origin mode.</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># apisix: 1 worker + 1 upstream + no plugin</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># register route</span>
-</span></span><span class="line"><span class="cl">curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
-</span></span></span><span class="line"><span class="cl"><span class="s1">{
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;plugins&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">    },
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;upstream&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;nodes&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;127.0.0.1:1980&#34;:1
-</span></span></span><span class="line"><span class="cl"><span class="s1">        }
-</span></span></span><span class="line"><span class="cl"><span class="s1">    }
-</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span>
-</span></span></code></pre></div></li>
-<li>
-<p>Scenario 2: Single upstream + Two plugins​</p>
-<ul>
-<li>Second scenario in Reference #1, using 2 plugins, single upstream. It is intended for APISIX performance testing using <code>limit-count</code> and <code>prometheus</code> as two-core performance-consuming plugins.</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># apisix: 1 worker + 1 upstream + 2 plugins (limit-count + prometheus)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># register route</span>
-</span></span><span class="line"><span class="cl">curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
-</span></span></span><span class="line"><span class="cl"><span class="s1">{
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;plugins&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;limit-count&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;count&#34;: 2000000000000,
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;time_window&#34;: 60,
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;rejected_code&#34;: 503,
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;key&#34;: &#34;remote_addr&#34;
-</span></span></span><span class="line"><span class="cl"><span class="s1">        },
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;prometheus&#34;: {}
-</span></span></span><span class="line"><span class="cl"><span class="s1">    },
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;upstream&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;nodes&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;127.0.0.1:1980&#34;:1
-</span></span></span><span class="line"><span class="cl"><span class="s1">        }
-</span></span></span><span class="line"><span class="cl"><span class="s1">    }
-</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span>
-</span></span></code></pre></div></li>
-</ol>
-<h4 id="run-the-benchmark-test-script">Run the benchmark test script</h4>
-<ol>
-<li>
-<p>Go to the source code location</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">cd</span> ~/apisix
-</span></span></code></pre></div></li>
-<li>
-<p>Install editing tools</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo apt-get install vim
-</span></span></code></pre></div></li>
-<li>
-<p>Add a curl command to line 103 of the ./benchmark/run.sh script to check the backend Nginx startup.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">curl -i http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">wrk -d <span class="m">5</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
-</span></span></code></pre></div></li>
-<li>
-<p>In the ./benchmark/run.sh script, increase the load time for testing from the default of 5 seconds to 60 seconds. Replace <code>-d 5</code> with <code>-d 60</code>.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
-</span></span></code></pre></div></li>
-<li>
-<p>Run the benchmark script.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">./benchmark/run.sh
-</span></span></code></pre></div></li>
-<li>
-<p>Execution result</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ubuntu@oci-arm-ubuntu-c2m4:~/apisix$ ./benchmark/run.sh
-</span></span><span class="line"><span class="cl">+ <span class="s1">&#39;[&#39;</span> -n <span class="s1">&#39;&#39;</span> <span class="s1">&#39;]&#39;</span>
-</span></span><span class="line"><span class="cl">+ <span class="nv">worker_cnt</span><span class="o">=</span><span class="m">1</span>
-</span></span><span class="line"><span class="cl">+ <span class="s1">&#39;[&#39;</span> -n <span class="s1">&#39;&#39;</span> <span class="s1">&#39;]&#39;</span>
-</span></span><span class="line"><span class="cl">+ <span class="nv">upstream_cnt</span><span class="o">=</span><span class="m">1</span>
-</span></span><span class="line"><span class="cl">+ mkdir -p benchmark/server/logs
-</span></span><span class="line"><span class="cl">+ mkdir -p benchmark/fake-apisix/logs
-</span></span><span class="line"><span class="cl">+ make init
-</span></span><span class="line"><span class="cl"><span class="o">[</span> info <span class="o">]</span> init -&gt; <span class="o">[</span> Start <span class="o">]</span>
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">apisix: <span class="m">1</span> worker + <span class="m">1</span> upstream + no plugin
-</span></span><span class="line"><span class="cl">+ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
-</span></span></span><span class="line"><span class="cl"><span class="s1">{
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;plugins&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">    },
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;upstream&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;nodes&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;127.0.0.1:1980&#34;:1
-</span></span></span><span class="line"><span class="cl"><span class="s1">        }
-</span></span></span><span class="line"><span class="cl"><span class="s1">    }
-</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span>
-</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="o">{</span><span class="s2">&#34;key&#34;</span>:<span class="s2">&#34;\/apisix\/routes\/1&#34;</span>,<span class="s2">&#34;value&#34;</span>:<span class="o">{</span><span class="s2">&#34;uri&#34;</span>:<span class="s2">&#34;\/hello&#34;</span>,<span class="s2">&#34;update_time&#34;</span>:1664362611,<span class="s2">&#34;plugins&#34;</span>:<span class="o">{}</span>,<span class="s2">&#34;status&#34;</span>:1,<span class="s2">&#34;create_time&#34;</span>:1664361560,<span class="s2">&#34;priority&#34;</span>:0,<span class="s2">&#34;upstream&#34;</span>:<span class="o">{</span><span class="s2">&#34;scheme&#34;</span>:<span class="s2">&#34;http&#34;</span>,<span class="s2">&#34;pass_host&#34;</span>:<span class="s2">&#34;pass&#34;</span>,<span class="s2">&#34;nodes&#34;</span>:<span class="o">{</span><span class="s2">&#34;127.0.0.1:1980&#34;</span>:1<span class="o">}</span>,<span class="s2">&#34;hash_on&#34;</span>:<span class="s2">&#34;vars&#34;</span>,<span class="s2">&#34;type&#34;</span>:<span class="s2">&#34;roundrobin&#34;</span><span class="o">}</span>,<span class="s2">&#34;id&#34;</span>:<span class="s2">&#34;1&#34;</span><span class="o">}}</span>,<span class="s2">&#34;action&#34;</span>:<span class="s2">&#34;set&#34;</span><span class="o">}</span>
-</span></span><span class="line"><span class="cl">+ sleep <span class="m">1</span>
-</span></span><span class="line"><span class="cl">+ curl -i http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">HTTP/1.1 <span class="m">200</span> OK
-</span></span><span class="line"><span class="cl">Content-Type: text/plain<span class="p">;</span> <span class="nv">charset</span><span class="o">=</span>utf-8
-</span></span><span class="line"><span class="cl">Transfer-Encoding: chunked
-</span></span><span class="line"><span class="cl">Connection: keep-alive
-</span></span><span class="line"><span class="cl">Date: Wed, <span class="m">28</span> Sep <span class="m">2022</span> 10:56:52 GMT
-</span></span><span class="line"><span class="cl">Server: APISIX/2.15.0
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">1234567890+ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">  <span class="m">2</span> threads and <span class="m">16</span> connections
-</span></span><span class="line"><span class="cl">  Thread Stats   Avg      Stdev     Max   +/- Stdev
-</span></span><span class="line"><span class="cl">    Latency     1.02ms  188.43us  13.83ms   97.08%
-</span></span><span class="line"><span class="cl">    Req/Sec     7.86k   505.69     8.73k    89.58%
-</span></span><span class="line"><span class="cl">  <span class="m">938523</span> requests in 1.00m, 171.84MB <span class="nb">read</span>
-</span></span><span class="line"><span class="cl">Requests/sec:  15640.38
-</span></span><span class="line"><span class="cl">Transfer/sec:      2.86MB
-</span></span><span class="line"><span class="cl">+ sleep <span class="m">1</span>
-</span></span><span class="line"><span class="cl">+ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">  <span class="m">2</span> threads and <span class="m">16</span> connections
-</span></span><span class="line"><span class="cl">  Thread Stats   Avg      Stdev     Max   +/- Stdev
-</span></span><span class="line"><span class="cl">    Latency     1.03ms  112.62us  10.02ms   93.94%
-</span></span><span class="line"><span class="cl">    Req/Sec     7.82k   314.04    15.89k    88.01%
-</span></span><span class="line"><span class="cl">  <span class="m">934559</span> requests in 1.00m, 171.12MB <span class="nb">read</span>
-</span></span><span class="line"><span class="cl">Requests/sec:  15550.03
-</span></span><span class="line"><span class="cl">Transfer/sec:      2.85MB
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">apisix: <span class="m">1</span> worker + <span class="m">1</span> upstream + <span class="m">2</span> plugins <span class="o">(</span>limit-count + prometheus<span class="o">)</span>
-</span></span><span class="line"><span class="cl">+ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class="s1">&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class="s1">&#39;
-</span></span></span><span class="line"><span class="cl"><span class="s1">{
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;uri&#34;: &#34;/hello&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;plugins&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;limit-count&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;count&#34;: 2000000000000,
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;time_window&#34;: 60,
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;rejected_code&#34;: 503,
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;key&#34;: &#34;remote_addr&#34;
-</span></span></span><span class="line"><span class="cl"><span class="s1">        },
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;prometheus&#34;: {}
-</span></span></span><span class="line"><span class="cl"><span class="s1">    },
-</span></span></span><span class="line"><span class="cl"><span class="s1">    &#34;upstream&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;type&#34;: &#34;roundrobin&#34;,
-</span></span></span><span class="line"><span class="cl"><span class="s1">        &#34;nodes&#34;: {
-</span></span></span><span class="line"><span class="cl"><span class="s1">            &#34;127.0.0.1:1980&#34;:1
-</span></span></span><span class="line"><span class="cl"><span class="s1">        }
-</span></span></span><span class="line"><span class="cl"><span class="s1">    }
-</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span>
-</span></span><span class="line"><span class="cl"><span class="o">{</span><span class="s2">&#34;node&#34;</span>:<span class="o">{</span><span class="s2">&#34;key&#34;</span>:<span class="s2">&#34;\/apisix\/routes\/1&#34;</span>,<span class="s2">&#34;value&#34;</span>:<span class="o">{</span><span class="s2">&#34;uri&#34;</span>:<span class="s2">&#34;\/hello&#34;</span>,<span class="s2">&#34;update_time&#34;</span>:1664362734,<span class="s2">&#34;plugins&#34;</span>:<span class="o">{</span><span class="s2">&#34;limit-count&#34;</span>:<span class="o">{</span><span class="s2">&#34;time_window&#34;</span>:60,<span class="s2">&#34;key&#34;</span>:<span class="s2">&#34;remote_addr&#34;</span>,<span class="s2">&#34;rejected_code&#34;</span>:503,<span class="s2">&#34;count&#34;</span>:2000000000000,<span class="s2">&#34;key_type&#34;</span>:<span class="s2">&#34;var&#34;</span>,<span class="s2">&#34;policy&#34;</span>:<span class="s2">&#34;local&#34;</span>,<span class="s2">&#34;allow_degradation&#34;</span>:false,<span class="s2">&#34;show_limit_quota_header&#34;</span>:true<span class="o">}</span>,<span class="s2">&#34;prometheus&#34;</span>:<span class="o">{</span><span class="s2">&#34;prefer_name&#34;</span>:false<span class="o">}}</span>,<span class="s2">&#34;status&#34;</span>:1,<span class="s2">&#34;create_time&#34;</span>:1664361560,<span class="s2">&#34;priority&#34;</span>:0,<span class="s2">&#34;upstream&#34;</span>:<span class="o">{</span><span class="s2">&#34;scheme&#34;</span>:<span class="s2">&#34;http&#34;</span>,<span class="s2">&#34;pass_host&#34;</span>:<span class="s2">&#34;pass&#34;</span>,<span class="s2">&#34;nodes&#34;</span>:<span class="o">{</span><span class="s2">&#34;127.0.0.1:1980&#34;</span>:1<span class="o">}</span>,<span class="s2">&#34;hash_on&#34;</span>:<span class="s2">&#34;vars&#34;</span>,<span class="s2">&#34;type&#34;</span>:<span class="s2">&#34;roundrobin&#34;</span><span class="o">}</span>,<span class="s2">&#34;id&#34;</span>:<span class="s2">&#34;1&#34;</span><span class="o">}}</span>,<span class="s2">&#34;action&#34;</span>:<span class="s2">&#34;set&#34;</span><span class="o">}</span>
-</span></span><span class="line"><span class="cl">+ sleep <span class="m">3</span>
-</span></span><span class="line"><span class="cl">+ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">  <span class="m">2</span> threads and <span class="m">16</span> connections
-</span></span><span class="line"><span class="cl">  Thread Stats   Avg      Stdev     Max   +/- Stdev
-</span></span><span class="line"><span class="cl">    Latency     1.31ms  192.72us  17.15ms   95.50%
-</span></span><span class="line"><span class="cl">    Req/Sec     6.15k   294.98     6.71k    71.83%
-</span></span><span class="line"><span class="cl">  <span class="m">734891</span> requests in 1.00m, 185.02MB <span class="nb">read</span>
-</span></span><span class="line"><span class="cl">Requests/sec:  12248.00
-</span></span><span class="line"><span class="cl">Transfer/sec:      3.08MB
-</span></span><span class="line"><span class="cl">+ sleep <span class="m">1</span>
-</span></span><span class="line"><span class="cl">+ wrk -d <span class="m">60</span> -c <span class="m">16</span> http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">Running 1m <span class="nb">test</span> @ http://127.0.0.1:9080/hello
-</span></span><span class="line"><span class="cl">  <span class="m">2</span> threads and <span class="m">16</span> connections
-</span></span><span class="line"><span class="cl">  Thread Stats   Avg      Stdev     Max   +/- Stdev
-</span></span><span class="line"><span class="cl">    Latency     1.30ms  141.40us  12.13ms   93.56%
-</span></span><span class="line"><span class="cl">    Req/Sec     6.17k   254.42     6.87k    64.83%
-</span></span><span class="line"><span class="cl">  <span class="m">736422</span> requests in 1.00m, 185.41MB <span class="nb">read</span>
-</span></span><span class="line"><span class="cl">Requests/sec:  12271.99
-</span></span><span class="line"><span class="cl">Transfer/sec:      3.09MB
-</span></span><span class="line"><span class="cl">...
-</span></span></code></pre></div></li>
-</ol>
-<h4 id="performance-measurement-results">Performance measurement results</h4>
-<ul>
-<li>
-<p>Scenario 1: Single upstream​</p>
-<ul>
-<li>apisix: 1 worker + 1 upstream + no plugin part</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left">1st</th>
-<th style="text-align:left">2nd</th>
-<th style="text-align:left">Average</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">Requests/sec</td>
-<td style="text-align:left">15640.38</td>
-<td style="text-align:left">15550.03</td>
-<td style="text-align:left">15595.205</td>
-</tr>
-<tr>
-<td style="text-align:left">Avg Latency</td>
-<td style="text-align:left">1.02ms</td>
-<td style="text-align:left">1.03ms</td>
-<td style="text-align:left">1.025ms</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li>
-<p>Scenario 2: Single upstream + Two plugins​</p>
-<ul>
-<li>apisix: 1 worker + 1 upstream + 2 plugins (limit-count + prometheus)</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left">1st</th>
-<th style="text-align:left">2nd</th>
-<th style="text-align:left">Average</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">Requests/sec</td>
-<td style="text-align:left">12248.00</td>
-<td style="text-align:left">12271.99</td>
-<td style="text-align:left">12259.995</td>
-</tr>
-<tr>
-<td style="text-align:left">Avg Latency</td>
-<td style="text-align:left">1.31ms</td>
-<td style="text-align:left">1.30ms</td>
-<td style="text-align:left">1.305ms</td>
-</tr>
-</tbody>
-</table>
-</li>
-<li>
-<p>CPU and Memory status during testing</p>
-<ul>
-<li>CPU: The backend Nginx Worker process is using a lot of CPU due to load</li>
-<li>Memory: Nginx simple web page does not use much memory
-
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/compute-metrics-for-testing.png" alt='' onerror="this.onerror=null;this.src='images\/compute-metrics-for-testing.png';" />
-</li>
-</ul>
-</li>
-</ul>
-<h3 id="costperformance-comparison">Cost/Performance Comparison</h3>
-<h4 id="oci-arm-based-shape">OCI Arm Based Shape</h4>
-<ul>
-<li>Both VM and Bare Metal support Ampere A1, provided as one of Flex Shape in VM
-<ul>
-<li><a href="https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#flexible">https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#flexible</a></li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Shape</th>
-<th style="text-align:left">Maximum OCPUs</th>
-<th style="text-align:left">Minimum Memory</th>
-<th style="text-align:left">Maximum Memory</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">VM.Standard.A1.Flex</td>
-<td style="text-align:left">80</td>
-<td style="text-align:left">1 GB or number of OCPUs, whichever is greater</td>
-<td style="text-align:left">64 GB per OCPU, total up to 512 GB</td>
-</tr>
-</tbody>
-</table>
-</li>
-</ul>
-<h4 id="cost-of-oci-arm-based-virtual-machines">Cost of OCI Arm-based Virtual Machines</h4>
-<ul>
-<li>OCI Ampere A1 Compute
-<ul>
-<li><a href="https://www.oracle.com/cloud/compute/arm/">https://www.oracle.com/cloud/compute/arm/</a></li>
-<li>On Arm CPU architecture (Ampere), 1 OCPU = 1 vCPU.</li>
-<li>Of the total monthly usage of Ampere A1 shape in Cloud Account, the first 3,000 OCPU-hours and the first 18,000 GB-hours are free.</li>
-<li>OCPU and Memory can be adjusted with Flex Shape, so each has a unit cost.</li>
-<li>OCI prices are the same in all regions.</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Compute - Virtual Machine Instances</th>
-<th style="text-align:left">Comparison Price ( /vCPU)*</th>
-<th style="text-align:left">Unit Price</th>
-<th style="text-align:left">Unit</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">Compute – Ampere A1 – OCPU</td>
-<td style="text-align:left">$0.01</td>
-<td style="text-align:left">$0.01</td>
-<td style="text-align:left">OCPUs per Hour</td>
-</tr>
-<tr>
-<td style="text-align:left">Compute – Ampere A1 – Memory</td>
-<td style="text-align:left">-</td>
-<td style="text-align:left">$0.0015</td>
-<td style="text-align:left">gigabytes per hour</td>
-</tr>
-</tbody>
-</table>
-</li>
-</ul>
-<h4 id="comparison-of-costs-related-to-benchmark-testing">Comparison of Costs Related to Benchmark Testing</h4>
-<h5 id="comparison-condition">Comparison condition</h5>
-<ul>
-<li>Based on ARM server.</li>
-<li>AWS: Cost per hour in C7g (US East Ohio).
-<ul>
-<li><a href="https://aws.amazon.com/ec2/pricing/on-demand/">https://aws.amazon.com/ec2/pricing/on-demand/</a></li>
-</ul>
-</li>
-<li>OCI: Cost per hour based on VM.Standard.A1.Flex.
-<ul>
-<li>OCI prices are the same in all regions.</li>
-<li>For comparison, the price is compared with the CPU and memory of the same size as AWS C7g.</li>
-<li>VM.Standard.A1.Flex price is the sum of CPU price and Memory price.</li>
-</ul>
-</li>
-</ul>
-<h5 id="cost-per-hour">cost per hour</h5>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">VM series / vCPU(Memory)</th>
-<th style="text-align:left">1 (2G)</th>
-<th style="text-align:left">2 (4G)</th>
-<th style="text-align:left">4 (8G)</th>
-<th style="text-align:left">8 (16G)</th>
-<th style="text-align:left">16 (32G)</th>
-<th style="text-align:left">32 (64G)</th>
-<th style="text-align:left">64 (128G)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">AWS C7g</td>
-<td style="text-align:left">$0.0361</td>
-<td style="text-align:left">$0.0723</td>
-<td style="text-align:left">$0.1445</td>
-<td style="text-align:left">$0.289</td>
-<td style="text-align:left">$0.5781</td>
-<td style="text-align:left">$1.1562</td>
-<td style="text-align:left">$1.7342</td>
-</tr>
-<tr>
-<td style="text-align:left">OCI Ampere A1</td>
-<td style="text-align:left">$0.013</td>
-<td style="text-align:left">$0.026</td>
-<td style="text-align:left">$0.052</td>
-<td style="text-align:left">$0.104</td>
-<td style="text-align:left">$0.208</td>
-<td style="text-align:left">$0.416</td>
-<td style="text-align:left">$0.832</td>
-</tr>
-</tbody>
-</table>
-<h5 id="annual-cost-based-on-test-scenario-1">Annual Cost: Based on Test Scenario 1</h5>
-<ul>
-<li>QPS (queries per second): Number of requests processed per second</li>
-<li>AWS c7g.large&rsquo;s QPS is based on reference documents #1 and #2 results</li>
-<li>**Reference documents #1 and #2 were tested with the same configuration as possible, but the final load request of the reference document and resource usage at that time are unknown, so the performance and cost-performance ratio below are for reference only, not absolute. **</li>
-<li>Since OCI Flex Shape is freely configurable, it is also possible to configure 2 GB of memory with 2 OCPUs as it is.</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left">hourly cost</th>
-<th style="text-align:left">Total hours in a year (24*365)</th>
-<th style="text-align:left">Annual Cost</th>
-<th style="text-align:left">QPS</th>
-<th style="text-align:left">Cost Performance (QPS/cost)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">AWS c7g.large</td>
-<td style="text-align:left">$0.0723</td>
-<td style="text-align:left">8760 hours</td>
-<td style="text-align:left">$633.3</td>
-<td style="text-align:left"><strong>23000</strong></td>
-<td style="text-align:left"><strong>36.3</strong></td>
-</tr>
-<tr>
-<td style="text-align:left">OCI VM.Standard.A1.Flex 2 OCPU, 4 GB Memory</td>
-<td style="text-align:left">$0.026</td>
-<td style="text-align:left">8760 hours</td>
-<td style="text-align:left">$227.8</td>
-<td style="text-align:left"><strong>15595.205</strong></td>
-<td style="text-align:left"><strong>68.5</strong></td>
-</tr>
-<tr>
-<td style="text-align:left">OCI VM.Standard.A1.Flex 2 OCPU, 2 GB Memory</td>
-<td style="text-align:left">$0.023</td>
-<td style="text-align:left">8760 hours</td>
-<td style="text-align:left">$201.5</td>
-<td style="text-align:left"><strong>15595.205</strong></td>
-<td style="text-align:left"><strong>77.4</strong></td>
-</tr>
-</tbody>
-</table>
-<h5 id="excluding-free-provision-under-the-assumption-that-only-the-test-environment-in-the-tenant-is-used">Excluding free provision under the assumption that only the test environment in the tenant is used</h5>
-<ul>
-<li>Of the total monthly usage of Ampere A1 shape in Cloud Account, the first 3,000 OCPU-hours and the first 18,000 GB-hours are free.</li>
-<li>Maximum usage time per month: 24 hours * 31 days = 744 hours</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th style="text-align:left"></th>
-<th style="text-align:left">Maximum usage per month</th>
-<th style="text-align:left">Monthly usage after free deduction</th>
-<th style="text-align:left">Annual Usage</th>
-<th style="text-align:left">Unit Price</th>
-<th style="text-align:left">Annual Cost</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">OCI VM.Standard.A1.Flex 2 OCPU</td>
-<td style="text-align:left">1,488 OCPU-Hours</td>
-<td style="text-align:left">0 OCPU-Hours</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">$0.01</td>
-<td style="text-align:left"><strong>$0</strong></td>
-</tr>
-<tr>
-<td style="text-align:left">OCI VM.Standard.A1.Flex 4 GB Memory</td>
-<td style="text-align:left">2,976 GB-Hours</td>
-<td style="text-align:left">0 GB-Hours</td>
-<td style="text-align:left">0</td>
-<td style="text-align:left">$0.0015</td>
-<td style="text-align:left"><strong>$0</strong></td>
-</tr>
-</tbody>
-</table>
-<br>
-<br>
-<div class="panel panel-caution">
-<div class="panel-body">
-<p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions. </p>
-</div>
-</div>
-
- <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
-</footer>
-</main><div class="sidebar">
-<nav>
-<ul>
-
-
-<li>
-  <form method="get" action="https://thekoguryo.github.io//search">
-    <input type="text" id="search-box" name="q" placeholder="Search"/>
-  </form>
-  
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('#search-box').val($('#search-query').val());
-    });
-  </script>
-</li>
-<li><a> </a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/">
-    OCI(Oracle Cloud Infrastructure)
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter01/">
-    1. OCI Basic Concept
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/2/">1.2 Fault Domains</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/3/">1.3 Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/6/">1.6 Map of offerings between cloud service providers</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter02/">
-    2. Get started with OCI Services
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/1/">2.1 Creating an Oracle Cloud Free Tier Account</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/2/">2.2 Connecting to the OCI Console</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/3/">2.3 Using the OCI Console</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/4/">2.4 Initial Cloud Account (Tenancy) Architecture</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/">
-    3. Use the OCI Compute VM
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/1/">3.1 Creating a Work Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/2/">3.2 Creating a VCN for a Virtual Network Environment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/3/">3.3 Creating a Key Pair for SSH Connections</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/4/">3.4 Creating a Linux Instance</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/5/">
-    3.5 Connecting to a Linux Instance
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/1/">3.5.1 Access from Linux, Mac</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/2/">3.5.2 Connecting to PuTTY on Windows</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/3/">3.5.3 Changing the PEM &lt;-&gt; PPK Format</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/6/">
-    3.6 Block Volume like hard drive
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/1/">3.6.1 Creating a Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/2/">3.6.2 Mounting Block Volume to Instance</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">3.6.3 Connecting to Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">3.6.4 Formatting Block Volumes</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">3.6.5 Mount Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">3.6.6 Unmounting Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/7/">3.6.7 Deleting Block Volume</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/7/">
-    3.7 Utilizing Block Volume Backups
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/1/">3.7.1 Backing up Block Volumes</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/2/">3.7.2 Creating a New Volume from Backup</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/3/">3.7.3 Copying Backups to Another Region</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/4/">3.7.4 Backing up Policy-Based Block Volumes</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/8/">
-    3.8 Utilizing Boot Volume Backups
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/1/">3.8.1 Backing Up Boot Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/2/">3.8.2 Creating a New Boot Volume from a Backup</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/3/">3.8.3 Creating a New Instance with Boot Volume</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter04/">
-    4. Reserved Public IP for Static IP Allocation
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/1/">4.1 Creating a Reserved Public IP</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/2/">4.2 Allocating Reserved Public IP</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter05/">
-    5. Using Security Lists to Configure Firewalls
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/1/">5.1 Installing Apache HTTP Server on Linux Instance</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/2/">5.2 Updating the Default Security List</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/3/">5.3 Adding a Custom Security List</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/4/">5.4 Testing Apache HTTP Server Connection</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter06/">
-    6. Using IAM to Set User Permissions
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/1/">6.1 Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/2/">6.2 Creating Users</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/3/">6.3 Creating Groups</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/4/">6.4 Creating a Policy</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/5/">6.5 Grabbing the Policy Concept</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter07/">
-    7. Using Object Storage
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/1/">7.1 Creating a Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/2/">7.2 Uploading Files to Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/3/">7.3 Object Permission Management - Pre-authentication</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/4/">7.4 Object Rights Management - Public Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/5/">7.5 Hosting Static Websites with Public Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/6/">7.6 Uploading Files via CloudBerry Explorer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/7/">7.7 Setting up an Archive via Lifecycle</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter08/">
-    8. Using File Storage, a Network File System
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/1/">8.1 Example File Storage Configuration</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/2/">8.2 Mounting and using FSS on a Linux VM</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/3/">8.3 Export Option for Access Control</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/4/">8.4 Snapshot for Backup</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter09/">
-    9. Machine Image
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/1/">9.1 OS Image provided by default</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/2/">9.2 Create Custom Image from Instance</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter10/">
-    10. Using Load Balancer for High Availability
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/1/">10.1 Load Balancer Configuration Example</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/2/">10.2 VCN Configuration</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/3/">10.3 Creating a Backend Web Server</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/4/">10.4 Creating a Subnet for a Load Balancer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/5/">10.5 Creating a Load Balancer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/6/">10.6 Checking the Load Balancer Connection</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter11/">
-    11. Domain Name System (DNS)
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter11/1/">11.1 Mapping with Domain Names</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter12/">
-    12. Monitoring for OCI resource monitoring
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/1/">12.1 Enabling Compute Instance Monitoring</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/2/">12.2 Creating Monitoring Alarm</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter12/3/">
-    12.3 OCI Grafana Plugin
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/1/">12.3.1 Installing Grafana on Compute VM</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/2/">12.3.2 Grafana Configuration</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter13/">
-    13. Autoscaling Based on Metric
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/1/">13.1 Preparation for Autoscaling</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/2/">13.2 Configuring Autoscaling</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/3/">13.3 Autoscaling Test</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/">
-    14. Using Developer Tools
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/">
-    14.1 OCI CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/">
-    14.1.1 Installing the OCI CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/1/">14.1.1.1 Installing OCI CLI on Windows</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/2/">14.1.1.2 Installing OCI CLI on Linux</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/3/">14.1.1.3 Config File Settings</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/4/">14.1.1.4 Registering API Public Key</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/5/">14.1.1.5 Verifying OCI CLI Installation</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/">
-    14.1.2 Using Object Storage as CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/1/">14.1.2.1 Setting IAM Policy for Object Storage</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">14.1.2.2 File Upload via CLI</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/2/">
-    14.2 Terraform
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/1/">14.2.1 Installing Terraform</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/2/">14.2.2 Creating Terraform Configurations</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/3/">14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/4/">14.2.4 Running Terraform Configuration</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/5/">14.2.5 Using workspaces for multiple environments</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">14.2.6 Example, Creating Users Using List and Count</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/7/">14.2.7 OCI Terraform Usage Example</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/">
-    14.3 REST API
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">14.3.2 Bash Sample Client</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/3/">14.3.3 Insomnia - Calling the OCI REST API</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/4/">14.3.4 Postman - Calling the OCI REST API</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter15/">
-    15. Using Resource Manager
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/1/">15.1 Using the Resource Manager</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/2/">15.2 Stack Template for Resource Manager</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/3/">15.3 Configuring a Private Git Server for Resource Manager</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/">
-    Oracle Cloud Native
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class="">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/">
-    1. Using Managed Kubernetes OKE
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/">1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 Creating an OKE Cluster</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/">
-    1.3 Connecting the OKE Cluster
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Connecting to a Cluster with Cloud Shell</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 Connecting to a Cluster in a Local Environment</a></li>
-
-
-
-
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 Deploying Apps and Using Load Balancer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 Using OCIR Images</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/">
-    1.6 Using Persistent Volumes
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Using Block Volumes</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 Using File Storage</a></li>
-
-
-
-
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Upgrading the Kubernetes Version</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/">
-    2. Using OCIR, a container registry
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/">2.1 Scanning Container Images</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/">2.2 Using Helm Chart Repository</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/">
-    3. Using OCI DevOps Services as CI/CD
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 Automating Deployments with Helm Charts via DevOps Services</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/">
-    4. Leveraging Open Source Software (OSS)
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/">
-    4.1 Ingress Controller
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 Installing the NGINX Ingress Controller</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 TLS termination in NGINX Ingress Controller</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 Getting Client IP from NGINX Ingress Controller</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/">
-    4.2 Logging - EFK
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 Installing EFK</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/">
-    4.3 Monitoring - Prometheus&amp;Grafana
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Installing Prometheus&amp;Grafana</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/">
-    4.4 Service Mesh - Istio
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Deploying Microservices Apps Without Service Mesh</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/">
-    5. Utilizing OCI Service
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 Service Operator for OCI Resource Management in OKE</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/">
-    5.2 Logging Service
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 Log Monitoring Using OCI Logging</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service with OpenSearch</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-</nav>
-
-
-<div class="sidebar-footer"></div>
-</div>
-</div><a href="#" id="backtothetop-fixed" class="backtothetop"
- data-backtothetop-duration="600"
- data-backtothetop-easing="easeOutQuart"
- data-backtothetop-fixed-fadeIn="1000"
- data-backtothetop-fixed-fadeOut="1000"
- data-backtothetop-fixed-bottom="10"
- data-backtothetop-fixed-right="20">
-<span class="fa-layers fa-fw">
-<i class="fas fa-circle"></i>
-<i class="fas fa-arrow-circle-up"></i>
-</span></a>
-
-<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
-</body>
-</html>
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>ARM-Based Server Performance Comparison: OCI vs. AWS - TheKoguryo's Tech Blog</title><meta name=generator content="Hugo 0.102.3"><link href=https://thekoguryo.github.io/index.xml rel=alternate type=application/rss+xml><link rel=canonical href=https://thekoguryo.github.io/en/blog/arm-based-server-performance/><link rel=stylesheet href=https://thekoguryo.github.io/css/theme.min.css><link rel=stylesheet href=https://thekoguryo.github.io/css/d2coding.css><link rel=stylesheet href=https://thekoguryo.github.io/css/fontawesome-all.min.css><script src=https://use.fontawesome.com/releases/v5.15.4/js/all.js></script>
+<link rel=stylesheet href=https://thekoguryo.github.io/css/chroma.min.css><script src=https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js></script>
+<script src=https://thekoguryo.github.io/js/functions.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js></script>
+<script src=https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js></script>
+<script src=https://thekoguryo.github.io/js/jqcloud/jqcloud.js></script>
+<link rel=stylesheet href=https://thekoguryo.github.io/js/jqcloud/jqcloud.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-106207316-1")</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858" crossorigin=anonymous></script><meta property="og:title" content="ARM-Based Server Performance Comparison: OCI vs. AWS"><meta property="og:description" content="ARM-based server performance comparison: OCI vs. AWS OCI Ampere Altra A1 Oracle will make the Arm-based Ampere A1 Compute Shape available in virtual machines starting in May 2021.
+Release Notes - Arm-based Ampere A1 Compute shape now available Ampere A1 Compute Introduction Page OCI Ampere A1 Performance Measurements Performance Measurement References In the recent API Gateway Apache APISIX blog, we compared the performance of cloud ARM-based servers. Based on the contents, we will configure the environment as similar as possible in OCI and measure the performance once."><meta property="og:type" content="article"><meta property="og:url" content="https://thekoguryo.github.io/en/blog/arm-based-server-performance/"><meta property="og:image" content="https://thekoguryo.github.io/blog/images/compute-shape-arm.png"><meta property="article:section" content="blog"><meta property="article:modified_time" content="2022-09-27T00:00:01+00:00"><meta property="og:site_name" content="TheKoguryo's Tech Blog"></head><body><div class=container><header><h1>TheKoguryo's Tech Blog</h1><span class=version>Version 2022.10.11</span>
+<a href=https://github.com/TheKoguryo class=github><i class="fab fa-github"></i></a></header><div class=menu><nav><ul><li><a href=/>Home</a></li><li><a href=/release-notes>OCI Release Notes</a></li><li><a href=/archives>Archives</a></li><li><a href=/tags>Tag</a></li><li><a href=https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new>Feedback</a></li><li><a href=/link>Link</a></li><li style=float:right><a href=https://thekoguryo.github.io/blog/arm-based-server-performance/>한국어</a></li></ul></nav></div><div class=content-container><main><h1 id=arm-based-server-performance-comparison-oci-vs-aws>ARM-based server performance comparison: OCI vs. AWS</h1><h2 id=oci-ampere-altra-a1>OCI Ampere Altra A1</h2><p>Oracle will make the Arm-based Ampere A1 Compute Shape available in virtual machines starting in May 2021.</p><ul><li>Release Notes - <a href=https://docs.oracle.com/en-us/iaas/releasenotes/changes/be1f5b9b-70ce-42fb-9866-a8640b68fd41/>Arm-based Ampere A1 Compute shape now available</a></li><li><a href=https://www.oracle.com/kr/cloud/compute/arm/>Ampere A1 Compute Introduction Page</a></li></ul><h2 id=oci-ampere-a1-performance-measurements>OCI Ampere A1 Performance Measurements</h2><h3 id=performance-measurement-references>Performance Measurement References</h3><p>In the recent API Gateway <a href=https://apisix.apache.org/>Apache APISIX</a> blog, we compared the performance of cloud ARM-based servers. Based on the contents, we will configure the environment as similar as possible in OCI and measure the performance once.</p><ul><li>[#One. June 7, 2022, Installation and performance testing of API Gateway Apache APISIX on AWS Graviton3](<a href=https://apisix.apache.org/blog/2022/06/07/installation-performance-test-of-apigateway-apisix-on>https://apisix.apache.org/blog/2022/06/07/installation-performance-test-of-apigateway-apisix-on</a> -aws-graviton3/)</li><li><a href=https://apisix.apache.org/blog/2022/08/12/arm-performance-google-aws-azure-with-apisix>#2. August 12, 2022, GCP, AWS, and Azure ARM-based server performance comparison</a></li></ul><h3 id=create-arm-ubuntu-vm>Create ARM Ubuntu VM</h3><blockquote><p>Environments tested in the referenced documentation</p><ul><li>AWS Graviton3: Based on ARM architecture</li><li>AWS EC2 c7g.large (2vCPU, 4GiB Memory)</li><li>Ubuntu 20.04</li></ul></blockquote><ol><li><p>In OCI, configure the following environment:</p><ul><li>OCI Ampere A1: based on ARM architecture</li><li>VM.Standard.A1.Flex: Free configuration, same choice of 2OCPU, 4GB memory</li><li>Ubuntu 22.04 Minimal aarch64: Select 22.04 to minimize installation errors of benchmark test module</li></ul></li><li><p>On the Create Compute instance screen, choose <strong>Shape</strong> type as <strong>Ampere</strong>.</p><p><img class=img-fluid1 src=../images/compute-shape-arm.png alt onerror='this.onerror=null,this.src="images/compute-shape-arm.png"'></p></li><li><p>Change OS image to <strong>Ubuntu</strong>, change to default 22.04 Minimal aarch64.</p><p><img class=img-fluid1 src=../images/compute-image-ubuntu-22.04.png alt onerror='this.onerror=null,this.src="images/compute-image-ubuntu-22.04.png"'></p></li><li><p>Select one <strong>VM.Standard.A1.Flex</strong> Shape. A1 means Arm-based Ampere A1, and Flex means free choice of CPU and Memory. Choose <strong>2 OCPU, 4GB memory</strong>.</p><p><img class=img-fluid1 src=../images/compute-shape-size.png alt onerror='this.onerror=null,this.src="images/compute-shape-size.png"'></p></li><li><p>OS Image and Arm Server Shape selected.</p><ul><li>Network bandwith increases according to the number of OCPUs in Flex Shape.</li><li>Network bandwith of VM.Standard.A1.Flex is 1 Gbps per OCPU, up to 40 Gbps.<ul><li>Reference: [Oracle Cloud Infrastructure Documentation > Compute > Compute Shapes] (<a href=https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#vm-standard>https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#vm-standard</a>)</li></ul></li><li>2 OCPUs were selected, resulting in 2 Gbps as shown.</li></ul><p><img class=img-fluid1 src=../images/compute-image-n-shape-22.04.png alt onerror='this.onerror=null,this.src="images/compute-image-n-shape-22.04.png"'></p></li><li><p>Create an instance by specifying the rest of the name, VCN, SSH Key, etc. as desired values.</p></li><li><p>Connect to the created instance with SSH.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>ssh ubuntu@&lt;PUBLIC-IP-OF-COMPUTE-INSTANCE&gt;
+</span></span></code></pre></div></li></ol><h3 id=install-apisix-on-arm-ubuntu-vm>Install APISIX on ARM Ubuntu VM</h3><p>See also: [How to build APISIX in ARM Ubuntu] (<a href=https://apisix.apache.org/blog/2022/01/11/building-apisix-in-ubuntu-for-arm/>https://apisix.apache.org/blog/2022/01/11/building-apisix-in-ubuntu-for-arm/</a>)</p><h4 id=install-requirements>Install Requirements</h4><ol><li><p>Source code cloning</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo apt-get update
+</span></span><span class=line><span class=cl>sudo apt-get install git
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>git clone https://github.com/apache/apisix.git
+</span></span><span class=line><span class=cl><span class=nb>cd</span> apisix
+</span></span><span class=line><span class=cl>git checkout release/2.15
+</span></span></code></pre></div></li><li><p>Install OpenResty. Install for Ubuntu 22.04, ARM.</p><ul><li><p>Note: (<a href=https://openresty.org/en/linux-packages.html#ubuntu>https://openresty.org/en/linux-packages.html#ubuntu</a>)</p></li><li><p>Step 1: we should install some prerequisites needed by adding GPG public keys (could be removed later):</p></li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo apt-get -y install --no-install-recommends wget gnupg ca-certificates
+</span></span></code></pre></div><ul><li>Step 2: import our GPG key:</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># For ubuntu 22</span>
+</span></span><span class=line><span class=cl>wget -O - https://openresty.org/package/pubkey.gpg <span class=p>|</span> sudo gpg --dearmor -o /usr/share/keyrings/openresty.gpg
+</span></span></code></pre></div><ul><li>Step 3: then add the our official APT repository.</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># for arm64 or aarch64 system</span>
+</span></span><span class=line><span class=cl><span class=c1># For ubuntu 22 or above</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;deb [arch=</span><span class=k>$(</span>dpkg --print-architecture<span class=k>)</span><span class=s2> signed-by=/usr/share/keyrings/openresty.gpg] http://openresty.org/package/arm64/ubuntu </span><span class=k>$(</span>lsb_release -sc<span class=k>)</span><span class=s2> main&#34;</span> <span class=p>|</span> sudo tee /etc/apt/sources.list.d/openresty.list &gt; /dev/null
+</span></span></code></pre></div><ul><li>Step 4: update the APT index & install openresty</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo apt-get update
+</span></span><span class=line><span class=cl>sudo apt-get -y install openresty
+</span></span></code></pre></div></li><li><p>Install Dependencies</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>bash utils/install-dependencies.sh
+</span></span><span class=line><span class=cl>sudo apt install wget sudo unzip
+</span></span><span class=line><span class=cl>sudo apt-get install make gcc
+</span></span><span class=line><span class=cl>curl https://raw.githubusercontent.com/apache/apisix/master/utils/linux-install-luarocks.sh -sL <span class=p>|</span> bash -
+</span></span><span class=line><span class=cl><span class=nv>LUAROCKS_SERVER</span><span class=o>=</span>https://luarocks.cn make deps
+</span></span></code></pre></div></li><li><p>Install APISIX</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo make install
+</span></span></code></pre></div></li></ol><h4 id=install-etcd>Install ETCD</h4><ol><li><p>Install Docker</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo apt-get install docker.io
+</span></span></code></pre></div></li><li><p>Start etcd</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo docker run -d --name etcd -p 2379:2379 -e <span class=nv>ETCD_UNSUPPORTED_ARCH</span><span class=o>=</span>arm64 -e <span class=nv>ETCD_LISTEN_CLIENT_URLS</span><span class=o>=</span>http://0.0.0.0:2379 -e <span class=nv>ETCD_ADVERTISE_CLIENT_URLS</span><span class=o>=</span>http://0.0.0.0:2379 gcr.io/etcd-development/etcd:v3.5.1-arm64
+</span></span></code></pre></div></li><li><p>OK
+Make sure STATUS is Up.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo docker ps -a
+</span></span></code></pre></div></li></ol><h4 id=start-apisix>Start APISIX</h4><ol><li><p>Go to the source code location</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>cd</span> ~/apisix
+</span></span></code></pre></div></li><li><p>Install Dependencies</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>make deps
+</span></span><span class=line><span class=cl>sudo make install
+</span></span></code></pre></div></li><li><p>Add settings</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>echo</span> <span class=s2>&#34;ulimit -n 4096&#34;</span> &gt;&gt; ~/.bashrc
+</span></span><span class=line><span class=cl><span class=nb>source</span> ~/.bashrc
+</span></span></code></pre></div></li><li><p>Start APISIX</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>apisix init
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># start APISIX</span>
+</span></span><span class=line><span class=cl>apisix start
+</span></span></code></pre></div></li><li><p>Register the test route</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>curl <span class=s2>&#34;http://127.0.0.1:9080/apisix/admin/routes/1&#34;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-H <span class=s2>&#34;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#34;</span> -X PUT -d <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>{
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;uri&#34;: &#34;/anything/*&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>  &#34;upstream&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;type&#34;: &#34;roundrobin&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;nodes&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>      &#34;httpbin.org:80&#34;: 1
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>  }
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span>
+</span></span></code></pre></div></li><li><p>Test</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>curl -i http://127.0.0.1:9080/anything/das
+</span></span></code></pre></div><p>test result</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>HTTP/1.1 <span class=m>200</span> OK
+</span></span><span class=line><span class=cl>.....
+</span></span></code></pre></div></li></ol><h3 id=performance-measurement>Performance measurement</h3><blockquote><p>For performance testing, the Apache APISIX official benchmark [script] mentioned in Reference #1 was used (<a href=https://github.com/apache/apisix/blob/master/benchmark/run.sh)>https://github.com/apache/apisix/blob/master/benchmark/run.sh)</a>.</p></blockquote><h4 id=prepare-for-performance-measurements>Prepare for Performance Measurements</h4><ol><li><p>Install the HTTP benchmark tool wrk on the created ubuntu VM.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo apt-get install wrk
+</span></span></code></pre></div></li></ol><h4 id=measurement-scenario>Measurement Scenario</h4><p>We used the two scenarios below, which are included in the benchmark test script to be used. Each scenario requires an Nginx node serviced at 127.0.0.1:1980 to be routed by APISIX. That part is also included in the test script.</p><ol><li><p>Scenario 1: Single upstream​</p><ul><li>First scenario in Reference #1, without plugins, using a single upstream. It is intended for APISIX performance testing in pure proxy back-to-origin mode.</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># apisix: 1 worker + 1 upstream + no plugin</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># register route</span>
+</span></span><span class=line><span class=cl>curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class=s1>&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>{
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;uri&#34;: &#34;/hello&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;plugins&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>    },
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;upstream&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;type&#34;: &#34;roundrobin&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;nodes&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;127.0.0.1:1980&#34;:1
+</span></span></span><span class=line><span class=cl><span class=s1>        }
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span>
+</span></span></code></pre></div></li><li><p>Scenario 2: Single upstream + Two plugins​</p><ul><li>Second scenario in Reference #1, using 2 plugins, single upstream. It is intended for APISIX performance testing using <code>limit-count</code> and <code>prometheus</code> as two-core performance-consuming plugins.</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=c1># apisix: 1 worker + 1 upstream + 2 plugins (limit-count + prometheus)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># register route</span>
+</span></span><span class=line><span class=cl>curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class=s1>&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>{
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;uri&#34;: &#34;/hello&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;plugins&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;limit-count&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;count&#34;: 2000000000000,
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;time_window&#34;: 60,
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;rejected_code&#34;: 503,
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;key&#34;: &#34;remote_addr&#34;
+</span></span></span><span class=line><span class=cl><span class=s1>        },
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;prometheus&#34;: {}
+</span></span></span><span class=line><span class=cl><span class=s1>    },
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;upstream&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;type&#34;: &#34;roundrobin&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;nodes&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;127.0.0.1:1980&#34;:1
+</span></span></span><span class=line><span class=cl><span class=s1>        }
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span>
+</span></span></code></pre></div></li></ol><h4 id=run-the-benchmark-test-script>Run the benchmark test script</h4><ol><li><p>Go to the source code location</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>cd</span> ~/apisix
+</span></span></code></pre></div></li><li><p>Install editing tools</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo apt-get install vim
+</span></span></code></pre></div></li><li><p>Add a curl command to line 103 of the ./benchmark/run.sh script to check the backend Nginx startup.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>curl -i http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>wrk -d <span class=m>5</span> -c <span class=m>16</span> http://127.0.0.1:9080/hello
+</span></span></code></pre></div></li><li><p>In the ./benchmark/run.sh script, increase the load time for testing from the default of 5 seconds to 60 seconds. Replace <code>-d 5</code> with <code>-d 60</code>.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>wrk -d <span class=m>60</span> -c <span class=m>16</span> http://127.0.0.1:9080/hello
+</span></span></code></pre></div></li><li><p>Run the benchmark script.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>./benchmark/run.sh
+</span></span></code></pre></div></li><li><p>Execution result</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>ubuntu@oci-arm-ubuntu-c2m4:~/apisix$ ./benchmark/run.sh
+</span></span><span class=line><span class=cl>+ <span class=s1>&#39;[&#39;</span> -n <span class=s1>&#39;&#39;</span> <span class=s1>&#39;]&#39;</span>
+</span></span><span class=line><span class=cl>+ <span class=nv>worker_cnt</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>+ <span class=s1>&#39;[&#39;</span> -n <span class=s1>&#39;&#39;</span> <span class=s1>&#39;]&#39;</span>
+</span></span><span class=line><span class=cl>+ <span class=nv>upstream_cnt</span><span class=o>=</span><span class=m>1</span>
+</span></span><span class=line><span class=cl>+ mkdir -p benchmark/server/logs
+</span></span><span class=line><span class=cl>+ mkdir -p benchmark/fake-apisix/logs
+</span></span><span class=line><span class=cl>+ make init
+</span></span><span class=line><span class=cl><span class=o>[</span> info <span class=o>]</span> init -&gt; <span class=o>[</span> Start <span class=o>]</span>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>apisix: <span class=m>1</span> worker + <span class=m>1</span> upstream + no plugin
+</span></span><span class=line><span class=cl>+ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class=s1>&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>{
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;uri&#34;: &#34;/hello&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;plugins&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>    },
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;upstream&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;type&#34;: &#34;roundrobin&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;nodes&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;127.0.0.1:1980&#34;:1
+</span></span></span><span class=line><span class=cl><span class=s1>        }
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=s2>&#34;node&#34;</span>:<span class=o>{</span><span class=s2>&#34;key&#34;</span>:<span class=s2>&#34;\/apisix\/routes\/1&#34;</span>,<span class=s2>&#34;value&#34;</span>:<span class=o>{</span><span class=s2>&#34;uri&#34;</span>:<span class=s2>&#34;\/hello&#34;</span>,<span class=s2>&#34;update_time&#34;</span>:1664362611,<span class=s2>&#34;plugins&#34;</span>:<span class=o>{}</span>,<span class=s2>&#34;status&#34;</span>:1,<span class=s2>&#34;create_time&#34;</span>:1664361560,<span class=s2>&#34;priority&#34;</span>:0,<span class=s2>&#34;upstream&#34;</span>:<span class=o>{</span><span class=s2>&#34;scheme&#34;</span>:<span class=s2>&#34;http&#34;</span>,<span class=s2>&#34;pass_host&#34;</span>:<span class=s2>&#34;pass&#34;</span>,<span class=s2>&#34;nodes&#34;</span>:<span class=o>{</span><span class=s2>&#34;127.0.0.1:1980&#34;</span>:1<span class=o>}</span>,<span class=s2>&#34;hash_on&#34;</span>:<span class=s2>&#34;vars&#34;</span>,<span class=s2>&#34;type&#34;</span>:<span class=s2>&#34;roundrobin&#34;</span><span class=o>}</span>,<span class=s2>&#34;id&#34;</span>:<span class=s2>&#34;1&#34;</span><span class=o>}}</span>,<span class=s2>&#34;action&#34;</span>:<span class=s2>&#34;set&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl>+ sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>+ curl -i http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>HTTP/1.1 <span class=m>200</span> OK
+</span></span><span class=line><span class=cl>Content-Type: text/plain<span class=p>;</span> <span class=nv>charset</span><span class=o>=</span>utf-8
+</span></span><span class=line><span class=cl>Transfer-Encoding: chunked
+</span></span><span class=line><span class=cl>Connection: keep-alive
+</span></span><span class=line><span class=cl>Date: Wed, <span class=m>28</span> Sep <span class=m>2022</span> 10:56:52 GMT
+</span></span><span class=line><span class=cl>Server: APISIX/2.15.0
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>1234567890+ wrk -d <span class=m>60</span> -c <span class=m>16</span> http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>Running 1m <span class=nb>test</span> @ http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>  <span class=m>2</span> threads and <span class=m>16</span> connections
+</span></span><span class=line><span class=cl>  Thread Stats   Avg      Stdev     Max   +/- Stdev
+</span></span><span class=line><span class=cl>    Latency     1.02ms  188.43us  13.83ms   97.08%
+</span></span><span class=line><span class=cl>    Req/Sec     7.86k   505.69     8.73k    89.58%
+</span></span><span class=line><span class=cl>  <span class=m>938523</span> requests in 1.00m, 171.84MB <span class=nb>read</span>
+</span></span><span class=line><span class=cl>Requests/sec:  15640.38
+</span></span><span class=line><span class=cl>Transfer/sec:      2.86MB
+</span></span><span class=line><span class=cl>+ sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>+ wrk -d <span class=m>60</span> -c <span class=m>16</span> http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>Running 1m <span class=nb>test</span> @ http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>  <span class=m>2</span> threads and <span class=m>16</span> connections
+</span></span><span class=line><span class=cl>  Thread Stats   Avg      Stdev     Max   +/- Stdev
+</span></span><span class=line><span class=cl>    Latency     1.03ms  112.62us  10.02ms   93.94%
+</span></span><span class=line><span class=cl>    Req/Sec     7.82k   314.04    15.89k    88.01%
+</span></span><span class=line><span class=cl>  <span class=m>934559</span> requests in 1.00m, 171.12MB <span class=nb>read</span>
+</span></span><span class=line><span class=cl>Requests/sec:  15550.03
+</span></span><span class=line><span class=cl>Transfer/sec:      2.85MB
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>apisix: <span class=m>1</span> worker + <span class=m>1</span> upstream + <span class=m>2</span> plugins <span class=o>(</span>limit-count + prometheus<span class=o>)</span>
+</span></span><span class=line><span class=cl>+ curl http://127.0.0.1:9080/apisix/admin/routes/1 -H <span class=s1>&#39;X-API-KEY: edd1c9f034335f136f87ad84b625c8f1&#39;</span> -X PUT -d <span class=s1>&#39;
+</span></span></span><span class=line><span class=cl><span class=s1>{
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;uri&#34;: &#34;/hello&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;plugins&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;limit-count&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;count&#34;: 2000000000000,
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;time_window&#34;: 60,
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;rejected_code&#34;: 503,
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;key&#34;: &#34;remote_addr&#34;
+</span></span></span><span class=line><span class=cl><span class=s1>        },
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;prometheus&#34;: {}
+</span></span></span><span class=line><span class=cl><span class=s1>    },
+</span></span></span><span class=line><span class=cl><span class=s1>    &#34;upstream&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;type&#34;: &#34;roundrobin&#34;,
+</span></span></span><span class=line><span class=cl><span class=s1>        &#34;nodes&#34;: {
+</span></span></span><span class=line><span class=cl><span class=s1>            &#34;127.0.0.1:1980&#34;:1
+</span></span></span><span class=line><span class=cl><span class=s1>        }
+</span></span></span><span class=line><span class=cl><span class=s1>    }
+</span></span></span><span class=line><span class=cl><span class=s1>}&#39;</span>
+</span></span><span class=line><span class=cl><span class=o>{</span><span class=s2>&#34;node&#34;</span>:<span class=o>{</span><span class=s2>&#34;key&#34;</span>:<span class=s2>&#34;\/apisix\/routes\/1&#34;</span>,<span class=s2>&#34;value&#34;</span>:<span class=o>{</span><span class=s2>&#34;uri&#34;</span>:<span class=s2>&#34;\/hello&#34;</span>,<span class=s2>&#34;update_time&#34;</span>:1664362734,<span class=s2>&#34;plugins&#34;</span>:<span class=o>{</span><span class=s2>&#34;limit-count&#34;</span>:<span class=o>{</span><span class=s2>&#34;time_window&#34;</span>:60,<span class=s2>&#34;key&#34;</span>:<span class=s2>&#34;remote_addr&#34;</span>,<span class=s2>&#34;rejected_code&#34;</span>:503,<span class=s2>&#34;count&#34;</span>:2000000000000,<span class=s2>&#34;key_type&#34;</span>:<span class=s2>&#34;var&#34;</span>,<span class=s2>&#34;policy&#34;</span>:<span class=s2>&#34;local&#34;</span>,<span class=s2>&#34;allow_degradation&#34;</span>:false,<span class=s2>&#34;show_limit_quota_header&#34;</span>:true<span class=o>}</span>,<span class=s2>&#34;prometheus&#34;</span>:<span class=o>{</span><span class=s2>&#34;prefer_name&#34;</span>:false<span class=o>}}</span>,<span class=s2>&#34;status&#34;</span>:1,<span class=s2>&#34;create_time&#34;</span>:1664361560,<span class=s2>&#34;priority&#34;</span>:0,<span class=s2>&#34;upstream&#34;</span>:<span class=o>{</span><span class=s2>&#34;scheme&#34;</span>:<span class=s2>&#34;http&#34;</span>,<span class=s2>&#34;pass_host&#34;</span>:<span class=s2>&#34;pass&#34;</span>,<span class=s2>&#34;nodes&#34;</span>:<span class=o>{</span><span class=s2>&#34;127.0.0.1:1980&#34;</span>:1<span class=o>}</span>,<span class=s2>&#34;hash_on&#34;</span>:<span class=s2>&#34;vars&#34;</span>,<span class=s2>&#34;type&#34;</span>:<span class=s2>&#34;roundrobin&#34;</span><span class=o>}</span>,<span class=s2>&#34;id&#34;</span>:<span class=s2>&#34;1&#34;</span><span class=o>}}</span>,<span class=s2>&#34;action&#34;</span>:<span class=s2>&#34;set&#34;</span><span class=o>}</span>
+</span></span><span class=line><span class=cl>+ sleep <span class=m>3</span>
+</span></span><span class=line><span class=cl>+ wrk -d <span class=m>60</span> -c <span class=m>16</span> http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>Running 1m <span class=nb>test</span> @ http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>  <span class=m>2</span> threads and <span class=m>16</span> connections
+</span></span><span class=line><span class=cl>  Thread Stats   Avg      Stdev     Max   +/- Stdev
+</span></span><span class=line><span class=cl>    Latency     1.31ms  192.72us  17.15ms   95.50%
+</span></span><span class=line><span class=cl>    Req/Sec     6.15k   294.98     6.71k    71.83%
+</span></span><span class=line><span class=cl>  <span class=m>734891</span> requests in 1.00m, 185.02MB <span class=nb>read</span>
+</span></span><span class=line><span class=cl>Requests/sec:  12248.00
+</span></span><span class=line><span class=cl>Transfer/sec:      3.08MB
+</span></span><span class=line><span class=cl>+ sleep <span class=m>1</span>
+</span></span><span class=line><span class=cl>+ wrk -d <span class=m>60</span> -c <span class=m>16</span> http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>Running 1m <span class=nb>test</span> @ http://127.0.0.1:9080/hello
+</span></span><span class=line><span class=cl>  <span class=m>2</span> threads and <span class=m>16</span> connections
+</span></span><span class=line><span class=cl>  Thread Stats   Avg      Stdev     Max   +/- Stdev
+</span></span><span class=line><span class=cl>    Latency     1.30ms  141.40us  12.13ms   93.56%
+</span></span><span class=line><span class=cl>    Req/Sec     6.17k   254.42     6.87k    64.83%
+</span></span><span class=line><span class=cl>  <span class=m>736422</span> requests in 1.00m, 185.41MB <span class=nb>read</span>
+</span></span><span class=line><span class=cl>Requests/sec:  12271.99
+</span></span><span class=line><span class=cl>Transfer/sec:      3.09MB
+</span></span><span class=line><span class=cl>...
+</span></span></code></pre></div></li></ol><h4 id=performance-measurement-results>Performance measurement results</h4><ul><li><p>Scenario 1: Single upstream​</p><ul><li>apisix: 1 worker + 1 upstream + no plugin part</li></ul><table><thead><tr><th style=text-align:left></th><th style=text-align:left>1st</th><th style=text-align:left>2nd</th><th style=text-align:left>Average</th></tr></thead><tbody><tr><td style=text-align:left>Requests/sec</td><td style=text-align:left>15640.38</td><td style=text-align:left>15550.03</td><td style=text-align:left>15595.205</td></tr><tr><td style=text-align:left>Avg Latency</td><td style=text-align:left>1.02ms</td><td style=text-align:left>1.03ms</td><td style=text-align:left>1.025ms</td></tr></tbody></table></li><li><p>Scenario 2: Single upstream + Two plugins​</p><ul><li>apisix: 1 worker + 1 upstream + 2 plugins (limit-count + prometheus)</li></ul><table><thead><tr><th style=text-align:left></th><th style=text-align:left>1st</th><th style=text-align:left>2nd</th><th style=text-align:left>Average</th></tr></thead><tbody><tr><td style=text-align:left>Requests/sec</td><td style=text-align:left>12248.00</td><td style=text-align:left>12271.99</td><td style=text-align:left>12259.995</td></tr><tr><td style=text-align:left>Avg Latency</td><td style=text-align:left>1.31ms</td><td style=text-align:left>1.30ms</td><td style=text-align:left>1.305ms</td></tr></tbody></table></li><li><p>CPU and Memory status during testing</p><ul><li>CPU: The backend Nginx Worker process is using a lot of CPU due to load</li><li>Memory: Nginx simple web page does not use much memory
+<img class=img-fluid1 src=../images/compute-metrics-for-testing.png alt onerror='this.onerror=null,this.src="images/compute-metrics-for-testing.png"'></li></ul></li></ul><h3 id=costperformance-comparison>Cost/Performance Comparison</h3><h4 id=oci-arm-based-shape>OCI Arm Based Shape</h4><ul><li>Both VM and Bare Metal support Ampere A1, provided as one of Flex Shape in VM<ul><li><a href=https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#flexible>https://docs.oracle.com/en-us/iaas/Content/Compute/References/computeshapes.htm#flexible</a></li></ul><table><thead><tr><th style=text-align:left>Shape</th><th style=text-align:left>Maximum OCPUs</th><th style=text-align:left>Minimum Memory</th><th style=text-align:left>Maximum Memory</th></tr></thead><tbody><tr><td style=text-align:left>VM.Standard.A1.Flex</td><td style=text-align:left>80</td><td style=text-align:left>1 GB or number of OCPUs, whichever is greater</td><td style=text-align:left>64 GB per OCPU, total up to 512 GB</td></tr></tbody></table></li></ul><h4 id=cost-of-oci-arm-based-virtual-machines>Cost of OCI Arm-based Virtual Machines</h4><ul><li>OCI Ampere A1 Compute<ul><li><a href=https://www.oracle.com/cloud/compute/arm/>https://www.oracle.com/cloud/compute/arm/</a></li><li>On Arm CPU architecture (Ampere), 1 OCPU = 1 vCPU.</li><li>Of the total monthly usage of Ampere A1 shape in Cloud Account, the first 3,000 OCPU-hours and the first 18,000 GB-hours are free.</li><li>OCPU and Memory can be adjusted with Flex Shape, so each has a unit cost.</li><li>OCI prices are the same in all regions.</li></ul><table><thead><tr><th style=text-align:left>Compute - Virtual Machine Instances</th><th style=text-align:left>Comparison Price ( /vCPU)*</th><th style=text-align:left>Unit Price</th><th style=text-align:left>Unit</th></tr></thead><tbody><tr><td style=text-align:left>Compute – Ampere A1 – OCPU</td><td style=text-align:left>$0.01</td><td style=text-align:left>$0.01</td><td style=text-align:left>OCPUs per Hour</td></tr><tr><td style=text-align:left>Compute – Ampere A1 – Memory</td><td style=text-align:left>-</td><td style=text-align:left>$0.0015</td><td style=text-align:left>gigabytes per hour</td></tr></tbody></table></li></ul><h4 id=comparison-of-costs-related-to-benchmark-testing>Comparison of Costs Related to Benchmark Testing</h4><h5 id=comparison-condition>Comparison condition</h5><ul><li>Based on ARM server.</li><li>AWS: Cost per hour in C7g (US East Ohio).<ul><li><a href=https://aws.amazon.com/ec2/pricing/on-demand/>https://aws.amazon.com/ec2/pricing/on-demand/</a></li></ul></li><li>OCI: Cost per hour based on VM.Standard.A1.Flex.<ul><li>OCI prices are the same in all regions.</li><li>For comparison, the price is compared with the CPU and memory of the same size as AWS C7g.</li><li>VM.Standard.A1.Flex price is the sum of CPU price and Memory price.</li></ul></li></ul><h5 id=cost-per-hour>cost per hour</h5><table><thead><tr><th style=text-align:left>VM series / vCPU(Memory)</th><th style=text-align:left>1 (2G)</th><th style=text-align:left>2 (4G)</th><th style=text-align:left>4 (8G)</th><th style=text-align:left>8 (16G)</th><th style=text-align:left>16 (32G)</th><th style=text-align:left>32 (64G)</th><th style=text-align:left>64 (128G)</th></tr></thead><tbody><tr><td style=text-align:left>AWS C7g</td><td style=text-align:left>$0.0361</td><td style=text-align:left>$0.0723</td><td style=text-align:left>$0.1445</td><td style=text-align:left>$0.289</td><td style=text-align:left>$0.5781</td><td style=text-align:left>$1.1562</td><td style=text-align:left>$1.7342</td></tr><tr><td style=text-align:left>OCI Ampere A1</td><td style=text-align:left>$0.013</td><td style=text-align:left>$0.026</td><td style=text-align:left>$0.052</td><td style=text-align:left>$0.104</td><td style=text-align:left>$0.208</td><td style=text-align:left>$0.416</td><td style=text-align:left>$0.832</td></tr></tbody></table><h5 id=annual-cost-based-on-test-scenario-1>Annual Cost: Based on Test Scenario 1</h5><ul><li>QPS (queries per second): Number of requests processed per second</li><li>AWS c7g.large&rsquo;s QPS is based on reference documents #1 and #2 results</li><li>**Reference documents #1 and #2 were tested with the same configuration as possible, but the final load request of the reference document and resource usage at that time are unknown, so the performance and cost-performance ratio below are for reference only, not absolute. **</li><li>Since OCI Flex Shape is freely configurable, it is also possible to configure 2 GB of memory with 2 OCPUs as it is.</li></ul><table><thead><tr><th style=text-align:left></th><th style=text-align:left>hourly cost</th><th style=text-align:left>Total hours in a year (24*365)</th><th style=text-align:left>Annual Cost</th><th style=text-align:left>QPS</th><th style=text-align:left>Cost Performance (QPS/cost)</th></tr></thead><tbody><tr><td style=text-align:left>AWS c7g.large</td><td style=text-align:left>$0.0723</td><td style=text-align:left>8760 hours</td><td style=text-align:left>$633.3</td><td style=text-align:left><strong>23000</strong></td><td style=text-align:left><strong>36.3</strong></td></tr><tr><td style=text-align:left>OCI VM.Standard.A1.Flex 2 OCPU, 4 GB Memory</td><td style=text-align:left>$0.026</td><td style=text-align:left>8760 hours</td><td style=text-align:left>$227.8</td><td style=text-align:left><strong>15595.205</strong></td><td style=text-align:left><strong>68.5</strong></td></tr><tr><td style=text-align:left>OCI VM.Standard.A1.Flex 2 OCPU, 2 GB Memory</td><td style=text-align:left>$0.023</td><td style=text-align:left>8760 hours</td><td style=text-align:left>$201.5</td><td style=text-align:left><strong>15595.205</strong></td><td style=text-align:left><strong>77.4</strong></td></tr></tbody></table><h5 id=excluding-free-provision-under-the-assumption-that-only-the-test-environment-in-the-tenant-is-used>Excluding free provision under the assumption that only the test environment in the tenant is used</h5><ul><li>Of the total monthly usage of Ampere A1 shape in Cloud Account, the first 3,000 OCPU-hours and the first 18,000 GB-hours are free.</li><li>Maximum usage time per month: 24 hours * 31 days = 744 hours</li></ul><table><thead><tr><th style=text-align:left></th><th style=text-align:left>Maximum usage per month</th><th style=text-align:left>Monthly usage after free deduction</th><th style=text-align:left>Annual Usage</th><th style=text-align:left>Unit Price</th><th style=text-align:left>Annual Cost</th></tr></thead><tbody><tr><td style=text-align:left>OCI VM.Standard.A1.Flex 2 OCPU</td><td style=text-align:left>1,488 OCPU-Hours</td><td style=text-align:left>0 OCPU-Hours</td><td style=text-align:left>0</td><td style=text-align:left>$0.01</td><td style=text-align:left><strong>$0</strong></td></tr><tr><td style=text-align:left>OCI VM.Standard.A1.Flex 4 GB Memory</td><td style=text-align:left>2,976 GB-Hours</td><td style=text-align:left>0 GB-Hours</td><td style=text-align:left>0</td><td style=text-align:left>$0.0015</td><td style=text-align:left><strong>$0</strong></td></tr></tbody></table><br><br><div class="panel panel-caution"><div class=panel-body><p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions.</p></div></div><footer><p class=powered>Powered by <a href=https://gohugo.io>Hugo</a>. Theme by <a href=https://github.com/thingsym/hugo-theme-techdoc>TechDoc</a>. Design by <a href=https://www.thingslabo.com/>Thingsym</a>.</p></footer></main><div class=sidebar><nav><ul><li><form method=get action=https://thekoguryo.github.io//search><input type=text id=search-box name=q placeholder=Search></form><script type=text/javascript>$(document).ready(function(){$("#search-box").val($("#search-query").val())})</script></li><li><a></a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/>OCI(Oracle Cloud Infrastructure)
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter01/>1. OCI Basic Concept
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter01/1/>1.1 Regions, Availability Domains</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/2/>1.2 Fault Domains</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/3/>1.3 Compartment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/4/>1.4 Virtual Cloud Network(VCN)</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/5/>1.5 Bare Metal, Virtual Machine</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/6/>1.6 Map of offerings between cloud service providers</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter02/>2. Get started with OCI Services
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter02/1/>2.1 Creating an Oracle Cloud Free Tier Account</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter02/2/>2.2 Connecting to the OCI Console</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter02/3/>2.3 Using the OCI Console</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter02/4/>2.4 Initial Cloud Account (Tenancy) Architecture</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/>3. Use the OCI Compute VM
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/1/>3.1 Creating a Work Compartment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/2/>3.2 Creating a VCN for a Virtual Network Environment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/3/>3.3 Creating a Key Pair for SSH Connections</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/4/>3.4 Creating a Linux Instance</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/5/>3.5 Connecting to a Linux Instance
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/5/1/>3.5.1 Access from Linux, Mac</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/5/2/>3.5.2 Connecting to PuTTY on Windows</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/5/3/>3.5.3 Changing the PEM &lt;-> PPK Format</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/6/>3.6 Block Volume like hard drive
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/1/>3.6.1 Creating a Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/2/>3.6.2 Mounting Block Volume to Instance</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/3/>3.6.3 Connecting to Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/4/>3.6.4 Formatting Block Volumes</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/5/>3.6.5 Mount Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/6/>3.6.6 Unmounting Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/7/>3.6.7 Deleting Block Volume</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/7/>3.7 Utilizing Block Volume Backups
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/1/>3.7.1 Backing up Block Volumes</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/2/>3.7.2 Creating a New Volume from Backup</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/3/>3.7.3 Copying Backups to Another Region</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/4/>3.7.4 Backing up Policy-Based Block Volumes</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/8/>3.8 Utilizing Boot Volume Backups
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/8/1/>3.8.1 Backing Up Boot Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/8/2/>3.8.2 Creating a New Boot Volume from a Backup</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/8/3/>3.8.3 Creating a New Instance with Boot Volume</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter04/>4. Reserved Public IP for Static IP Allocation
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter04/1/>4.1 Creating a Reserved Public IP</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter04/2/>4.2 Allocating Reserved Public IP</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter05/>5. Using Security Lists to Configure Firewalls
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter05/1/>5.1 Installing Apache HTTP Server on Linux Instance</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter05/2/>5.2 Updating the Default Security List</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter05/3/>5.3 Adding a Custom Security List</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter05/4/>5.4 Testing Apache HTTP Server Connection</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter06/>6. Using IAM to Set User Permissions
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter06/1/>6.1 Compartment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/2/>6.2 Creating Users</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/3/>6.3 Creating Groups</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/4/>6.4 Creating a Policy</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/5/>6.5 Grabbing the Policy Concept</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter07/>7. Using Object Storage
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter07/1/>7.1 Creating a Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/2/>7.2 Uploading Files to Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/3/>7.3 Object Permission Management - Pre-authentication</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/4/>7.4 Object Rights Management - Public Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/5/>7.5 Hosting Static Websites with Public Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/6/>7.6 Uploading Files via CloudBerry Explorer</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/7/>7.7 Setting up an Archive via Lifecycle</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter08/>8. Using File Storage, a Network File System
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter08/1/>8.1 Example File Storage Configuration</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter08/2/>8.2 Mounting and using FSS on a Linux VM</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter08/3/>8.3 Export Option for Access Control</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter08/4/>8.4 Snapshot for Backup</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter09/>9. Machine Image
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter09/1/>9.1 OS Image provided by default</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter09/2/>9.2 Create Custom Image from Instance</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter09/3/>9.3 Custom Image Export/Import</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter10/>10. Using Load Balancer for High Availability
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter10/1/>10.1 Load Balancer Configuration Example</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/2/>10.2 VCN Configuration</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/3/>10.3 Creating a Backend Web Server</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/4/>10.4 Creating a Subnet for a Load Balancer</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/5/>10.5 Creating a Load Balancer</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/6/>10.6 Checking the Load Balancer Connection</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter11/>11. Domain Name System (DNS)
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter11/1/>11.1 Mapping with Domain Names</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter12/>12. Monitoring for OCI resource monitoring
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter12/1/>12.1 Enabling Compute Instance Monitoring</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter12/2/>12.2 Creating Monitoring Alarm</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter12/3/>12.3 OCI Grafana Plugin
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter12/3/1/>12.3.1 Installing Grafana on Compute VM</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter12/3/2/>12.3.2 Grafana Configuration</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter13/>13. Autoscaling Based on Metric
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter13/1/>13.1 Preparation for Autoscaling</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter13/2/>13.2 Configuring Autoscaling</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter13/3/>13.3 Autoscaling Test</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/>14. Using Developer Tools
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/1/>14.1 OCI CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/>14.1.1 Installing the OCI CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/1/>14.1.1.1 Installing OCI CLI on Windows</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/2/>14.1.1.2 Installing OCI CLI on Linux</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/3/>14.1.1.3 Config File Settings</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/4/>14.1.1.4 Registering API Public Key</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/5/>14.1.1.5 Verifying OCI CLI Installation</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/1/2/>14.1.2 Using Object Storage as CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/2/1/>14.1.2.1 Setting IAM Policy for Object Storage</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/2/2/>14.1.2.2 File Upload via CLI</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/2/>14.2 Terraform
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/1/>14.2.1 Installing Terraform</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/2/>14.2.2 Creating Terraform Configurations</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/3/>14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/4/>14.2.4 Running Terraform Configuration</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/5/>14.2.5 Using workspaces for multiple environments</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/6/>14.2.6 Example, Creating Users Using List and Count</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/7/>14.2.7 OCI Terraform Usage Example</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/3/>14.3 REST API
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/1/>14.3.1 OCI Request Signature Version 1</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/2/>14.3.2 Bash Sample Client</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/3/>14.3.3 Insomnia - Calling the OCI REST API</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/4/>14.3.4 Postman - Calling the OCI REST API</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter15/>15. Using Resource Manager
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter15/1/>15.1 Using the Resource Manager</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter15/2/>15.2 Stack Template for Resource Manager</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter15/3/>15.3 Configuring a Private Git Server for Resource Manager</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/>Oracle Cloud Native
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/>1. Using Managed Kubernetes OKE
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/>1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/>1.2 Creating an OKE Cluster</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/>1.3 Connecting the OKE Cluster
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/>1.3.1 Connecting to a Cluster with Cloud Shell</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/>1.3.2 Connecting to a Cluster in a Local Environment</a></li></ul></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/>1.4 Deploying Apps and Using Load Balancer</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/>1.5 Using OCIR Images</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/>1.6 Using Persistent Volumes
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/>1.6.1 Using Block Volumes</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/>1.6.2 Using File Storage</a></li></ul></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/>1.7 Upgrading the Kubernetes Version</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/ocir/>2. Using OCIR, a container registry
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/>2.1 Scanning Container Images</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/>2.2 Using Helm Chart Repository</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/>3. Using OCI DevOps Services as CI/CD
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/>3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/>3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/>3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/>3.4 Automating Deployments with Helm Charts via DevOps Services</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/>3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/>4. Leveraging Open Source Software (OSS)
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/>4.1 Ingress Controller
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/>4.1.1 Installing the NGINX Ingress Controller</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/>4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/>4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/>4.1.4 TLS termination in NGINX Ingress Controller</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/>4.1.5 Getting Client IP from NGINX Ingress Controller</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/>4.2 Logging - EFK
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/>4.2.1 Installing EFK</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/>4.3 Monitoring - Prometheus&Grafana
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/>4.3.1 Installing Prometheus&Grafana</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/>4.4 Service Mesh - Istio
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/>4.4.1 Deploying Microservices Apps Without Service Mesh</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/>4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/>5. Utilizing OCI Service
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/>5.1 Service Operator for OCI Resource Management in OKE</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/>5.2 Logging Service
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/>5.2.1 Log Monitoring Using OCI Logging</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/>5.2.2 Log Monitoring Using OCI Search Service with OpenSearch</a></li></ul></li></ul></li></ul></li></ul></nav><div class=sidebar-footer></div></div></div><a href=# id=backtothetop-fixed class=backtothetop data-backtothetop-duration=600 data-backtothetop-easing=easeOutQuart data-backtothetop-fixed-fadein=1000 data-backtothetop-fixed-fadeout=1000 data-backtothetop-fixed-bottom=10 data-backtothetop-fixed-right=20><span class="fa-layers fa-fw"><i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i></span></a>
+<script src=https://thekoguryo.github.io/js/copy-code-button.js></script></div></body></html>

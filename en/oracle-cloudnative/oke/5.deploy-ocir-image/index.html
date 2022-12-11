@@ -1,1691 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>1.5 Using OCIR Images - TheKoguryo&#39;s Tech Blog</title>
-<meta name="generator" content="Hugo 0.104.3" />
-<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
-<link rel="canonical" href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
-<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
-<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
-<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
-<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-106207316-1');
-</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
-     crossorigin="anonymous"></script><meta property="og:title" content="1.5 Using OCIR Images" />
-<meta property="og:description" content="1.5 Deploying the app using the OCIR image Register image to OCIR Oracle Cloud Infrastructure Registry (OCIR) is a managed container registry provided by Oracle that supports the Docker V2 API and is an Open Container Initiate compliant container registry. You can push and pull images through the docker cli and use them in a Kubernetes cluster.
-To use an image for OCIR, registration is required first, and try to register the nginx image used in the previous example by following the procedure below." />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/" /><meta property="article:section" content="oracle-cloudnative" />
-
-<meta property="article:modified_time" content="2021-11-08T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s Tech Blog" />
-
-
-</head>
-<body>
-<div class="container"><header>
-<h1>TheKoguryo&#39;s Tech Blog</h1>
-
- <span class="version">Version 2022.10.11</span>
-<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
-</header>
-<div class="menu">
-<nav>
-<ul>
-<li ><a href="/">Home</a></li>
-<li ><a href="/release-notes">OCI Release Notes</a></li>
-<li ><a href="/archives">Archives</a></li>
-<li ><a href="/tags">Tag</a></li>
-<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
-<li ><a href="/link">Link</a></li>
-<li style="float:right">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">한국어</a>
-</li>
-
-
-</ul>
-</nav>
-</div>
-<div class="content-container">
-<main>
-<div class="panel panel-caution">
-<div class="panel-header">
-    <h3><svg class="svg-inline--fa fa-life-saver fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="life-saver" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><g><path fill="currentColor" d="M156.5,447.7l-12.6,29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7C127.6,430.5,141.5,440,156.5,447.7z M40.6,272H8.5 c1.4,21.2,5.4,41.7,11.7,61.1L50,321.2C45.1,305.5,41.8,289,40.6,272z M40.6,240c1.4-18.8,5.2-37,11.1-54.1l-29.5-12.6 C14.7,194.3,10,216.7,8.5,240H40.6z M64.3,156.5c7.8-14.9,17.2-28.8,28.1-41.5L69.7,92.3c-13.7,15.6-25.5,32.8-34.9,51.5 L64.3,156.5z M397,419.6c-13.9,12-29.4,22.3-46.1,30.4l11.9,29.8c20.7-9.9,39.8-22.6,56.9-37.6L397,419.6z M115,92.4 c13.9-12,29.4-22.3,46.1-30.4l-11.9-29.8c-20.7,9.9-39.8,22.6-56.8,37.6L115,92.4z M447.7,355.5c-7.8,14.9-17.2,28.8-28.1,41.5 l22.7,22.7c13.7-15.6,25.5-32.9,34.9-51.5L447.7,355.5z M471.4,272c-1.4,18.8-5.2,37-11.1,54.1l29.5,12.6 c7.5-21.1,12.2-43.5,13.6-66.8H471.4z M321.2,462c-15.7,5-32.2,8.2-49.2,9.4v32.1c21.2-1.4,41.7-5.4,61.1-11.7L321.2,462z M240,471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6,29.5c21.1,7.5,43.5,12.2,66.8,13.6V471.4z M462,190.8c5,15.7,8.2,32.2,9.4,49.2h32.1 c-1.4-21.2-5.4-41.7-11.7-61.1L462,190.8z M92.4,397c-12-13.9-22.3-29.4-30.4-46.1l-29.8,11.9c9.9,20.7,22.6,39.8,37.6,56.9 L92.4,397z M272,40.6c18.8,1.4,36.9,5.2,54.1,11.1l12.6-29.5C317.7,14.7,295.3,10,272,8.5V40.6z M190.8,50 c15.7-5,32.2-8.2,49.2-9.4V8.5c-21.2,1.4-41.7,5.4-61.1,11.7L190.8,50z M442.3,92.3L419.6,115c12,13.9,22.3,29.4,30.5,46.1 l29.8-11.9C470,128.5,457.3,109.4,442.3,92.3z M397,92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6,29.5 C370.4,72.1,384.4,81.5,397,92.4z"></path><circle fill="currentColor" cx="256" cy="364" r="28"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="r" values="28;14;28;28;14;28;"></animate><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;1;1;0;1;"></animate></circle><path fill="currentColor" opacity="1" d="M263.7,312h-16c-6.6,0-12-5.4-12-12c0-71,77.4-63.9,77.4-107.8c0-20-17.8-40.2-57.4-40.2c-29.1,0-44.3,9.6-59.2,28.7 c-3.9,5-11.1,6-16.2,2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2c21.2-27.2,46.4-44.7,91.2-44.7c52.3,0,97.4,29.8,97.4,80.2 c0,67.6-77.4,63.5-77.4,107.8C275.7,306.6,270.3,312,263.7,312z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;0;0;0;1;"></animate></path><path fill="currentColor" opacity="0" d="M232.5,134.5l7,168c0.3,6.4,5.6,11.5,12,11.5h9c6.4,0,11.7-5.1,12-11.5l7-168c0.3-6.8-5.2-12.5-12-12.5h-23 C237.7,122,232.2,127.7,232.5,134.5z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="0;0;1;1;0;0;"></animate></path></g></svg> Warning</h3>
-</div>
-<div class="panel-body">
-<p>This content has been generated by machine translation. The translations are automated and have not undergone human review or validation. </p>
-</div>
-</div><h1 id="15-deploying-the-app-using-the-ocir-image">1.5 Deploying the app using the OCIR image</h1>
-<h2 id="register-image-to-ocir">Register image to OCIR</h2>
-<p>Oracle Cloud Infrastructure Registry (OCIR) is a managed container registry provided by Oracle that supports the Docker V2 API and is an Open Container Initiate compliant container registry. You can push and pull images through the docker cli and use them in a Kubernetes cluster.</p>
-<p>To use an image for OCIR, registration is required first, and try to register the nginx image used in the previous example by following the procedure below.</p>
-<h3 id="create-ocir-repository">Create OCIR Repository</h3>
-<ol>
-<li>
-<p>Log in to the OCI console.</p>
-</li>
-<li>
-<p>From the top left hamburger menu, go to <strong>Developer Services</strong> &gt; <strong>Containers &amp; Artifacts</strong> : <strong>Container Registry</strong>.</p>
-</li>
-<li>
-<p>In <strong>List Scope</strong>, select the target <strong>Compartment</strong> (eg oke-labs).</p>
-</li>
-<li>
-<p>Before pushing an image, you need to create a repository in OCIR first.</p>
-<p>Click <strong>Create repository</strong> to create the nginx repository as shown below. Select Access mode as <strong>Private</strong> for both push and pull authentication tests.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109173748014.png" alt='image-20211109173748014' onerror="this.onerror=null;this.src='images\/image-20211109173748014.png';" />
-</p>
-</li>
-<li>
-<p>Complete creation</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109174409016.png" alt='image-20211109174409016' onerror="this.onerror=null;this.src='images\/image-20211109174409016.png';" />
-</p>
-</li>
-<li>
-<p>Copy the Namespace from the Repository screen. <strong>tenancy-namespace</strong> representing the tenant in the region: cnrlxx3w0wgq, which is required for subsequent logins.</p>
-</li>
-</ol>
-<h3 id="create-oci-auth-token">Create OCI Auth Token</h3>
-<p>Register an image in docker hub with docker cli, or log in through docker login with username/password when importing. OCIR also requires a login, and uses an Auth Token for security instead of a password.</p>
-<ol>
-<li>
-<p>Go to User Settings by clicking the user&rsquo;s Profile icon in the upper right corner.</p>
-<ul>
-<li>The user in the figure below is an OCI local user and the username is oke-admin.</li>
-<li>If your username starts with <code>oracleidentitycloudservice/~~~</code>, you are a user of Oracle Identity Cloud Service.</li>
-</ul>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109175044623.png" alt='image-20211109175044623' onerror="this.onerror=null;this.src='images\/image-20211109175044623.png';" />
-</p>
-</li>
-<li>
-<p>Go to <strong>Resources</strong> &gt; <strong>Auth Token</strong> in the lower left.</p>
-</li>
-<li>
-<p>Click <strong>Generate Token</strong> to generate Auth Token.</p>
-</li>
-<li>
-<p>Enter and create a description. The Auth Token can only be seen when it is created, so make a copy of it.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109175405289.png" alt='image-20211109175405289' onerror="this.onerror=null;this.src='images\/image-20211109175405289.png';" />
-</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109175414210.png" alt='image-20211109175414210' onerror="this.onerror=null;this.src='images\/image-20211109175414210.png';" />
-</p>
-</li>
-</ol>
-<h3 id="ocir-login-and-image-push">OCIR login and image push</h3>
-<ol>
-<li>
-<p>Log in with the docker cli in Cloud Shell or the connection environment through the Auth Token you created earlier.</p>
-<ul>
-<li>OCIR address: <code>&lt;region-key&gt;.ocir.io</code>
-<ul>
-<li>region-key: Seoul Region is ap-seoul-1 or icn</li>
-<li>Full Region Information: <a href="https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability">Availability by Region</a></li>
-</ul>
-</li>
-<li>username:
-<ul>
-<li><code>&lt;tenancy-namespace&gt;/&lt;username&gt;</code> format</li>
-<li>Username: The user name shown in the user profile in the OCI service console is used.
-<ol>
-<li>User on Oracle Identity Cloud Service: <code>&lt;tenancy-namespace&gt;/oracleidentitycloudservice/&lt;username&gt;</code></li>
-<li>OCI Local user: <code>&lt;tenancy-namespace&gt;/&lt;username&gt;</code></li>
-</ol>
-</li>
-<li>tenancy-namespace: You can check the tenancy-namespace you checked when creating the Repository or <code>oci os ns get</code> in Cloud Shell.</li>
-</ul>
-</li>
-<li>Password: Auth Token of the user to log in created earlier</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ oci os ns get
-</span></span><span class="line"><span class="cl"><span class="o">{</span>
-</span></span><span class="line"><span class="cl">  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;cnrlxx3w0wgq&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ docker login ap-seoul-1.ocir.io
-</span></span><span class="line"><span class="cl">Username: cnrlxx3w0wgq/oke-admin
-</span></span><span class="line"><span class="cl">Password:
-</span></span><span class="line"><span class="cl">WARNING! Your password will be stored unencrypted in /home/oke_admin/.docker/config.json.
-</span></span><span class="line"><span class="cl">Configure a credential helper to remove this warning. See
-</span></span><span class="line"><span class="cl">https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Login Succeeded
-</span></span></code></pre></div></li>
-<li>
-<p>Image Push</p>
-<ul>
-<li>To push to the Repository created in OCIR, tag in the format below and then push.
-<ul>
-<li><code>&lt;region-key&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;repo-name&gt;:&lt;tag&gt;</code></li>
-</ul>
-</li>
-<li>nginx:latest example</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker pull nginx:latest
-</span></span><span class="line"><span class="cl">docker tag nginx:latest ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-</span></span><span class="line"><span class="cl">docker push ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-</span></span></code></pre></div></li>
-<li>
-<p>Check OCIR</p>
-<p>Returning to the OCI service console again, you can see that the pushed image has been successfully registered based on the target compartment.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109220755364.png" alt='image-20211109220755364' onerror="this.onerror=null;this.src='images\/image-20211109220755364.png';" />
-</p>
-</li>
-</ol>
-<h3 id="a-note-to-avoid-mistakes">A note to avoid mistakes</h3>
-<p>What happens when you do docker push in the following situation?</p>
-<ul>
-<li>
-<p>If the OCIR Repository has not been created before the push</p>
-</li>
-<li>
-<p>If there is an additional path in front of the image name, such as dev/nginx:latest (or bitnami/nginx:latest), if the OCIR Repository is created only as dev</p>
-<p>=&gt; If you do not create an OCIR Repository in advance, it is pushed to the root compartment by default.</p>
-<p>=&gt; Even dev/nginx should be the repository name. If you don&rsquo;t do that, it will be pushed to the root compartment in the same way.</p>
-</li>
-</ul>
-<p>If you click Settings in the upper right corner of Container Registry to view the setting information, as shown below, if there is no target repository, automatically creating a new private repository in the root compartment and pushing it is checked by default.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20211109221903416.png" alt='image-20211109221903416' onerror="this.onerror=null;this.src='images\/image-20211109221903416.png';" />
-</p>
-<h2 id="deploy-to-oke-cluster-as-ocir-image">Deploy to OKE cluster as OCIR image</h2>
-<h3 id="ocir-image-deployment-test">OCIR image deployment test</h3>
-<ol>
-<li>
-<p>Try deploying the image to the OKE cluster by pulling the image to the most common form, Public Container Registry.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deployment nginx-ocir --image<span class="o">=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-</span></span></code></pre></div></li>
-<li>
-<p>As a result of the deployment, you can see that an error has occurred in importing the image to the private repository due to an authentication problem as shown below.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl create deployment nginx-ocir --image<span class="o">=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-</span></span><span class="line"><span class="cl">deployment.apps/nginx-ocir created
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get pod
-</span></span><span class="line"><span class="cl">NAME                          READY   STATUS         RESTARTS   AGE
-</span></span><span class="line"><span class="cl">nginx-ocir-6c9d554866-nqgjg   0/1     ErrImagePull   <span class="m">0</span>          10s
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl describe pod nginx-ocir-6c9d554866-nqgjg
-</span></span><span class="line"><span class="cl">Name:         nginx-ocir-6c9d554866-nqgjg
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">Events:
-</span></span><span class="line"><span class="cl">  Type     Reason     Age                From               Message
-</span></span><span class="line"><span class="cl">  ----     ------     ----               ----               -------
-</span></span><span class="line"><span class="cl">...
-</span></span><span class="line"><span class="cl">  Warning  Failed     11s <span class="o">(</span>x2 over 23s<span class="o">)</span>  kubelet            Failed to pull image <span class="s2">&#34;ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest&#34;</span>: rpc error: <span class="nv">code</span> <span class="o">=</span> Unknown <span class="nv">desc</span> <span class="o">=</span> Error reading manifest latest in ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx: denied: Anonymous users are only allowed <span class="nb">read</span> access on public repos
-</span></span><span class="line"><span class="cl">  Warning  Failed     11s <span class="o">(</span>x2 over 23s<span class="o">)</span>  kubelet            Error: ErrImagePull
-</span></span></code></pre></div></li>
-</ol>
-<h3 id="ocir-private-repository-image-deployment-test---imagepullsecret">OCIR Private Repository image deployment test - imagepullsecret</h3>
-<p>In order to use an image by importing from the Private Repository, you must register and use a secret for authentication. Follow the procedure below to create and use a secret.</p>
-<ol>
-<li>
-<p>I did docker login using the Auth Token earlier. After logging in, authentication information is saved in .docker/config.json under the user&rsquo;s home.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ docker login ap-seoul-1.ocir.io
-</span></span><span class="line"><span class="cl">Username: cnrlxx3w0wgq/oke-admin
-</span></span><span class="line"><span class="cl">Password:
-</span></span><span class="line"><span class="cl">WARNING! Your password will be stored unencrypted in /home/oke_admin/.docker/config.json.
-</span></span><span class="line"><span class="cl">Configure a credential helper to remove this warning. See
-</span></span><span class="line"><span class="cl">https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Login Succeeded
-</span></span></code></pre></div></li>
-<li>
-<p>Log in using the above authentication information.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret generic ocir-secret <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --from-file<span class="o">=</span>.dockerconfigjson<span class="o">=</span><span class="nv">$HOME</span>/.docker/config.json <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    --type<span class="o">=</span>kubernetes.io/dockerconfigjson
-</span></span></code></pre></div></li>
-<li>
-<p>Alternatively, you can create a secret directly without docker login information.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret docker-registry &lt;secret-name&gt; --docker-server<span class="o">=</span>&lt;region-key&gt;.ocir.io --docker-username<span class="o">=</span><span class="s1">&#39;&lt;tenancy-namespace&gt;/&lt;oci-username&gt;&#39;</span> --docker-password<span class="o">=</span><span class="s1">&#39;&lt;oci-auth-token&gt;&#39;</span> --docker-email<span class="o">=</span><span class="s1">&#39;&lt;email-address&gt;&#39;</span>
-</span></span></code></pre></div></li>
-<li>
-<p>Redeploy using imagepullsecret as shown below.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-ocir</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-ocir</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-ocir</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-ocir</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">imagePullSecrets</span><span class="p">:</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ocir-secret</span><span class="w">
-</span></span></span></code></pre></div></li>
-<li>
-<p>You can see that it is normally distributed as shown below.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl create secret generic ocir-secret <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     --from-file<span class="o">=</span>.dockerconfigjson<span class="o">=</span>/home/oke_admin/.docker/config.json <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;     --type<span class="o">=</span>kubernetes.io/dockerconfigjson
-</span></span><span class="line"><span class="cl">secret/ocir-secret created
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get secret
-</span></span><span class="line"><span class="cl">NAME                  TYPE                                  DATA   AGE
-</span></span><span class="line"><span class="cl">default-token-2tvwr   kubernetes.io/service-account-token   <span class="m">3</span>      24h
-</span></span><span class="line"><span class="cl">ocir-secret           kubernetes.io/dockerconfigjson        <span class="m">1</span>      13s
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl apply -f nginx-ocir-deployment.yaml 
-</span></span><span class="line"><span class="cl">deployment.apps/nginx-ocir created
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get all
-</span></span><span class="line"><span class="cl">NAME                              READY   STATUS    RESTARTS   AGE
-</span></span><span class="line"><span class="cl">pod/nginx-ocir-798957d964-9rddt   1/1     Running   <span class="m">0</span>          7s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
-</span></span><span class="line"><span class="cl">service/kubernetes   ClusterIP   10.96.0.1    &lt;none&gt;        443/TCP   24h
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span class="line"><span class="cl">deployment.apps/nginx-ocir   1/1     <span class="m">1</span>            <span class="m">1</span>           8s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                                    DESIRED   CURRENT   READY   AGE
-</span></span><span class="line"><span class="cl">replicaset.apps/nginx-ocir-798957d964   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       7s
-</span></span></code></pre></div></li>
-</ol>
-<h3 id="ocir-private-repository-image-deployment-test---default-imagepullsecret">OCIR Private Repository image deployment test - default imagepullsecret</h3>
-<p>If it is inconvenient to specify the imagepullsecret every time, you can also use it by saving the authentication for the Container Repository to be used as the default.</p>
-<ol>
-<li>
-<p>There is a default serviceaccount in the namespace, and add imagepullsecret to it as shown below.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl patch serviceaccount default -p <span class="s1">&#39;{&#34;imagePullSecrets&#34;: [{&#34;name&#34;: &#34;ocir-secret&#34;}]}&#39;</span>
-</span></span></code></pre></div></li>
-<li>
-<p>As a result, imagesecret to be used by default is added to the default serviceaccount as shown below</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl patch serviceaccount default -p <span class="s1">&#39;{&#34;imagePullSecrets&#34;: [{&#34;name&#34;: &#34;ocir-secret&#34;}]}&#39;</span>
-</span></span><span class="line"><span class="cl">serviceaccount/default patched
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get sa default -o yaml
-</span></span><span class="line"><span class="cl">apiVersion: v1
-</span></span><span class="line"><span class="cl">imagePullSecrets:
-</span></span><span class="line"><span class="cl">- name: ocir-secret
-</span></span><span class="line"><span class="cl">kind: ServiceAccount
-</span></span><span class="line"><span class="cl">metadata:
-</span></span><span class="line"><span class="cl">  creationTimestamp: <span class="s2">&#34;2021-11-08T13:51:17Z&#34;</span>
-</span></span><span class="line"><span class="cl">  name: default
-</span></span><span class="line"><span class="cl">  namespace: default
-</span></span><span class="line"><span class="cl">  resourceVersion: <span class="s2">&#34;277559&#34;</span>
-</span></span><span class="line"><span class="cl">  uid: f72718f9-135c-46d2-b0ac-a1ea1b990863
-</span></span><span class="line"><span class="cl">secrets:
-</span></span><span class="line"><span class="cl">- name: default-token-2tvwr
-</span></span></code></pre></div></li>
-<li>
-<p>Delete the previously deployed yaml and redeploy the first failed command because there is no authentication information.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create deployment nginx-ocir --image<span class="o">=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-</span></span></code></pre></div></li>
-<li>
-<p>If you check the result, you can see that it is normally deployed using the default imagepullsecret.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl create deployment nginx-ocir --image<span class="o">=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
-</span></span><span class="line"><span class="cl">deployment.apps/nginx-ocir created
-</span></span><span class="line"><span class="cl">oke_admin@cloudshell:~ <span class="o">(</span>ap-seoul-1<span class="o">)</span>$ kubectl get all
-</span></span><span class="line"><span class="cl">NAME                              READY   STATUS    RESTARTS   AGE
-</span></span><span class="line"><span class="cl">pod/nginx-ocir-6c9d554866-vmjtb   1/1     Running   <span class="m">0</span>          5s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class="o">(</span>S<span class="o">)</span>   AGE
-</span></span><span class="line"><span class="cl">service/kubernetes   ClusterIP   10.96.0.1    &lt;none&gt;        443/TCP   24h
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span class="line"><span class="cl">deployment.apps/nginx-ocir   1/1     <span class="m">1</span>            <span class="m">1</span>           5s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                                    DESIRED   CURRENT   READY   AGE
-</span></span><span class="line"><span class="cl">replicaset.apps/nginx-ocir-6c9d554866   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       5s
-</span></span></code></pre></div></li>
-</ol>
-<br>
-<br>
-<div class="panel panel-caution">
-<div class="panel-body">
-<p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions. </p>
-</div>
-</div>
-
- <div class="edit-meta">Last updated on 8 Nov 2021<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/" title="1.4 Deploying Apps and Using Load Balancer"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.4 Deploying Apps and Using Load Balancer</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/" title="1.6 Using Persistent Volumes">Next - 1.6 Using Persistent Volumes <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
-</footer>
-</main><div class="sidebar">
-<nav>
-<ul>
-
-
-<li>
-  <form method="get" action="https://thekoguryo.github.io//search">
-    <input type="text" id="search-box" name="q" placeholder="Search"/>
-  </form>
-  
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('#search-box').val($('#search-query').val());
-    });
-  </script>
-</li>
-<li><a> </a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/">
-    OCI(Oracle Cloud Infrastructure)
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter01/">
-    1. OCI Basic Concept
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/2/">1.2 Fault Domains</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/3/">1.3 Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter01/6/">1.6 Map of offerings between cloud service providers</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter02/">
-    2. Get started with OCI Services
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/1/">2.1 Creating an Oracle Cloud Free Tier Account</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/2/">2.2 Connecting to the OCI Console</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/3/">2.3 Using the OCI Console</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter02/4/">2.4 Initial Cloud Account (Tenancy) Architecture</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/">
-    3. Use the OCI Compute VM
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/1/">3.1 Creating a Work Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/2/">3.2 Creating a VCN for a Virtual Network Environment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/3/">3.3 Creating a Key Pair for SSH Connections</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/4/">3.4 Creating a Linux Instance</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/5/">
-    3.5 Connecting to a Linux Instance
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/1/">3.5.1 Access from Linux, Mac</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/2/">3.5.2 Connecting to PuTTY on Windows</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/5/3/">3.5.3 Changing the PEM &lt;-&gt; PPK Format</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/6/">
-    3.6 Block Volume like hard drive
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/1/">3.6.1 Creating a Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/2/">3.6.2 Mounting Block Volume to Instance</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/3/">3.6.3 Connecting to Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/4/">3.6.4 Formatting Block Volumes</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/5/">3.6.5 Mount Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/6/">3.6.6 Unmounting Block Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/6/7/">3.6.7 Deleting Block Volume</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/7/">
-    3.7 Utilizing Block Volume Backups
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/1/">3.7.1 Backing up Block Volumes</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/2/">3.7.2 Creating a New Volume from Backup</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/3/">3.7.3 Copying Backups to Another Region</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/7/4/">3.7.4 Backing up Policy-Based Block Volumes</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter03/8/">
-    3.8 Utilizing Boot Volume Backups
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/1/">3.8.1 Backing Up Boot Volume</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/2/">3.8.2 Creating a New Boot Volume from a Backup</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter03/8/3/">3.8.3 Creating a New Instance with Boot Volume</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter04/">
-    4. Reserved Public IP for Static IP Allocation
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/1/">4.1 Creating a Reserved Public IP</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter04/2/">4.2 Allocating Reserved Public IP</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter05/">
-    5. Using Security Lists to Configure Firewalls
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/1/">5.1 Installing Apache HTTP Server on Linux Instance</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/2/">5.2 Updating the Default Security List</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/3/">5.3 Adding a Custom Security List</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter05/4/">5.4 Testing Apache HTTP Server Connection</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter06/">
-    6. Using IAM to Set User Permissions
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/1/">6.1 Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/2/">6.2 Creating Users</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/3/">6.3 Creating Groups</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/4/">6.4 Creating a Policy</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter06/5/">6.5 Grabbing the Policy Concept</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter07/">
-    7. Using Object Storage
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/1/">7.1 Creating a Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/2/">7.2 Uploading Files to Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/3/">7.3 Object Permission Management - Pre-authentication</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/4/">7.4 Object Rights Management - Public Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/5/">7.5 Hosting Static Websites with Public Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/6/">7.6 Uploading Files via CloudBerry Explorer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter07/7/">7.7 Setting up an Archive via Lifecycle</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter08/">
-    8. Using File Storage, a Network File System
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/1/">8.1 Example File Storage Configuration</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/2/">8.2 Mounting and using FSS on a Linux VM</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/3/">8.3 Export Option for Access Control</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter08/4/">8.4 Snapshot for Backup</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter09/">
-    9. Machine Image
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/1/">9.1 OS Image provided by default</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/2/">9.2 Create Custom Image from Instance</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter10/">
-    10. Using Load Balancer for High Availability
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/1/">10.1 Load Balancer Configuration Example</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/2/">10.2 VCN Configuration</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/3/">10.3 Creating a Backend Web Server</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/4/">10.4 Creating a Subnet for a Load Balancer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/5/">10.5 Creating a Load Balancer</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter10/6/">10.6 Checking the Load Balancer Connection</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter11/">
-    11. Domain Name System (DNS)
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter11/1/">11.1 Mapping with Domain Names</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter12/">
-    12. Monitoring for OCI resource monitoring
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/1/">12.1 Enabling Compute Instance Monitoring</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/2/">12.2 Creating Monitoring Alarm</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter12/3/">
-    12.3 OCI Grafana Plugin
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/1/">12.3.1 Installing Grafana on Compute VM</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter12/3/2/">12.3.2 Grafana Configuration</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter13/">
-    13. Autoscaling Based on Metric
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/1/">13.1 Preparation for Autoscaling</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/2/">13.2 Configuring Autoscaling</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter13/3/">13.3 Autoscaling Test</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/">
-    14. Using Developer Tools
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/">
-    14.1 OCI CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/">
-    14.1.1 Installing the OCI CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/1/">14.1.1.1 Installing OCI CLI on Windows</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/2/">14.1.1.2 Installing OCI CLI on Linux</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/3/">14.1.1.3 Config File Settings</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/4/">14.1.1.4 Registering API Public Key</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/1/5/">14.1.1.5 Verifying OCI CLI Installation</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/">
-    14.1.2 Using Object Storage as CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/1/">14.1.2.1 Setting IAM Policy for Object Storage</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/1/2/2/">14.1.2.2 File Upload via CLI</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/2/">
-    14.2 Terraform
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/1/">14.2.1 Installing Terraform</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/2/">14.2.2 Creating Terraform Configurations</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/3/">14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/4/">14.2.4 Running Terraform Configuration</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/5/">14.2.5 Using workspaces for multiple environments</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/6/">14.2.6 Example, Creating Users Using List and Count</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/2/7/">14.2.7 OCI Terraform Usage Example</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter14/3/">
-    14.3 REST API
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/2/">14.3.2 Bash Sample Client</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/3/">14.3.3 Insomnia - Calling the OCI REST API</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter14/3/4/">14.3.4 Postman - Calling the OCI REST API</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oci/chapter15/">
-    15. Using Resource Manager
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/1/">15.1 Using the Resource Manager</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/2/">15.2 Stack Template for Resource Manager</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oci/chapter15/3/">15.3 Configuring a Private Git Server for Resource Manager</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class="parent has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/">
-    Oracle Cloud Native
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class="sub-menu">
-
-
-
-<li class="parent has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/">
-    1. Using Managed Kubernetes OKE
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class="sub-menu">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/">1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 Creating an OKE Cluster</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/">
-    1.3 Connecting the OKE Cluster
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Connecting to a Cluster with Cloud Shell</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 Connecting to a Cluster in a Local Environment</a></li>
-
-
-
-
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 Deploying Apps and Using Load Balancer</a></li>
-<li class="active"><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 Using OCIR Images</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/">
-    1.6 Using Persistent Volumes
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Using Block Volumes</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 Using File Storage</a></li>
-
-
-
-
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Upgrading the Kubernetes Version</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/">
-    2. Using OCIR, a container registry
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/">2.1 Scanning Container Images</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/">2.2 Using Helm Chart Repository</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/">
-    3. Using OCI DevOps Services as CI/CD
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 Automating Deployments with Helm Charts via DevOps Services</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/">
-    4. Leveraging Open Source Software (OSS)
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/">
-    4.1 Ingress Controller
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 Installing the NGINX Ingress Controller</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 TLS termination in NGINX Ingress Controller</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 Getting Client IP from NGINX Ingress Controller</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/">
-    4.2 Logging - EFK
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 Installing EFK</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/">
-    4.3 Monitoring - Prometheus&amp;Grafana
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Installing Prometheus&amp;Grafana</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/">
-    4.4 Service Mesh - Istio
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Deploying Microservices Apps Without Service Mesh</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/">
-    5. Utilizing OCI Service
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 Service Operator for OCI Resource Management in OKE</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/">
-    5.2 Logging Service
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 Log Monitoring Using OCI Logging</a></li>
-<li class=""><a href="https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 Log Monitoring Using OCI Search Service with OpenSearch</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-</nav>
-
-
-<div class="sidebar-footer"></div>
-</div>
-</div><a href="#" id="backtothetop-fixed" class="backtothetop"
- data-backtothetop-duration="600"
- data-backtothetop-easing="easeOutQuart"
- data-backtothetop-fixed-fadeIn="1000"
- data-backtothetop-fixed-fadeOut="1000"
- data-backtothetop-fixed-bottom="10"
- data-backtothetop-fixed-right="20">
-<span class="fa-layers fa-fw">
-<i class="fas fa-circle"></i>
-<i class="fas fa-arrow-circle-up"></i>
-</span></a>
-
-<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
-</body>
-</html>
+<!doctype html><html lang=en><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>1.5 Using OCIR Images - TheKoguryo's Tech Blog</title><meta name=generator content="Hugo 0.102.3"><link href=https://thekoguryo.github.io/index.xml rel=alternate type=application/rss+xml><link rel=canonical href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/><link rel=stylesheet href=https://thekoguryo.github.io/css/theme.min.css><link rel=stylesheet href=https://thekoguryo.github.io/css/d2coding.css><link rel=stylesheet href=https://thekoguryo.github.io/css/fontawesome-all.min.css><script src=https://use.fontawesome.com/releases/v5.15.4/js/all.js></script>
+<link rel=stylesheet href=https://thekoguryo.github.io/css/chroma.min.css><script src=https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js></script>
+<script src=https://thekoguryo.github.io/js/functions.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js></script>
+<script src=https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js></script>
+<script src=https://thekoguryo.github.io/js/jqcloud/jqcloud.js></script>
+<link rel=stylesheet href=https://thekoguryo.github.io/js/jqcloud/jqcloud.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-106207316-1")</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858" crossorigin=anonymous></script><meta property="og:title" content="1.5 Using OCIR Images"><meta property="og:description" content="1.5 Deploying the app using the OCIR image Register image to OCIR Oracle Cloud Infrastructure Registry (OCIR) is a managed container registry provided by Oracle that supports the Docker V2 API and is an Open Container Initiate compliant container registry. You can push and pull images through the docker cli and use them in a Kubernetes cluster.
+To use an image for OCIR, registration is required first, and try to register the nginx image used in the previous example by following the procedure below."><meta property="og:type" content="article"><meta property="og:url" content="https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/"><meta property="article:section" content="oracle-cloudnative"><meta property="article:modified_time" content="2021-11-08T00:00:00+00:00"><meta property="og:site_name" content="TheKoguryo's Tech Blog"></head><body><div class=container><header><h1>TheKoguryo's Tech Blog</h1><span class=version>Version 2022.10.11</span>
+<a href=https://github.com/TheKoguryo class=github><i class="fab fa-github"></i></a></header><div class=menu><nav><ul><li><a href=/>Home</a></li><li><a href=/release-notes>OCI Release Notes</a></li><li><a href=/archives>Archives</a></li><li><a href=/tags>Tag</a></li><li><a href=https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new>Feedback</a></li><li><a href=/link>Link</a></li><li style=float:right><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/>한국어</a></li></ul></nav></div><div class=content-container><main><div class="panel panel-caution"><div class=panel-header><h3><svg class="svg-inline--fa fa-life-saver fa-w-16" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="life-saver" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><g><path fill="currentcolor" d="M156.5 447.7l-12.6 29.5c-18.7-9.5-35.9-21.2-51.5-34.9l22.7-22.7c12.5 10.9 26.4 20.4 41.4 28.1zM40.6 272H8.5c1.4 21.2 5.4 41.7 11.7 61.1L50 321.2c-4.9-15.7-8.2-32.2-9.4-49.2zm0-32c1.4-18.8 5.2-37 11.1-54.1l-29.5-12.6C14.7 194.3 10 216.7 8.5 240H40.6zm23.7-83.5c7.8-14.9 17.2-28.8 28.1-41.5L69.7 92.3c-13.7 15.6-25.5 32.8-34.9 51.5l29.5 12.7zM397 419.6c-13.9 12-29.4 22.3-46.1 30.4l11.9 29.8c20.7-9.9 39.8-22.6 56.9-37.6L397 419.6zM115 92.4c13.9-12 29.4-22.3 46.1-30.4l-11.9-29.8c-20.7 9.9-39.8 22.6-56.8 37.6L115 92.4zM447.7 355.5c-7.8 14.9-17.2 28.8-28.1 41.5l22.7 22.7c13.7-15.6 25.5-32.9 34.9-51.5L447.7 355.5zM471.4 272c-1.4 18.8-5.2 37-11.1 54.1l29.5 12.6c7.5-21.1 12.2-43.5 13.6-66.8h-32zM321.2 462c-15.7 5-32.2 8.2-49.2 9.4v32.1c21.2-1.4 41.7-5.4 61.1-11.7L321.2 462zM240 471.4c-18.8-1.4-37-5.2-54.1-11.1l-12.6 29.5c21.1 7.5 43.5 12.2 66.8 13.6v-32zM462 190.8c5 15.7 8.2 32.2 9.4 49.2h32.1c-1.4-21.2-5.4-41.7-11.7-61.1L462 190.8zM92.4 397c-12-13.9-22.3-29.4-30.4-46.1l-29.8 11.9c9.9 20.7 22.6 39.8 37.6 56.9L92.4 397zM272 40.6c18.8 1.4 36.9 5.2 54.1 11.1l12.6-29.5C317.7 14.7 295.3 10 272 8.5V40.6zM190.8 50c15.7-5 32.2-8.2 49.2-9.4V8.5c-21.2 1.4-41.7 5.4-61.1 11.7L190.8 50zM442.3 92.3 419.6 115c12 13.9 22.3 29.4 30.5 46.1l29.8-11.9C470 128.5 457.3 109.4 442.3 92.3zM397 92.4l22.7-22.7c-15.6-13.7-32.8-25.5-51.5-34.9l-12.6 29.5C370.4 72.1 384.4 81.5 397 92.4z"/><circle fill="currentcolor" cx="256" cy="364" r="28"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="r" values="28;14;28;28;14;28;"/><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;1;1;0;1;"/></circle><path fill="currentcolor" opacity="1" d="M263.7 312h-16c-6.6.0-12-5.4-12-12 0-71 77.4-63.9 77.4-107.8.0-20-17.8-40.2-57.4-40.2-29.1.0-44.3 9.6-59.2 28.7-3.9 5-11.1 6-16.2 2.4l-13.1-9.2c-5.6-3.9-6.9-11.8-2.6-17.2 21.2-27.2 46.4-44.7 91.2-44.7 52.3.0 97.4 29.8 97.4 80.2.0 67.6-77.4 63.5-77.4 107.8C275.7 306.6 270.3 312 263.7 312z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="1;0;0;0;0;1;"/></path><path fill="currentcolor" opacity="0" d="M232.5 134.5l7 168c.3 6.4 5.6 11.5 12 11.5h9c6.4.0 11.7-5.1 12-11.5l7-168c.3-6.8-5.2-12.5-12-12.5h-23C237.7 122 232.2 127.7 232.5 134.5z"><animate attributeType="XML" repeatCount="indefinite" dur="2s" attributeName="opacity" values="0;0;1;1;0;0;"/></path></g></svg>Warning</h3></div><div class=panel-body><p>This content has been generated by machine translation. The translations are automated and have not undergone human review or validation.</p></div></div><h1 id=15-deploying-the-app-using-the-ocir-image>1.5 Deploying the app using the OCIR image</h1><h2 id=register-image-to-ocir>Register image to OCIR</h2><p>Oracle Cloud Infrastructure Registry (OCIR) is a managed container registry provided by Oracle that supports the Docker V2 API and is an Open Container Initiate compliant container registry. You can push and pull images through the docker cli and use them in a Kubernetes cluster.</p><p>To use an image for OCIR, registration is required first, and try to register the nginx image used in the previous example by following the procedure below.</p><h3 id=create-ocir-repository>Create OCIR Repository</h3><ol><li><p>Log in to the OCI console.</p></li><li><p>From the top left hamburger menu, go to <strong>Developer Services</strong> > <strong>Containers & Artifacts</strong> : <strong>Container Registry</strong>.</p></li><li><p>In <strong>List Scope</strong>, select the target <strong>Compartment</strong> (eg oke-labs).</p></li><li><p>Before pushing an image, you need to create a repository in OCIR first.</p><p>Click <strong>Create repository</strong> to create the nginx repository as shown below. Select Access mode as <strong>Private</strong> for both push and pull authentication tests.</p><p><img class=img-fluid1 src=../images/image-20211109173748014.png alt=image-20211109173748014 onerror='this.onerror=null,this.src="images/image-20211109173748014.png"'></p></li><li><p>Complete creation</p><p><img class=img-fluid1 src=../images/image-20211109174409016.png alt=image-20211109174409016 onerror='this.onerror=null,this.src="images/image-20211109174409016.png"'></p></li><li><p>Copy the Namespace from the Repository screen. <strong>tenancy-namespace</strong> representing the tenant in the region: cnrlxx3w0wgq, which is required for subsequent logins.</p></li></ol><h3 id=create-oci-auth-token>Create OCI Auth Token</h3><p>Register an image in docker hub with docker cli, or log in through docker login with username/password when importing. OCIR also requires a login, and uses an Auth Token for security instead of a password.</p><ol><li><p>Go to User Settings by clicking the user&rsquo;s Profile icon in the upper right corner.</p><ul><li>The user in the figure below is an OCI local user and the username is oke-admin.</li><li>If your username starts with <code>oracleidentitycloudservice/~~~</code>, you are a user of Oracle Identity Cloud Service.</li></ul><p><img class=img-fluid1 src=../images/image-20211109175044623.png alt=image-20211109175044623 onerror='this.onerror=null,this.src="images/image-20211109175044623.png"'></p></li><li><p>Go to <strong>Resources</strong> > <strong>Auth Token</strong> in the lower left.</p></li><li><p>Click <strong>Generate Token</strong> to generate Auth Token.</p></li><li><p>Enter and create a description. The Auth Token can only be seen when it is created, so make a copy of it.</p><p><img class=img-fluid1 src=../images/image-20211109175405289.png alt=image-20211109175405289 onerror='this.onerror=null,this.src="images/image-20211109175405289.png"'></p><p><img class=img-fluid1 src=../images/image-20211109175414210.png alt=image-20211109175414210 onerror='this.onerror=null,this.src="images/image-20211109175414210.png"'></p></li></ol><h3 id=ocir-login-and-image-push>OCIR login and image push</h3><ol><li><p>Log in with the docker cli in Cloud Shell or the connection environment through the Auth Token you created earlier.</p><ul><li>OCIR address: <code>&lt;region-key>.ocir.io</code><ul><li>region-key: Seoul Region is ap-seoul-1 or icn</li><li>Full Region Information: <a href=https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability>Availability by Region</a></li></ul></li><li>username:<ul><li><code>&lt;tenancy-namespace>/&lt;username></code> format</li><li>Username: The user name shown in the user profile in the OCI service console is used.<ol><li>User on Oracle Identity Cloud Service: <code>&lt;tenancy-namespace>/oracleidentitycloudservice/&lt;username></code></li><li>OCI Local user: <code>&lt;tenancy-namespace>/&lt;username></code></li></ol></li><li>tenancy-namespace: You can check the tenancy-namespace you checked when creating the Repository or <code>oci os ns get</code> in Cloud Shell.</li></ul></li><li>Password: Auth Token of the user to log in created earlier</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ oci os ns get
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;data&#34;</span>: <span class=s2>&#34;cnrlxx3w0wgq&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ docker login ap-seoul-1.ocir.io
+</span></span><span class=line><span class=cl>Username: cnrlxx3w0wgq/oke-admin
+</span></span><span class=line><span class=cl>Password:
+</span></span><span class=line><span class=cl>WARNING! Your password will be stored unencrypted in /home/oke_admin/.docker/config.json.
+</span></span><span class=line><span class=cl>Configure a credential helper to remove this warning. See
+</span></span><span class=line><span class=cl>https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Login Succeeded
+</span></span></code></pre></div></li><li><p>Image Push</p><ul><li>To push to the Repository created in OCIR, tag in the format below and then push.<ul><li><code>&lt;region-key>.ocir.io/&lt;tenancy-namespace>/&lt;repo-name>:&lt;tag></code></li></ul></li><li>nginx:latest example</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker pull nginx:latest
+</span></span><span class=line><span class=cl>docker tag nginx:latest ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</span></span><span class=line><span class=cl>docker push ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</span></span></code></pre></div></li><li><p>Check OCIR</p><p>Returning to the OCI service console again, you can see that the pushed image has been successfully registered based on the target compartment.</p><p><img class=img-fluid1 src=../images/image-20211109220755364.png alt=image-20211109220755364 onerror='this.onerror=null,this.src="images/image-20211109220755364.png"'></p></li></ol><h3 id=a-note-to-avoid-mistakes>A note to avoid mistakes</h3><p>What happens when you do docker push in the following situation?</p><ul><li><p>If the OCIR Repository has not been created before the push</p></li><li><p>If there is an additional path in front of the image name, such as dev/nginx:latest (or bitnami/nginx:latest), if the OCIR Repository is created only as dev</p><p>=> If you do not create an OCIR Repository in advance, it is pushed to the root compartment by default.</p><p>=> Even dev/nginx should be the repository name. If you don&rsquo;t do that, it will be pushed to the root compartment in the same way.</p></li></ul><p>If you click Settings in the upper right corner of Container Registry to view the setting information, as shown below, if there is no target repository, automatically creating a new private repository in the root compartment and pushing it is checked by default.</p><p><img class=img-fluid1 src=../images/image-20211109221903416.png alt=image-20211109221903416 onerror='this.onerror=null,this.src="images/image-20211109221903416.png"'></p><h2 id=deploy-to-oke-cluster-as-ocir-image>Deploy to OKE cluster as OCIR image</h2><h3 id=ocir-image-deployment-test>OCIR image deployment test</h3><ol><li><p>Try deploying the image to the OKE cluster by pulling the image to the most common form, Public Container Registry.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl create deployment nginx-ocir --image<span class=o>=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</span></span></code></pre></div></li><li><p>As a result of the deployment, you can see that an error has occurred in importing the image to the private repository due to an authentication problem as shown below.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl create deployment nginx-ocir --image<span class=o>=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</span></span><span class=line><span class=cl>deployment.apps/nginx-ocir created
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl get pod
+</span></span><span class=line><span class=cl>NAME                          READY   STATUS         RESTARTS   AGE
+</span></span><span class=line><span class=cl>nginx-ocir-6c9d554866-nqgjg   0/1     ErrImagePull   <span class=m>0</span>          10s
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl describe pod nginx-ocir-6c9d554866-nqgjg
+</span></span><span class=line><span class=cl>Name:         nginx-ocir-6c9d554866-nqgjg
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>Events:
+</span></span><span class=line><span class=cl>  Type     Reason     Age                From               Message
+</span></span><span class=line><span class=cl>  ----     ------     ----               ----               -------
+</span></span><span class=line><span class=cl>...
+</span></span><span class=line><span class=cl>  Warning  Failed     11s <span class=o>(</span>x2 over 23s<span class=o>)</span>  kubelet            Failed to pull image <span class=s2>&#34;ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest&#34;</span>: rpc error: <span class=nv>code</span> <span class=o>=</span> Unknown <span class=nv>desc</span> <span class=o>=</span> Error reading manifest latest in ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx: denied: Anonymous users are only allowed <span class=nb>read</span> access on public repos
+</span></span><span class=line><span class=cl>  Warning  Failed     11s <span class=o>(</span>x2 over 23s<span class=o>)</span>  kubelet            Error: ErrImagePull
+</span></span></code></pre></div></li></ol><h3 id=ocir-private-repository-image-deployment-test---imagepullsecret>OCIR Private Repository image deployment test - imagepullsecret</h3><p>In order to use an image by importing from the Private Repository, you must register and use a secret for authentication. Follow the procedure below to create and use a secret.</p><ol><li><p>I did docker login using the Auth Token earlier. After logging in, authentication information is saved in .docker/config.json under the user&rsquo;s home.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ docker login ap-seoul-1.ocir.io
+</span></span><span class=line><span class=cl>Username: cnrlxx3w0wgq/oke-admin
+</span></span><span class=line><span class=cl>Password:
+</span></span><span class=line><span class=cl>WARNING! Your password will be stored unencrypted in /home/oke_admin/.docker/config.json.
+</span></span><span class=line><span class=cl>Configure a credential helper to remove this warning. See
+</span></span><span class=line><span class=cl>https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Login Succeeded
+</span></span></code></pre></div></li><li><p>Log in using the above authentication information.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl create secret generic ocir-secret <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --from-file<span class=o>=</span>.dockerconfigjson<span class=o>=</span><span class=nv>$HOME</span>/.docker/config.json <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>    --type<span class=o>=</span>kubernetes.io/dockerconfigjson
+</span></span></code></pre></div></li><li><p>Alternatively, you can create a secret directly without docker login information.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl create secret docker-registry &lt;secret-name&gt; --docker-server<span class=o>=</span>&lt;region-key&gt;.ocir.io --docker-username<span class=o>=</span><span class=s1>&#39;&lt;tenancy-namespace&gt;/&lt;oci-username&gt;&#39;</span> --docker-password<span class=o>=</span><span class=s1>&#39;&lt;oci-auth-token&gt;&#39;</span> --docker-email<span class=o>=</span><span class=s1>&#39;&lt;email-address&gt;&#39;</span>
+</span></span></code></pre></div></li><li><p>Redeploy using imagepullsecret as shown below.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-yaml data-lang=yaml><span class=line><span class=cl><span class=nt>apiVersion</span><span class=p>:</span><span class=w> </span><span class=l>apps/v1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>kind</span><span class=p>:</span><span class=w> </span><span class=l>Deployment</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>nginx-ocir</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx-ocir</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w></span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>replicas</span><span class=p>:</span><span class=w> </span><span class=m>1</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>selector</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>matchLabels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>nginx-ocir</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>  </span><span class=nt>template</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>metadata</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>labels</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>app</span><span class=p>:</span><span class=w> </span><span class=l>nginx-ocir</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>    </span><span class=nt>spec</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>containers</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>nginx</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>        </span><span class=nt>image</span><span class=p>:</span><span class=w> </span><span class=l>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span><span class=nt>imagePullSecrets</span><span class=p>:</span><span class=w>
+</span></span></span><span class=line><span class=cl><span class=w>      </span>- <span class=nt>name</span><span class=p>:</span><span class=w> </span><span class=l>ocir-secret</span><span class=w>
+</span></span></span></code></pre></div></li><li><p>You can see that it is normally distributed as shown below.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl create secret generic ocir-secret <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>&gt;     --from-file<span class=o>=</span>.dockerconfigjson<span class=o>=</span>/home/oke_admin/.docker/config.json <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>&gt;     --type<span class=o>=</span>kubernetes.io/dockerconfigjson
+</span></span><span class=line><span class=cl>secret/ocir-secret created
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl get secret
+</span></span><span class=line><span class=cl>NAME                  TYPE                                  DATA   AGE
+</span></span><span class=line><span class=cl>default-token-2tvwr   kubernetes.io/service-account-token   <span class=m>3</span>      24h
+</span></span><span class=line><span class=cl>ocir-secret           kubernetes.io/dockerconfigjson        <span class=m>1</span>      13s
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl apply -f nginx-ocir-deployment.yaml 
+</span></span><span class=line><span class=cl>deployment.apps/nginx-ocir created
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl get all
+</span></span><span class=line><span class=cl>NAME                              READY   STATUS    RESTARTS   AGE
+</span></span><span class=line><span class=cl>pod/nginx-ocir-798957d964-9rddt   1/1     Running   <span class=m>0</span>          7s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class=o>(</span>S<span class=o>)</span>   AGE
+</span></span><span class=line><span class=cl>service/kubernetes   ClusterIP   10.96.0.1    &lt;none&gt;        443/TCP   24h
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class=line><span class=cl>deployment.apps/nginx-ocir   1/1     <span class=m>1</span>            <span class=m>1</span>           8s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                                    DESIRED   CURRENT   READY   AGE
+</span></span><span class=line><span class=cl>replicaset.apps/nginx-ocir-798957d964   <span class=m>1</span>         <span class=m>1</span>         <span class=m>1</span>       7s
+</span></span></code></pre></div></li></ol><h3 id=ocir-private-repository-image-deployment-test---default-imagepullsecret>OCIR Private Repository image deployment test - default imagepullsecret</h3><p>If it is inconvenient to specify the imagepullsecret every time, you can also use it by saving the authentication for the Container Repository to be used as the default.</p><ol><li><p>There is a default serviceaccount in the namespace, and add imagepullsecret to it as shown below.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl patch serviceaccount default -p <span class=s1>&#39;{&#34;imagePullSecrets&#34;: [{&#34;name&#34;: &#34;ocir-secret&#34;}]}&#39;</span>
+</span></span></code></pre></div></li><li><p>As a result, imagesecret to be used by default is added to the default serviceaccount as shown below</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl patch serviceaccount default -p <span class=s1>&#39;{&#34;imagePullSecrets&#34;: [{&#34;name&#34;: &#34;ocir-secret&#34;}]}&#39;</span>
+</span></span><span class=line><span class=cl>serviceaccount/default patched
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl get sa default -o yaml
+</span></span><span class=line><span class=cl>apiVersion: v1
+</span></span><span class=line><span class=cl>imagePullSecrets:
+</span></span><span class=line><span class=cl>- name: ocir-secret
+</span></span><span class=line><span class=cl>kind: ServiceAccount
+</span></span><span class=line><span class=cl>metadata:
+</span></span><span class=line><span class=cl>  creationTimestamp: <span class=s2>&#34;2021-11-08T13:51:17Z&#34;</span>
+</span></span><span class=line><span class=cl>  name: default
+</span></span><span class=line><span class=cl>  namespace: default
+</span></span><span class=line><span class=cl>  resourceVersion: <span class=s2>&#34;277559&#34;</span>
+</span></span><span class=line><span class=cl>  uid: f72718f9-135c-46d2-b0ac-a1ea1b990863
+</span></span><span class=line><span class=cl>secrets:
+</span></span><span class=line><span class=cl>- name: default-token-2tvwr
+</span></span></code></pre></div></li><li><p>Delete the previously deployed yaml and redeploy the first failed command because there is no authentication information.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl create deployment nginx-ocir --image<span class=o>=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</span></span></code></pre></div></li><li><p>If you check the result, you can see that it is normally deployed using the default imagepullsecret.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl create deployment nginx-ocir --image<span class=o>=</span>ap-seoul-1.ocir.io/cnrlxx3w0wgq/nginx:latest
+</span></span><span class=line><span class=cl>deployment.apps/nginx-ocir created
+</span></span><span class=line><span class=cl>oke_admin@cloudshell:~ <span class=o>(</span>ap-seoul-1<span class=o>)</span>$ kubectl get all
+</span></span><span class=line><span class=cl>NAME                              READY   STATUS    RESTARTS   AGE
+</span></span><span class=line><span class=cl>pod/nginx-ocir-6c9d554866-vmjtb   1/1     Running   <span class=m>0</span>          5s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT<span class=o>(</span>S<span class=o>)</span>   AGE
+</span></span><span class=line><span class=cl>service/kubernetes   ClusterIP   10.96.0.1    &lt;none&gt;        443/TCP   24h
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                         READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class=line><span class=cl>deployment.apps/nginx-ocir   1/1     <span class=m>1</span>            <span class=m>1</span>           5s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                                    DESIRED   CURRENT   READY   AGE
+</span></span><span class=line><span class=cl>replicaset.apps/nginx-ocir-6c9d554866   <span class=m>1</span>         <span class=m>1</span>         <span class=m>1</span>       5s
+</span></span></code></pre></div></li></ol><br><br><div class="panel panel-caution"><div class=panel-body><p>As an individual, this article was written with my personal time. There may be errors in the content of the article, and the opinions in the article are personal opinions.</p></div></div><div class=edit-meta>Last updated on 8 Nov 2021<br></div><nav class=pagination><a class="nav nav-prev" href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/ title="1.4 Deploying Apps and Using Load Balancer"><i class="fas fa-arrow-left" aria-hidden=true></i> Prev - 1.4 Deploying Apps and Using Load Balancer</a>
+<a class="nav nav-next" href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/ title="1.6 Using Persistent Volumes">Next - 1.6 Using Persistent Volumes <i class="fas fa-arrow-right" aria-hidden=true></i></a></nav><footer><p class=powered>Powered by <a href=https://gohugo.io>Hugo</a>. Theme by <a href=https://github.com/thingsym/hugo-theme-techdoc>TechDoc</a>. Design by <a href=https://www.thingslabo.com/>Thingsym</a>.</p></footer></main><div class=sidebar><nav><ul><li><form method=get action=https://thekoguryo.github.io//search><input type=text id=search-box name=q placeholder=Search></form><script type=text/javascript>$(document).ready(function(){$("#search-box").val($("#search-query").val())})</script></li><li><a></a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/>OCI(Oracle Cloud Infrastructure)
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter01/>1. OCI Basic Concept
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter01/1/>1.1 Regions, Availability Domains</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/2/>1.2 Fault Domains</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/3/>1.3 Compartment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/4/>1.4 Virtual Cloud Network(VCN)</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/5/>1.5 Bare Metal, Virtual Machine</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter01/6/>1.6 Map of offerings between cloud service providers</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter02/>2. Get started with OCI Services
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter02/1/>2.1 Creating an Oracle Cloud Free Tier Account</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter02/2/>2.2 Connecting to the OCI Console</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter02/3/>2.3 Using the OCI Console</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter02/4/>2.4 Initial Cloud Account (Tenancy) Architecture</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/>3. Use the OCI Compute VM
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/1/>3.1 Creating a Work Compartment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/2/>3.2 Creating a VCN for a Virtual Network Environment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/3/>3.3 Creating a Key Pair for SSH Connections</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/4/>3.4 Creating a Linux Instance</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/5/>3.5 Connecting to a Linux Instance
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/5/1/>3.5.1 Access from Linux, Mac</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/5/2/>3.5.2 Connecting to PuTTY on Windows</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/5/3/>3.5.3 Changing the PEM &lt;-> PPK Format</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/6/>3.6 Block Volume like hard drive
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/1/>3.6.1 Creating a Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/2/>3.6.2 Mounting Block Volume to Instance</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/3/>3.6.3 Connecting to Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/4/>3.6.4 Formatting Block Volumes</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/5/>3.6.5 Mount Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/6/>3.6.6 Unmounting Block Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/6/7/>3.6.7 Deleting Block Volume</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/7/>3.7 Utilizing Block Volume Backups
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/1/>3.7.1 Backing up Block Volumes</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/2/>3.7.2 Creating a New Volume from Backup</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/3/>3.7.3 Copying Backups to Another Region</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/7/4/>3.7.4 Backing up Policy-Based Block Volumes</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter03/8/>3.8 Utilizing Boot Volume Backups
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter03/8/1/>3.8.1 Backing Up Boot Volume</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/8/2/>3.8.2 Creating a New Boot Volume from a Backup</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter03/8/3/>3.8.3 Creating a New Instance with Boot Volume</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter04/>4. Reserved Public IP for Static IP Allocation
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter04/1/>4.1 Creating a Reserved Public IP</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter04/2/>4.2 Allocating Reserved Public IP</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter05/>5. Using Security Lists to Configure Firewalls
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter05/1/>5.1 Installing Apache HTTP Server on Linux Instance</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter05/2/>5.2 Updating the Default Security List</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter05/3/>5.3 Adding a Custom Security List</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter05/4/>5.4 Testing Apache HTTP Server Connection</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter06/>6. Using IAM to Set User Permissions
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter06/1/>6.1 Compartment</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/2/>6.2 Creating Users</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/3/>6.3 Creating Groups</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/4/>6.4 Creating a Policy</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter06/5/>6.5 Grabbing the Policy Concept</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter07/>7. Using Object Storage
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter07/1/>7.1 Creating a Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/2/>7.2 Uploading Files to Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/3/>7.3 Object Permission Management - Pre-authentication</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/4/>7.4 Object Rights Management - Public Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/5/>7.5 Hosting Static Websites with Public Bucket</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/6/>7.6 Uploading Files via CloudBerry Explorer</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter07/7/>7.7 Setting up an Archive via Lifecycle</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter08/>8. Using File Storage, a Network File System
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter08/1/>8.1 Example File Storage Configuration</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter08/2/>8.2 Mounting and using FSS on a Linux VM</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter08/3/>8.3 Export Option for Access Control</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter08/4/>8.4 Snapshot for Backup</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter09/>9. Machine Image
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter09/1/>9.1 OS Image provided by default</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter09/2/>9.2 Create Custom Image from Instance</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter09/3/>9.3 Custom Image Export/Import</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter10/>10. Using Load Balancer for High Availability
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter10/1/>10.1 Load Balancer Configuration Example</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/2/>10.2 VCN Configuration</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/3/>10.3 Creating a Backend Web Server</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/4/>10.4 Creating a Subnet for a Load Balancer</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/5/>10.5 Creating a Load Balancer</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter10/6/>10.6 Checking the Load Balancer Connection</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter11/>11. Domain Name System (DNS)
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter11/1/>11.1 Mapping with Domain Names</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter12/>12. Monitoring for OCI resource monitoring
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter12/1/>12.1 Enabling Compute Instance Monitoring</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter12/2/>12.2 Creating Monitoring Alarm</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter12/3/>12.3 OCI Grafana Plugin
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter12/3/1/>12.3.1 Installing Grafana on Compute VM</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter12/3/2/>12.3.2 Grafana Configuration</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter13/>13. Autoscaling Based on Metric
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter13/1/>13.1 Preparation for Autoscaling</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter13/2/>13.2 Configuring Autoscaling</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter13/3/>13.3 Autoscaling Test</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/>14. Using Developer Tools
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/1/>14.1 OCI CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/>14.1.1 Installing the OCI CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/1/>14.1.1.1 Installing OCI CLI on Windows</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/2/>14.1.1.2 Installing OCI CLI on Linux</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/3/>14.1.1.3 Config File Settings</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/4/>14.1.1.4 Registering API Public Key</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/1/5/>14.1.1.5 Verifying OCI CLI Installation</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/1/2/>14.1.2 Using Object Storage as CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/2/1/>14.1.2.1 Setting IAM Policy for Object Storage</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/1/2/2/>14.1.2.2 File Upload via CLI</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/2/>14.2 Terraform
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/1/>14.2.1 Installing Terraform</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/2/>14.2.2 Creating Terraform Configurations</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/3/>14.2.3 Obtaining Terraform OCI Provider Connection Information</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/4/>14.2.4 Running Terraform Configuration</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/5/>14.2.5 Using workspaces for multiple environments</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/6/>14.2.6 Example, Creating Users Using List and Count</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/2/7/>14.2.7 OCI Terraform Usage Example</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter14/3/>14.3 REST API
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/1/>14.3.1 OCI Request Signature Version 1</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/2/>14.3.2 Bash Sample Client</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/3/>14.3.3 Insomnia - Calling the OCI REST API</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter14/3/4/>14.3.4 Postman - Calling the OCI REST API</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oci/chapter15/>15. Using Resource Manager
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oci/chapter15/1/>15.1 Using the Resource Manager</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter15/2/>15.2 Stack Template for Resource Manager</a></li><li><a href=https://thekoguryo.github.io/en/oci/chapter15/3/>15.3 Configuring a Private Git Server for Resource Manager</a></li></ul></li></ul></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/en/oracle-cloudnative/>Oracle Cloud Native
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/>1. Using Managed Kubernetes OKE
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/1.oke/>1.1 Introduction to Oracle Container Engine for Kubernetes (OKE)</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/2.install-quick-oke-cluster/>1.2 Creating an OKE Cluster</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/>1.3 Connecting the OKE Cluster
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/>1.3.1 Connecting to a Cluster with Cloud Shell</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/3.access-cluster/2.local-access/>1.3.2 Connecting to a Cluster in a Local Environment</a></li></ul></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/>1.4 Deploying Apps and Using Load Balancer</a></li><li class=active><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/5.deploy-ocir-image/>1.5 Using OCIR Images</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/>1.6 Using Persistent Volumes
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/>1.6.1 Using Block Volumes</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/>1.6.2 Using File Storage</a></li></ul></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oke/7.supported-version-and-upgrade/>1.7 Upgrading the Kubernetes Version</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/ocir/>2. Using OCIR, a container registry
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/ocir/1.scan-image/>2.1 Scanning Container Images</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/ocir/2.helm-chart/>2.2 Using Helm Chart Repository</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/>3. Using OCI DevOps Services as CI/CD
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/>3.1 Automating deployment of Spring Boot app to OKE via DevOps service</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/2.bluegreen-stragtegy/>3.2 Deploying with a Blue/Green Deployment Strategy for DevOps Services</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/3.canary-stragtegy/>3.3 Deploying as a Canary Deployment Strategy for DevOps Services</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/>3.4 Automating Deployments with Helm Charts via DevOps Services</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/>3.5 Checking for Package Vulnerabilities When Building DevOps Services</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/>4. Leveraging Open Source Software (OSS)
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/>4.1 Ingress Controller
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/>4.1.1 Installing the NGINX Ingress Controller</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/>4.1.2 PATH-Based Routing in NGINX Ingress Controller</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/>4.1.3 Host-Based Routing in NGINX Ingress Controller (feat. OCI DNS)</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/>4.1.4 TLS termination in NGINX Ingress Controller</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/>4.1.5 Getting Client IP from NGINX Ingress Controller</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/>4.2 Logging - EFK
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/logging-efk/1.install-efk/>4.2.1 Installing EFK</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/>4.3 Monitoring - Prometheus&Grafana
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/>4.3.1 Installing Prometheus&Grafana</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/>4.4 Service Mesh - Istio
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/>4.4.1 Deploying Microservices Apps Without Service Mesh</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/>4.4.2 Applying Service Mesh - Istio to Microservices Apps</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/>5. Utilizing OCI Service
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/>5.1 Service Operator for OCI Resource Management in OKE</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/>5.2 Logging Service
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/1.oci-logging/>5.2.1 Log Monitoring Using OCI Logging</a></li><li><a href=https://thekoguryo.github.io/en/oracle-cloudnative/oci-services/logging/2.oci-opensearch/>5.2.2 Log Monitoring Using OCI Search Service with OpenSearch</a></li></ul></li></ul></li></ul></li></ul></nav><div class=sidebar-footer></div></div></div><a href=# id=backtothetop-fixed class=backtothetop data-backtothetop-duration=600 data-backtothetop-easing=easeOutQuart data-backtothetop-fixed-fadein=1000 data-backtothetop-fixed-fadeout=1000 data-backtothetop-fixed-bottom=10 data-backtothetop-fixed-right=20><span class="fa-layers fa-fw"><i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i></span></a>
+<script src=https://thekoguryo.github.io/js/copy-code-button.js></script></div></body></html>

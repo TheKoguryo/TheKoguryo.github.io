@@ -1,1741 +1,253 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>7.1 Spring Boot 애플리케이션 개발하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.104.3" />
-<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
-<link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
-<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
-<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
-<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
-<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
-<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'UA-106207316-1');
-</script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
-     crossorigin="anonymous"></script><meta property="og:title" content="7.1 Spring Boot 애플리케이션 개발하기" />
-<meta property="og:description" content="7.1 Spring Boot 애플리케이션 개발하기 Spring Boot 예제를 바탕으로 앱 개발, 컨테이너 이미지 빌드, OKE에 배포하는 과정을 확인해 봅니다. Spring Boot 기반 마이크로 서비스 만들기 Spring I" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/" /><meta property="article:section" content="oracle-cloudnative" />
-
-<meta property="article:modified_time" content="2022-04-26T00:00:00+00:00" /><meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그" />
-
-
-</head>
-<body>
-<div class="container"><header>
-<h1>TheKoguryo&#39;s 기술 블로그</h1>
-
- <span class="version">Version 2022.10.11</span>
-<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
-</header>
-<div class="menu">
-<nav>
-<ul>
-<li ><a href="/">Home</a></li>
-<li ><a href="/release-notes">OCI Release Notes</a></li>
-<li ><a href="/archives">Archives</a></li>
-<li ><a href="/tags">Tag</a></li>
-<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
-<li ><a href="/link">Link</a></li>
-
-</ul>
-</nav>
-</div>
-<div class="content-container">
-<main><h1 id="71-spring-boot-애플리케이션-개발하기">7.1 Spring Boot 애플리케이션 개발하기</h1>
-<p>Spring Boot 예제를 바탕으로 앱 개발, 컨테이너 이미지 빌드, OKE에 배포하는 과정을 확인해 봅니다.</p>
-<h2 id="spring-boot-기반-마이크로-서비스-만들기">Spring Boot 기반 마이크로 서비스 만들기</h2>
-<p><a href="https://start.spring.io">Spring Initializr</a>를 사용하여 기본 프로젝트 소스파일을 기반으로 개발을 하게 됩니다.</p>
-<ol>
-<li>
-<p>Spring Initializr을 통해 프로젝트 파일을 만듭니다.</p>
-<ul>
-<li>
-<p>방법 1. <a href="https://start.spring.io">Spring Initializr</a>를 사용하여 기본 프로젝트 소스파일을 만듭니다.</p>
-<ul>
-<li>
-<p>아래 그림과 같이 프로젝트 정보를 입력하고 <strong>Generate</strong>를 클릭하여 소스파일을 생성합니다.
-
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/spring-initializr.png" alt='Spring Initializr' onerror="this.onerror=null;this.src='images\/spring-initializr.png';" />
-</p>
-</li>
-<li>
-<p>다운로드 받은 파일을 Cloud Shell에 업로드 합니다.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/cloud-shell-upload-1.png" alt='File Upload' onerror="this.onerror=null;this.src='images\/cloud-shell-upload-1.png';" />
-  <br>
-
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/cloud-shell-upload-2.png" alt='File Upload' onerror="this.onerror=null;this.src='images\/cloud-shell-upload-2.png';" />
-</p>
-</li>
-<li>
-<p>Cloud Shell에서 업로드된 파일을 unzip으로 압축해제 합니다.</p>
-</li>
-</ul>
-</li>
-<li>
-<p>방법 2. Spring Initializr를 브라우저 대신 아래 명령을 통해 Cloud Shell에서 바로 기본 프로젝트 소스파일을 만듭니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl https://start.spring.io/starter.tgz -d <span class="nv">baseDir</span><span class="o">=</span>rest-service -d <span class="nv">name</span><span class="o">=</span>rest-service -d <span class="nv">artifactId</span><span class="o">=</span>rest-service -d <span class="nv">javaVersion</span><span class="o">=</span>1.8 -d <span class="nv">dependencies</span><span class="o">=</span>web,actuator <span class="p">|</span> tar -xzvf -
-</span></span></code></pre></div></li>
-</ul>
-</li>
-<li>
-<p><strong>rest-service</strong> 폴더로 이동합니다.</p>
-</li>
-<li>
-<p>요청에 대한 응답 메시지를 아래와 같은 JSON 메시지 응답하는 코드를 구현합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="nt">&#34;content&#34;</span><span class="p">:</span> <span class="s2">&#34;Hello, World!&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span></code></pre></div><p>아래 코드를 복사하여 자바 클래스파일(src/main/java/com/example/restservice/Greeting.java)을 에 작성합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.example.restservice</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Greeting</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">id</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">content</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="nf">Greeting</span><span class="o">(</span><span class="kt">long</span> <span class="n">id</span><span class="o">,</span> <span class="n">String</span> <span class="n">content</span><span class="o">)</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">        <span class="k">this</span><span class="o">.</span><span class="na">content</span> <span class="o">=</span> <span class="n">content</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">long</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getContent</span><span class="o">()</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">content</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span></code></pre></div></li>
-<li>
-<p>/greeting URL로 HTTP Get 요청에 대한 처리 결과, 여기서는 응답 메시지 전달을 위한 RestController 코드를 src/main/java/com/example/restservice/GreetingController.java 위치에 작성합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.example.restservice</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.concurrent.atomic.AtomicLong</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.GetMapping</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RequestParam</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">org.springframework.web.bind.annotation.RestController</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="nd">@RestController</span>
-</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">GreetingController</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">template</span> <span class="o">=</span> <span class="s">&#34;Hello, %s!&#34;</span><span class="o">;</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">final</span> <span class="n">AtomicLong</span> <span class="n">counter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AtomicLong</span><span class="o">();</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="nd">@GetMapping</span><span class="o">(</span><span class="s">&#34;/greeting&#34;</span><span class="o">)</span>
-</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">Greeting</span> <span class="nf">greeting</span><span class="o">(</span><span class="nd">@RequestParam</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&#34;name&#34;</span><span class="o">,</span> <span class="n">defaultValue</span> <span class="o">=</span> <span class="s">&#34;World&#34;</span><span class="o">)</span> <span class="n">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">new</span> <span class="n">Greeting</span><span class="o">(</span><span class="n">counter</span><span class="o">.</span><span class="na">incrementAndGet</span><span class="o">(),</span> <span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="n">template</span><span class="o">,</span> <span class="n">name</span><span class="o">));</span>
-</span></span><span class="line"><span class="cl">    <span class="o">}</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span></code></pre></div></li>
-<li>
-<p>Kubernetes에서는 컨테이너 기동후 준비시간(readiness), 헬스체크를(liveness)를 Spring Boot에 활성화하기 src/main/resources/application.properties 파일에 다음 설정을 추가합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">management.health.probes.enabled<span class="o">=</span><span class="nb">true</span>
-</span></span></code></pre></div></li>
-<li>
-<p>실행을 위해 코드를 빌드합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">./mvnw clean package
-</span></span></code></pre></div></li>
-<li>
-<p>빌드된 JAR 파일을 실행합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">java -jar target/rest-service-0.0.1-SNAPSHOT.jar
-</span></span></code></pre></div><p>아래와 같이 서비스가 빠르게 실행되고, 내장 Tomcat을 통해 8080 포트로 실행되는 것을 빠르게 실행되는 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">  .   ____          _            __ _ _
-</span></span><span class="line"><span class="cl"> /\\ / ___&#39;_ __ _ _(_)_ __  __ _ \ \ \ \
-</span></span><span class="line"><span class="cl">( ( )\___ | &#39;_ | &#39;_| | &#39;_ \/ _` | \ \ \ \
-</span></span><span class="line"><span class="cl"> \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
-</span></span><span class="line"><span class="cl">  &#39;  |____| .__|_| |_|_| |_\__, | / / / /
-</span></span><span class="line"><span class="cl"> =========|_|==============|___/=/_/_/_/
-</span></span><span class="line"><span class="cl"> :: Spring Boot ::                (v2.6.4)
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:56.538  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : Starting RestServiceApplication v0.0.1-SNAPSHOT using Java 1.8.0_322 on 6d0b991bde66 with PID 2806 (/home/winter/rest-service/target/rest-service-0.0.1-SNAPSHOT.jar started by winter in /home/winter/rest-service)
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:56.544  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : No active profile set, falling back to 1 default profile: &#34;default&#34;
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:59.015  INFO 2806 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:59.037  INFO 2806 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:59.038  INFO 2806 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.58]
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:59.134  INFO 2806 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-</span></span><span class="line"><span class="cl">2022-03-07 00:27:59.134  INFO 2806 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2409 ms
-</span></span><span class="line"><span class="cl">2022-03-07 00:28:00.235  INFO 2806 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path &#39;/actuator&#39;
-</span></span><span class="line"><span class="cl">2022-03-07 00:28:00.290  INFO 2806 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path &#39;&#39;
-</span></span><span class="line"><span class="cl">2022-03-07 00:28:00.327  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 4.615 seconds (JVM running for 5.413)    
-</span></span></code></pre></div></li>
-<li>
-<p>테스트를 위해 브라우저 탭을 하나 더 열고 동일한 Oracle Cloud 계정으로 접속하여 Cloud Shell을 실행합니다.</p>
-</li>
-<li>
-<p>두 번째 Cloud Shell에서 서비스를 테스트합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl http://localhost:8080/greeting<span class="p">;</span> <span class="nb">echo</span>  
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">&#34;id&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&#34;content&#34;</span><span class="p">:</span><span class="s2">&#34;Hello, World!&#34;</span><span class="p">}</span>    
-</span></span></code></pre></div></li>
-<li>
-<p>첫 번째 Cloud Shell에서 실행되는 앱을 중지합니다.</p>
-</li>
-</ol>
-<h2 id="container-image-만들기">Container Image 만들기</h2>
-<p>쿠버네티스에서 실행하기 위해서는 구동할 서비스 애플리케이션을 컨테이너화 하여야 합니다. Docker 클라이언트를 통해 컨테이너 이미지를 만듭니다.</p>
-<ol>
-<li>
-<p>프로젝트 폴더에 Dockerfile을 아래와 같이 만듭니다. openjdk:8-jdk-alpine 베이스 이미지를 사용하여 빌드된 JAR 파일을 이미지 내부로 복사하고 java -jar로 실행하게 하는 예시입니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> openjdk:8-jdk-alpine</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> <span class="nv">JAR_FILE</span><span class="o">=</span>target/*.jar<span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> <span class="si">${</span><span class="nv">JAR_FILE</span><span class="si">}</span> app.jar<span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;java&#34;</span><span class="p">,</span><span class="s2">&#34;-jar&#34;</span><span class="p">,</span><span class="s2">&#34;app.jar&#34;</span><span class="p">]</span><span class="err">
-</span></span></span></code></pre></div></li>
-<li>
-<p>이미지를 빌드합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker build -t spring-boot-greeting:1.0 .
-</span></span></code></pre></div></li>
-<li>
-<p>현재 로컬(여기서는 Cloud Shell)에 있는 이미지를 조회합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ docker images
-</span></span><span class="line"><span class="cl">REPOSITORY             TAG                 IMAGE ID            CREATED              SIZE
-</span></span><span class="line"><span class="cl">spring-boot-greeting   1.0                 a80b8a33c501        About a minute ago   124MB
-</span></span><span class="line"><span class="cl">openjdk                8-jdk-alpine        a3562aa0b991        <span class="m">2</span> years ago          105MB
-</span></span></code></pre></div></li>
-</ol>
-<h2 id="ocir에-이미지-등록하기">OCIR에 이미지 등록하기</h2>
-<ol>
-<li>
-<p>OCIR에 컨테이너 이미지를 푸시하기 위해서는 다음과 같은 이미지 태그 네이밍 규칙을 따라야 합니다. 아래 정보를 확인합니다.</p>
-<blockquote>
-<p><code>&lt;region-key or region-identifier&gt;.ocir.io/&lt;tenancy-namespace&gt;/&lt;repo-name&gt;:&lt;tag&gt;</code></p>
-</blockquote>
-<ul>
-<li>region-key: 지금은 Region Key, Region Identifier 둘다 지원하므로, 서울은 icn, ap-seoul-1, 춘천은 yny, ap-chuncheon-1을 쓰면 됩니다. 전체 주소 정보는 <a href="https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability">OCIR Available Endpoint</a>에서 확인하세요.</li>
-<li>tenancy-namespace: OCI 콘솔 Tenancy 상세 정보에서 Object Storage Namespace로 확인하거나, Cloud Shell에서 <strong>oci os ns get</strong>으로 확인합니다.</li>
-<li>repo-name: 이미지 이름, 경로가 있는 경우 경로를 포함한 이름</li>
-</ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:rest-service <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ oci os ns get
-</span></span><span class="line"><span class="cl"><span class="o">{</span>
-</span></span><span class="line"><span class="cl">  <span class="s2">&#34;data&#34;</span>: <span class="s2">&#34;axjowrxxxxxx&#34;</span>
-</span></span><span class="line"><span class="cl"><span class="o">}</span>
-</span></span><span class="line"><span class="cl">winter@cloudshell:rest-service <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ <span class="nb">echo</span> <span class="nv">$OCI_REGION</span> 
-</span></span><span class="line"><span class="cl">ap-chuncheon-1    
-</span></span></code></pre></div></li>
-<li>
-<p>OCIR 등록을 위해 기존 이미지에 추가로 태그를 답니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/<span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/spring-boot-greeting:1.0
-</span></span></code></pre></div><p>동일한 이미지에 태그가 추가된 것을 알 수 있습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:rest-service <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ docker images
-</span></span><span class="line"><span class="cl">REPOSITORY                                                 TAG                 IMAGE ID            CREATED             SIZE
-</span></span><span class="line"><span class="cl">ap-chuncheon-1.ocir.io/axjowrxxxxxx/spring-boot-greeting   1.0                 a80b8a33c501        <span class="m">6</span> minutes ago       124MB
-</span></span><span class="line"><span class="cl">spring-boot-greeting                                       1.0                 a80b8a33c501        <span class="m">6</span> minutes ago       124MB
-</span></span><span class="line"><span class="cl">openjdk                                                    8-jdk-alpine        a3562aa0b991        <span class="m">2</span> years ago         105MB
-</span></span></code></pre></div></li>
-<li>
-<p>OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.</p>
-<ul>
-<li>Username: <code>&lt;tenancy-namespace&gt;/&lt;user-name&gt;</code> 형식으로 user-name은 OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명을 사용합니다.</li>
-<li>Password: 사용자의 Auth Token을 사용합니다. <strong>My Profile</strong> &gt; <strong>Auth tokens</strong> &gt; <strong>Generate token</strong> 을 통해 생성합니다.</li>
-</ul>
-<p>아래와 같이 Docker CLI로 로그인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># IDCS 유저인 경우</span>
-</span></span><span class="line"><span class="cl">docker login ap-chuncheon-1.ocir.io -u <span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/oracleidentitycloudservice/~~~
-</span></span><span class="line"><span class="cl"><span class="c1"># OCI Native 유저인 경우</span>
-</span></span><span class="line"><span class="cl">docker login ap-chuncheon-1.ocir.io -u <span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/~~~
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">winter@cloudshell:~ <span class="o">(</span>ap-chuncheon-1<span class="o">)</span>$ docker login ap-chuncheon-1.ocir.io -u <span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/winter
-</span></span><span class="line"><span class="cl">Password: 
-</span></span><span class="line"><span class="cl">WARNING! Your password will be stored unencrypted in /home/winter/.docker/config.json.
-</span></span><span class="line"><span class="cl">Configure a credential helper to remove this warning. See
-</span></span><span class="line"><span class="cl">https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Login Succeeded
-</span></span></code></pre></div></li>
-<li>
-<p>OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">docker push ap-chuncheon-1.ocir.io/<span class="si">${</span><span class="nv">tenancy_namespace</span><span class="si">}</span>/spring-boot-greeting:1.0 
-</span></span></code></pre></div></li>
-</ol>
-<h2 id="oke에-마이크로-서비스-배포하기">OKE에 마이크로 서비스 배포하기</h2>
-<ol>
-<li>
-<p>OCIR에 이미지를 사용하여 OKE에 컨테이너를 기동하기 위해서는 OKE에서 OCIR 이미지에 접근하는 권한이 필요합니다. OCIR Private Repository로 등록했기 때문에 OKE에 접속을 위한 secret를 생성합니다. 이미 Cloud Shell에서 Docker CLI로 OCI에 로그인 했으므로 해당 정보를 이용하여 생성합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl create secret generic ocir-secret <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>--from-file<span class="o">=</span>.dockerconfigjson<span class="o">=</span><span class="nv">$HOME</span>/.docker/config.json <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>--type<span class="o">=</span>kubernetes.io/dockerconfigjson    
-</span></span></code></pre></div></li>
-<li>
-<p>다음 YAML 파일을 이용해 OKE에 배포합니다. Load Balancer 사용도 함께 진행하기 위해 Service Type도 함께 배포합니다.</p>
-<p>image 주소는 각자 환경에 맞게 수정합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">kubectl apply -f <span class="s">&lt;&lt;EOF -
-</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: apps/v1
-</span></span></span><span class="line"><span class="cl"><span class="s">kind: Deployment
-</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
-</span></span></span><span class="line"><span class="cl"><span class="s">  labels:
-</span></span></span><span class="line"><span class="cl"><span class="s">    app: spring-boot-greeting
-</span></span></span><span class="line"><span class="cl"><span class="s">  name: spring-boot-greeting-deployment
-</span></span></span><span class="line"><span class="cl"><span class="s">spec:
-</span></span></span><span class="line"><span class="cl"><span class="s">  replicas: 1
-</span></span></span><span class="line"><span class="cl"><span class="s">  selector:
-</span></span></span><span class="line"><span class="cl"><span class="s">    matchLabels:
-</span></span></span><span class="line"><span class="cl"><span class="s">      app: spring-boot-greeting
-</span></span></span><span class="line"><span class="cl"><span class="s">  template:
-</span></span></span><span class="line"><span class="cl"><span class="s">    metadata:
-</span></span></span><span class="line"><span class="cl"><span class="s">      labels:
-</span></span></span><span class="line"><span class="cl"><span class="s">        app: spring-boot-greeting
-</span></span></span><span class="line"><span class="cl"><span class="s">    spec:
-</span></span></span><span class="line"><span class="cl"><span class="s">      containers:
-</span></span></span><span class="line"><span class="cl"><span class="s">      - name: spring-boot-greeting
-</span></span></span><span class="line"><span class="cl"><span class="s">        image: ap-chuncheon-1.ocir.io/${tenancy_namespace}/spring-boot-greeting:1.0
-</span></span></span><span class="line"><span class="cl"><span class="s">      imagePullSecrets:
-</span></span></span><span class="line"><span class="cl"><span class="s">      - name: ocir-secret
-</span></span></span><span class="line"><span class="cl"><span class="s">---
-</span></span></span><span class="line"><span class="cl"><span class="s">apiVersion: v1
-</span></span></span><span class="line"><span class="cl"><span class="s">kind: Service
-</span></span></span><span class="line"><span class="cl"><span class="s">metadata:
-</span></span></span><span class="line"><span class="cl"><span class="s">  name: spring-boot-greeting-service
-</span></span></span><span class="line"><span class="cl"><span class="s">spec:
-</span></span></span><span class="line"><span class="cl"><span class="s">  selector:
-</span></span></span><span class="line"><span class="cl"><span class="s">    app: spring-boot-greeting
-</span></span></span><span class="line"><span class="cl"><span class="s">  ports:
-</span></span></span><span class="line"><span class="cl"><span class="s">    - protocol: TCP
-</span></span></span><span class="line"><span class="cl"><span class="s">      port: 80
-</span></span></span><span class="line"><span class="cl"><span class="s">      targetPort: 8080
-</span></span></span><span class="line"><span class="cl"><span class="s">  type: LoadBalancer
-</span></span></span><span class="line"><span class="cl"><span class="s">EOF</span>
-</span></span></code></pre></div></li>
-<li>
-<p>kubectl get all 명령으로 배포된 자원을 확인합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">$kubectl</span> get all
-</span></span><span class="line"><span class="cl">NAME                                                   READY   STATUS    RESTARTS   AGE
-</span></span><span class="line"><span class="cl">pod/spring-boot-greeting-deployment-84c4865b98-7rmrp   1/1     Running   <span class="m">0</span>          34s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                                   TYPE           CLUSTER-IP     EXTERNAL-IP       PORT<span class="o">(</span>S<span class="o">)</span>        AGE
-</span></span><span class="line"><span class="cl">service/kubernetes                     ClusterIP      10.96.0.1      &lt;none&gt;            443/TCP        10h
-</span></span><span class="line"><span class="cl">service/spring-boot-greeting-service   LoadBalancer   10.96.75.242   150.xxx.xxx.xxx   80:32418/TCP   35s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                                              READY   UP-TO-DATE   AVAILABLE   AGE
-</span></span><span class="line"><span class="cl">deployment.apps/spring-boot-greeting-deployment   1/1     <span class="m">1</span>            <span class="m">1</span>           35s
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">NAME                                                         DESIRED   CURRENT   READY   AGE
-</span></span><span class="line"><span class="cl">replicaset.apps/spring-boot-greeting-deployment-84c4865b98   <span class="m">1</span>         <span class="m">1</span>         <span class="m">1</span>       35s
-</span></span></code></pre></div></li>
-<li>
-<p>Pod가 정상적으로 기동하였습니다. LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl http://150.xxx.xxx.xxx/greeting<span class="p">;</span> <span class="nb">echo</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span><span class="nt">&#34;id&#34;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&#34;content&#34;</span><span class="p">:</span><span class="s2">&#34;Hello, World!&#34;</span><span class="p">}</span>    
-</span></span></code></pre></div></li>
-</ol>
-<br>
-<br>
-<div class="panel panel-caution">
-    <div class="panel-body">
-    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
-    </div>
-    </div>
-
- <div class="edit-meta">Last updated on 26 Apr 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/appdev/" title="7. 애플리케이션 개발하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 7. 애플리케이션 개발하기</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/" title="7.2 GraalVM 사용하기">Next - 7.2 GraalVM 사용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
-</footer>
-</main><div class="sidebar">
-<nav>
-<ul>
-
-
-<li>
-  <form method="get" action="https://thekoguryo.github.io//search">
-    <input type="text" id="search-box" name="q" placeholder="Search"/>
-  </form>
-  
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $('#search-box').val($('#search-query').val());
-    });
-  </script>
-</li>
-<li><a> </a></li>
-
-
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/">
-    OCI(Oracle Cloud Infrastructure)
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter01/">
-    1. OCI 기본개념
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter02/">
-    2. OCI 서비스 시작하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter03/">
-    3. OCI Compute VM 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter03/5/">
-    3.5 Linux 인스턴스 접속하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter03/6/">
-    3.6 하드 드라이브 같은 Block Volume
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/4/">3.6.4 Block Volume 포맷하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter03/7/">
-    3.7 Block Volume 백업 활용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter03/8/">
-    3.8 Boot Volume 백업 활용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter04/">
-    4. 고정 IP 할당을 위한 Reserved Public IP
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter05/">
-    5. 방화벽 구성을 위해 Security Lists 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Apache HTTP Server 접속 테스트</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter06/">
-    6. 사용자 권한 설정을 위해 IAM 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter07/">
-    7. Object Storage 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter08/">
-    8. 네트워크 파일 시스템인 File Storage 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 Snapshot</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter09/">
-    9. Machine Image
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/2/">9.2 인스턴스에서 Custom Image 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter10/">
-    10. 고가용성을 위한 Load Balancer 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/4/">10.4 Load Balancer를 위한 Subnet 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/5/">10.5 Load Balancer 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter10/6/">10.6 Load Balancer 연결 확인</a></li>
-
-
-
-
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter11/">
-    11. Domain Name System (DNS)
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter12/">
-    12. OCI 자원 모니터링을 위한 Monitoring
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter12/3/">
-    12.3 OCI Grafana Plugin
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter13/">
-    13. Metric에 기반한 Autoscaling
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter14/">
-    14. Developer Tools 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter14/1/">
-    14.1 OCI CLI
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter14/1/1/">
-    14.1.1 OCI CLI 설치하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Config File 설정</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Public Key 등록</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/5/">14.1.1.5 OCI CLI 설치 확인</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
-    14.1.2 Object Storage를 CLI로 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter14/2/">
-    14.2 Terraform
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 Terraform 설치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Terraform Configurations 작성하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Terraform OCI Provider 연결정보 구하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/4/">14.2.4 Terraform Configuration 실행하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 다중 환경을 위한 workspace 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/6/">14.2.6 예시, list, count를 이용한 유저 만들기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/7/">14.2.7 OCI Terraform 사용 예제</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter14/3/">
-    14.3 REST API
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 OCI Request Signature Version 1</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Bash 샘플 클라이언트</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Insomnia - OCI REST API 호출하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Postman - OCI REST API 호출하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oci/chapter15/">
-    15. Resource Manager 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class="parent has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/">
-    Oracle Cloud Native
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class="sub-menu">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/">
-    1. 관리형 쿠버네티스 OKE 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/">1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/">1.2 OKE 클러스터 만들기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/">
-    1.3 OKE 클러스터 연결하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/">1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/">1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/">1.4 앱 배포 및 Load Balancer 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/">1.5 OCIR 이미지 사용하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/">
-    1.6 Persistent Volume 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/">1.6.1 Block Volume 사용하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/">1.6.2 File Storage 사용하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/">1.7 Kubernetes 버전 업그레이드</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/">
-    2. 컨테이너 레지스트리인 OCIR 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/">2.1 컨테이너 이미지 스캔</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/">2.2 Helm Chart Repository로 사용하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/devops/">
-    3. CI/CD인 OCI DevOps 서비스 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/">3.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/2.bluegreen-stragtegy/">3.2 DevOps 서비스의 Blue/Green 배포 전략으로 배포하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/">3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/">3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/">3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/">
-    4. OSS(Open Source Software) 활용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/">
-    4.1 Ingress Controller
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/">4.1.1 NGINX Ingress Controller 설치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/">4.1.2 NGINX Ingress Controller에서 PATH 기반 라우팅</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/">4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/">4.1.4 NGINX Ingress Controller에서 TLS termination</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/">4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/">
-    4.2 Logging - EFK
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/">4.2.1 EFK 설치하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/">
-    4.3 Monitoring - Prometheus&amp;Grafana
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/">4.3.1 Prometheus&amp;Grafana 설치하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/">
-    4.4 Service Mesh - Istio
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/">4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/">4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/">
-    5. OCI 서비스 활용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/">5.1 OKE에서 OCI 자원관리를 위한 Service Operator</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/">
-    5.2 Logging 서비스
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/">5.2.1 OCI Logging을 사용한 로그 모니터링</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/">5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/">
-    6. 엔터프라이즈 컨테이너 플랫폼 Verrazzano 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/">6.1 Verrazzano 설치</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/">6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/">6.3 Multicluster Verrazzano 설치하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/">6.4 Multicluster에 애플리케이션 배포하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/">6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li>
-
-
-
-
-</ul>
-  
-</li>
-
-
-
-<li class="parent has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/">
-    7. 애플리케이션 개발하기
-    <button type="button" class="toggleButton">
-      <span class="right  hidden">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down " >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class="sub-menu">
-<li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/">7.1 Spring Boot 애플리케이션 개발하기</a></li>
-
-
-
-<li class=" has-sub-menu">
-  <a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/">
-    7.2 GraalVM 사용하기
-    <button type="button" class="toggleButton">
-      <span class="right ">
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
-        </svg></span>
-      <span class="down  hidden" >
-        <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
-          <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
-        </svg>
-      </span>
-    </button>
-  </a>
-     
-
- 
-<ul class=" hidden">
-<li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/1.use-graal-vm/">7.2.1 GraalVM 기반 컨테이너 이미지 만들기</a></li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-</ul>
-  
-</li>
-
-
-
-
-</ul>
-</nav>
-
-
-<div class="sidebar-footer"></div>
-</div>
-</div><a href="#" id="backtothetop-fixed" class="backtothetop"
- data-backtothetop-duration="600"
- data-backtothetop-easing="easeOutQuart"
- data-backtothetop-fixed-fadeIn="1000"
- data-backtothetop-fixed-fadeOut="1000"
- data-backtothetop-fixed-bottom="10"
- data-backtothetop-fixed-right="20">
-<span class="fa-layers fa-fw">
-<i class="fas fa-circle"></i>
-<i class="fas fa-arrow-circle-up"></i>
-</span></a>
-
-<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
-</body>
-</html>
+<!doctype html><html lang=ko><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>7.1 Spring Boot 애플리케이션 개발하기 - TheKoguryo's 기술 블로그</title><meta name=generator content="Hugo 0.102.3"><link href=https://thekoguryo.github.io/index.xml rel=alternate type=application/rss+xml><link rel=canonical href=https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/><link rel=stylesheet href=https://thekoguryo.github.io/css/theme.min.css><link rel=stylesheet href=https://thekoguryo.github.io/css/d2coding.css><link rel=stylesheet href=https://thekoguryo.github.io/css/fontawesome-all.min.css><script src=https://use.fontawesome.com/releases/v5.15.4/js/all.js></script>
+<link rel=stylesheet href=https://thekoguryo.github.io/css/chroma.min.css><script src=https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js></script>
+<script src=https://thekoguryo.github.io/js/functions.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js></script>
+<script src=https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js></script>
+<script src=https://thekoguryo.github.io/js/jqcloud/jqcloud.js></script>
+<link rel=stylesheet href=https://thekoguryo.github.io/js/jqcloud/jqcloud.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-106207316-1")</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858" crossorigin=anonymous></script><meta property="og:title" content="7.1 Spring Boot 애플리케이션 개발하기"><meta property="og:description" content="7.1 Spring Boot 애플리케이션 개발하기 Spring Boot 예제를 바탕으로 앱 개발, 컨테이너 이미지 빌드, OKE에 배포하는 과정을 확인해 봅니다. Spring Boot 기반 마이크로 서비스 만들기 Spring I"><meta property="og:type" content="article"><meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/"><meta property="article:section" content="oracle-cloudnative"><meta property="article:modified_time" content="2022-04-26T00:00:00+00:00"><meta property="og:site_name" content="TheKoguryo's 기술 블로그"></head><body><div class=container><header><h1>TheKoguryo's 기술 블로그</h1><span class=version>Version 2022.10.11</span>
+<a href=https://github.com/TheKoguryo class=github><i class="fab fa-github"></i></a></header><div class=menu><nav><ul><li><a href=/>Home</a></li><li><a href=/release-notes>OCI Release Notes</a></li><li><a href=/archives>Archives</a></li><li><a href=/tags>Tag</a></li><li><a href=https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new>Feedback</a></li><li><a href=/link>Link</a></li></ul></nav></div><div class=content-container><main><h1 id=71-spring-boot-애플리케이션-개발하기>7.1 Spring Boot 애플리케이션 개발하기</h1><p>Spring Boot 예제를 바탕으로 앱 개발, 컨테이너 이미지 빌드, OKE에 배포하는 과정을 확인해 봅니다.</p><h2 id=spring-boot-기반-마이크로-서비스-만들기>Spring Boot 기반 마이크로 서비스 만들기</h2><p><a href=https://start.spring.io>Spring Initializr</a>를 사용하여 기본 프로젝트 소스파일을 기반으로 개발을 하게 됩니다.</p><ol><li><p>Spring Initializr을 통해 프로젝트 파일을 만듭니다.</p><ul><li><p>방법 1. <a href=https://start.spring.io>Spring Initializr</a>를 사용하여 기본 프로젝트 소스파일을 만듭니다.</p><ul><li><p>아래 그림과 같이 프로젝트 정보를 입력하고 <strong>Generate</strong>를 클릭하여 소스파일을 생성합니다.
+<img class=img-fluid1 src=../images/spring-initializr.png alt='Spring Initializr' onerror='this.onerror=null,this.src="images/spring-initializr.png"'></p></li><li><p>다운로드 받은 파일을 Cloud Shell에 업로드 합니다.</p><p><img class=img-fluid1 src=../images/cloud-shell-upload-1.png alt='File Upload' onerror='this.onerror=null,this.src="images/cloud-shell-upload-1.png"'><br><img class=img-fluid1 src=../images/cloud-shell-upload-2.png alt='File Upload' onerror='this.onerror=null,this.src="images/cloud-shell-upload-2.png"'></p></li><li><p>Cloud Shell에서 업로드된 파일을 unzip으로 압축해제 합니다.</p></li></ul></li><li><p>방법 2. Spring Initializr를 브라우저 대신 아래 명령을 통해 Cloud Shell에서 바로 기본 프로젝트 소스파일을 만듭니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl https://start.spring.io/starter.tgz -d <span class=nv>baseDir</span><span class=o>=</span>rest-service -d <span class=nv>name</span><span class=o>=</span>rest-service -d <span class=nv>artifactId</span><span class=o>=</span>rest-service -d <span class=nv>javaVersion</span><span class=o>=</span>1.8 -d <span class=nv>dependencies</span><span class=o>=</span>web,actuator <span class=p>|</span> tar -xzvf -
+</span></span></code></pre></div></li></ul></li><li><p><strong>rest-service</strong> 폴더로 이동합니다.</p></li><li><p>요청에 대한 응답 메시지를 아래와 같은 JSON 메시지 응답하는 코드를 구현합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;id&#34;</span><span class=p>:</span> <span class=mi>1</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nt>&#34;content&#34;</span><span class=p>:</span> <span class=s2>&#34;Hello, World!&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>아래 코드를 복사하여 자바 클래스파일(src/main/java/com/example/restservice/Greeting.java)을 에 작성합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>package</span> <span class=nn>com.example.restservice</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kd>public</span> <span class=kd>class</span> <span class=nc>Greeting</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>private</span> <span class=kd>final</span> <span class=kt>long</span> <span class=n>id</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>    <span class=kd>private</span> <span class=kd>final</span> <span class=n>String</span> <span class=n>content</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>public</span> <span class=nf>Greeting</span><span class=o>(</span><span class=kt>long</span> <span class=n>id</span><span class=o>,</span> <span class=n>String</span> <span class=n>content</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=o>.</span><span class=na>id</span> <span class=o>=</span> <span class=n>id</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>this</span><span class=o>.</span><span class=na>content</span> <span class=o>=</span> <span class=n>content</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>public</span> <span class=kt>long</span> <span class=nf>getId</span><span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>id</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>public</span> <span class=n>String</span> <span class=nf>getContent</span><span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>content</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div></li><li><p>/greeting URL로 HTTP Get 요청에 대한 처리 결과, 여기서는 응답 메시지 전달을 위한 RestController 코드를 src/main/java/com/example/restservice/GreetingController.java 위치에 작성합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-java data-lang=java><span class=line><span class=cl><span class=kn>package</span> <span class=nn>com.example.restservice</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>java.util.concurrent.atomic.AtomicLong</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>org.springframework.web.bind.annotation.GetMapping</span><span class=o>;</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>org.springframework.web.bind.annotation.RequestParam</span><span class=o>;</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>org.springframework.web.bind.annotation.RestController</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nd>@RestController</span>
+</span></span><span class=line><span class=cl><span class=kd>public</span> <span class=kd>class</span> <span class=nc>GreetingController</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kd>private</span> <span class=kd>static</span> <span class=kd>final</span> <span class=n>String</span> <span class=n>template</span> <span class=o>=</span> <span class=s>&#34;Hello, %s!&#34;</span><span class=o>;</span>
+</span></span><span class=line><span class=cl>    <span class=kd>private</span> <span class=kd>final</span> <span class=n>AtomicLong</span> <span class=n>counter</span> <span class=o>=</span> <span class=k>new</span> <span class=n>AtomicLong</span><span class=o>();</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@GetMapping</span><span class=o>(</span><span class=s>&#34;/greeting&#34;</span><span class=o>)</span>
+</span></span><span class=line><span class=cl>    <span class=kd>public</span> <span class=n>Greeting</span> <span class=nf>greeting</span><span class=o>(</span><span class=nd>@RequestParam</span><span class=o>(</span><span class=n>value</span> <span class=o>=</span> <span class=s>&#34;name&#34;</span><span class=o>,</span> <span class=n>defaultValue</span> <span class=o>=</span> <span class=s>&#34;World&#34;</span><span class=o>)</span> <span class=n>String</span> <span class=n>name</span><span class=o>)</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=k>new</span> <span class=n>Greeting</span><span class=o>(</span><span class=n>counter</span><span class=o>.</span><span class=na>incrementAndGet</span><span class=o>(),</span> <span class=n>String</span><span class=o>.</span><span class=na>format</span><span class=o>(</span><span class=n>template</span><span class=o>,</span> <span class=n>name</span><span class=o>));</span>
+</span></span><span class=line><span class=cl>    <span class=o>}</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span></code></pre></div></li><li><p>Kubernetes에서는 컨테이너 기동후 준비시간(readiness), 헬스체크를(liveness)를 Spring Boot에 활성화하기 src/main/resources/application.properties 파일에 다음 설정을 추가합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>management.health.probes.enabled<span class=o>=</span><span class=nb>true</span>
+</span></span></code></pre></div></li><li><p>실행을 위해 코드를 빌드합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>./mvnw clean package
+</span></span></code></pre></div></li><li><p>빌드된 JAR 파일을 실행합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>java -jar target/rest-service-0.0.1-SNAPSHOT.jar
+</span></span></code></pre></div><p>아래와 같이 서비스가 빠르게 실행되고, 내장 Tomcat을 통해 8080 포트로 실행되는 것을 빠르게 실행되는 것을 알 수 있습니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>  .   ____          _            __ _ _
+</span></span><span class=line><span class=cl> /\\ / ___&#39;_ __ _ _(_)_ __  __ _ \ \ \ \
+</span></span><span class=line><span class=cl>( ( )\___ | &#39;_ | &#39;_| | &#39;_ \/ _` | \ \ \ \
+</span></span><span class=line><span class=cl> \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+</span></span><span class=line><span class=cl>  &#39;  |____| .__|_| |_|_| |_\__, | / / / /
+</span></span><span class=line><span class=cl> =========|_|==============|___/=/_/_/_/
+</span></span><span class=line><span class=cl> :: Spring Boot ::                (v2.6.4)
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>2022-03-07 00:27:56.538  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : Starting RestServiceApplication v0.0.1-SNAPSHOT using Java 1.8.0_322 on 6d0b991bde66 with PID 2806 (/home/winter/rest-service/target/rest-service-0.0.1-SNAPSHOT.jar started by winter in /home/winter/rest-service)
+</span></span><span class=line><span class=cl>2022-03-07 00:27:56.544  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : No active profile set, falling back to 1 default profile: &#34;default&#34;
+</span></span><span class=line><span class=cl>2022-03-07 00:27:59.015  INFO 2806 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+</span></span><span class=line><span class=cl>2022-03-07 00:27:59.037  INFO 2806 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+</span></span><span class=line><span class=cl>2022-03-07 00:27:59.038  INFO 2806 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.58]
+</span></span><span class=line><span class=cl>2022-03-07 00:27:59.134  INFO 2806 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+</span></span><span class=line><span class=cl>2022-03-07 00:27:59.134  INFO 2806 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2409 ms
+</span></span><span class=line><span class=cl>2022-03-07 00:28:00.235  INFO 2806 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path &#39;/actuator&#39;
+</span></span><span class=line><span class=cl>2022-03-07 00:28:00.290  INFO 2806 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path &#39;&#39;
+</span></span><span class=line><span class=cl>2022-03-07 00:28:00.327  INFO 2806 --- [           main] c.e.restservice.RestServiceApplication   : Started RestServiceApplication in 4.615 seconds (JVM running for 5.413)    
+</span></span></code></pre></div></li><li><p>테스트를 위해 브라우저 탭을 하나 더 열고 동일한 Oracle Cloud 계정으로 접속하여 Cloud Shell을 실행합니다.</p></li><li><p>두 번째 Cloud Shell에서 서비스를 테스트합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl http://localhost:8080/greeting<span class=p>;</span> <span class=nb>echo</span>  
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span><span class=nt>&#34;id&#34;</span><span class=p>:</span><span class=mi>1</span><span class=p>,</span><span class=nt>&#34;content&#34;</span><span class=p>:</span><span class=s2>&#34;Hello, World!&#34;</span><span class=p>}</span>    
+</span></span></code></pre></div></li><li><p>첫 번째 Cloud Shell에서 실행되는 앱을 중지합니다.</p></li></ol><h2 id=container-image-만들기>Container Image 만들기</h2><p>쿠버네티스에서 실행하기 위해서는 구동할 서비스 애플리케이션을 컨테이너화 하여야 합니다. Docker 클라이언트를 통해 컨테이너 이미지를 만듭니다.</p><ol><li><p>프로젝트 폴더에 Dockerfile을 아래와 같이 만듭니다. openjdk:8-jdk-alpine 베이스 이미지를 사용하여 빌드된 JAR 파일을 이미지 내부로 복사하고 java -jar로 실행하게 하는 예시입니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-docker data-lang=docker><span class=line><span class=cl><span class=k>FROM</span><span class=s> openjdk:8-jdk-alpine</span><span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ARG</span> <span class=nv>JAR_FILE</span><span class=o>=</span>target/*.jar<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>COPY</span> <span class=si>${</span><span class=nv>JAR_FILE</span><span class=si>}</span> app.jar<span class=err>
+</span></span></span><span class=line><span class=cl><span class=err></span><span class=k>ENTRYPOINT</span> <span class=p>[</span><span class=s2>&#34;java&#34;</span><span class=p>,</span><span class=s2>&#34;-jar&#34;</span><span class=p>,</span><span class=s2>&#34;app.jar&#34;</span><span class=p>]</span><span class=err>
+</span></span></span></code></pre></div></li><li><p>이미지를 빌드합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker build -t spring-boot-greeting:1.0 .
+</span></span></code></pre></div></li><li><p>현재 로컬(여기서는 Cloud Shell)에 있는 이미지를 조회합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>$ docker images
+</span></span><span class=line><span class=cl>REPOSITORY             TAG                 IMAGE ID            CREATED              SIZE
+</span></span><span class=line><span class=cl>spring-boot-greeting   1.0                 a80b8a33c501        About a minute ago   124MB
+</span></span><span class=line><span class=cl>openjdk                8-jdk-alpine        a3562aa0b991        <span class=m>2</span> years ago          105MB
+</span></span></code></pre></div></li></ol><h2 id=ocir에-이미지-등록하기>OCIR에 이미지 등록하기</h2><ol><li><p>OCIR에 컨테이너 이미지를 푸시하기 위해서는 다음과 같은 이미지 태그 네이밍 규칙을 따라야 합니다. 아래 정보를 확인합니다.</p><blockquote><p><code>&lt;region-key or region-identifier>.ocir.io/&lt;tenancy-namespace>/&lt;repo-name>:&lt;tag></code></p></blockquote><ul><li>region-key: 지금은 Region Key, Region Identifier 둘다 지원하므로, 서울은 icn, ap-seoul-1, 춘천은 yny, ap-chuncheon-1을 쓰면 됩니다. 전체 주소 정보는 <a href=https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability>OCIR Available Endpoint</a>에서 확인하세요.</li><li>tenancy-namespace: OCI 콘솔 Tenancy 상세 정보에서 Object Storage Namespace로 확인하거나, Cloud Shell에서 <strong>oci os ns get</strong>으로 확인합니다.</li><li>repo-name: 이미지 이름, 경로가 있는 경우 경로를 포함한 이름</li></ul><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>winter@cloudshell:rest-service <span class=o>(</span>ap-chuncheon-1<span class=o>)</span>$ oci os ns get
+</span></span><span class=line><span class=cl><span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=s2>&#34;data&#34;</span>: <span class=s2>&#34;axjowrxxxxxx&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>winter@cloudshell:rest-service <span class=o>(</span>ap-chuncheon-1<span class=o>)</span>$ <span class=nb>echo</span> <span class=nv>$OCI_REGION</span> 
+</span></span><span class=line><span class=cl>ap-chuncheon-1    
+</span></span></code></pre></div></li><li><p>OCIR 등록을 위해 기존 이미지에 추가로 태그를 답니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/<span class=si>${</span><span class=nv>tenancy_namespace</span><span class=si>}</span>/spring-boot-greeting:1.0
+</span></span></code></pre></div><p>동일한 이미지에 태그가 추가된 것을 알 수 있습니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>winter@cloudshell:rest-service <span class=o>(</span>ap-chuncheon-1<span class=o>)</span>$ docker images
+</span></span><span class=line><span class=cl>REPOSITORY                                                 TAG                 IMAGE ID            CREATED             SIZE
+</span></span><span class=line><span class=cl>ap-chuncheon-1.ocir.io/axjowrxxxxxx/spring-boot-greeting   1.0                 a80b8a33c501        <span class=m>6</span> minutes ago       124MB
+</span></span><span class=line><span class=cl>spring-boot-greeting                                       1.0                 a80b8a33c501        <span class=m>6</span> minutes ago       124MB
+</span></span><span class=line><span class=cl>openjdk                                                    8-jdk-alpine        a3562aa0b991        <span class=m>2</span> years ago         105MB
+</span></span></code></pre></div></li><li><p>OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.</p><ul><li>Username: <code>&lt;tenancy-namespace>/&lt;user-name></code> 형식으로 user-name은 OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명을 사용합니다.</li><li>Password: 사용자의 Auth Token을 사용합니다. <strong>My Profile</strong> > <strong>Auth tokens</strong> > <strong>Generate token</strong> 을 통해 생성합니다.</li></ul><p>아래와 같이 Docker CLI로 로그인합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># IDCS 유저인 경우</span>
+</span></span><span class=line><span class=cl>docker login ap-chuncheon-1.ocir.io -u <span class=si>${</span><span class=nv>tenancy_namespace</span><span class=si>}</span>/oracleidentitycloudservice/~~~
+</span></span><span class=line><span class=cl><span class=c1># OCI Native 유저인 경우</span>
+</span></span><span class=line><span class=cl>docker login ap-chuncheon-1.ocir.io -u <span class=si>${</span><span class=nv>tenancy_namespace</span><span class=si>}</span>/~~~
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>winter@cloudshell:~ <span class=o>(</span>ap-chuncheon-1<span class=o>)</span>$ docker login ap-chuncheon-1.ocir.io -u <span class=si>${</span><span class=nv>tenancy_namespace</span><span class=si>}</span>/winter
+</span></span><span class=line><span class=cl>Password: 
+</span></span><span class=line><span class=cl>WARNING! Your password will be stored unencrypted in /home/winter/.docker/config.json.
+</span></span><span class=line><span class=cl>Configure a credential helper to remove this warning. See
+</span></span><span class=line><span class=cl>https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Login Succeeded
+</span></span></code></pre></div></li><li><p>OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>docker push ap-chuncheon-1.ocir.io/<span class=si>${</span><span class=nv>tenancy_namespace</span><span class=si>}</span>/spring-boot-greeting:1.0 
+</span></span></code></pre></div></li></ol><h2 id=oke에-마이크로-서비스-배포하기>OKE에 마이크로 서비스 배포하기</h2><ol><li><p>OCIR에 이미지를 사용하여 OKE에 컨테이너를 기동하기 위해서는 OKE에서 OCIR 이미지에 접근하는 권한이 필요합니다. OCIR Private Repository로 등록했기 때문에 OKE에 접속을 위한 secret를 생성합니다. 이미 Cloud Shell에서 Docker CLI로 OCI에 로그인 했으므로 해당 정보를 이용하여 생성합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl create secret generic ocir-secret <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--from-file<span class=o>=</span>.dockerconfigjson<span class=o>=</span><span class=nv>$HOME</span>/.docker/config.json <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>--type<span class=o>=</span>kubernetes.io/dockerconfigjson    
+</span></span></code></pre></div></li><li><p>다음 YAML 파일을 이용해 OKE에 배포합니다. Load Balancer 사용도 함께 진행하기 위해 Service Type도 함께 배포합니다.</p><p>image 주소는 각자 환경에 맞게 수정합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>kubectl apply -f <span class=s>&lt;&lt;EOF -
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: apps/v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Deployment
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  labels:
+</span></span></span><span class=line><span class=cl><span class=s>    app: spring-boot-greeting
+</span></span></span><span class=line><span class=cl><span class=s>  name: spring-boot-greeting-deployment
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  replicas: 1
+</span></span></span><span class=line><span class=cl><span class=s>  selector:
+</span></span></span><span class=line><span class=cl><span class=s>    matchLabels:
+</span></span></span><span class=line><span class=cl><span class=s>      app: spring-boot-greeting
+</span></span></span><span class=line><span class=cl><span class=s>  template:
+</span></span></span><span class=line><span class=cl><span class=s>    metadata:
+</span></span></span><span class=line><span class=cl><span class=s>      labels:
+</span></span></span><span class=line><span class=cl><span class=s>        app: spring-boot-greeting
+</span></span></span><span class=line><span class=cl><span class=s>    spec:
+</span></span></span><span class=line><span class=cl><span class=s>      containers:
+</span></span></span><span class=line><span class=cl><span class=s>      - name: spring-boot-greeting
+</span></span></span><span class=line><span class=cl><span class=s>        image: ap-chuncheon-1.ocir.io/${tenancy_namespace}/spring-boot-greeting:1.0
+</span></span></span><span class=line><span class=cl><span class=s>      imagePullSecrets:
+</span></span></span><span class=line><span class=cl><span class=s>      - name: ocir-secret
+</span></span></span><span class=line><span class=cl><span class=s>---
+</span></span></span><span class=line><span class=cl><span class=s>apiVersion: v1
+</span></span></span><span class=line><span class=cl><span class=s>kind: Service
+</span></span></span><span class=line><span class=cl><span class=s>metadata:
+</span></span></span><span class=line><span class=cl><span class=s>  name: spring-boot-greeting-service
+</span></span></span><span class=line><span class=cl><span class=s>spec:
+</span></span></span><span class=line><span class=cl><span class=s>  selector:
+</span></span></span><span class=line><span class=cl><span class=s>    app: spring-boot-greeting
+</span></span></span><span class=line><span class=cl><span class=s>  ports:
+</span></span></span><span class=line><span class=cl><span class=s>    - protocol: TCP
+</span></span></span><span class=line><span class=cl><span class=s>      port: 80
+</span></span></span><span class=line><span class=cl><span class=s>      targetPort: 8080
+</span></span></span><span class=line><span class=cl><span class=s>  type: LoadBalancer
+</span></span></span><span class=line><span class=cl><span class=s>EOF</span>
+</span></span></code></pre></div></li><li><p>kubectl get all 명령으로 배포된 자원을 확인합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=nv>$kubectl</span> get all
+</span></span><span class=line><span class=cl>NAME                                                   READY   STATUS    RESTARTS   AGE
+</span></span><span class=line><span class=cl>pod/spring-boot-greeting-deployment-84c4865b98-7rmrp   1/1     Running   <span class=m>0</span>          34s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                                   TYPE           CLUSTER-IP     EXTERNAL-IP       PORT<span class=o>(</span>S<span class=o>)</span>        AGE
+</span></span><span class=line><span class=cl>service/kubernetes                     ClusterIP      10.96.0.1      &lt;none&gt;            443/TCP        10h
+</span></span><span class=line><span class=cl>service/spring-boot-greeting-service   LoadBalancer   10.96.75.242   150.xxx.xxx.xxx   80:32418/TCP   35s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                                              READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class=line><span class=cl>deployment.apps/spring-boot-greeting-deployment   1/1     <span class=m>1</span>            <span class=m>1</span>           35s
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>NAME                                                         DESIRED   CURRENT   READY   AGE
+</span></span><span class=line><span class=cl>replicaset.apps/spring-boot-greeting-deployment-84c4865b98   <span class=m>1</span>         <span class=m>1</span>         <span class=m>1</span>       35s
+</span></span></code></pre></div></li><li><p>Pod가 정상적으로 기동하였습니다. LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>curl http://150.xxx.xxx.xxx/greeting<span class=p>;</span> <span class=nb>echo</span>
+</span></span></code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-json data-lang=json><span class=line><span class=cl><span class=p>{</span><span class=nt>&#34;id&#34;</span><span class=p>:</span><span class=mi>1</span><span class=p>,</span><span class=nt>&#34;content&#34;</span><span class=p>:</span><span class=s2>&#34;Hello, World!&#34;</span><span class=p>}</span>    
+</span></span></code></pre></div></li></ol><br><br><div class="panel panel-caution"><div class=panel-body><p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p></div></div><div class=edit-meta>Last updated on 26 Apr 2022<br></div><nav class=pagination><a class="nav nav-prev" href=https://thekoguryo.github.io/oracle-cloudnative/appdev/ title="7. 애플리케이션 개발하기"><i class="fas fa-arrow-left" aria-hidden=true></i> Prev - 7. 애플리케이션 개발하기</a>
+<a class="nav nav-next" href=https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/ title="7.2 GraalVM 사용하기">Next - 7.2 GraalVM 사용하기 <i class="fas fa-arrow-right" aria-hidden=true></i></a></nav><footer><p class=powered>Powered by <a href=https://gohugo.io>Hugo</a>. Theme by <a href=https://github.com/thingsym/hugo-theme-techdoc>TechDoc</a>. Design by <a href=https://www.thingslabo.com/>Thingsym</a>.</p></footer></main><div class=sidebar><nav><ul><li><form method=get action=https://thekoguryo.github.io//search><input type=text id=search-box name=q placeholder=Search></form><script type=text/javascript>$(document).ready(function(){$("#search-box").val($("#search-query").val())})</script></li><li><a></a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/>OCI(Oracle Cloud Infrastructure)
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter01/>1. OCI 기본개념
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter01/1/>1.1 Regions, Availability Domains</a></li><li><a href=https://thekoguryo.github.io/oci/chapter01/2/>1.2 Fault Domains</a></li><li><a href=https://thekoguryo.github.io/oci/chapter01/3/>1.3 Compartment</a></li><li><a href=https://thekoguryo.github.io/oci/chapter01/4/>1.4 Virtual Cloud Network(VCN)</a></li><li><a href=https://thekoguryo.github.io/oci/chapter01/5/>1.5 Bare Metal, Virtual Machine</a></li><li><a href=https://thekoguryo.github.io/oci/chapter01/6/>1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter02/>2. OCI 서비스 시작하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter02/1/>2.1 Oracle Cloud Free Tier 계정 생성</a></li><li><a href=https://thekoguryo.github.io/oci/chapter02/2/>2.2 OCI Console 접속하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter02/3/>2.3 OCI Console 사용하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter02/4/>2.4 최초 Cloud Account(Tenancy) 구조</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter03/>3. OCI Compute VM 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter03/1/>3.1 작업 Compartment 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/2/>3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/3/>3.3 SSH 접속을 위한 Key Pair 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/4/>3.4 Linux 인스턴스 생성하기</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter03/5/>3.5 Linux 인스턴스 접속하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter03/5/1/>3.5.1 Linux, Mac 에서 접속하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/5/2/>3.5.2 Windows에서 PuTTY로 접속하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/5/3/>3.5.3 PEM &lt;-> PPK 포맷 변경하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter03/6/>3.6 하드 드라이브 같은 Block Volume
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter03/6/1/>3.6.1 Block Volume 생성하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/6/2/>3.6.2 Block Volume을 Instance에 장착하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/6/3/>3.6.3 Block Volume에 연결하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/6/4/>3.6.4 Block Volume 포맷하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/6/5/>3.6.5 Block Volume 마운트하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/6/6/>3.6.6 Block Volume 장착 해제하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/6/7/>3.6.7 Block Volume 삭제하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter03/7/>3.7 Block Volume 백업 활용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter03/7/1/>3.7.1 Block Volume 백업하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/7/2/>3.7.2 백업으로 새 Volume 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/7/3/>3.7.3 백업을 다른 Region으로 복사하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/7/4/>3.7.4 정책 기반 Block Volume 백업하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter03/8/>3.8 Boot Volume 백업 활용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter03/8/1/>3.8.1 Boot Volume 백업하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/8/2/>3.8.2 백업으로 새 Boot Volume 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter03/8/3/>3.8.3 Boot Volume으로 새 Instance 생성하기</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter04/>4. 고정 IP 할당을 위한 Reserved Public IP
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter04/1/>4.1 Reserved Public IP 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter04/2/>4.2 Reserved Public IP 할당하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter05/>5. 방화벽 구성을 위해 Security Lists 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter05/1/>5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/2/>5.2 Default Security List 업데이트 하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/3/>5.3 Custom Security List 추가하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/4/>5.4 Apache HTTP Server 접속 테스트</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter06/>6. 사용자 권한 설정을 위해 IAM 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter06/1/>6.1 Compartment</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/2/>6.2 사용자 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/3/>6.3 그룹 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/4/>6.4 Policy 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/5/>6.5 Policy 개념 잡기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter07/>7. Object Storage 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter07/1/>7.1 Bucket 생성하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter07/2/>7.2 Bucket에 파일 올리기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter07/3/>7.3 Object 권한 관리 - 사전인증</a></li><li><a href=https://thekoguryo.github.io/oci/chapter07/4/>7.4 Object 권한 관리 - Public Bucket</a></li><li><a href=https://thekoguryo.github.io/oci/chapter07/5/>7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li><li><a href=https://thekoguryo.github.io/oci/chapter07/6/>7.6 CloudBerry Explorer를 통한 파일 업로드</a></li><li><a href=https://thekoguryo.github.io/oci/chapter07/7/>7.7 수명주기를 통한 Archive 설정하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter08/>8. 네트워크 파일 시스템인 File Storage 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter08/1/>8.1 File Storage 구성 예시</a></li><li><a href=https://thekoguryo.github.io/oci/chapter08/2/>8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter08/3/>8.3 접근 제어를 위한 Export Option</a></li><li><a href=https://thekoguryo.github.io/oci/chapter08/4/>8.4 백업을 위한 Snapshot</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter09/>9. Machine Image
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter09/1/>9.1 기본 제공하고 있는 OS Image</a></li><li><a href=https://thekoguryo.github.io/oci/chapter09/2/>9.2 인스턴스에서 Custom Image 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter09/3/>9.3 Custom Image Export/Import</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter10/>10. 고가용성을 위한 Load Balancer 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter10/1/>10.1 Load Balancer 구성 예시</a></li><li><a href=https://thekoguryo.github.io/oci/chapter10/2/>10.2 VCN 구성</a></li><li><a href=https://thekoguryo.github.io/oci/chapter10/3/>10.3 Backend 웹서버 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter10/4/>10.4 Load Balancer를 위한 Subnet 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter10/5/>10.5 Load Balancer 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter10/6/>10.6 Load Balancer 연결 확인</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter11/>11. Domain Name System (DNS)
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter11/1/>11.1 Domain Name과 매핑하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter12/>12. OCI 자원 모니터링을 위한 Monitoring
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter12/1/>12.1 Compute 인스턴스 Monitoring 활성화</a></li><li><a href=https://thekoguryo.github.io/oci/chapter12/2/>12.2 Monitoring Alarm 만들기</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter12/3/>12.3 OCI Grafana Plugin
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter12/3/1/>12.3.1 Compute VM에 Grafana 설치</a></li><li><a href=https://thekoguryo.github.io/oci/chapter12/3/2/>12.3.2 Grafana 구성</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter13/>13. Metric에 기반한 Autoscaling
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter13/1/>13.1 Autoscaling을 위한 준비</a></li><li><a href=https://thekoguryo.github.io/oci/chapter13/2/>13.2 Autoscaling 구성</a></li><li><a href=https://thekoguryo.github.io/oci/chapter13/3/>13.3 Autoscaling 테스트</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter14/>14. Developer Tools 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter14/1/>14.1 OCI CLI
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter14/1/1/>14.1.1 OCI CLI 설치하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter14/1/1/1/>14.1.1.1 Windows에서 OCI CLI 설치하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/1/1/2/>14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/1/1/3/>14.1.1.3 Config File 설정</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/1/1/4/>14.1.1.4 API Public Key 등록</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/1/1/5/>14.1.1.5 OCI CLI 설치 확인</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter14/1/2/>14.1.2 Object Storage를 CLI로 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter14/1/2/1/>14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/1/2/2/>14.1.2.2 CLI를 통한 파일 업로드</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter14/2/>14.2 Terraform
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter14/2/1/>14.2.1 Terraform 설치하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/2/2/>14.2.2 Terraform Configurations 작성하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/2/3/>14.2.3 Terraform OCI Provider 연결정보 구하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/2/4/>14.2.4 Terraform Configuration 실행하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/2/5/>14.2.5 다중 환경을 위한 workspace 사용하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/2/6/>14.2.6 예시, list, count를 이용한 유저 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/2/7/>14.2.7 OCI Terraform 사용 예제</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter14/3/>14.3 REST API
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter14/3/1/>14.3.1 OCI Request Signature Version 1</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/3/2/>14.3.2 Bash 샘플 클라이언트</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/3/3/>14.3.3 Insomnia - OCI REST API 호출하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter14/3/4/>14.3.4 Postman - OCI REST API 호출하기</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter15/>15. Resource Manager 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter15/1/>15.1 Resource Manager 사용하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter15/2/>15.2 Resource Manager을 위한 Stack Template</a></li><li><a href=https://thekoguryo.github.io/oci/chapter15/3/>15.3 Resource Manager을 위한 Private Git 서버 구성</a></li></ul></li></ul></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/oracle-cloudnative/>Oracle Cloud Native
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/>1. 관리형 쿠버네티스 OKE 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/1.oke/>1.1 OKE(Oracle Container Engine for Kubernetes) 소개</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/2.install-quick-oke-cluster/>1.2 OKE 클러스터 만들기</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/>1.3 OKE 클러스터 연결하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/1.cloudshell-access/>1.3.1 Cloud Shell로 클러스터 연결하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/3.access-cluster/2.local-access/>1.3.2 로컬 환경에서 클러스터 연결하기</a></li></ul></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/4.deploy-docker-hub-image-with-lb/>1.4 앱 배포 및 Load Balancer 사용하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/5.deploy-ocir-image/>1.5 OCIR 이미지 사용하기</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/>1.6 Persistent Volume 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/1.block-volume/>1.6.1 Block Volume 사용하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/6.persistent-volume/2.file-storage/>1.6.2 File Storage 사용하기</a></li></ul></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oke/7.supported-version-and-upgrade/>1.7 Kubernetes 버전 업그레이드</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/ocir/>2. 컨테이너 레지스트리인 OCIR 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/ocir/1.scan-image/>2.1 컨테이너 이미지 스캔</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/ocir/2.helm-chart/>2.2 Helm Chart Repository로 사용하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/devops/>3. CI/CD인 OCI DevOps 서비스 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/devops/1.deploy-app-on-oke-using-devops/>3.1 DevOps 서비스를 통해 Spring Boot 앱 배포 자동화하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/devops/2.bluegreen-stragtegy/>3.2 DevOps 서비스의 Blue/Green 배포 전략으로 배포하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/devops/3.canary-stragtegy/>3.3 DevOps 서비스의 Canary 배포 전략으로 배포하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/devops/4.deploy-app-with-helm-chart/>3.4 DevOps 서비스를 통해 Helm Chart로 배포 자동화하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/devops/5.detect-vulnerabilities-from-build-pipeline/>3.5 DevOps 서비스의 빌드시 패키지 취약점 검사하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/>4. OSS(Open Source Software) 활용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/>4.1 Ingress Controller
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/1.install-nginx-ingress-controller/>4.1.1 NGINX Ingress Controller 설치하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/2.nginx-ingress-path/>4.1.2 NGINX Ingress Controller에서 PATH 기반 라우팅</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/3.nginx-ingress-host/>4.1.3 NGINX Ingress Controller에서 host 기반 라우팅(feat. OCI DNS)</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/4.nginx-ingress-tls-termination/>4.1.4 NGINX Ingress Controller에서 TLS termination</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/ingress-controller/5.nginx-ingress-preserve-client-ip/>4.1.5 NGINX Ingress Controller에서 클라이언트 IP 얻기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/>4.2 Logging - EFK
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/logging-efk/1.install-efk/>4.2.1 EFK 설치하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/>4.3 Monitoring - Prometheus&Grafana
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/monitoring/1.install-prometheus-grafana/>4.3.1 Prometheus&Grafana 설치하기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/>4.4 Service Mesh - Istio
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/1.sampleapp-without-istio/>4.4.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oss/service-mesh/2.sampleapp-with-istio/>4.4.2 마이크로서비스 앱에 Service Mesh - Istio 적용하기</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oci-services/>5. OCI 서비스 활용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oci-services/1.oci-service-operator-1.1.0/>5.1 OKE에서 OCI 자원관리를 위한 Service Operator</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/>5.2 Logging 서비스
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/1.oci-logging/>5.2.1 OCI Logging을 사용한 로그 모니터링</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/oci-services/logging/2.oci-opensearch/>5.2.2 OpenSearch 기반 OCI Search 서비스를 사용한 로그 모니터링</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/verrazzano/>6. 엔터프라이즈 컨테이너 플랫폼 Verrazzano 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/verrazzano/1.install-verrazzano/>6.1 Verrazzano 설치</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/verrazzano/2.deploy-app/>6.2 Open Application Model 이해 및 애플리케이션 배포하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/verrazzano/3.multicluster-verrazzano/>6.3 Multicluster Verrazzano 설치하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/verrazzano/4.deploy-app-to-multicluster/>6.4 Multicluster에 애플리케이션 배포하기</a></li><li><a href=https://thekoguryo.github.io/oracle-cloudnative/verrazzano/5.weblogic-on-oke-using-verrazzano/>6.5 WebLogic Server를 Verrazzano를 통해 OKE에 배포하기</a></li></ul></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/oracle-cloudnative/appdev/>7. 애플리케이션 개발하기
+<button type=button class=toggleButton>
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li class=active><a href=https://thekoguryo.github.io/oracle-cloudnative/appdev/1.develop-spring-boot-app/>7.1 Spring Boot 애플리케이션 개발하기</a></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/>7.2 GraalVM 사용하기
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/1.use-graal-vm/>7.2.1 GraalVM 기반 컨테이너 이미지 만들기</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oracle-cloudnative/container-instances/>8. Container Instances
+<button type=button class=toggleButton>
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oracle-cloudnative/container-instances/1.use-container-instances/>8.1 Container Instances로 컨테이너 배포하기</a></li></ul></li></ul></li></ul></nav><div class=sidebar-footer></div></div></div><a href=# id=backtothetop-fixed class=backtothetop data-backtothetop-duration=600 data-backtothetop-easing=easeOutQuart data-backtothetop-fixed-fadein=1000 data-backtothetop-fixed-fadeout=1000 data-backtothetop-fixed-bottom=10 data-backtothetop-fixed-right=20><span class="fa-layers fa-fw"><i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i></span></a>
+<script src=https://thekoguryo.github.io/js/copy-code-button.js></script></div></body></html>

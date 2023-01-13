@@ -2,10 +2,9 @@
 
 ## Introduction
 
-Oracle Functions을 실행하는 데에 대한 기본 사항을 알아봅니다. 본 실습에서는 관련 CLI가 이미 구성되어 있는 Cloud Shell에서 Function을 생성하여 배포하는 방법을 수행합니다.
-
-
 OCI Functions의 사용사례로 API Backend로 사용하는 사례입니다. 모바일 클라이언트 등에서 사용할 API로 오픈하는 것이라, 보안 등을 위해 API Gateway를 거치도록 구성하여, *Client > API Gateway > Function - API Backend* 로 구성합니다. 실제 Function에서는 요건에 따라 대상시스템(예, OCI API 또는 ADB, MySQL)에 대한 API를 구현하게 됩니다. 해당 사항은 개발 영역으로 여기서는 API Gateway를 통한 API 노출시 Function 쪽에서 알아야 하는 꼭 알아야 항목에 대해서만 다룹니다.
+
+![Introduction](images/usecase-api-backend.png =75%x*)
 
 예상 시간: 50분
 

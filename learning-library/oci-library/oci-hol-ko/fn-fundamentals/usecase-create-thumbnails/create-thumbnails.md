@@ -4,6 +4,8 @@
 
 OCI Functions의 사용사례로 Events 서비스와 연동하여, OCI 자원에 이벤트가 발생시 Function을 호출하여 처리하는 패턴을 실습합니다. **Object Storage > Event > Function > Object Storage - 썸네일 이미지 만들기** 구성으로 Object Storage에 이미지가 될때 발생하는 이벤트를 기반으로, Function으로 해당 이미지의 썸네일 이미지를 만들어 Object Storage에 다시 업로드하는 사례를 실습합니다.
 
+![Introduction](images/usecase-create-thumbnail.png =75%x*)
+
 예상 시간: 50분
 
 ### 목표

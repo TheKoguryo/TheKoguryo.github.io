@@ -4,6 +4,8 @@
 
 OCI Functions의 사용사례로 Logging 서비스와 연동하여, OCI 자원의 로그를 Function을 호출하여 타 시스템으로 전달하는 패턴을 실습합니다. **Logging > Service Connector Hub > Function > Dummy System - 3rd Party 시스템** 구성을 통해 OCI 로그를 사용자가 원하는 시스템으로 전달하는 내용을 실습합니다. 3rd Party 시스템을 대신해 인터넷에 개방되어 있는 REST API기반 서비스를 호출하는 것으로 대체합니다. 
 
+![Introduction](images/usecase-ingest-logs.png =75%x*)
+
 예상 시간: 50분
 
 ### 목표

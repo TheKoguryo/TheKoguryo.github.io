@@ -28,8 +28,8 @@ Oracle Functions을 실행하는 데에 대한 기본 사항을 알아봅니다.
 3. **Create Application**을 클릭하고, 아래 내용을 작성하여 생성합니다.
 
     - **Name**: oci-hol-fn-app
-    - **VCN** : 사용할 VCN이 있는 Compartment
-    - **Subnets** : 사용할 Public 서브넷 선택
+    - **VCN** : 사용할 VCN 선택
+    - **Subnets** : 사용할 *Public* 서브넷 선택
 
     ![Create Application](images/fn-create-application.png =50%x*)
 

@@ -128,8 +128,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
          targetPort: 8080
     43 
     44 ingress:    
-    ...
-    </copy>      
+    ... 
     ````
 
 ## Task 2: Helm Chart로 OKE 클러스터에 배포하기

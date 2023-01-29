@@ -152,7 +152,7 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
 
 4. Description을 입력합니다. (예, Create Thumbnails Rule)
 
-5. 이벤트가 트리거되는 조건(Rule Conditions)를 추가합니다. compartment와 bucket의 이름이 아래와 다른 경우, 본인이 사용하는 것으로 수정합니다.
+5. 이벤트가 트리거되는 조건(Rule Conditions)를 추가합니다. *compartment와 bucket의 이름이 아래와 다른 경우, 본인이 사용하는 것으로 수정합니다.*
 
     | Condition Type      | Service/Attribute Name | Event Type / Attribute Value | 
     | ------------------- | ---------------------- | ---------------------------- | 
@@ -203,6 +203,8 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
 7. Object 스토리지에 이미지 업로드 > 생성 Cloud Event 생성 > Function 호출까지 설정한 룰에 따라 동작하는 것을 확인했습니다. 그리고 로그상에서 Example Event에서 본 JSON 형식으로 전달된 실 Cloud Event 메시지를 확인하였습니다.
 
 8. Cloud Event는 테스트를 위해 따로 저장해 둡니다.
+
+    - *namespace, resourceName, bucketName의 값은 각자에 맞게 변경합니다.*
 
     ```
     <copy>
@@ -326,7 +328,7 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
         def create_thumbnail(object_storage_client, namespace, bucket_name, resource_name, target_bucket_name):     
         ```
     
-        * 빠른 테스트를 위해 로컬(Cloud Shell)에 직접 테스트를 위해 만든 메인 메서드로입니다. Function 호출시에는 실행되지 않습니다.
+        * 빠른 테스트를 위해 로컬(Cloud Shell)에 직접 테스트를 위해 만든 메인 메서드입니다. Function 호출시에는 실행되지 않습니다.
         ```
         def main():
             ...

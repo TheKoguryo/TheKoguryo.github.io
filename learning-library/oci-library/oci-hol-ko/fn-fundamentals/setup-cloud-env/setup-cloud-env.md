@@ -16,7 +16,7 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
 ### 전제 조건
 
 - Oracle Cloud Trial Account 또는 Paid Account
-- *관리자 권한 필요 - Task 2,3에서 사용할 Compartment를 생성하고, Policy를 설정합니다. 테넌시 기준의 Policy를 포함하고 있기 때문에 관리자로 로그인하여 수행하여야 합니다.*
+- *관리자 권한 필요 - Compartment를 생성하고, Task 3에서 Policy를 설정합니다. 테넌시 기준의 Policy를 포함하고 있기 때문에 관리자로 로그인하여 수행하여야 합니다.*
 
 ## Task 1: OCI 테넌시 로그인
 
@@ -24,7 +24,7 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
 
 1. 로그인을 하시면 아래와 같은 페이지를 보실 수 있습니다.
 
-  ![Landing Screen](images/landing-screen-2.png " ")
+  ![Landing Screen](images/landing-screen.png " ")
 
 
 ## Task 2: Compartment 생성

@@ -61,7 +61,7 @@ API의 내부 로직은 이후 요건에 따라 각 개발언어로 구현하면
 
 ## Task 2. API Gateway 생성
 
-1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**으로 이동한 다음 **API Management**하위의 **Gateway** 를 선택합니다.
+1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**으로 이동한 다음 **API Management** 하위의 **Gateway** 를 선택합니다.
 
 2. **Create Gateway**를 클릭합니다.
 
@@ -117,7 +117,7 @@ API의 내부 로직은 이후 요건에 따라 각 개발언어로 구현하면
 
 12. 생성된 Deployment를 클릭합니다.
 
-13. Endpoint를 확인합니다. 게이트웨이 주소에 Prefix가 추가된 형태입니다.
+13. Endpoint를 확인합니다. 게이트웨이 주소에 Path Prefix가 추가된 형태입니다.
 
     ![Endpoint](images/api-deployment-endpoint.png)
 
@@ -467,6 +467,8 @@ HTTP 기반 Web API(REST API)를 사용하는 경우, HTTP Body 전문외에 Req
     ```
 
 4. 호출결과 빠른 응답을 보입니다. 
+
+    *Cloud Shell이 실행되는 Home Region과 APIGateway와 Function이 배포된 Region이 다른 경우, 아래 예시보다는 응답속도가 느릴수 있습니다.*
 
     ```
     $ time curl -X POST \

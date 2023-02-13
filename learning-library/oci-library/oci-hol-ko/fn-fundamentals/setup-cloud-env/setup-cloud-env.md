@@ -20,7 +20,7 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
 
 ## Task 1: OCI 테넌시 로그인
 
-   OCI 대시보드에 로그인하여 리소스 생성에 필요한 정보를 확인합니다.
+OCI 대시보드에 로그인하여 리소스 생성에 필요한 정보를 확인합니다.
 
 1. 로그인을 하시면 아래와 같은 페이지를 보실 수 있습니다.
 
@@ -31,17 +31,18 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Compartments** 을 선택합니다.
 
-   ![Compartment](images/id-compartment.png " ")
+  ![Compartment](images/id-compartment.png " ")
 
 2. 이 화면에서 compartments 목록이 표시되면 **Create Compartment**를 클릭합니다.
 
-   ![Compartment Screen](images/compartment-screen.png " ")
+  ![Compartment Screen](images/compartment-screen.png " ")
 
 3. 다음을 입력:
-      - Name: **oci-hol***-xx* 입력합니다.
-      - Description: 설명을 입력합니다(예: oci-hol for user *xx*)
-      - Parent Compartment: 이 Compartment가 속할 상위 Compartment를 선택합니다. 기본값은 루트 Compartment
-      - **Create Compartment** 클릭 합니다.
+
+    - Name: **oci-hol***-xx* 입력합니다.
+    - Description: 설명을 입력합니다(예: oci-hol for user *xx*)
+    - Parent Compartment: 이 Compartment가 속할 상위 Compartment를 선택합니다. 기본값은 루트 Compartment
+    - **Create Compartment** 클릭 합니다.
 
       ![oci-hol Compartment](images/compartment-create.png =50%x*)
 
@@ -70,7 +71,7 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
         * Policy를 적용할 사용자 그룹을 선택합니다. 예) `oci-group`
         * Policy가 적용될 Compartment를 앞서 만든 Compartment로 선택합니다. 예) oci-hol*-xx*
 
-    ![Create policy with builder](images/create-policy-with-builder.png)        
+      ![Create policy with builder](images/create-policy-with-builder.png =70%x*)       
 
 4. Policy 구문들을 확인합니다. Functions 서비스 사용을 위해서 필요한 Policy 구문들을 확인할 수 있습니다.
   ![Review policy statements](./images/review-policies.png =50%x*)
@@ -80,13 +81,13 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
     - 특정 Compartment에 이미지를 Push 하기 위해서는 Push 되기 전에 OCIR에 Repository가 만들어져 있어야 합니다. 없는 경우 Root Compartment(테넌시)에 자동으로 Repository 생성을 시도합니다. 이때 권한 문제가 발생하지 않도록, 편의상 아래 규칙을 추가합니다.
     - `<group-name>`을 이전규칙을 참고하여 적용할 사용자 그룹으로 변경합니다. 예, 'Default'/'oci-group'
 
-    ```
-    <copy>
-    Allow group <group-name> to manage repos in tenancy where ANY {request.permission = 'REPOSITORY_INSPECT', request.permission = 'REPOSITORY_READ', request.permission = 'REPOSITORY_CREATE', request.permission = 'REPOSITORY_UPDATE'}
-    </copy>
+      ```
+      <copy>
+      Allow group <group-name> to manage repos in tenancy where ANY {request.permission = 'REPOSITORY_INSPECT', request.permission = 'REPOSITORY_READ', request.permission = 'REPOSITORY_CREATE', request.permission = 'REPOSITORY_UPDATE'}
+      </copy>
     ```
 
-    ![Revised Policy](images/revised-policies.png)
+      ![Revised Policy](images/revised-policies.png)
 
 6. **Create**를 클릭하여 생성합니다.
 
@@ -101,17 +102,19 @@ Functions 서비스에 대한 실습을 하기 위해 환경 구성을 위해 �
 
 2. 이전 단계에서 만든 compartment를 선택합니다.
 
-3. **Start VCN Wizard**을 선택, **Create VCN with Internet Connectivity**를 선택하고, **Start VCN Wizard**를 클릭합니다. 인터넷 연결이 되는 관련 자원들을 포함하여 VCN이 만들어지게 됩니다.
+3. **Start VCN Wizard**을 선택합니다.
+
+4. **Create VCN with Internet Connectivity**를 선택하고, **Start VCN Wizard**를 클릭합니다. 인터넷 연결이 되는 관련 자원들을 포함하여 VCN이 만들어지게 됩니다.
 
     ![Start VCN Wizard](images/start-vcn-wizard.png =50%x*)
 
-4. 새 VCN의 이름(예, oci-hol-vcn)하고, **Next**을 클릭합니다.
+5. 새 VCN의 이름(예, oci-hol-vcn)하고, **Next**을 클릭합니다.
 
   ![Create VCN](images/create-oci-hol-vcn.png " ")
 
-5. 생성될 VCN과 관련 네트워크 자원들을 리뷰하고, **Create**을 클릭합니다.
+6. 생성될 VCN과 관련 네트워크 자원들을 리뷰하고, **Create**을 클릭합니다.
 
-6. 인터넷 연결이 되는 관련 자원들을 포함하여 VCN이 만들어지게 됩니다.
+7. 인터넷 연결이 되는 관련 자원들을 포함하여 VCN이 만들어지게 됩니다.
 
   ![Created VCN](images/created-oci-hol-vcn.png =70%x*)
 

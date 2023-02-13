@@ -75,7 +75,7 @@ API의 내부 로직은 이후 요건에 따라 각 개발언어로 구현하면
         * Subnet: Public Subnet, 예, Public Subnet-oci-hol-vcn
     - 나머지는 기본값 그대로
 
-    ![Create Gateway](images/create-api-gateway.png =50%x*)
+    ![Create Gateway](images/create-api-gateway.png =40%x*)
 
 4. 게이트웨이가 생성되면 **Resources** >> **Deployment**로 이동합니다.
 
@@ -90,13 +90,13 @@ API의 내부 로직은 이후 요건에 따라 각 개발언어로 구현하면
     - API request policies: API Gateway에서 제공하는 정책들을 설정할 수 있습니다. 지금은 설정하지 않습니다.
     - API logging policies: 기본값, Information
 
-    ![Basic Information](images/create-api-deployment-basic-information.png)
+    ![Basic Information](images/create-api-deployment-basic-information.png =60%x*)
 
 7. Authentication 졍보를 입력합니다.
     - 여기서는 No Authentication을 선택합니다.
     - OAuth, Token, Function을 통한 인증 등을 지원합니다.
 
-    ![Authentication](images/create-api-deployment-authentication.png)
+    ![Authentication](images/create-api-deployment-authentication.png =60%x*)
 
 8. Route 정보를 입력합니다. 게이트웨이로 요청이 오면, Backend 어디로 분배할지는 설정하는 항목입니다.
 
@@ -107,7 +107,7 @@ API의 내부 로직은 이후 요건에 따라 각 개발언어로 구현하면
         * 방금 배포해둔 **oci-http-info-python**을 선택
     - Route Policy는 따로 추가하지 않습니다.
 
-    ![Routes](images/create-api-deployment-routes.png)
+    ![Routes](images/create-api-deployment-routes.png =80%x*)
 
 9. 하나의 Deployment 안에 Route 여러개를 추가할 수 있지만, 여기서는 더 추가하지 않습니다.
 
@@ -172,7 +172,7 @@ API Gateway로 요청이 오면, Functions을 호출하는 것은 앞선 Task에
 
     예시
     ```
-    allow any-user to use functions-family in compartment oci-hol where all {request.principal.type='ApiGateway', request.resource.compartment.id='ocid1.compartment.oc1..aaaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxoasgnfgbgs4jk2ltpgqnnna'}
+    allow any-user to use functions-family in compartment oci-hol-xx where all {request.principal.type='ApiGateway', request.resource.compartment.id='ocid1.compartment.oc1..aaaaaaaaxxxxxxxxxxxxxxxxxxxxxxxxxxxoasgnfgbgs4jk2ltpgqnnna'}
     ```
 
 ## Task 5. API Gateway를 통한 호출 테스트
@@ -183,8 +183,9 @@ API Gateway로 요청이 오면, Functions을 호출하는 것은 앞선 Task에
 
     ```
     <copy>
+    export API_ENDPOINT=https://axlkt2ag5uuvijvztnutbbxicu.apigateway.ap-chuncheon-1.oci.customer-oci.com/v1
     curl -X POST \
-      '{$APIGATEWAY_ENDPOINT}/http-info' \
+      "$API_ENDPOINT/http-info" \
       -H 'content-type: application/json' \
       -d '{ "name": "KilDong" }'
     </copy>  
@@ -290,8 +291,9 @@ HTTP 기반 Web API(REST API)를 사용하는 경우, HTTP Body 전문외에 Req
 
     ```
     <copy>
+    API_ENDPOINT=https://axlkt2ag5uuvijvztnutbbxicu.apigateway.ap-chuncheon-1.oci.customer-oci.com/v1
     curl -X POST \
-      '{$APIGATEWAY_ENDPOINT}/http-info?device-id=device-yyyy&device-id=device-zzzz' \
+      "$API_ENDPOINT/http-info?device-id=device-yyyy&device-id=device-zzzz" \
       -H 'content-type: application/json' \
       -H 'x-device-id: device-xxxx' \
       -d '{ "name": "KilDong" }'
@@ -375,8 +377,9 @@ HTTP 기반 Web API(REST API)를 사용하는 경우, HTTP Body 전문외에 Req
 
     ```
     <copy>
+    API_ENDPOINT=https://axlkt2ag5uuvijvztnutbbxicu.apigateway.ap-chuncheon-1.oci.customer-oci.com/v1
     curl -X POST \
-      '{$APIGATEWAY_ENDPOINT}/http-info?device-id=device-yyyy' \
+      "$API_ENDPOINT/http-info?device-id=device-yyyy" \
       -H 'content-type: application/json' \
       -H 'x-device-id: device-xxxx' \
       -d '{ "name": "KilDong" }'
@@ -459,7 +462,7 @@ HTTP 기반 Web API(REST API)를 사용하는 경우, HTTP Body 전문외에 Req
     ```
     <copy>
     time curl -X POST \
-      '{$APIGATEWAY_ENDPOINT}/http-info?device-id=device-yyyy' \
+      "$API_ENDPOINT/http-info?device-id=device-yyyy" \      
       -H 'content-type: application/json' \
       -H 'x-device-id: device-xxxx' \
       -d '{ "name": "KilDong" }'
@@ -504,6 +507,4 @@ HTTP 기반 Web API(REST API)를 사용하는 경우, HTTP Body 전문외에 Req
 ## Acknowledgements
 
 * **Author** - DongHee Lee
-* **Last Updated By/Date** - DongHee Lee, January 2023
-
-
+* **Last Updated By/Date** - DongHee Lee, February 2023

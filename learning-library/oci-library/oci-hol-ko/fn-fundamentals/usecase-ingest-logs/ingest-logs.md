@@ -31,7 +31,11 @@ Audit Log, Service Log를 발생시킬 대상으로 편의상 Compute 인스턴�
 
 2. **Create Instance**를 클릭합니다.
 
-3. Networking 부분만 아래와 같이 새 Public Subnet으로 할당합니다.
+3. Name: 원하는 이름을 입력합니다. *이후 테스트를 위해 기억해둡니다.*
+
+    - 예, compute-for-log-test
+
+4. Networking 부분만 아래와 같이 새 Public Subnet으로 할당합니다.
     - **Create new public subnet** 선택
     - New subnet name: 예, public-subnet-for-compute
     - CIDR block: 예, 10.0.2.0/24
@@ -39,11 +43,7 @@ Audit Log, Service Log를 발생시킬 대상으로 편의상 Compute 인스턴�
 
     ![Networking](images/create-compute-instance.png =60%x*)
     
-4. **Save private key**를 클릭하여 Private Key를 다운받습니다.
-
 5. 다른 항목들은 기본값을 이용해 최소 사이즈하고 인스턴스를 생성합니다.
-
-6. 생성된 Compute 인스턴스 이름은 복사해둡니다.
 
 ## Task 2. Function 개발 - 외부 시스템에 로그 전달용
 
@@ -163,7 +163,7 @@ Audit Log, Service Log를 발생시킬 대상으로 편의상 Compute 인스턴�
     - requirements.txt을 아래와 같이 변경합니다.
     ```
     <copy>
-    fdk>=0.1.50
+    fdk>=0.1.51
     requests
     </copy>
     ```
@@ -212,6 +212,8 @@ Audit Log, Service Log를 발생시킬 대상으로 편의상 Compute 인스턴�
 2. 해당 Compute 인스턴스를 클릭합니다.
 
 3. **Reboot**를 클릭하여 Audit Log를 발생시킵니다.
+
+    ![Reboot Compute](images/reboot-compute.png =40%x*)
 
 4. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Observability & Management**에서 **Logging** 하위메뉴인 **Audit**를 선택합니다.
 
@@ -363,7 +365,7 @@ Service Log를 활성화하는 기능을 제공합니다. 그 중에서 보안�
     132.145.xxx.xxx
     ```
 
-5. SSH로 Compute 인스턴스에 접속을 시도합니다. Flow Log 발생을 위해 시도만 하면 됩니다.
+5. SSH로 Compute(예, compute-for-log-test) 인스턴스의 Public IP로 접속을 시도합니다. Flow Log 발생을 위해 시도만 하면 됩니다.
 
     ```
     $ ssh opc@144.24.xx.xxx
@@ -376,7 +378,7 @@ Service Log를 활성화하는 기능을 제공합니다. 그 중에서 보안�
 8. *Flow Log*에서 아래와 같이 접속시도한 로그를 확인할 수 있습니다.
 
     - Cloud Shell 세션의 Public IP: 132.145.x.x
-    - Compute 인스턴스의 Private IP(10.0.2.50)의 Port 22로 접속
+    - Compute 인스턴스의 Private IP(10.0.2.121)의 Port 22로 접속
 
     ![](images/flow-logs.png)
 
@@ -431,5 +433,5 @@ Service Log를 활성화하는 기능을 제공합니다. 그 중에서 보안�
 ## Acknowledgements
 
 * **Author** - DongHee Lee
-* **Last Updated By/Date** - DongHee Lee, January 2023
+* **Last Updated By/Date** - DongHee Lee, February 2023
 

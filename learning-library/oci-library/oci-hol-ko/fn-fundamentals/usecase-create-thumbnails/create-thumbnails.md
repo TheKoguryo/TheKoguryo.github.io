@@ -157,18 +157,21 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
     | Condition Type      | Service/Attribute Name | Event Type / Attribute Value | 
     | ------------------- | ---------------------- | ---------------------------- | 
     | Event Type          | Object Storage         | Object - Create              |
-    | Attribute           | compartmentName        | *oci-hol*                    |
+    | Attribute           | compartmentName        | *oci-hol-xx*                    |
     | Attribute           | bucketName             | *image-source-bucket*        |
     {: title="Rule Conditions"}
 
     ![Rule Conditions](images/event-service-rule-conditions.png)
 
-6. 오른쪽 Rule Logic 아래에 있는 **View example events (JSON)**을 클릭하면, Cloud Event 샘플 메시지를 볼 수 있습니다. Function 개발시 요청 메시지로 수신할 Cloud Events 샘플로, JSON 쿼리 작성시 참조할 수 있습니다.
+6. 오른쪽 Rule Logic 아래에 있는 **View example events (JSON)**을 클릭합니다.
 
-    ![Example Events](images/view-example-events-1.png)
-    ![Example Events](images/view-example-events-2.png =60%x*)
+    ![Example Events](images/view-example-events-1.png =30%x*) 
 
-7. 트리거되었을 때 실행한 조치(Actions)를 지정합니다. 앞서 배포한 Function을 추가합니다.
+7. Cloud Event 샘플 메시지를 볼 수 있습니다. Function 개발시 테스트 메시지로 JSON Query 작성시 참고할 수 있습니다. 복사해서 example-event.json 파일로 저장해 둡니다.
+
+    ![Example Events](images/view-example-events-2.png =50%x*)
+
+8. 트리거되었을 때 실행한 조치(Actions)를 지정합니다. 앞서 배포한 Function을 추가합니다.
 
     - Event Service는 Action Type으로 현재 아래 3개의 OCI 서비스를 지원합니다.
         * Streaming
@@ -192,51 +195,17 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
 
 4. 다시 Function Application 화면으로 이동합니다. **Resources** >> **Logs**로 이동하여, 활성화한 로그 이름을 클릭합니다.
 
-    ![Function Logs](images/click-fn-app-logs.png)
+    ![Function Logs](images/click-fn-app-logs.png =50%x*)
 
 5. 로그 화면에서 우측 **Actions**에서 **Wrap lines**를 클릭합니다.
+
+    ![Wrap lines](images/actions-wrap-lines.png =30%x*)
 
 6. 아래와 같이 Function이 실행된 로그를 볼 수 있습니다.
 
     ![Function Logs](images/fn-app-logs-cloud-event.png)
 
-7. Object 스토리지에 이미지 업로드 > 생성 Cloud Event 생성 > Function 호출까지 설정한 룰에 따라 동작하는 것을 확인했습니다. 그리고 로그상에서 Example Event에서 본 JSON 형식으로 전달된 실 Cloud Event 메시지를 확인하였습니다.
-
-8. Cloud Event는 테스트를 위해 따로 저장해 둡니다.
-
-    - *namespace, resourceName, bucketName의 값은 각자에 맞게 변경합니다.*
-
-    ```
-    <copy>
-    {
-       "eventType":"com.oraclecloud.objectstorage.createobject",
-       "cloudEventsVersion":"0.1",
-       "eventTypeVersion":"2.0",
-       "source":"ObjectStorage",
-       "eventTime":"2022-12-23T08:49:17Z",
-       "contentType":"application/json",
-       "data":{
-          "compartmentId":"ocid1.compartment.oc1..xxxxxxxxxxxx",
-          "compartmentName":"oci-hol",
-          "resourceName":"iceberg.png",
-          "resourceId":"/n/xxxxxxxxxxxx/b/image-source-bucket/o/iceberg.png",
-          "availabilityDomain":"YNY-AD-1",
-          "additionalDetails":{
-             "bucketName":"image-source-bucket",
-             "versionId":"94cf5cfc-694d-4130-96dd-a6aab25f04e0",
-             "archivalState":"Available",
-             "namespace":"xxxxxxxxxxxx",
-             "bucketId":"ocid1.bucket.oc1.ap-chuncheon-1.xxxxxxxxxxxx",
-             "eTag":"f5c98594-036f-4ad5-96a4-9778d9b129a4"
-          }
-       },
-       "eventID":"4db625e5-f316-8cf0-f9f4-2bc1f602e4bb",
-       "extensions":{
-          "compartmentId":"ocid1.compartment.oc1..xxxxxxxxxxxx"
-       }
-    }
-    </copy> 
-    ```
+7. Object 스토리지에 이미지 업로드 > 생성 Cloud Event 생성 > Function 호출까지 설정한 룰에 따라 동작하는 것을 확인했습니다.
 
 ## Task 6. Function 개발 완료 및 테스트
 
@@ -328,19 +297,22 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
         def create_thumbnail(object_storage_client, namespace, bucket_name, resource_name, target_bucket_name):     
         ```
     
-        * 빠른 테스트를 위해 로컬(Cloud Shell)에 직접 테스트를 위해 만든 메인 메서드입니다. Function 호출시에는 실행되지 않습니다.
+        * 빠른 테스트를 위해 로컬(Cloud Shell)에 직접 테스트를 위해 만든 main() 메서드입니다. Function 호출시에는 실행되지 않습니다.
+        * Cloud Shell 및 OCI CLI를 설치한 작업환경에서는 OCI CLI가 사용하는 config 파일을 사용하여 인증합니다. 그것을 사용해 OCI SDK Client을 만듭니다. config 상의 유저의 권한으로 OCI에 접근합니다.
         ```
         def main():
+            logging.basicConfig(level=logging.INFO)
+        
+            # Default config file and profile
+            config = oci.config.from_file()        
+            # Non-Home Region
+            config['region'] = 'ap-chuncheon-1'
+        
+            object_storage_client = oci.object_storage.ObjectStorageClient(config)     
             ...
         
         if __name__ == "__main__":
             main()     
-        ```
-
-        * Cloud Shell 및 OCI CLI를 설치한 작업환경에서는 OCI CLI가 사용하는 config 파일을 사용하여 인증합니다. 그것을 사용해 OCI SDK Client을 만듭니다. config 상의 유저의 권한으로 OCI에 접근합니다.
-        ```
-        config = oci.config.from_file()  
-        object_storage_client = oci.object_storage.ObjectStorageClient(config)        
         ```
 
 4. `sub_func.py`을 Cloud Shell에서 직접 실행하기 위해 sub_func.py에서 추가 사용하는 이미지 처리용 패키지인 pillow를 설치합니다.
@@ -351,7 +323,22 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
     </copy>
     ```
 
-5. `sub_func.py`의 main()에 `region`, `bucket_name`, `resource_name`, `target_bucket_name`은 사용하는 값에 맞게 변경합니다. 예제는 춘천 리전에 있는 `image-source-bucket` 버킷에 업로드된  iceberg.png 파일의 썸네일을 만들어 `image-source-resized-bucket` 버킷에 저장하는 것입니다.
+5. `sub_func.py`의 main()에 `region`, `bucket_name`, `resource_name`, `target_bucket_name`은 필요시 환경에 맞게 변경합니다. 
+
+    - 예제는 춘천 리전에 있는 `image-source-bucket` 버킷에 업로드된  iceberg.png 파일의 썸네일을 만들어 `image-source-resized-bucket` 버킷에 저장하는 것입니다.
+
+    ```
+    # sub_func.py
+    def main():
+        ...
+    
+        config['region'] = 'ap-chuncheon-1'
+    
+        ...
+        bucket_name = 'image-source-bucket'
+        resource_name = 'iceberg.png'
+        target_bucket_name = 'image-source-resized-bucket'
+    ```
 
 6. Cloud Shell에서 테스트 합니다.
 
@@ -436,7 +423,7 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
 
     ```
     <copy>
-    fdk>=0.1.50
+    fdk>=0.1.51
     oci
     pillow
     </copy> 
@@ -450,11 +437,48 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
     </copy>        
     ```
 
-10. 다운로드 받아둔 Cloud Event 파일로 다음과 같이 테스트 합니다.
+10. 복사해서 example-event.json 파일을 테스트를 위해 수정합니다.
+
+    - data.resourceName: iceberg.png
+    - data.additionalDetails.namespace: 모를 경우 Cloud Shell에서 *`oci os ns get`* 명령으로 확인
+    - data.additionalDetails.bucketName: image-source-bucket
+
+        ```
+        <copy>
+        {
+          "cloudEventsVersion": "0.1",
+          "eventID": "unique_ID",
+          "eventType": "com.oraclecloud.objectstorage.createobject",
+          "source": "objectstorage",
+          "eventTypeVersion": "2.0",
+          "eventTime": "2019-01-10T21:19:24.000Z",
+          "contentType": "application/json",
+          "extensions": {
+            "compartmentId": "ocid1.compartment.oc1..unique_ID"
+          },
+          "data": {
+            "compartmentId": "ocid1.compartment.oc1..unique_ID",
+            "compartmentName": "example_name",
+            "resourceName": "iceberg.png",
+            "resourceId": "/n/example_namespace/b/my_bucket/o/my_object",
+            "availabilityDomain": "all",
+            "additionalDetails": {
+              "eTag": "f8ffb6e9-f602-460f-a6c0-00b5abfa24c7",
+              "namespace": "cn________gq",
+              "bucketName": "image-source-bucket",
+              "bucketId": "ocid1.bucket.oc1.phx.unique_id",
+              "archivalState": "Available"
+            }
+          }
+        }
+        </copy> 
+        ```   
+
+10. 수정한 테스트 Cloud Event 파일로 다음과 같이 테스트 합니다.
 
     ```
     <copy>
-    cat event_sample.json | fn invoke oci-hol-fn-app oci-create-thumbnails-python
+    cat example-event.json | fn invoke oci-hol-fn-app oci-create-thumbnails-python
     </copy> 
     ```
 
@@ -472,17 +496,13 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
 
 3. 아래쪽으로 스크롤하여 **Upload** 버튼을 클릭하여, 이미지 파일을 업로드 합니다.
 
-    ![Upload Image](images/final-test-upload-image.png)
+    ![Upload Image](images/final-test-upload-image.png =50%x*)
 
-4. 썸네일 파일이 생성되는 버킷(image-source-resized-bucket)으로 이동하여, 썸네일이 만들어졌는지 확인합니다.
+4. 썸네일 파일이 생성되는 버킷(image-source-resized-bucket)으로 이동하여, 썸네일이 만들어졌는지 확인합니다. 파일 사이즈가 줄어든 것을 볼수 있으면, 실제 다운로드 받아 보면, Function에 의해 이미지가 줄어든것을 확인할 수 있습니다.
 
-    ![Thumbnail Image](images/final-test-thumbnail-image.png)
+    ![Thumbnail Image](images/final-test-thumbnail-image.png =50%x*)
 
-5. 파일 사이즈가 줄어든 것을 볼수 있으면, 실제 다운로드 받아 보면, Function에 의해 이미지가 줄어든것을 확인할 수 있습니다.
-
-    ![Download Image](images/final-test-download-image.png)
-
-    ![Verify Image](images/final-test-verify-thumbnail-image.png =30%x*)
+    ![Verify Image](images/final-test-verify-thumbnail-image.png =20%x*)
 
 
 이제 **다음 실습을 진행**하시면 됩니다.
@@ -490,4 +510,4 @@ Function에서 Object Storage에 있는 오브젝트에 접근하기 위해서�
 ## Acknowledgements
 
 * **Author** - DongHee Lee
-* **Last Updated By/Date** - DongHee Lee, January 2023
+* **Last Updated By/Date** - DongHee Lee, February 2023

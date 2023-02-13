@@ -249,17 +249,17 @@ Service Log를 활성화하는 기능을 제공합니다. 그 중에서 보안�
 
 4. **Enable service log**를 클릭합니다.
 
-    ![](images/enable-service-log.png)
+    ![Enable Service Log](images/enable-service-log.png)
 
 5. 서비스 수준에서 로그를 활성화할 수 있는 서비스 중에서 VCN - subnet을 선택합니다.
 
-    ![](images/enable-service-log-service-list.png =40%x*)
+    ![VCN - Subnet](images/enable-service-log-service-list.png =40%x*)
 
 6. 대상 Compute 인스턴스가 있는 서브넷을 선택합니다. 예, public-subnet-for-compute
 
 7. Flow Logs 유형을 선택하고, Log 이름을 입력합니다. 예, public-subnet-for-compute-flow-logs
 
-    ![](images/enable-service-log-configured.png =40%x*)
+    ![Flow Log](images/enable-service-log-configured.png =40%x*)
 
 8. Enable Log를 클릭합니다.
 
@@ -380,7 +380,7 @@ Service Log를 활성화하는 기능을 제공합니다. 그 중에서 보안�
     - Cloud Shell 세션의 Public IP: 132.145.x.x
     - Compute 인스턴스의 Private IP(10.0.2.121)의 Port 22로 접속
 
-    ![](images/flow-logs.png)
+    ![Flow Logs](images/flow-logs.png)
 
 9. 만든 Service Connector(svc-connector-flow-logs-to-function) 화면으로 돌아갑니다.
 
@@ -394,11 +394,11 @@ Service Log를 활성화하는 기능을 제공합니다. 그 중에서 보안�
 
 12. 로그 검색을 위해서 로그 화면에서 우측 **Actions**에서 **Explore with Log Search**를 하여 이동합니다.
 
-    ![](images/explorer-with-log-search.png)
+    ![Log Search](images/explorer-with-log-search.png)
 
 13. Custom filters에 조회할 Cloud Shell의 Public IP를 입력합니다. 필요하면 조회 시간을 늘립니다.
 
-    ![](images/log-search-custom-filter.png)
+    ![Custom Filter](images/log-search-custom-filter.png)
 
 14. 로그 화면에서 우측 **Actions**에서 **Wrap lines**를 클릭합니다.
 

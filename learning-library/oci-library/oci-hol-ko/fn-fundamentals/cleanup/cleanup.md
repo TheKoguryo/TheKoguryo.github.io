@@ -67,3 +67,8 @@
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
 
 2. 만든 VCN을 삭제합니다.
+
+## Acknowledgements
+
+* **Author** - DongHee Lee
+* **Last Updated By/Date** - DongHee Lee, February 2023

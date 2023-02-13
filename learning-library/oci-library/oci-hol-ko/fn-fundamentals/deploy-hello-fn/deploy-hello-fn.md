@@ -372,6 +372,41 @@ Function에서 많이 사용하는 Python으로 동일한 과정을 수행해 �
     ![Function Logs](images/fn-app-logs.png)
 
 
+## Task 6. Code Editor에서 개발하기
+
+1. Code Editor를 실행합니다. Code Editor는 Eclipse Theia를 기반으로 만들어진 툴입니다.
+
+    ![Code Editor](images/launch-code-editor.png =40%x*)
+
+2. 왼쪽 메뉴에서 Explorer를 선택하면, 기본 설정된 사용자의 워크스페이스로 홈 디렉토리가 등록되어 있습니다.
+
+3. 개발툴에서 제공하는 기본 기능을 통해 생성된 Function을 개발하면 됩니다. Code Editor는 Cloud Shell과 동일한 환경이므로 JDK 등 기본툴을 사전에 설치되어 있습니다.
+
+    ![Workspace](images/code-editor-workspace.png)
+
+4. 앞서 만든 Python Function의 경우, 처음엔 다음과 같이 경고가 뜹니다.
+
+    ![Python FDK Error](images/code-editor-python-fdk.png)
+
+5. Terminal을 엽니다. 여러개를 탭으로 실행하는 것도 지원합니다.
+
+    ![New Terminal](images/code-editor-new-terminal.png)
+
+6. 열린 터미널에서 Function Development Kits (FDKs) Python 라이브러리를 설치합니다.
+
+    ```
+    <copy>
+    pip3 install --user fdk
+    </copy>
+    ```
+
+7. func.py를 다시 열면, 패키지가 없다는 경고가 없어지고, 잘 동작하는 것을 알 수 있습니다.
+
+    ![Code Editor](images/code-editor-python-fdk-installed.png)
+
+8. 이후 실습에서는 선호도에 따라 Cloud Shell에서 VI를 사용하거나, Code Editor를 사용합니다.
+
+
 이제 **다음 실습을 진행**하시면 됩니다.
 
 ## Learn More

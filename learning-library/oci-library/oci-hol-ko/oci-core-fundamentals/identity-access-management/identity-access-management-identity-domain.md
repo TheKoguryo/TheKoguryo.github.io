@@ -59,15 +59,15 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
     - IAM with Identity Domains에서는 유저와 그룹 메뉴는 Domain 하위의 Default Domain 밑에 있습니다.
 
-   ![](images/id-domains.png)
+   ![IAM - Domains](images/id-domains.png)
 
 2. Default 도메인을 선택합니다.
 
-   ![](images/id-domains-default.png " ")
+   ![Default Domain](images/id-domains-default.png " ")
 
 3. **Groups** 클릭
 
-   ![](images/id-domains-groups.png)
+   ![Groups](images/id-domains-groups.png)
 
 4. **Create Group**을 클릭합니다.
 
@@ -91,10 +91,14 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
     * Compartment(`<compartment_name>`) 레벨 또는 테넌시(`tenancy`) 레벨로 유저 그룹(`<group_name>`)에 대해서 특정자원유형(`<resource-type>`)에 대해 작업권한(`<verb>`)를 주는 기본 포맷입니다.
 
        ```
+       <copy>
        Allow group <group_name> to <verb> <resource-type> in compartment <compartment_name>
+       </copy>
        ```
        ```
+       <copy>
        Allow group <group_name> to <verb> <resource-type> in tenancy
+       </copy>
        ```
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Policies** 을 선택합니다.
@@ -117,7 +121,7 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
     - 대상 Compartment: 사용한 Compartment 선택, 예, oci-hol-xx
     - 아래에 실제 적용될 Policy Statements를 확인할 수 있습니다.
 
-    ![](images/id-domain-create-policy-ui.png)
+    ![Policy Builder](images/id-domain-create-policy-ui.png)
 
     **Create**를 클릭하여 정책을 생성합니다.
 
@@ -132,7 +136,7 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
     </copy>
     ```
 
-    ![](images/id-domain-create-policy-manual.png)
+    ![Policy Builder](images/id-domain-create-policy-manual.png)
 
    **노트**: _그룹이름_ 앞에 _Identity Domain Name_ 이름이 없는 경우 Default Domain으로 적용됩니다.
 
@@ -148,7 +152,7 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
     </copy>
     ```
 
-    ![](images/update-policy-cloud-shell.png)
+    ![Cloud Shell Policy](images/update-policy-cloud-shell.png)
 
 ### 유저 만들기
 

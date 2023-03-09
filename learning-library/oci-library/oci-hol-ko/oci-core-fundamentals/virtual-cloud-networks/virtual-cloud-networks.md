@@ -25,15 +25,6 @@ Oracle Cloud Infrastructure(OCI) Compute를 사용하려면 먼저 VCN(가상 �
 
 ## Task 1: VCN 및 서브넷 생성
 
-<if type="livelabs">
-You are running this workshop in a LiveLabs environment. Our LiveLabs environments use a pre-configured Virtual Cloud Network (VCN), so you will not create a VCN in this workshop. However, you can see how a VCN is created in Oracle Cloud Infrastructure by watching this short video:
-
- [](youtube:lxQYHuvipx8)
- </if>
-
-<if type="freetier">
-
-
 네트워크 자원을 만들만한 VCN이 없는 경우, 아래와 같이 새 VCN을 만듭니다.
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.

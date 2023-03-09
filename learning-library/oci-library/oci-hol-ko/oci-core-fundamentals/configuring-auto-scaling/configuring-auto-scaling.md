@@ -54,7 +54,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
          ssh-rsa AAAAB3NzaC__________MVD1uN4kuv ssh-key-2023-03-03
          ```
 
-        ![](images/instance-add-ssh-keys-paste.png =60%x*)
+        ![Paste public keys](images/instance-add-ssh-keys-paste.png =60%x*)
 
 6. 화면 제일 아래에 있는 **Show advanced options**를 클릭합니다.
 
@@ -75,11 +75,11 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
      </copy>
      ```
 
-    ![](images/instance-cloud-init.png =70%x*)
+    ![cloud-init](images/instance-cloud-init.png =70%x*)
 
 8. **Oracle Cloud Agent** 탭을 확인합니다. 오토 스케일링을 위해서는 Metric이 수집되어야 하며, 이를 위해서는 **Compute Instance Monitoring**이 활성화되어야 합니다. 기본적으로 활성화되어 있습니다.
 
-    ![](images/instance-cloud-agent.png =70%x*)
+    ![Compute Instance Monitoring](images/instance-cloud-agent.png =70%x*)
 
 10. Create를 클릭하여 인스턴스를 생성합니다.
 
@@ -89,14 +89,14 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
 1. 생성된 컴퓨트 인스턴스 상세정보에서 **More Actions**에서 **Create Instance Configuration**을 클릭합니다.
     
-    ![](./images/create-instance-configuration.png =60%x*)
+    ![Create Instance Configuration](./images/create-instance-configuration.png =60%x*)
 
 2. 다음 생성 정보를 입력합니다:
 
     - **Name** : 예, web-server-instance-config
     - **Create in compartment**: 사용중인 Compartment
 
-    ![](./images/create-instance-configuration-details.png =50%x*)
+    ![web-server-instance-config](./images/create-instance-configuration-details.png =50%x*)
 
 3. **Create Instance Configuration**을 클릭하여 구성정보를 생성합니다.
 
@@ -104,7 +104,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
 1. Instance Configuration 화면에서 **Create Instance Pool**을 클릭합니다.
 
-    ![](./images/create-instance-pool.png)
+    ![Create Instance Pool](./images/create-instance-pool.png)
 
 2. 생성될 컴퓨트 인스턴스가 속할 풀의 기본 배치 정보(VCN, AD 등)의 초기값을 입력합니다. 다음 생성 정보를 입력합니다:
 
@@ -114,7 +114,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
     
         * 인스턴스 풀이 만들어 졌을 때, 만들어지는 컴퓨트 인스턴스 수입니다. 여기서는 기본값인 0으로 합니다.
 
-        ![](./images/create-instance-pool-details.png)
+        ![web-server-instance-pool](./images/create-instance-pool-details.png)
     
     - **Next** 클릭
 
@@ -125,7 +125,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
     - **virtual cloud network**: 사용중인 VCN, 예, oci-hol-vcn
     - **subnet**: 컴퓨트 인스턴스가 위치할 서브넷, 예, public subnet, _LB-Subnet이 아닙니다_
 
-        ![](images/create-instance-pool-placement-ad.png =80%x*)
+        ![Configure Pool Placement - Availability Domain](images/create-instance-pool-placement-ad.png =80%x*)
 
 4. **Configure Pool Placement** - Load Balancer
 
@@ -136,7 +136,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
     - **Port**: 컴퓨트 인스턴스의 서비스 포트, 웹서버 포트인 80 선택
     - **VNIC**: 기본값 선택
 
-        ![](images/create-instance-pool-placement-lb.png =70%x*)
+        ![Configure Pool Placement - Load Balancer](images/create-instance-pool-placement-lb.png =70%x*)
 
     - **Next** 클릭
 
@@ -146,14 +146,14 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
 1. Instance Pool 상세페이지에서 **More Actions** 하위의 **Create Autoscaling Configuration**을 클릭합니다.
 
-    ![](./images/create-autoscaling-configuration.png)
+    ![Create Autoscaling Configuration](./images/create-autoscaling-configuration.png)
 
 2. 기본 구성페이지에서 이름을 설정합니다.:
 
     - **Name**: 예, web-server-autoscaling-config
     - **Create in compartment**: 사용중인 Compartment
 
-        ![](images/create-autoscaling-configuration-details.png)
+        ![web-server-autoscaling-config](images/create-autoscaling-configuration-details.png)
 
 3. **Configure autoscaling policy**
 
@@ -162,12 +162,12 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
     - **Cooldown in seconds**: 기본값 300초 사용(스케일링 작업간에 최소 간격)
     - **Performance metric**: CPU와 메모리 중에 여기서는 CPU 선택하겠습니다.
 
-        ![](images/create-autoscaling-configuration-policy.png)
+        ![Configure autoscaling policy](images/create-autoscaling-configuration-policy.png)
 
     - **Scale in/out rule**: 확장 조건을 평균 CPU 50% 초과시, 축소 조건을 평균 10% 미만으로 설정하겠습니다. 확장, 축소가 반복해서 일어나지 않도록 잘 설정할 필요가 있습니다.
     - **Scaling limits**: 최소 인스턴스 수와 최대 인스턴수를 각각 1과 2로 설정합니다. 그리고 초기 인스턴스를 1개로 설정합니다.
 
-        ![](images/create-autoscaling-configuration-policy-cpu.png)
+        ![Scale](images/create-autoscaling-configuration-policy-cpu.png)
 
     - **Next** 클릭
 
@@ -175,7 +175,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
 6. 컴퓨트 인스턴스 1개에서 시작하는 오토 스케일 정책을 만들었습니다. CPU 사용률이 최소 300초 동안 50% 이상인 것으로 확인되면 다른 컴퓨트 인스턴스가 자동으로 생성됩니다. CPU 사용률이 300초 동안 10% 미만인 것으로 확인되면 컴퓨팅 인스턴스 하나가 종료됩니다. 풀에는 항상 최소 1개의 컴퓨트 인스턴스가 있습니다.
 
-    ![](images/autoscaling-policy-created.png)
+    ![autoscaling-policy-created](images/autoscaling-policy-created.png)
 
 ## Task 3: 테스트
 
@@ -185,7 +185,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
 3. 설정한 오토 스케일 정책에 따라 초기, 최소 구성인 1개 인스턴스가 만들어 진 걸 볼 수 있습니다.
 
-    ![](images/autoscaling-initial-instances.png)
+    ![autoscaling-initial-instances](images/autoscaling-initial-instances.png)
 
 4. 해당 인스턴스를 클릭하여 Private IP와 Public IP를 확인합니다.
 
@@ -193,7 +193,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
 6. 브라우저로 로드밸런서 IP로 접속해 봅니다. 로드밸런서에도 잘 등록되어 서비스 되는 것을 알 수 있습니다.
 
-    ![](images/autoscaling-instance-1.png)
+    ![autoscaling-instance-1](images/autoscaling-instance-1.png)
 
 7. Cloud Shell에서 방금 확인한 컴퓨트 인스턴스의 Public IP로 SSH로 접속합니다.
 
@@ -230,16 +230,16 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
     *CPU utilization > 50% 조건이 만족했기 때문에 스케일 아웃이 발생하였습니다.*
 
-    ![](images/autoscaling-scaleout-metrics.png)
+    ![autoscaling-scaleout-metrics](images/autoscaling-scaleout-metrics.png)
 
 13. **Attached Instances**에서 보면, 인스턴스가 2개가 된 것을 볼 수 있습니다.
 
-    ![](images/autoscaling-scaleout-instances.png)
+    ![autoscaling-scaleout-instances](images/autoscaling-scaleout-instances.png)
 
 14. 브라우저로 로드밸런서 IP로 접속해 봅니다. 리프레쉬를 여러번 해봅니다. 두 개 인스턴스로 분배되는 것을 확인할 수 있습니다.
 
-    ![](images/autoscaling-instance-1.png)
-    ![](images/autoscaling-instance-2.png)    
+    ![autoscaling-instance-1](images/autoscaling-instance-1.png)
+    ![autoscaling-instance-2](images/autoscaling-instance-2.png)    
 
 15. 부하를 발생시킨 Cloud Shell로 돌아가서 Ctrl + C를 눌러 부하 발생을 중지합니다.
 
@@ -249,12 +249,12 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
     *CPU utilization <10% 조건이 만족했기 때문에 스케일 인이 발생하였습니다.*
 
-    ![](images/autoscaling-scalein-metrics.png)
-    ![](images/autoscaling-scalein-instances.png)
+    ![autoscaling-scalein-metrics](images/autoscaling-scalein-metrics.png)
+    ![autoscaling-scalein-instances](images/autoscaling-scalein-instances.png)
 
 18. 브라우저로 로드밸런서 IP로 접속해 봅니다. 리프레쉬를 여러번 해봅니다. 남아 있는 1개 인스턴스로 분배되는 것을 확인할 수 있습니다.
 
-    ![](images/autoscaling-instance-2.png)        
+    ![autoscaling-instance-2](images/autoscaling-instance-2.png)        
 
 이제 **다음 실습을 진행**하시면 됩니다.
 

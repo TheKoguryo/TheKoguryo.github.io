@@ -27,7 +27,7 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **IP Management** 하위의 **Reserved public IPs**를 선택합니다.
 
-    ![](images/networking-reserved-public-ips.png)
+    ![Networking > Reserved IPs](images/networking-reserved-public-ips.png)
 
 2. **Reserve Public IP Address** 클릭
 
@@ -37,13 +37,13 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
     - **Create in Compartment**: 사용중인 Compartment
     - **IP Address Source**: Oracle 선택
 
-    ![](images/reserve-public-ip.png)
+    ![Reserved Public IP](images/reserve-public-ip.png)
 
 4. **Reserve Public IP Address**를 클릭하여 생성합니다.
 
 5. 예약된 Public IP는 필요한 자원에 할당해서 사용할 수 있습니다.
 
-    ![](images/reserved-public-ip-list.png)
+    ![Reserved Public IP](images/reserved-public-ip-list.png)
 
 
 ## Task 2: 컴퓨트 인스턴스에 Reserved Public IP 할당
@@ -62,31 +62,31 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 
 7. 오른쪽 액션 메뉴에서 **Edit**를 클릭합니다.
 
-    ![](images/edit-ip-address.png)
+    ![Edit VNIC](images/edit-ip-address.png)
 
 8. 현재 할당된 임시 Public IP 반납을 위해 먼저 **No public IP**으로 변경후 저장합니다.
 
-    ![](images/unassign-ephemeral-public-ip.png =60%x*)
+    ![No public IP](images/unassign-ephemeral-public-ip.png =60%x*)
 
 9. Public IP가 반납되었습니다. 다시 오른쪽 액션 메뉴에서 **Edit**를 클릭합니다.
 
-    ![](images/edit-ip-address-for-assign.png)
+    ![Edit VNIC](images/edit-ip-address-for-assign.png)
 
 10. **Reserved public IP** 유형을 선택하고, 예약해 둔 Public IP를 지정후 저장합니다.
 
-    ![](images/assign-reserved-public-ip.png =60%x*)    
+    ![Reserved public IP](images/assign-reserved-public-ip.png =60%x*)    
 
 11. 예약된 Public IP가 인스턴스에 할당되었습니다.
 
-    ![](images/reserved-public-ip-assigned.png =60%x*)    
+    ![Reserved public IP](images/reserved-public-ip-assigned.png =60%x*)    
 
 12. Cloud Shell에서 Web-Server-1을 새로 할당한 Public IP로 접속해 봅니다. 
 
-    ![](images/ssh-to-compute-instance-with-reserved-ip.png)
+    ![SSH to Web-Server-1](images/ssh-to-compute-instance-with-reserved-ip.png)
 
 13. 브라우저에서 Web-Server-1을 새로 할당한 Public IP로 접속해 봅니다.
 
-    ![](images/browser-to-web-server-with-reserved-ip.png)
+    ![Web-Server-1](images/browser-to-web-server-with-reserved-ip.png)
 
 14. 이처럼 Reserved Public IP을 만들어 사용할 수 있으며, 인스턴스에 할당해서 사용합니다. 해당 인스턴스가 종료(Terminate)한 경우에도 다른 인스턴스에 다시 할당하여 사용할 수 있습니다.
 
@@ -98,7 +98,7 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 
 3. **No public IP**으로 변경하여 사용하던 Reserved Public IP를 반납합니다.
 
-    ![](images/unassign-reserved-public-ip.png)
+    ![No public IP](images/unassign-reserved-public-ip.png)
 
 4. 이후 실습과정을 위해 Ephemeral Public IP를 다시 할당합니다.
 

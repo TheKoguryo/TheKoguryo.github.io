@@ -32,43 +32,21 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Compute**으로 이동한 다음 **Instances** 을 선택합니다.
 
-	![](images/compute-instances.png " ")
-
-<if type="livelabs">
-2. Select the Compartment that you were assigned when the reservation was created.
-
-    ![](images/create-compute-livelabs-1.png)
-</if>
+	![Compute > Instances](images/compute-instances.png " ")
 
 2. **Create Instance**을 클릭합니다. 이제 가상 머신을 만들 것입니다.
 
-    ![](images/create-instance.png)
+    ![Create Instance](images/create-instance.png)
 
 3. Create Compute Instance 화면이 뜹니다.
 
-    <if type="freetier">이름을 **Web-Server-1**로 입력합니다.</if>
-    <if type="livelabs">Enter your username + *-Instance* as the name of the server.</if>
+    이름을 **Web-Server-1**로 입력합니다.
 
-    <if type="freetier">
-    ![Create step 1](images/instance-name.png =60%x*)
-    </if>
-    <if type="livelabs">
-    ![](images/create-compute-livelabs-2.png)
-    </if>
-
-<if type="livelabs">
-4. Click *Change Shape* to choose a VM shape.
-
-    ![](images/create-compute-livelabs-3.png)
-
-5. Select *Intel Skylake*, then select **VM.Standard.2.1** as the shape, and click **Select Shape**.
-
-    ![](images/create-compute-livelabs-4.png)
-</if>
+    ![Create Instance](images/instance-name.png =60%x*)
 
 4. Placement - 고급 옵션을 열면 Capacity Type을 선택할 수 있습니다. 여기서는 기본값인 **On-demand capacity**을 사용합니다.
 
-     ![](images/instance-placement.png =60%x*)
+     ![Create Instance - Placement](images/instance-placement.png =60%x*)
 
     - **On-demand capacity**: 사용할 때만 컴퓨트 자원에 대한 비용을 지불하는 방식, 일반적인 경우에 사용합니다.
     - **Preemptible capacity**: 선점형 인스턴스는 일반 인스턴스 가격의 50% 가격으로 책정됩니다. 갑자기 자원을 회수당할 수 있습니다. 잠시 사용할 때 유용합니다.
@@ -79,35 +57,31 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 5. Image & Shape - 사용할 이미지와 Shape(CPU, Memory 크기)을 선택합니다.
 
-    ![](images/instance-image-n-shape.png =60%x*)
+    ![Create Instance - Image & Shape](images/instance-image-n-shape.png =60%x*)
 
     - Change Image를 선택하면 제공하는 다양한 이미지를 확인할 수 있습니다. 리눅스 및 윈도우를 지원합니다. 리눅스를 사용할 경우 기술지원이 포함된 Oracle Linux를 권장합니다. OS에 따라 버전과 빌드이미지를 날짜로 선택할 수 있습니다.
 
-        ![](images/instance-image-os.png =60%x*)
+        ![Image를](images/instance-image-os.png =60%x*)
 
         RedHat Linux는 [Learn More](#LearnMore)를 확인합니다.
 
     - Change Shape을 선택하면, 인스턴스 유형(VM, 베어메탈)을 고를 수 있고, AMD, Intel, Arm CPU를 제공합니다. 기본 AMD를 선택합니다.
 
-        ![](images/instance-shape.png =60%x*)
+        ![Shape을](images/instance-shape.png =60%x*)
 
         * _Flex Shape을 제공하여, 비용 최적화된 Shape을 사용할 수 있습니다._ 고정된 CPU, Memory 중에 고르는 것이 아니라, 원하는 CPU, 원하는 메모리 크기를 직접 고를 수 있습니다. 
 
-        ![](images/instance-shape-flex.png =70%x*)
+        ![Shape을](images/instance-shape-flex.png =70%x*)
     
 
 6. Networking - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다. 생성될 인스턴스에 대한 접속을 위해 **Assign a public IPv4 address**을 선택하여 Public IP를 할당합니다.
 
-    <if type="freetier">
-    ![](images/instance-networking.png =60%x*)</if>
-
-    <if type="livelabs">
-    ![](images/create-compute-livelabs-4b.png)</if>
+    ![Networking](images/instance-networking.png =60%x*)
 
 7. Add SSH Keys - SSH 접속을 위한 키를 등록하는 부분입니다. 별도로 생성해서 등록해도 되지만 편의상 **Generate a key pair for me**를 선택하여, 키를 자동으로 생성합니다. 
     - _Save private key_, _Save public key_를 클릭하여, 반드시 개인키와 공개키 둘다 다운로드 받습니다.
 
-    ![](images/instance-add-ssh-keys.png =60%x*)
+    ![Add SSH Keys](images/instance-add-ssh-keys.png =60%x*)
 
 8. Create를 클릭하여 인스턴스를 생성합니다.
 
@@ -115,19 +89,19 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
     Cloud Shell이 ​​시작될 때 콘솔의 Region 기준으로, Cloud Shell의 OCI CLI 컨텍스트가 기본 설정됩니다.
 
-    ![](images/cloudshell-1.png)
+    ![Cloud Shell](images/cloudshell-1.png)
 
 10. 다운받은 SSH Key를 업로드하기 위해 Cloud Shell 오른쪽 위의 아이콘을 클릭한후 Upload를 클릭합니다.
 
-    ![](images/cloud-shell-upload.png)
+    ![Upload를](images/cloud-shell-upload.png)
 
 11. 개인키를 먼저 업로드 합니다.
 
-    ![](images/cloud-shell-upload-key.png =60%x*)
+    ![Upload Private Key](images/cloud-shell-upload-key.png =60%x*)
 
 12. 공개키도 동일하게 업로드 합니다.
 
-    ![](images/cloud-shell-keys.png)
+    ![Upload Public Key](images/cloud-shell-keys.png)
 
 13. 파일의 권한을 변경합니다.
 
@@ -137,11 +111,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 14. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 Public IP를 확인합니다.
 
-    ![](images/instance-public-ip.png)
-
-    <if type="livelabs">
-    ![](images/compute-livelabs-running/png)
-    </if>
+    ![Public IP](images/instance-public-ip.png)
 
 ## Task 2: Compute 인스턴스 접속 및 웹서버 설치하기
 
@@ -153,7 +123,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
     <copy>ssh -i <private_ssh_key> opc@<public_ip_address></copy>
     ```
 
-    ![](images/ssh-to-compute-instance.png)
+    ![Cloud Shell](images/ssh-to-compute-instance.png)
 
 2. 컴퓨트 인스턴스에 아파치 HTTP 웹서버를 설치하고, 인터넷으로 접속할 예정입니다. Cloud Shell에서 SSH로 접속한 상태에서 다음 명령들을 순서대로 실행합니다.
 

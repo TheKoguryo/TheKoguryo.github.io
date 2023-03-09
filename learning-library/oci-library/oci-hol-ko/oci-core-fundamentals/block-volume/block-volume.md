@@ -84,14 +84,7 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 
 3. 다른 값들은 기본값으로 두고 **Create Block Volume**을 클릭하여 볼륨을 생성합니다. **AVAILABLE** 상태가 될때까지 기다립니다.
 
-   <if type="freetier">
-   ![](images/block-volume-available.png " ")
-   </if>
-   <if type="livelabs">
-   ![](images/create-livelabs.png)
-   ![](images/create-livelabs-prov.png)
-   ![](images/create-livelabs-avail.png)
-   </if>
+   ![Block Volume](images/block-volume-available.png " ")
 
 ## Task 2: 인스턴스에 Block Volume 부착
 
@@ -103,10 +96,7 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 
 2. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Compute**으로 이동한 다음 **Instances** 을 선택합니다. 이전 실습에서 만든 인스턴스로 이동합니다. 왼쪽 아래 **Resource** 하위에 **Attached block volumes**을 클릭합니다.
 
-    <if type="freetier">
-    ![Attached block volumes](images/attached-bv.png " ")</if>
-    <if type="livelabs">
-    ![Attached block volumes](images/livelabs-attach.png)</if>
+    ![Attached block volumes](images/attached-bv.png " ")
 
 3.  **Attach block volume**을 클릭합니다.
 
@@ -116,24 +106,17 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
      - **Device Path:** Select `/dev/oracleoci/oraclevdb`
      - **Attachment type:** iSCSI
 
-
-   <if type="freetier">
-   ![Volume Details](images/attach-bv.png =60%x*)</if>
-   <if type="livelabs">
-   ![Volume Details](images/livelabs-attach-block.png)</if>
+   ![Volume Details](images/attach-bv.png =60%x*)
 
      - **Attach**을 클릭합니다.   
 
 5. 볼륨이 부착되면, 오른쪽 액션메뉴에서 **iSCSI commands and information**을 클릭합니다.
 
-    <if type="freetier">
-    ![iSCSI commands](images/go-iscsi-commands.png " ")</if>
-    <if type="livelabs">
-    ![iSCSI commands](images/livelabs-iscsi-link.png)</if>
+    ![iSCSI commands](images/go-iscsi-commands.png " ")
 
 6. 인스턴스에서 탈부착시 실행해야하는 iSCSI 명령을 확인할 수 있습니다.    
 
-    ![iSCSI commands](images/iscsi-commands.png =60%x*)</if>
+    ![iSCSI commands](images/iscsi-commands.png =60%x*)
 
 7. 인스턴스에 접속하기 위해, Cloud Shell에서 다음 명령을 실행합니다.
 
@@ -169,7 +152,7 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
     <copy>df -h</copy>
     ```
 
-    ![](images/format-n-mount-bv.png)
+    ![Format & Mount](images/format-n-mount-bv.png)
 
     >**노트:** Block Volume을 생성하고, 처음 마운트 할 때 포맷이 필요합니다. 포맷은 원하는 파일 형식으로 해당 OS에서 사용할 수 있게 진행합니다.
 
@@ -220,7 +203,7 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 
 13. 재시작이 완료후 SSH로 재접속후 마운트 결과를 확인해 봅니다.
 
-    ![](images/fstab-n-mount.png)
+    ![df -h](images/fstab-n-mount.png)
 
 ## Learn More
 

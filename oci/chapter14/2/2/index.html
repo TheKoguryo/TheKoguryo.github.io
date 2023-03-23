@@ -39,7 +39,7 @@
 </span></span><span class=line><span class=cl><span class=nv>tenancy_ocid</span><span class=o>=</span><span class=s2>&#34;&lt;tenancy OCID&gt;&#34;</span>
 </span></span></code></pre></div></li></ul></li></ol><h4 id=resource-설정>Resource 설정</h4><p>Resource는 생성할 OCI 자원을 나타냅니다. 아래와 같이 resource를 설정하고 terraform을 실행하면, OCI에 해당 자원이 실제로 생성됩니다. Terraform을 지원하는 OCI 자원 목록은 Terraform OCI Provider 문서에서 확인할 수 있습니다.</p><ul><li><p>예시</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>variable <span class=s2>&#34;compartment_ocid&#34;</span> <span class=o>{}</span>
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>resource <span class=s2>&#34;oci_core_virtual_network&#34;</span> <span class=s2>&#34;example_vcn1&#34;</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>resource <span class=s2>&#34;oci_core_vcn&#34;</span> <span class=s2>&#34;example_vcn1&#34;</span> <span class=o>{</span>
 </span></span><span class=line><span class=cl>  <span class=nv>cidr_block</span>     <span class=o>=</span> <span class=s2>&#34;10.0.0.0/16&#34;</span>
 </span></span><span class=line><span class=cl>  <span class=nv>dns_label</span>      <span class=o>=</span> <span class=s2>&#34;vcn1&#34;</span>
 </span></span><span class=line><span class=cl>  <span class=nv>compartment_id</span> <span class=o>=</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>var</span><span class=p>.compartment_ocid</span><span class=si>}</span><span class=s2>&#34;</span>
@@ -51,7 +51,7 @@
 </span></span><span class=line><span class=cl>  <span class=nv>compartment_id</span> <span class=o>=</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>var</span><span class=p>.tenancy_ocid</span><span class=si>}</span><span class=s2>&#34;</span>
 </span></span><span class=line><span class=cl><span class=o>}</span>
 </span></span></code></pre></div></li></ul><h4 id=output-설정>Output 설정</h4><p>Output 변수는 많은 데이터 중에서 쿼리를 통해 특정 값을 조회하는 용도로 terraform 실행시 로그로 출력되며, <code>terraform output 변수명</code> 명령으로 조회도 됩니다.</p><ul><li><p>생성된 example_vcn1의 id 예시</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>output <span class=s2>&#34;vcn1_ocid&#34;</span> <span class=o>{</span>
-</span></span><span class=line><span class=cl>  <span class=nv>value</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>oci_core_virtual_network</span><span class=p>.example_vcn1.id</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  <span class=nv>value</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>oci_core_vcn</span><span class=p>.example_vcn1.id</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>]</span>
 </span></span><span class=line><span class=cl><span class=o>}</span>
 </span></span></code></pre></div></li></ul><h4 id=terraform-configurations-예시>Terraform Configurations 예시</h4><ul><li><p>provider.tf</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-Shell data-lang=Shell><span class=line><span class=cl>variable <span class=s2>&#34;tenancy_ocid&#34;</span> <span class=o>{}</span>
 </span></span><span class=line><span class=cl>variable <span class=s2>&#34;user_ocid&#34;</span> <span class=o>{}</span>
@@ -68,7 +68,7 @@
 </span></span><span class=line><span class=cl><span class=o>}</span>
 </span></span></code></pre></div></li><li><p>vcn.tf</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-Shell data-lang=Shell><span class=line><span class=cl>variable <span class=s2>&#34;compartment_ocid&#34;</span> <span class=o>{}</span>
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>resource <span class=s2>&#34;oci_core_virtual_network&#34;</span> <span class=s2>&#34;vcn1&#34;</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>resource <span class=s2>&#34;oci_core_vcn&#34;</span> <span class=s2>&#34;vcn1&#34;</span> <span class=o>{</span>
 </span></span><span class=line><span class=cl>  <span class=nv>cidr_block</span>     <span class=o>=</span> <span class=s2>&#34;10.0.0.0/16&#34;</span>
 </span></span><span class=line><span class=cl>  <span class=nv>dns_label</span>      <span class=o>=</span> <span class=s2>&#34;vcn1&#34;</span>
 </span></span><span class=line><span class=cl>  <span class=nv>compartment_id</span> <span class=o>=</span> <span class=s2>&#34;</span><span class=si>${</span><span class=nv>var</span><span class=p>.compartment_ocid</span><span class=si>}</span><span class=s2>&#34;</span>
@@ -76,7 +76,7 @@
 </span></span><span class=line><span class=cl><span class=o>}</span>
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>output <span class=s2>&#34;vcn1_ocid&#34;</span> <span class=o>{</span>
-</span></span><span class=line><span class=cl>  <span class=nv>value</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>oci_core_virtual_network</span><span class=p>.vcn1.id</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=cl>  <span class=nv>value</span> <span class=o>=</span> <span class=o>[</span><span class=s2>&#34;</span><span class=si>${</span><span class=nv>oci_core_vcn</span><span class=p>.vcn1.id</span><span class=si>}</span><span class=s2>&#34;</span><span class=o>]</span>
 </span></span><span class=line><span class=cl><span class=o>}</span>
 </span></span></code></pre></div></li></ul><br><br><div class="panel panel-caution"><div class=panel-body><p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p></div></div><div class=edit-meta>Last updated on 29 Mar 2019<br></div><nav class=pagination><a class="nav nav-prev" href=https://thekoguryo.github.io/oci/chapter14/2/1/ title="14.2.1 Terraform 설치하기"><i class="fas fa-arrow-left" aria-hidden=true></i> Prev - 14.2.1 Terraform 설치하기</a>
 <a class="nav nav-next" href=https://thekoguryo.github.io/oci/chapter14/2/3/ title="14.2.3 Terraform OCI Provider 연결정보 구하기">Next - 14.2.3 Terraform OCI Provider 연결정보 구하기 <i class="fas fa-arrow-right" aria-hidden=true></i></a></nav><footer><p class=powered>Powered by <a href=https://gohugo.io>Hugo</a>. Theme by <a href=https://github.com/thingsym/hugo-theme-techdoc>TechDoc</a>. Design by <a href=https://www.thingslabo.com/>Thingsym</a>.</p></footer></main><div class=sidebar><nav><ul><li><form method=get action=https://thekoguryo.github.io//search><input type=text id=search-box name=q placeholder=Search></form><script type=text/javascript>$(document).ready(function(){$("#search-box").val($("#search-query").val())})</script></li><li><a></a></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/oci/>OCI(Oracle Cloud Infrastructure)

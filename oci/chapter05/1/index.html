@@ -5,7 +5,7 @@
 <script src=https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js></script>
 <script src=https://thekoguryo.github.io/js/jqcloud/jqcloud.js></script>
 <link rel=stylesheet href=https://thekoguryo.github.io/js/jqcloud/jqcloud.css><script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-106207316-1")</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858" crossorigin=anonymous></script><meta property="og:title" content="5.1 Linux 인스턴스에 Apache HTTP Server 설치"><meta property="og:description" content="5.1 Linux 인스턴스에 Apache HTTP Server 설치 생성한 Instance에 SSH 명령을 통해 접속합니다. 아래 명령은 Oracle Enterprise Linux 기준입니다. ssh –i <private_key> <username>@<public-ip-address> Apache HTTP Server 설치 sudo yum -y install httpd OS 방화벽에"><meta property="og:type" content="article"><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter05/1/"><meta property="article:section" content="oci"><meta property="article:published_time" content="2019-01-11T00:00:00+00:00"><meta property="article:modified_time" content="2023-05-10T09:22:56+00:00"><meta property="og:site_name" content="TheKoguryo's 기술 블로그"></head><body><div class=container><header><h1>TheKoguryo's 기술 블로그</h1><span class=version>Version 2023.04.29</span>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-106207316-1")</script><script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858" crossorigin=anonymous></script><meta property="og:title" content="5.1 Linux 인스턴스에 Apache HTTP Server 설치"><meta property="og:description" content="5.1 Linux 인스턴스에 Apache HTTP Server 설치 생성한 Instance에 SSH 명령을 통해 접속합니다. 아래 명령은 Oracle Enterprise Linux 기준입니다. ssh –i <private_key> <username>@<public-ip-address> Apache HTTP Server 설치 sudo yum -y install httpd OS 방화벽에"><meta property="og:type" content="article"><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter05/1/"><meta property="article:section" content="oci"><meta property="article:published_time" content="2019-01-11T00:00:00+00:00"><meta property="article:modified_time" content="2023-05-10T09:25:30+00:00"><meta property="og:site_name" content="TheKoguryo's 기술 블로그"></head><body><div class=container><header><h1>TheKoguryo's 기술 블로그</h1><span class=version>Version 2023.04.29</span>
 <a href=https://github.com/TheKoguryo class=github><i class="fab fa-github"></i></a></header><div class=menu><nav><ul><li><a href=/>Home</a></li><li><a href=/release-notes>OCI Release Notes</a></li><li><a href=/archives>Archives</a></li><li><a href=/tags>Tag</a></li><li><a href=https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new>Feedback</a></li><li><a href=/link>Link</a></li><li style=float:right><a href=https://thekoguryo.github.io/en/oci/chapter05/1/>English</a></li></ul></nav></div><div class=content-container><main><h2 id=51-linux-인스턴스에-apache-http-server-설치>5.1 Linux 인스턴스에 Apache HTTP Server 설치</h2><ol><li><p>생성한 Instance에 SSH 명령을 통해 접속합니다. 아래 명령은 Oracle Enterprise Linux 기준입니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>ssh –i &lt;private_key&gt; &lt;username&gt;@&lt;public-ip-address&gt;
 </span></span></code></pre></div></li><li><p>Apache HTTP Server 설치</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo yum -y install httpd
 </span></span></code></pre></div></li><li><p>OS 방화벽에서 Apache HTTP용 포트, 80 포트 개방</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo firewall-cmd --permanent --add-port<span class=o>=</span>80/tcp
@@ -14,115 +14,112 @@
 </span></span><span class=line><span class=cl>sudo systemctl <span class=nb>enable</span> httpd
 </span></span></code></pre></div></li><li><p>테스트를 위해 서버의 Root Index Document 생성</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo su
 </span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=s1>&#39;Hello Apache&#39;</span> &gt;/var/www/html/index.html
-</span></span></code></pre></div></li></ol><h4 id=설치-예시>설치 예시</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-Shell data-lang=Shell><span class=line><span class=cl>ubuntu@NOTEBOOK-WORK:~/.ssh$ ssh -i mysshkey opc@152.70.251.xx
-</span></span><span class=line><span class=cl>Last login: Mon Jan <span class=m>10</span> 08:38:45 <span class=m>2022</span> from 223.62.21.xx
-</span></span><span class=line><span class=cl><span class=o>[</span>opc@examplelinuxinstance ~<span class=o>]</span>$ sudo yum -y install httpd
-</span></span><span class=line><span class=cl>Loaded plugins: langpacks, ulninfo
-</span></span><span class=line><span class=cl>ol7_MySQL80                                                                                 <span class=p>|</span> 3.0 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_MySQL80_connectors_community                                                            <span class=p>|</span> 2.9 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_MySQL80_tools_community                                                                 <span class=p>|</span> 2.9 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_UEKR6                                                                                   <span class=p>|</span> 3.0 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_addons                                                                                  <span class=p>|</span> 3.0 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_ksplice                                                                                 <span class=p>|</span> 3.0 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_latest                                                                                  <span class=p>|</span> 3.6 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_oci_included                                                                            <span class=p>|</span> 2.9 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_optional_latest                                                                         <span class=p>|</span> 3.0 kB 00:00:00
-</span></span><span class=line><span class=cl>ol7_software_collections                                                                    <span class=p>|</span> 3.0 kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>1/20<span class=o>)</span>: ol7_MySQL80_connectors_community/x86_64/updateinfo                                  <span class=p>|</span>  <span class=m>71</span> B 00:00:01
-</span></span><span class=line><span class=cl><span class=o>(</span>2/20<span class=o>)</span>: ol7_MySQL80_tools_community/x86_64/primary_db                                       <span class=p>|</span> <span class=m>13</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>3/20<span class=o>)</span>: ol7_UEKR6/x86_64/updateinfo                                                         <span class=p>|</span> <span class=m>389</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>4/20<span class=o>)</span>: ol7_MySQL80/x86_64/updateinfo                                                       <span class=p>|</span>  <span class=m>71</span> B 00:00:01
-</span></span><span class=line><span class=cl><span class=o>(</span>5/20<span class=o>)</span>: ol7_addons/x86_64/updateinfo                                                        <span class=p>|</span> <span class=m>131</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>6/20<span class=o>)</span>: ol7_addons/x86_64/primary_db                                                        <span class=p>|</span> <span class=m>209</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>7/20<span class=o>)</span>: ol7_MySQL80_tools_community/x86_64/updateinfo                                       <span class=p>|</span>  <span class=m>71</span> B 00:00:01
-</span></span><span class=line><span class=cl><span class=o>(</span>8/20<span class=o>)</span>: ol7_ksplice/updateinfo                                                              <span class=p>|</span> 7.9 kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>9/20<span class=o>)</span>: ol7_latest/x86_64/group_gz                                                          <span class=p>|</span> <span class=m>136</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>10/20<span class=o>)</span>: ol7_ksplice/primary_db                                                             <span class=p>|</span> 2.4 MB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>11/20<span class=o>)</span>: ol7_MySQL80_connectors_community/x86_64/primary_db                                 <span class=p>|</span> <span class=m>27</span> kB 00:00:01
-</span></span><span class=line><span class=cl><span class=o>(</span>12/20<span class=o>)</span>: ol7_oci_included/x86_64/primary_db                                                 <span class=p>|</span> <span class=m>754</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>13/20<span class=o>)</span>: ol7_latest/x86_64/updateinfo                                                       <span class=p>|</span> 3.4 MB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>14/20<span class=o>)</span>: ol7_optional_latest/x86_64/updateinfo                                              <span class=p>|</span> 1.3 MB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>15/20<span class=o>)</span>: ol7_software_collections/x86_64/updateinfo                                         <span class=p>|</span> 8.9 kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>16/20<span class=o>)</span>: ol7_software_collections/x86_64/primary_db                                         <span class=p>|</span> 5.8 MB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>17/20<span class=o>)</span>: ol7_MySQL80/x86_64/primary_db                                                      <span class=p>|</span> <span class=m>183</span> kB 00:00:02
-</span></span><span class=line><span class=cl><span class=o>(</span>18/20<span class=o>)</span>: ol7_optional_latest/x86_64/primary_db                                              <span class=p>|</span> 5.6 MB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>19/20<span class=o>)</span>: ol7_UEKR6/x86_64/primary_db                                                        <span class=p>|</span> <span class=m>27</span> MB 00:00:01
-</span></span><span class=line><span class=cl><span class=o>(</span>20/20<span class=o>)</span>: ol7_latest/x86_64/primary_db                                                       <span class=p>|</span> <span class=m>37</span> MB 00:00:01
-</span></span><span class=line><span class=cl>Resolving Dependencies
-</span></span><span class=line><span class=cl>--&gt; Running transaction check
-</span></span><span class=line><span class=cl>---&gt; Package httpd.x86_64 0:2.4.6-97.0.5.el7_9.2 will be installed
-</span></span><span class=line><span class=cl>--&gt; Processing Dependency: httpd-tools <span class=o>=</span> 2.4.6-97.0.5.el7_9.2 <span class=k>for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
-</span></span><span class=line><span class=cl>--&gt; Processing Dependency: /etc/mime.types <span class=k>for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
-</span></span><span class=line><span class=cl>--&gt; Processing Dependency: libapr-1.so.0<span class=o>()(</span>64bit<span class=o>)</span> <span class=k>for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
-</span></span><span class=line><span class=cl>--&gt; Processing Dependency: libaprutil-1.so.0<span class=o>()(</span>64bit<span class=o>)</span> <span class=k>for</span> package: httpd-2.4.6-97.0.5.el7_9.2.x86_64
-</span></span><span class=line><span class=cl>--&gt; Running transaction check
-</span></span><span class=line><span class=cl>---&gt; Package apr.x86_64 0:1.4.8-7.el7 will be installed
-</span></span><span class=line><span class=cl>---&gt; Package apr-util.x86_64 0:1.5.2-6.0.1.el7 will be installed
-</span></span><span class=line><span class=cl>---&gt; Package httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2 will be installed
-</span></span><span class=line><span class=cl>---&gt; Package mailcap.noarch 0:2.1.41-2.el7 will be installed
-</span></span><span class=line><span class=cl>--&gt; Finished Dependency Resolution
+</span></span></code></pre></div></li><li><p>포트가 OS에서 개방되었는지 확인합니다.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>sudo firewall-cmd --zone<span class=o>=</span>public --list-ports
+</span></span></code></pre></div></li></ol><h4 id=설치-예시>설치 예시</h4><div class=highlight><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>$ ssh -i privateKey opc@129.154.xx.xxx
+</span></span><span class=line><span class=cl>FIPS mode initialized
+</span></span><span class=line><span class=cl>The authenticity of host &#39;129.154.54.163 (129.154.xx.xxx)&#39; can&#39;t be established.
+</span></span><span class=line><span class=cl>ECDSA key fingerprint is SHA256:svS10DcrVps4neg/t9lYoutfow+V5a6UHU2VrC3UJ2Y.
+</span></span><span class=line><span class=cl>ECDSA key fingerprint is SHA1:2rtJUm8jt0QiYR7b+I3Ra6j4Yac.
+</span></span><span class=line><span class=cl>Are you sure you want to continue connecting (yes/no)? yes
+</span></span><span class=line><span class=cl>Warning: Permanently added &#39;129.154.54.163&#39; (ECDSA) to the list of known hosts.
+</span></span><span class=line><span class=cl>Activate the web console with: systemctl enable --now cockpit.socket
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Dependencies <span class=nv>Resolved</span>
+</span></span><span class=line><span class=cl>Last login: Thu May  4 07:03:42 2023 from 132.145.xx.xx
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl><span class=o>=================================================================================================================</span>
-</span></span><span class=line><span class=cl> Package                    Arch                 Version                        Repository                <span class=nv>Size</span>
-</span></span><span class=line><span class=cl><span class=o>=================================================================================================================</span>
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo yum -y install httpd
+</span></span><span class=line><span class=cl>Last metadata expiration check: 2:30:13 ago on Thu 04 May 2023 06:45:55 AM GMT.
+</span></span><span class=line><span class=cl>Dependencies resolved.
+</span></span><span class=line><span class=cl>=========================================================================================================================================
+</span></span><span class=line><span class=cl> Package                      Architecture     Version                                                 Repository                   Size
+</span></span><span class=line><span class=cl>=========================================================================================================================================
 </span></span><span class=line><span class=cl>Installing:
-</span></span><span class=line><span class=cl> httpd                      x86_64               2.4.6-97.0.5.el7_9.2           ol7_latest                1.2 M
-</span></span><span class=line><span class=cl>Installing <span class=k>for</span> dependencies:
-</span></span><span class=line><span class=cl> apr                        x86_64               1.4.8-7.el7                    ol7_latest                <span class=m>103</span> k
-</span></span><span class=line><span class=cl> apr-util                   x86_64               1.5.2-6.0.1.el7                ol7_latest                <span class=m>91</span> k
-</span></span><span class=line><span class=cl> httpd-tools                x86_64               2.4.6-97.0.5.el7_9.2           ol7_latest                <span class=m>93</span> k
-</span></span><span class=line><span class=cl> mailcap                    noarch               2.1.41-2.el7                   ol7_latest                <span class=m>30</span> k
+</span></span><span class=line><span class=cl> httpd                        x86_64           2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5           ol8_appstream               1.4 M
+</span></span><span class=line><span class=cl>Installing dependencies:
+</span></span><span class=line><span class=cl> apr                          x86_64           1.6.3-12.el8                                            ol8_appstream               129 k
+</span></span><span class=line><span class=cl> apr-util                     x86_64           1.6.1-6.el8                                             ol8_appstream               105 k
+</span></span><span class=line><span class=cl> httpd-filesystem             noarch           2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5           ol8_appstream                43 k
+</span></span><span class=line><span class=cl> httpd-tools                  x86_64           2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5           ol8_appstream               110 k
+</span></span><span class=line><span class=cl> mod_http2                    x86_64           1.15.7-5.module+el8.7.0+21029+de29ba63.4                ol8_appstream               155 k
+</span></span><span class=line><span class=cl> oracle-logos-httpd           noarch           84.5-1.0.1.el8                                          ol8_baseos_latest            29 k
+</span></span><span class=line><span class=cl>Installing weak dependencies:
+</span></span><span class=line><span class=cl> apr-util-bdb                 x86_64           1.6.1-6.el8                                             ol8_appstream                24 k
+</span></span><span class=line><span class=cl> apr-util-openssl             x86_64           1.6.1-6.el8                                             ol8_appstream                27 k
+</span></span><span class=line><span class=cl>Enabling module streams:
+</span></span><span class=line><span class=cl> httpd                                         2.4                                                                                      
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Transaction <span class=nv>Summary</span>
-</span></span><span class=line><span class=cl><span class=o>=================================================================================================================</span>
-</span></span><span class=line><span class=cl>Install <span class=m>1</span> Package <span class=o>(</span>+4 Dependent packages<span class=o>)</span>
+</span></span><span class=line><span class=cl>Transaction Summary
+</span></span><span class=line><span class=cl>=========================================================================================================================================
+</span></span><span class=line><span class=cl>Install  9 Packages
 </span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Total download size: 1.5 M
-</span></span><span class=line><span class=cl>Installed size: 4.3 M
-</span></span><span class=line><span class=cl>Downloading packages:
-</span></span><span class=line><span class=cl><span class=o>(</span>1/5<span class=o>)</span>: apr-1.4.8-7.el7.x86_64.rpm                                                           <span class=p>|</span> <span class=m>103</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>2/5<span class=o>)</span>: apr-util-1.5.2-6.0.1.el7.x86_64.rpm                                                  <span class=p>|</span> <span class=m>91</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>3/5<span class=o>)</span>: httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64.rpm                                          <span class=p>|</span> <span class=m>93</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>4/5<span class=o>)</span>: mailcap-2.1.41-2.el7.noarch.rpm                                                      <span class=p>|</span> <span class=m>30</span> kB 00:00:00
-</span></span><span class=line><span class=cl><span class=o>(</span>5/5<span class=o>)</span>: httpd-2.4.6-97.0.5.el7_9.2.x86_64.rpm                                                <span class=p>|</span> 1.2 MB 00:00:00
-</span></span><span class=line><span class=cl>------------------------------------------------------------------------------------------------------------------
-</span></span><span class=line><span class=cl>Total                                                                              1.5 MB/s <span class=p>|</span> 1.5 MB 00:00:00
+</span></span><span class=line><span class=cl>Total download size: 2.0 M
+</span></span><span class=line><span class=cl>Installed size: 5.4 M
+</span></span><span class=line><span class=cl>Downloading Packages:
+</span></span><span class=line><span class=cl>(1/9): oracle-logos-httpd-84.5-1.0.1.el8.noarch.rpm                                                      1.0 MB/s |  29 kB     00:00    
+</span></span><span class=line><span class=cl>(2/9): apr-util-1.6.1-6.el8.x86_64.rpm                                                                   3.2 MB/s | 105 kB     00:00    
+</span></span><span class=line><span class=cl>(3/9): apr-util-bdb-1.6.1-6.el8.x86_64.rpm                                                               742 kB/s |  24 kB     00:00    
+</span></span><span class=line><span class=cl>(4/9): apr-util-openssl-1.6.1-6.el8.x86_64.rpm                                                           774 kB/s |  27 kB     00:00    
+</span></span><span class=line><span class=cl>(5/9): apr-1.6.3-12.el8.x86_64.rpm                                                                       1.4 MB/s | 129 kB     00:00    
+</span></span><span class=line><span class=cl>(6/9): httpd-tools-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64.rpm                              3.5 MB/s | 110 kB     00:00    
+</span></span><span class=line><span class=cl>(7/9): httpd-filesystem-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.noarch.rpm                         766 kB/s |  43 kB     00:00    
+</span></span><span class=line><span class=cl>(8/9): mod_http2-1.15.7-5.module+el8.7.0+21029+de29ba63.4.x86_64.rpm                                     2.3 MB/s | 155 kB     00:00    
+</span></span><span class=line><span class=cl>(9/9): httpd-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64.rpm                                    9.2 MB/s | 1.4 MB     00:00    
+</span></span><span class=line><span class=cl>-----------------------------------------------------------------------------------------------------------------------------------------
+</span></span><span class=line><span class=cl>Total                                                                                                    9.1 MB/s | 2.0 MB     00:00     
 </span></span><span class=line><span class=cl>Running transaction check
-</span></span><span class=line><span class=cl>Running transaction <span class=nb>test</span>
-</span></span><span class=line><span class=cl>Transaction <span class=nb>test</span> succeeded
+</span></span><span class=line><span class=cl>Transaction check succeeded.
+</span></span><span class=line><span class=cl>Running transaction test
+</span></span><span class=line><span class=cl>Transaction test succeeded.
 </span></span><span class=line><span class=cl>Running transaction
-</span></span><span class=line><span class=cl> Installing : apr-1.4.8-7.el7.x86_64                                                                      1/5
-</span></span><span class=line><span class=cl> Installing : apr-util-1.5.2-6.0.1.el7.x86_64                                                             2/5
-</span></span><span class=line><span class=cl> Installing : httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64                                                     3/5
-</span></span><span class=line><span class=cl> Installing : mailcap-2.1.41-2.el7.noarch                                                                 4/5
-</span></span><span class=line><span class=cl> Installing : httpd-2.4.6-97.0.5.el7_9.2.x86_64                                                           5/5
-</span></span><span class=line><span class=cl> Verifying : httpd-tools-2.4.6-97.0.5.el7_9.2.x86_64                                                      1/5
-</span></span><span class=line><span class=cl> Verifying : apr-1.4.8-7.el7.x86_64                                                                       2/5
-</span></span><span class=line><span class=cl> Verifying : apr-util-1.5.2-6.0.1.el7.x86_64                                                              3/5
-</span></span><span class=line><span class=cl> Verifying : mailcap-2.1.41-2.el7.noarch                                                                  4/5
-</span></span><span class=line><span class=cl> Verifying : httpd-2.4.6-97.0.5.el7_9.2.x86_64                                                            5/5
+</span></span><span class=line><span class=cl>  Preparing        :                                                                                                                 1/1 
+</span></span><span class=line><span class=cl>  Installing       : apr-1.6.3-12.el8.x86_64                                                                                         1/9 
+</span></span><span class=line><span class=cl>  Running scriptlet: apr-1.6.3-12.el8.x86_64                                                                                         1/9 
+</span></span><span class=line><span class=cl>  Installing       : apr-util-bdb-1.6.1-6.el8.x86_64                                                                                 2/9 
+</span></span><span class=line><span class=cl>  Installing       : apr-util-openssl-1.6.1-6.el8.x86_64                                                                             3/9 
+</span></span><span class=line><span class=cl>  Installing       : apr-util-1.6.1-6.el8.x86_64                                                                                     4/9 
+</span></span><span class=line><span class=cl>  Running scriptlet: apr-util-1.6.1-6.el8.x86_64                                                                                     4/9 
+</span></span><span class=line><span class=cl>  Installing       : httpd-tools-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64                                                5/9 
+</span></span><span class=line><span class=cl>  Running scriptlet: httpd-filesystem-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.noarch                                           6/9 
+</span></span><span class=line><span class=cl>  Installing       : httpd-filesystem-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.noarch                                           6/9 
+</span></span><span class=line><span class=cl>  Installing       : oracle-logos-httpd-84.5-1.0.1.el8.noarch                                                                        7/9 
+</span></span><span class=line><span class=cl>  Installing       : mod_http2-1.15.7-5.module+el8.7.0+21029+de29ba63.4.x86_64                                                       8/9 
+</span></span><span class=line><span class=cl>  Installing       : httpd-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64                                                      9/9 
+</span></span><span class=line><span class=cl>  Running scriptlet: httpd-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64                                                      9/9 
+</span></span><span class=line><span class=cl>  Verifying        : oracle-logos-httpd-84.5-1.0.1.el8.noarch                                                                        1/9 
+</span></span><span class=line><span class=cl>  Verifying        : apr-1.6.3-12.el8.x86_64                                                                                         2/9 
+</span></span><span class=line><span class=cl>  Verifying        : apr-util-1.6.1-6.el8.x86_64                                                                                     3/9 
+</span></span><span class=line><span class=cl>  Verifying        : apr-util-bdb-1.6.1-6.el8.x86_64                                                                                 4/9 
+</span></span><span class=line><span class=cl>  Verifying        : apr-util-openssl-1.6.1-6.el8.x86_64                                                                             5/9 
+</span></span><span class=line><span class=cl>  Verifying        : httpd-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64                                                      6/9 
+</span></span><span class=line><span class=cl>  Verifying        : httpd-filesystem-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.noarch                                           7/9 
+</span></span><span class=line><span class=cl>  Verifying        : httpd-tools-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64                                                8/9 
+</span></span><span class=line><span class=cl>  Verifying        : mod_http2-1.15.7-5.module+el8.7.0+21029+de29ba63.4.x86_64                                                       9/9 
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>Installed:
-</span></span><span class=line><span class=cl> httpd.x86_64 0:2.4.6-97.0.5.el7_9.2
-</span></span><span class=line><span class=cl>
-</span></span><span class=line><span class=cl>Dependency Installed:
-</span></span><span class=line><span class=cl> apr.x86_64 0:1.4.8-7.el7         apr-util.x86_64 0:1.5.2-6.0.1.el7         httpd-tools.x86_64 0:2.4.6-97.0.5.el7_9.2         mailcap.noarch 0:2.1.41-2.el7
+</span></span><span class=line><span class=cl>  apr-1.6.3-12.el8.x86_64                                          apr-util-1.6.1-6.el8.x86_64                                          
+</span></span><span class=line><span class=cl>  apr-util-bdb-1.6.1-6.el8.x86_64                                  apr-util-openssl-1.6.1-6.el8.x86_64                                  
+</span></span><span class=line><span class=cl>  httpd-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64       httpd-filesystem-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.noarch
+</span></span><span class=line><span class=cl>  httpd-tools-2.4.37-51.0.1.module+el8.7.0+21029+de29ba63.5.x86_64 mod_http2-1.15.7-5.module+el8.7.0+21029+de29ba63.4.x86_64            
+</span></span><span class=line><span class=cl>  oracle-logos-httpd-84.5-1.0.1.el8.noarch                        
 </span></span><span class=line><span class=cl>
 </span></span><span class=line><span class=cl>Complete!
-</span></span><span class=line><span class=cl><span class=o>[</span>opc@examplelinuxinstance ~<span class=o>]</span>$ sudo firewall-cmd --permanent --add-port<span class=o>=</span>80/tcp
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo firewall-cmd --permanent --add-port=80/tcp
 </span></span><span class=line><span class=cl>success
-</span></span><span class=line><span class=cl><span class=o>[</span>opc@examplelinuxinstance ~<span class=o>]</span>$ sudo firewall-cmd --reload
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo firewall-cmd --reload
 </span></span><span class=line><span class=cl>success
-</span></span><span class=line><span class=cl><span class=o>[</span>opc@examplelinuxinstance ~<span class=o>]</span>$ sudo systemctl start httpd
-</span></span><span class=line><span class=cl><span class=o>[</span>opc@examplelinuxinstance ~<span class=o>]</span>$ sudo su
-</span></span><span class=line><span class=cl><span class=o>[</span>root@examplelinuxinstance opc<span class=o>]</span><span class=c1># echo &#39;Hello Apache&#39; &gt;/var/www/html/index.html</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>root@examplelinuxinstance opc<span class=o>]</span><span class=c1># exit</span>
-</span></span><span class=line><span class=cl><span class=nb>exit</span>
-</span></span><span class=line><span class=cl><span class=o>[</span>opc@examplelinuxinstance ~<span class=o>]</span>$ curl http://127.0.0.1:80/index.html
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo systemctl start httpd
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo systemctl enable httpd
+</span></span><span class=line><span class=cl>Created symlink /etc/systemd/system/multi-user.target.wants/httpd.service → /usr/lib/systemd/system/httpd.service.
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo su
+</span></span><span class=line><span class=cl>[root@examplelinuxinstance opc]# echo &#39;Hello Apache&#39; &gt;/var/www/html/index.html
+</span></span><span class=line><span class=cl>[root@examplelinuxinstance opc]# 
+</span></span><span class=line><span class=cl>[root@examplelinuxinstance opc]# 
+</span></span><span class=line><span class=cl>[root@examplelinuxinstance opc]# exit
+</span></span><span class=line><span class=cl>exit
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ curl http://127.0.0.1:80/index.html
 </span></span><span class=line><span class=cl>Hello Apache
-</span></span></code></pre></div><br><br><div class="panel panel-caution"><div class=panel-body><p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p></div></div><div class=edit-meta>Last updated on 10 May 2023<br></div><nav class=pagination><a class="nav nav-prev" href=https://thekoguryo.github.io/oci/chapter05/ title="5. 방화벽 구성을 위해 Security Lists 사용하기"><i class="fas fa-arrow-left" aria-hidden=true></i> Prev - 5. 방화벽 구성을 위해 Security Lists 사용하기</a>
+</span></span><span class=line><span class=cl>[opc@examplelinuxinstance ~]$ sudo firewall-cmd --zone=public --list-ports
+</span></span><span class=line><span class=cl>80/tcp
+</span></span></code></pre></div><br><br><div class="panel panel-caution"><div class=panel-body><p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p></div></div><div class=edit-meta>Last updated on 10 May 2023<br></div><nav class=pagination><a class="nav nav-prev" href=https://thekoguryo.github.io/oci/chapter05/ title="5. 방화벽 구성을 위해 Security Rules 적용하기"><i class="fas fa-arrow-left" aria-hidden=true></i> Prev - 5. 방화벽 구성을 위해 Security Rules 적용하기</a>
 <a class="nav nav-next" href=https://thekoguryo.github.io/oci/chapter05/2/ title="5.2 Default Security List 업데이트 하기">Next - 5.2 Default Security List 업데이트 하기 <i class="fas fa-arrow-right" aria-hidden=true></i></a></nav><footer><p class=powered>Powered by <a href=https://gohugo.io>Hugo</a>. Theme by <a href=https://github.com/thingsym/hugo-theme-techdoc>TechDoc</a>. Design by <a href=https://www.thingslabo.com/>Thingsym</a>.</p></footer></main><div class=sidebar><nav><ul><li><form method=get action=https://thekoguryo.github.io//search><input type=text id=search-box name=q placeholder=Search></form><script type=text/javascript>$(document).ready(function(){$("#search-box").val($("#search-query").val())})</script></li><li><a></a></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/oci/>OCI(Oracle Cloud Infrastructure)
 <button type=button class=toggleButton>
 <span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter01/>1. OCI 기본개념
@@ -143,9 +140,9 @@
 <button type=button class=toggleButton>
 <span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter03/9/1.burstable-instances/>3.9.1 Burstable Instances 사용하기</a></li></ul></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter04/>4. 고정 IP 할당을 위한 Reserved Public IP
 <button type=button class=toggleButton>
-<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter04/1/>4.1 Reserved Public IP 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter04/2/>4.2 Reserved Public IP 할당하기</a></li></ul></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/oci/chapter05/>5. 방화벽 구성을 위해 Security Lists 사용하기
+<span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter04/1/>4.1 Reserved Public IP 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter04/2/>4.2 Reserved Public IP 할당하기</a></li></ul></li><li class="parent has-sub-menu"><a href=https://thekoguryo.github.io/oci/chapter05/>5. 방화벽 구성을 위해 Security Rules 적용하기
 <button type=button class=toggleButton>
-<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li class=active><a href=https://thekoguryo.github.io/oci/chapter05/1/>5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/2/>5.2 Default Security List 업데이트 하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/3/>5.3 Custom Security List 추가하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/4/>5.4 Apache HTTP Server 접속 테스트</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter06/>6. 사용자 권한 설정을 위해 IAM 사용하기
+<span class="right hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class=down><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=sub-menu><li class=active><a href=https://thekoguryo.github.io/oci/chapter05/1/>5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/2/>5.2 Default Security List 업데이트 하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/3/>5.3 Custom Security List 추가하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/4/>5.4 Network Security Group 추가하기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter05/5/>5.5 Apache HTTP Server 접속 테스트</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter06/>6. 사용자 권한 설정을 위해 IAM 사용하기
 <button type=button class=toggleButton>
 <span class=right><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right"><polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"/></svg></span><span class="down hidden"><svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down"><polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"/></svg></span></button></a><ul class=hidden><li><a href=https://thekoguryo.github.io/oci/chapter06/1/>6.1 Compartment</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/2/>6.2 사용자 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/3/>6.3 그룹 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/4/>6.4 Policy 만들기</a></li><li><a href=https://thekoguryo.github.io/oci/chapter06/5/>6.5 Policy 개념 잡기</a></li></ul></li><li class=has-sub-menu><a href=https://thekoguryo.github.io/oci/chapter07/>7. Object Storage 사용하기
 <button type=button class=toggleButton>

@@ -30,6 +30,8 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 3. **Resources &gt; Metrics** 에서 다음 메트릭을 확인할 수 있습니다.
 
+    * API Server Requests: Kubernetes API 서버가 수신한 요청수
+    * API Server Responses: Kubernetes API 서버의 응답 유형별 초당 응답 수
     * Unschedulable Pods: Pod를 스케쥴하기 위한 리소스가 충분하지 않은 경우 노드풀 확장 작업을 트리거하는데 사용할 수 있는 수치
 
     ![OKE Cluster Metric](images/cluster-metrics.png)
@@ -70,7 +72,7 @@ Observability는 로그와 매트릭, 트레이스(추적)를 조합하여 현�
 
 2. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Observability & Management**로 이동한 다음 **Monitoring**를 선택 합니다.
 
-3. 메트릭 네임스페이서에서 **oci_oke**을 선택합니다.
+3. 메트릭 네임스페이스에서 **oci_oke**을 선택합니다. Dimensions에서 대상 OKE Cluster ID를 선택합니다.
 
     ![oci_oke Service Metrics](images/oci_oke-service-metrics.png)
 
@@ -95,11 +97,11 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
 
     ````shell
     NAME            NAMESPACE               REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
-    mushop          mushop                  1               2023-01-17 09:47:21.427865968 +0000 UTC deployed        mushop-0.1.2            1.0        
-    mushop-utils    mushop-utilities        1               2023-01-17 09:43:36.887044059 +0000 UTC deployed        mushop-setup-0.0.2      1.0      
+    mushop          mushop                  1               2023-06-26 08:22:16.734411354 +0000 UTC deployed        mushop-0.2.1            2.0        
+    mushop-utils    mushop-utilities        1               2023-06-26 08:18:08.724959532 +0000 UTC deployed        mushop-setup-0.0.2      1.0    
     ````
 
-3. **mushop-utils** 에서 Grafana 설치 정보 확인합니다. 다음에서 하는 접속 주소, 암호확인 방법을 확인할 수 있습니다.
+3. **mushop-utils** 에서 Grafana 설치 정보 확인합니다. 다음에서 하는 접속 주소와 관리자암호를 찾는 방법을 확인할 수 있습니다.
 
     ````shell
     <copy>
@@ -179,4 +181,4 @@ Lab 4에서 Helm Chart를 활용하여 Prometheus/Grafana를 이미 설치하였
 
 * **Author** - DongHee Lee, Adao Junior
 * **Korean Translator & Contributors** - DongHee Lee, February 2022
-- **Last Updated By/Date** - DongHee Lee, January 2023
+- **Last Updated By/Date** - DongHee Lee, June 2023

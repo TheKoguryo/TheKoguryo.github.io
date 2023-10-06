@@ -141,4 +141,4 @@ OCI 대시보드에 로그인하여 리소스 생성에 필요한 정보를 확�
 ## Acknowledgements
 
 * **Author** - DongHee Lee
-* **Last Updated By/Date** - DongHee Lee, May 2023
+* **Last Updated By/Date** - DongHee Lee, October 2023

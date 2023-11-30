@@ -74,7 +74,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
         ![Shape을](images/instance-shape-flex.png =70%x*)
     
 
-6. Networking - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다. 생성될 인스턴스에 대한 접속을 위해 **Assign a public IPv4 address**을 선택하여 Public IP를 할당합니다.
+6. Networking - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다. **Automatically assign a public IPv4 address**을 선택되었는지 확인합니다.
 
     ![Networking](images/instance-networking.png =60%x*)
 
@@ -163,7 +163,14 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 3. 브라우저를 열고 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다.
 
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        curl http://144.24.xx.xxx
+        ```
+
     >**노트:** Security Lists에 아직 80 포트가 열려있지 않기 때문에, 응답에 실패하는 것이 정상입니다.
+
 
 4. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
 
@@ -189,6 +196,13 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 8. 브라우저에서 다시 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다. 아래와 같이 index.html 페이지 접속된 결과가 보일 것입니다.
 
     ![Open you browser to the public IP address](images/browser-to-apache.png =40%x*)
+
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        $ curl http://144.24.xx.xxx
+        Hello Apache on Web-Server-1
+        ```
 
 이제 **다음 실습을 진행**하시면 됩니다.
 
@@ -233,4 +247,4 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 - **Author** - Rajeshwari Rai, Prasenjit Sarkar, DongHee Lee
 - **Contributors** - Oracle LiveLabs QA Team (Kamryn Vinson, QA Intern, Arabella Yao, Product Manager, DB Product Management)
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023

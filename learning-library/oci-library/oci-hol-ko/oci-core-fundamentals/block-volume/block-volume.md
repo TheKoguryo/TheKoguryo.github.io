@@ -30,7 +30,7 @@ Block Volume을 이해하기 위해 [Block Volume 개요](https://docs.oracle.co
 
 Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 용량을 추가하는 것입니다. 오라클 클라우드 콘솔 또는 API를 통해 Block Volume을 생성할 수 있습니다. 생성되면 Volume Attachment를 통해 볼륨을 인스턴스에 장착할 수 있습니다. 장착후 iSCSI 또는 반가상화 모드로 인스턴스 게스트 OS에서 볼륨을 연결합니다. 그런 다음 볼륨을 마운트하고 인스턴스에서 사용할 수 있습니다.
 
-1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Storage**으로 이동한 다음 **Block Storage** 을 선택합니다.
+1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Storage**으로 이동한 다음 **Block Storage** 아래 **Block Volumes**을 선택합니다.
 
     ![Go To Block Volume](images/storage-block-storage.png " ")
 
@@ -48,7 +48,7 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 
 3. Volume Size and Performance에서 Custom을 선택하여 사이즈를 변경합니다.
 
-    >**노트**: 사이즈는 **50 GB**에서 **32 TB**까지 설정이 가능하며, 범위내에서 1 GB 단위로 조절가능합니다. 기본값은 1024 GB(1 1TB)입니다. 여기서는 최소값을 선택합니다.
+    >**노트**: 사이즈는 **50 GB**에서 **32 TB**까지 설정이 가능하며, 범위내에서 1 GB 단위로 조절가능합니다. 기본값은 1024 GB(1 TB)입니다. 여기서는 최소값을 선택합니다.
 
      - **Size**: **50 GB** 설정
 
@@ -215,4 +215,4 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 - **Author** - Rajeshwari Rai, Prasenjit Sarkar, DongHee Lee
 - **Contributors** - Oracle LiveLabs QA Team (Kamryn Vinson, QA Intern, Arabella Yao, Product Manager, DB Product Management)
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023

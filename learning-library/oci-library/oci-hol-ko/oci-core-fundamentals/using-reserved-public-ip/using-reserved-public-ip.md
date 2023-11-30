@@ -88,6 +88,12 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 
     ![Web-Server-1](images/browser-to-web-server-with-reserved-ip.png)
 
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        curl http://150.230.xx.xxx
+        ```    
+
 14. 이처럼 Reserved Public IP을 만들어 사용할 수 있으며, 인스턴스에 할당해서 사용합니다. 해당 인스턴스가 종료(Terminate)한 경우에도 다른 인스턴스에 다시 할당하여 사용할 수 있습니다.
 
 ## Task 3: Reserved Public IP 반납
@@ -100,7 +106,7 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 
     ![No public IP](images/unassign-reserved-public-ip.png)
 
-4. 이후 실습과정을 위해 Ephemeral Public IP를 다시 할당합니다.
+4. 이후 실습과정을 위해 **Edit**를 클릭하고, *Ephemeral Public IP*를 다시 할당합니다.
 
 이제 **다음 실습을 진행**하시면 됩니다.
 
@@ -109,5 +115,5 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 - **Author** - Flavio Pereira, Larry Beausoleil, DongHee Lee
 - **Adapted by** -  Yaisah Granillo, Cloud Solution Engineer
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023
 

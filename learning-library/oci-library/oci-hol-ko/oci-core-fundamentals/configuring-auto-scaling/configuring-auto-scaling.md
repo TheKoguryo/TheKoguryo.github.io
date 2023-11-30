@@ -160,10 +160,10 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
     - **Metric-based Autoscaling** 선택
     - **Autoscaling policy name** : 예, web-server-autoscaling-policy
     - **Cooldown in seconds**: 기본값 300초 사용(스케일링 작업간에 최소 간격)
-    - **Performance metric**: CPU와 메모리 중에 여기서는 CPU 선택하겠습니다.
 
         ![Configure autoscaling policy](images/create-autoscaling-configuration-policy.png)
 
+    - **Performance metric**: CPU와 메모리 중에 여기서는 CPU 선택하겠습니다.
     - **Scale in/out rule**: 확장 조건을 평균 CPU 50% 초과시, 축소 조건을 평균 10% 미만으로 설정하겠습니다. 확장, 축소가 반복해서 일어나지 않도록 잘 설정할 필요가 있습니다.
     - **Scaling limits**: 최소 인스턴스 수와 최대 인스턴수를 각각 1과 2로 설정합니다. 그리고 초기 인스턴스를 1개로 설정합니다.
 
@@ -263,4 +263,4 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 - **Author** - Flavio Pereira, Larry Beausoleil, DongHee Lee
 - **Adapted by** -  Yaisah Granillo, Cloud Solution Engineer
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023

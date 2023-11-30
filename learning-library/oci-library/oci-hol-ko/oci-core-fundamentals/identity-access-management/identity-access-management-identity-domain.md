@@ -156,13 +156,9 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
 ### 유저 만들기
 
-1. 브레드 크럼에서 **Default Domain**을 선택합니다.
+1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Domains** 으로 이동하여, **Default Domain**을 선택합니다.
 
-    또는, 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Domains** 하위의 **Users**을 선택합니다.
-
-   ![Select Default domain in the bread crumb](images/id-domains-bc-default-domain.png)
-
-2. **Users** 선택
+2. **Domains** 하위의 **Users**을 선택합니다.
 
    ![Select Users](images/id-domains-users.png)
 
@@ -222,4 +218,4 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
 - **Author** - Orlando Gentil, DongHee Lee
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023

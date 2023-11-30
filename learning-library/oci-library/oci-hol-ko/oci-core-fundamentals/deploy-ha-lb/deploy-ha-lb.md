@@ -67,7 +67,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
 ## Task 2: Web-Server-2 - Compute 인스턴스 접속 및 웹서버 설치하기
 
-[Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service#Task2:Compute)에서 Compute 인스턴스 - Web-Server-1을 생성하고 웹서버를를 설치하였습니다. 동일한 방식으로 웹서버를 설치합니다._
+[Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service#Task2:Compute)에서 Compute 인스턴스 - Web-Server-1을 생성하고 웹서버를를 설치하였습니다. 동일한 방식으로 웹서버를 설치합니다.
 
 
 1. Cloud Shell에서 Web-Server-2 인스턴스에 접속합니다.
@@ -112,6 +112,12 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 4. 브라우저에서 다시 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다. 아래와 같이 index.html 페이지 접속된 결과가 보일 것입니다.
 
     ![Open you browser to the public IP address](images/browser-to-apache-web-server-2.png =40%x*)
+
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        curl http://152.69.xx.xxx
+        ```    
 
 ## Task 3: Load Balancer를 위한 별도 서브넷 추가
 
@@ -190,13 +196,9 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
 	![Networking > Load Balancers](./images/create-lb.png)
 
-2. **Create Load Balancer**을 클릭합니다.
+2. OCI Load Balancer와 OCI Network Load Balancer 두가지 유형이 있습니다. 여기서는 OCI Load Balancer 사용하겠습니다. **Create Load Balancer**을 클릭합니다.
 
-3. L7 유형의 Load Balancer 유형을 선택합니다.
-
-	![Load Balancer](./images/create-lb-type.png =50%x*)
-
-4. Create Load Balancer 생성화면에서 다음을 입력합니다:
+3. Create Load Balancer 생성화면에서 다음을 입력합니다:
 
     **Add Details**
 
@@ -239,7 +241,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
     - **Advanced Options**
 
-        * Security List 탭을 보면, LB 서브넷과 백엔드 컴퓨트 인스턴스가 사용하는 서브넷간의 80포트로 통신이 가능하도록 자동으로 규칙이 추가됩니다. 
+        * Security List 탭을 보면, LB 서브넷과 백엔드 컴퓨트 인스턴스가 사용하는 서브넷간의 80포트로 통신이 가능하도록 자동으로 규칙이 추가되는 것으로 기본 선택임을 볼 수 있습니다. 
 
         ![Security List](./images/create-lb-backends-adv-options.png =60%x*)
 
@@ -299,11 +301,28 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
 	![Web-Server-1](./images/test-lb-web-server-1.png)
 
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        curl http://150.230.xx.xxx
+        ```
+
+
 3. 브라우저를 여러번 리프레쉬합니다. 두 웹서버를 번갈아가며 라우팅 되는 것을 확인할 수 있습니다.
 
 	![Web-Server-2](./images/test-lb-web-server-2.png)
 
 	![Web-Server-1](./images/test-lb-web-server-1.png)    
+
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        kildong@cloudshell:~ (ap-chuncheon-1)$ curl http://150.230.xx.xxx
+        Hello Apache on Web-Server-2
+        kildong@cloudshell:~ (ap-chuncheon-1)$ curl http://150.230.xx.xxx
+        Hello Apache on Web-Server-1
+        ```
+
 
 4. 클라우드 콘솔로 돌아가 두 웹서버 인스턴스 중 하나를 Stop 시킵니다.
 
@@ -312,6 +331,13 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 5. 테스트 브라우저에서 여러번 리프레쉬합니다. 에러 없이 나머지 서버로만 라우팅 되는 것을 확인할 수 있습니다.
 
 	![Web-Server-2](./images/test-lb-web-server-2.png)
+
+    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
+
+        ```
+        kildong@cloudshell:~ (ap-chuncheon-1)$ curl http://150.230.xx.xxx
+        Hello Apache on Web-Server-2
+        ```    
 
 6. 클라우드 콘솔로 돌아가 Stop된 웹서버를 Start 시킵니다. RUNNING 상태가 되고 테스트 브라우저에서 다시 확인해 보면, 다시 두 웹서버를 번갈아가며 라우팅 되는 것을 확인할 수 있습니다.
 
@@ -329,7 +355,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
 3. Web-Server-2 인스턴스도 같은 방법으로 종료 시킵니다.
 
-4. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Load Balancers** 를 선택합니다.
+4. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Load Balancers** 아래 **Load Balancer**를 선택합니다.
 
 5. 만든 Load Balancer를 클릭합니다.
 
@@ -351,4 +377,4 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 - **Adapted by** -  Yaisah Granillo, Cloud Solution Engineer
 - **Contributors** - Anoosha Pilli, Product Manager, Oracle Database
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023

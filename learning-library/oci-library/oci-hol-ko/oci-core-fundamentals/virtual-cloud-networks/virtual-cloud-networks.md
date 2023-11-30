@@ -90,7 +90,7 @@ Oracle Cloud Infrastructure(OCI) Compute를 사용하려면 먼저 VCN(가상 �
 
   ![Created VCN](images/created-oci-hol-vcn.png =70%x*)
 
-12. **View Virtual Cloud Network** 클릭하면, 생성된 VCN의 상세페이지로 이동하며, 만들어진 자원을 확인할 수 있습니다.
+12. **View VCN(Virtual Cloud Network)** 클릭하면, 생성된 VCN의 상세페이지로 이동하며, 만들어진 자원을 확인할 수 있습니다.
 
 이제 **다음 실습을 진행**하시면 됩니다.
 
@@ -99,5 +99,5 @@ Oracle Cloud Infrastructure(OCI) Compute를 사용하려면 먼저 VCN(가상 �
 - **Author** - Rajeshwari Rai, Prasenjit Sarkar, DongHee Lee
 - **Contributors** - Oracle LiveLabs QA Team (Kamryn Vinson, QA Intern, Arabella Yao, Product Manager, DB Product Management)
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023
 

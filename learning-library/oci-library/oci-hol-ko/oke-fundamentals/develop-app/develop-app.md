@@ -18,7 +18,7 @@
 아래와 같이 코드 개발을 위한 툴이 필요합니다. 간단한 앱 개발로 여기서는 편의상 사전에 툴들이 설치된 Cloud Shell에서 진행하겠습니다.
 
 * 선호하는 텍스트 편집기 또는 IDE 또는 Code Editor
-* JDK 1.8 or later
+* JDK 17 or later
 * Maven 3.3+
 
 ### 실습 비디오

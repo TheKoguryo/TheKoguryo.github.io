@@ -100,9 +100,9 @@
      Allow group <group-name> to inspect tenancies in tenancy
 
      # OCI Kubernetes Monitoring Solution
-     Allow group <group-name> to manage loganalytics-features-family in <compartment-name>
-     Allow group <group-name> to manage loganalytics-resources-family in <compartment-name>
-     Allow group <group-name> to manage management-dashboard-family in <compartment-name>
+     Allow group <group-name> to manage loganalytics-features-family in compartment <compartment-name>
+     Allow group <group-name> to manage loganalytics-resources-family in compartment <compartment-name>
+     Allow group <group-name> to manage management-dashboard-family in compartment <compartment-name>
      Allow group <group-name> to manage management-agent-install-keys in compartment <compartment-name>
      Allow group <group-name> to manage dynamic-groups in tenancy
      Allow group <group-name> to manage loganalytics-query in tenancy
@@ -110,6 +110,12 @@
      Allow group <group-name> to read management-agents in compartment <compartment-name>
      Allow group <group-name> to read alarms in compartment <compartment-name>
      Allow group <group-name> to manage policy in compartment <compartment-name>
+     Allow group <group-name> to inspect compartments in tenancy
+     Allow group <group-name> to inspect loganalytics-ondemand-upload in tenancy
+     Allow group <group-name> to inspect loganalytics-lookup in tenancy
+     Allow group <group-name> to inspect loganalytics-label in tenancy
+     Allow group <group-name> to inspect loganalytics-parser in tenancy
+     Allow group <group-name> to inspect loganalytics-source in tenancy
 
      # DevOps
      Allow group <group-name> to manage devops-family in compartment <compartment-name>
@@ -125,7 +131,7 @@
 
     ![OKE](images/developer-oke.png " ")
 
-1. **oci-hol** Compartment에 있는지 확인 하고 **Create Cluster**을 클릭 합니다.
+1. **oci-hol**-*xx* Compartment에 있는지 확인 하고 **Create Cluster**을 클릭 합니다.
 
   ![Compartment](images/create-cluster.png " ")
 
@@ -145,8 +151,8 @@
 
     - 다른 값들은 기본값으로 유지합니다.
     - Node type: Managed 선택
-        * **Managed**: Worker Node가 Compute 인스턴스로 생성되며, SSH로 접근이 가능한 일반적인 쿠버네티스트 노드입니다.
-        * **Virtual**: Serverless로 가상 노드를 사용하며, OCI가 관리합니다.
+        * **Managed**: Worker Node가 Compute 인스턴스로 생성되며, SSH로 접근이 가능한 일반적인 쿠버네티스 노드입니다.
+        * **Virtual**: Serverless로 가상 Worker Node를 사용하며, OCI가 관리합니다.
     - Show advanced options: 필요시, Worker Node의 Boot Volume 사이즈, Node 접속용 SSH Key 등록 등을 할 수 있습니다.
     
     ![Cluster Details](images/oke-create-cluster-details.png =70%x*)
@@ -234,4 +240,4 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, October 2023
+- **Last Updated By/Date** - DongHee Lee, November 2023

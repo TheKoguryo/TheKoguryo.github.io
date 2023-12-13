@@ -218,7 +218,7 @@
 
 쿠버네티스에서 실행하기 위해서는 구동할 서비스 애플리케이션을 컨테이너화 하여야 합니다. Docker 클라이언트를 통해 컨테이너 이미지를 만듭니다.
 
-1. 프로젝트 폴더에 Dockerfile을 아래와 같이 만듭니다. 여기서는 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/) 에서 제공하는 Oracle GraalVM Container Image을 베이스 이미지로 사용합니다.
+1. 프로젝트 폴더에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다.
 
     ````
     <copy>
@@ -229,6 +229,10 @@
     ENTRYPOINT ["java","-jar","/app/app.jar"]    
     </copy>
     ````
+
+    -  여기서는 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/) 에서 제공하는 Oracle GraalVM Container Image을 베이스 이미지로 사용합니다.
+
+
 
 2. 이미지를 빌드합니다.
 

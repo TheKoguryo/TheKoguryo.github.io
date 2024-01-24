@@ -68,6 +68,10 @@
      - Description: Policy for OKE Labs for oci-hol-*xx* compartment
      - Compartment: **root compartment**를 선택
      - Policy:
+
+         * `<group-name>`: Policy를 적용할 사용자 그룹을 선택합니다. 예, 'Default'/'oci-group'
+         * `<compartment-name>`: Policy가 적용될 Compartment를 앞서 만든 Compartment로 선택합니다. 예) oci-hol-*xx*
+
      ```
      # OKE
      Allow group <group-name> to manage instance-family in  compartment <compartment-name>
@@ -143,8 +147,8 @@
 1. 생성 정보를 아래와 같이 입력합니다.
     - Name: 예, **oke-cluster-1**
     - Kubernetes version:
-        * *이후 업그레이드 실습을 위해, 중간 버전인 1.26.x을 선택합니다.*
-        * 2023년 10월 기준, 1.25, 1.26, 1.27 중 *1.26.x* 선택
+        * *이후 업그레이드 실습을 위해, 1.26.x을 선택합니다.*
+        * 2024년 1월 기준, 1.26, 1.27, 1.28 중 *1.26.x* 선택
 
     - Image:
         * 클러스터와 동일한 버전 선택, 예, 1.26.x
@@ -162,11 +166,11 @@
     - Name: 예, **oke-cluster-1**
     - Kubernetes version:
         * *이후 업그레이드 실습을 위해, 중간 버전인 1.26.x을 선택합니다.*
-        * 2023년 10월 기준, 1.25, 1.26, 1.27 중 *1.26.x* 선택
+        * 2024년 1월 기준, 1.26, 1.27, 1.28 중 *1.26.x* 선택
 
     - Image:
         * 클러스터와 동일한 버전 선택, 예, 1.26.x
-        * *Oracle Linux 7* 선택
+        * *Oracle Linux 7* 선택, 이미지 목록을 *제일 아래로 스크롤 후* 처음 만나는 7.x 버전 중에서 선택합니다.
 
     - 다른 값들은 기본값으로 유지합니다.
     - Node type: Managed 선택
@@ -261,4 +265,4 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, January 2024

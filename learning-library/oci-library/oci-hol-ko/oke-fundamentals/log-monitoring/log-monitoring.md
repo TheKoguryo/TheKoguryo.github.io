@@ -334,7 +334,7 @@ OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Moni
 
     ```
     <copy>    
-    helm install elasticsearch -f values.yaml bitnami/elasticsearch --version 19.13.4 -n logging
+    helm install elasticsearch -f values.yaml bitnami/elasticsearch --version 19.16.3 -n logging
     </copy>
     ```
 
@@ -343,7 +343,7 @@ OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Moni
     아래와 같이 설치되며, 실제 컨테이너가 기동하는 데 까지 약간의 시간이 걸립니다.
  
     ```
-    $ helm install elasticsearch -f values.yaml bitnami/elasticsearch --version 19.13.4 -n logging
+    $ helm install elasticsearch -f values.yaml bitnami/elasticsearch --version 19.16.3 -n logging
     NAME: elasticsearch
     ...
       Elasticsearch can be accessed within the cluster on port 9200 at elasticsearch.logging.svc.cluster.local
@@ -474,16 +474,16 @@ OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Moni
 
 7. 생성한 인덱스 패턴을 통해 수집된 로그를 확인할 수 있습니다.
 
-8. 테스트를 위해 MuShop을 접속합니다.
+8. 테스트를 위해 MuShop 웹페이지를 다음과 같이 접속합니다.
 
     - 예, http://138.xxx.xxx.xxx/?efk-test
 
 9. 로그 확인
 
     ````
-    $ kubectl logs -lapp=storefront -f --tail=10
+    $ <copy>kubectl logs -lapp=storefront -f --tail=10</copy>
     ...
-    10.244.0.57 - - [27/Jun/2023:02:58:10 +0000] "GET /?efk-test HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" "10.244.1.0, 10.244.0.133"       
+    10.0.10.61 - - [24/Jan/2024:03:00:25 +0000] "GET /?efk-test HTTP/1.1" 304 0 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" "10.0.10.43, 10.0.10.201"        
     ...
     ````
 
@@ -684,4 +684,4 @@ Agent Configuration는 로그를 수집하는 agent를 설정하는 부분입니
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, October 2023
+- **Last Updated By/Date** - DongHee Lee, January 2024

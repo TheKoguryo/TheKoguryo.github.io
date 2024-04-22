@@ -135,20 +135,25 @@
     ![Code Editor - Terminal](images/code-editor-terminal.png)
     ![Code Editor - Terminal](images/code-editor-terminal-tab.png)
 
-9. CloudShell 상의 현재 JDK 버전을 확인하고, csruntimectl을 통해 생성한 Spring Boot 설정에 맞게 JDK 17로 변경합니다.
+9. 현재 JDK 버전을 확인합니다.
 
     ````
+    $ java -version
+    java version "11.0.22" 2024-01-16 LTS
+    Java(TM) SE Runtime Environment 18.9 (build 11.0.22+9-LTS-219)
+    Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.22+9-LTS-219, mixed mode)
+
     $ <copy>csruntimectl java list</copy>
-       graalvmjdk-17                                          /usr/lib64/graalvm/graalvm-java17
-     * oraclejdk-11                                                       /usr/java/jdk-11.0.17
-       oraclejdk-1.8                                            /usr/lib/jvm/jdk-1.8-oracle-x64       
+       graalvmjdk-17                                      /usr/lib64/graalvm/graalvm-java17
+       oraclejdk-1.8                                        /usr/lib/jvm/jdk-1.8-oracle-x64
+     * oraclejdk-11                                          /usr/lib/jvm/jdk-11-oracle-x64       
     ````
-10. JDK 17로 변경합니다
+10. csruntimectl을 통해 생성한 Spring Boot 설정에 맞게 JDK 17로 변경합니다.
 
     ````
-    $ <copy>csruntimectl java set graalvmeejdk-17</copy>
+    $ <copy>csruntimectl java set graalvmjdk-17</copy>
     The current managed java version is set to graalvmjdk-17.
-
+    
     $ java -version
     java version "17.0.10" 2024-01-16 LTS
     Java(TM) SE Runtime Environment Oracle GraalVM 17.0.10+11.1 (build 17.0.10+11-LTS-jvmci-23.0-b27)
@@ -218,7 +223,28 @@
 
 쿠버네티스에서 실행하기 위해서는 구동할 서비스 애플리케이션을 컨테이너화 하여야 합니다. Docker 클라이언트를 통해 컨테이너 이미지를 만듭니다.
 
-1. 프로젝트 폴더에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다.
+1. [Getting Started | Spring Boot Docker](https://spring.io/guides/topicals/spring-boot-docker) 예시에서 보면 Dockerfile 베이스 이미지로 Docker Hub에 있는 eclipse-temurin:17-jdk-alpine 이미지를 사용합니다.
+
+    ```
+    # Dockerfile
+    FROM eclipse-temurin:17-jdk-alpine
+    VOLUME /tmp
+    ARG JAR_FILE=target/*.jar
+    COPY ${JAR_FILE} app.jar
+    ENTRYPOINT ["java","-jar","/app.jar"]
+    ```
+
+2. OCI에서는 Java를 무료로 사용할 수 있습니다. 그에 따라 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/)에서 제공하는 Java, GraalVM에 대한 Container Image도 무료로 사용할 수 있으며, 해당 이미지는 지속적으로 업데이트됩니다.
+
+    - [High-performance Java on OCI at no additional cost](https://www.oracle.com/cloud/java/#:~:text=High%2Dperformance%20Java%20on%20OCI,interoperability%20with%20no%20performance%20penalty.)
+    - [Oracle Java SE Subscription](https://www.oracle.com/a/tech/docs/javase-subscription-datasheet.pdf)
+
+    ![OCI GraalVM Container Images](images/ocr-graalvm-images.png)
+    
+
+3. 그래서 여기서는 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/) 에서 제공하는 Oracle GraalVM Container Image을 베이스 이미지로 사용합니다.
+
+    프로젝트 폴더에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다. 
 
     ````
     <copy>
@@ -230,11 +256,9 @@
     </copy>
     ````
 
-    -  여기서는 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/) 에서 제공하는 Oracle GraalVM Container Image을 베이스 이미지로 사용합니다.
+    ![Dockerfile](images/dockerfile.png)
 
-
-
-2. 이미지를 빌드합니다.
+4. Terminal에서 이미지를 빌드합니다.
 
     ````
     <copy>
@@ -285,11 +309,11 @@
 
 1. OCIR에 컨테이너 이미지를 푸시하기 위해서는 다음과 같은 이미지 태그 네이밍 규칙을 따라야 합니다. 규칙은 아래와 같습니다.
 
-    > ````<region-key or region-identifier>.ocir.io/<tenancy-namespace>/<repo-name>:<tag>````
+    > ````<OCI_REGION>.ocir.io/<TENANCY_NAMESPACE>/<REPO_NAME>:<TAG>````
 
-    - region-key or region-identifier: 두개 다 사용 가능, 서울은 icn 또는 ap-seoul-1, 춘천은 yny 또는 ap-chuncheon-1을 쓰면 됩니다.
-        * 전체 리전별 주소정보는 [OCIR Available Endpoint](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability)에서 확인하세요.
-    - tenancy-namespace: OCI 콘솔 Tenancy 상세 정보에서 Object Storage Namespace로 확인하거나, 아래 예시와 같이 Cloud Shell에서 **oci os ns get**으로 확인합니다.
+    - OCI_REGION: region-key or region-identifier 둘 다 사용 가능, 서울은 icn 또는 ap-seoul-1, 춘천은 yny 또는 ap-chuncheon-1을 쓰면 됩니다.
+        * 전체 리전별 주소정보는 [OCIR Available Endpoints](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability)에서 확인하세요.
+    - TENANCY_NAMESPACE: OCI 콘솔 Tenancy 상세 정보에서 Object Storage Namespace로 확인하거나, 아래 예시와 같이 Cloud Shell 또는 Code Editor Terminal에서 **oci os ns get**으로 확인합니다.
 
         ````
         $ <copy>oci os ns get</copy>
@@ -298,45 +322,41 @@
         }
         ````
 
-    - repo-name: OCIR에서 고유하게 사용할 이름입니다. 사용할 이미지 이름, 경로가 있는 경우 경로를 포함한 이름
+    - REPO_NAME: OCIR에서 Cloud Account내에서 고유하게 사용하는 저장소 이름입니다. 사용할 이미지 이름 또는 경로가 있는 경우 경로까지 포함한 이름
 
+        * 예시) oci-hol-*xx*/spring-boot-greeting
 
-2. OCIR 등록을 위해 기존 이미지에 추가로 태그를 답니다.
-    - OCI_REGION: *각자 환경에 맞게 수정 필요*, 예시) ap-chuncheon-1
-    - TENANCY_NAMESPACE: *각자 환경에 맞게 수정 필요*, 예시) axjowrxaexxx
-    - REPO_NAME: *다른 유저랑 충돌되지 않게, 각자에 맞게 수정 필요*, 예시) *oci-hol-xx*/spring-boot-greeting
-    - TAG: *각자에 맞게 수정 필요*, 예시에서는 1.0
+    - TAG: 예시) 1.0
 
-    - 편의를 위해 아래와 같이 기존 Cloud Shell 환경 변수(*`$OCI_REGION`*) 및 신규 등록(*`$TENANCY_NAMESPACE`*)하여 사용할 수 있습니다.
+    - 작성 태그 예시
 
-        ````
-        <copy>
-        TENANCY_NAMESPACE=`oci os ns get --query 'data' --raw-output`
-        docker tag spring-boot-greeting:1.0 $OCI_REGION.ocir.io/$TENANCY_NAMESPACE/oci-hol-xx/spring-boot-greeting:1.0
-        </copy>    
-        ```` 
+        ```
+        # 네이밍 규칙
+        <OCI_REGION>.ocir.io/<TENANCY_NAMESPACE>/<REPO_NAME>:<TAG>
 
-    - 실행예시
+        # 작성 예시
+        # 각자 환경에 맞게 수정 필요
+        ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/spring-boot-greeting:1.0
+        ```    
 
-        ````
-        $ TENANCY_NAMESPACE=`oci os ns get --query 'data' --raw-output`
-        $ echo $TENANCY_NAMESPACE
-        axjowrxaexxx
-        $ echo $OCI_REGION
-        ap-chuncheon-1
-        $ docker tag spring-boot-greeting:1.0 $OCI_REGION.ocir.io/$TENANCY_NAMESPACE/oci-hol-xx/spring-boot-greeting:1.0
-        $ docker images
-        REPOSITORY                                                           TAG  IMAGE ID      CREATED        SIZE
-        spring-boot-greeting                                                 1.0  ba7f0834c569  4 minutes ago  665MB
-        ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/spring-boot-greeting  1.0  ba7f0834c569  4 minutes ago  665MB
-        container-registry.oracle.com/graalvm/jdk                            17   1bd1c42de308  7 days ago     643MB      
-        ````    
+2. OCIR 등록을 위해 생성한 기존 이미지에 추가로 태그를 답니다.
+
+    ````  
+    $ docker tag spring-boot-greeting:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/spring-boot-greeting:1.0
+    
+    $ docker images
+    REPOSITORY                                                           TAG  IMAGE ID      CREATED         SIZE
+    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/spring-boot-greeting  1.0  7aac47238516  11 minutes ago  668MB
+    spring-boot-greeting                                                 1.0  7aac47238516  11 minutes ago  668MB
+    container-registry.oracle.com/graalvm/jdk                            17   73c859405e6f  4 days ago      646MB    
+    ````    
 
 3. OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.
     - Docker CLI 로그인용 Username: `<TENANCY_NAMESPACE>/<USER_NAME>` 형식
         * `<USER_NAME>`: OCI 서비스 콘솔에서 유저 Profile에서 보이는 유저명
         
             * Default Identity Domain 사용시: Default를 제외한 이름, 예, winter
+            * oracleidentitycloudservice Identity Domain 내 유저인 경우:  예, oracleidentitycloudservice/winter@example.com
 
         ![OCI User Name](images/oci-user-name.png)     
     - Docker CLI 로그인용 Password: 사용자의 Auth Token을 사용
@@ -433,6 +453,12 @@
     kind: Service
     metadata:
       name: spring-boot-greeting-service
+      annotations:
+        oci.oraclecloud.com/load-balancer-type: "lb"
+        service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+        service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+        service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
+        service.beta.kubernetes.io/oci-load-balancer-backend-protocol: "HTTP"  
     spec:
       selector:
         app: spring-boot-greeting
@@ -478,7 +504,7 @@
     ````
 
 5. Pod가 정상적으로 기동하였습니다. LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
-    - EXTERNAL-IP가 <pending> 상태인 경우 LoadBalancer가 생성완료될때 까지 잠시 기다립니다.
+    - EXTERNAL-IP가 `<pending>` 상태인 경우 LoadBalancer가 생성완료될때 까지 잠시 기다립니다.
 
     ```
     <copy>
@@ -509,4 +535,4 @@
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, January 2024
+- **Last Updated By/Date** - DongHee Lee, April 2024

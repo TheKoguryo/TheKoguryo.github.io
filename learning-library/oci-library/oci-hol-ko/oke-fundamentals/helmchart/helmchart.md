@@ -107,7 +107,7 @@ Helm은 복잡한 쿠버네티스 애플리케이션을 배포하기 위한 쿠�
     ````
     ...
      7 image:
-     8   repository: ap-chuncheon-1.ocir.io/cn8wdnkejjgq/oci-hol-xx/spring-boot-greeting
+     8   repository: ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/spring-boot-greeting
      9   pullPolicy: IfNotPresent
     10   # Overrides the image tag whose default is the chart appVersion.
     11   tag: "1.0"

@@ -334,14 +334,14 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
             name: "Define OCIR Path"
             timeoutInSeconds: 30
             command: |
-              if [ -z "${REPO_NAME_PREFIX}" ] ; then
-                  REPO_NAME=$APP_NAME
-              else
+              if [ -n "${REPO_NAME_PREFIX}" ] ; then
                   REPO_NAME=$REPO_NAME_PREFIX/$APP_NAME
+              else
+                  REPO_NAME=$APP_NAME
+              fi
         
-                  if [ ! -z "$COMPARTMENT_ID" ] ; then
-                      oci artifacts container repository create --display-name $REPO_NAME --compartment-id $COMPARTMENT_ID
-                  fi
+              if [ -n "$COMPARTMENT_ID" ] ; then
+                  oci artifacts container repository create --display-name $REPO_NAME --compartment-id $COMPARTMENT_ID
               fi
               TENANCY_NAMESPACE=`oci os ns get --query data --raw-output`
               OCIR_PATH=$OCI_RESOURCE_PRINCIPAL_REGION.ocir.io/$TENANCY_NAMESPACE/$REPO_NAME
@@ -432,16 +432,9 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
     ![Add Artifact](images/add-artifact-1.png)
 
-6. 같은 방식으로 하나 더 추가 합니다.
+6. Artifact 매핑
 
-    - Name: `generated_image_with_latest`
-    - Artifact source: ${OCIR_PATH}:latest
-
-        ![Associate Artifacts](images/associate-artifacts-1.png =70%x*)    
-
-7. Artifact 매핑
-
-    - Associate Artifact에서 방금 추가한 2개의 Artifact에 실제 컨테이너 이미지 파일을 매핑해 줍니다. 앞서 build-stage에서 build_spec.yaml에서 정의한 outputArtifacts 상의 이름을 입력합니다.
+    - Associate Artifact에서 방금 추가한 1개의 Artifact에 실제 컨테이너 이미지 파일을 매핑해 줍니다. 앞서 build-stage에서 build_spec.yaml에서 정의한 outputArtifacts 상의 이름을 입력합니다.
 
         ```
         outputArtifacts:
@@ -450,13 +443,13 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
             location: new-generated-image 
         ```
 
-        ![Associate Artifacts](images/associate-artifacts-2.png =70%x*)
+        ![Associate Artifacts](images/associate-artifacts-2.png)
 
-8. 아래쪽 **Add** 버튼을 클릭하여, 이제 delivery stage을 추가 완료합니다.
+7. 아래쪽 **Add** 버튼을 클릭하여, 이제 delivery stage을 추가 완료합니다.
 
-9. 파이프라인을 다시 실행해 봅니다. 
+8. 파이프라인을 다시 실행해 봅니다. 
 
-10. 이제 실제 소스코드로 빌드된 컨테이너 이미지가 OCIR에 자동으로 등록됩니다.
+9. 이제 실제 소스코드로 빌드된 컨테이너 이미지가 OCIR에 자동으로 등록됩니다.
 
     ![Pushed Image](images/pushed-image.png)
 
@@ -492,7 +485,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 1. **DevOps 프로젝트 페이지**로 이동하여 왼쪽 메뉴의 **Artifacts**로 이동합니다.
 
-2. Artifacts로 앞서 빌드 파이프라인 만들때 등록한 2개가 있는 것을 볼수 있습니다. 여기에 등록된 Artifact는 재사용이 가능합니다.
+2. Artifacts로 앞서 빌드 파이프라인 만들때 등록한 1개가 있는 것을 볼수 있습니다. 여기에 등록된 Artifact는 재사용이 가능합니다.
 
     ![Artifacts](images/artifacts.png)
 
@@ -632,7 +625,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
         </copy>        
         ```
 
-7. Cloud Shell로 돌아가 배포될 mushop namespace에 ocir-secret을 이전 실습에서 한 것 방업으로 다시 만듭니다.
+7. Cloud Shell로 돌아가 배포될 mushop namespace에 ocir-secret을 이전 실습에서 한 것 방법으로 다시 만듭니다.
 
     ````
     <copy>
@@ -838,4 +831,4 @@ Trigger에서 지정한 소스 코드에 임의의 변경사항을 발생시키�
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, April 2024

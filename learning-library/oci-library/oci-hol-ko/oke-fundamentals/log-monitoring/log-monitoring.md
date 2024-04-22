@@ -45,23 +45,27 @@ OCI Logging Analytics에서 지원하는 방법에 맞춰 컨테이너 로그도
 
 ![OCI Kubernetes Monitoring Solution](images/k8s-oke-monitoring.png)
 
-### OCI Kubernetes Monitoring Solution 설치
-
-OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스를 통해 Resource Manager, Terraform, Helm 등으로 설치할 수 있습니다. 
+### OCI Logging Analytics가 활성화
 
 *설치전에 대상 Region에 OCI Logging Analytics가 활성화되어 있어야 합니다. 내비게이션 메뉴에서 **Observability & Management** > **Logging Analytics** 화면으로 이동하여, 활성화되었는지 확인합니다. 활성화되지 않은 경우 먼저 활성화합니다.*
 
+![Start Using Logging Analytics](images/start-using-logging-analytics.png)
+
+### OCI Kubernetes Monitoring Solution 설치
+
+OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스를 통해 Resource Manager, Terraform, Helm 등으로 설치할 수 있습니다. 여기서는 Resource Manager을 통해 설치합니다.
+
 1. [GitHub - OCI Kubernetes Monitoring Solution](https://github.com/oracle-quickstart/oci-kubernetes-monitoring) 으로 이동합니다.
 
-2. GitHub Repository 아래 버튼을 클릭하여 최신 소스로 설치를 시작합니다.
+2. 설명 중 [OCI Resource Manager](https://github.com/oracle-quickstart/oci-kubernetes-monitoring?tab=readme-ov-file#oci-resource-manager) 아래 *Deploy to Oracle Cloud*를 클릭하면 최신 소스를 Resource Manager로 설치할 수 있습니다.
 
     ![Deploy to Oracle Cloud](images/deploy-to-oracle-cloud.png)
 
-3. 설치를 시작하면 Resource Manager의 Stack 생성화면으로 이동됩니다.
+3. 클릭하면 Resource Manager의 Stack 생성화면으로 이동됩니다.
 
-4. 작성일 기준으로 V3.2.0 버전을 사용하였습니다.
+4. 작성일 기준으로 V3.4.0 버전을 사용하였습니다.
 
-5. 설치 기본 정보를 입력합니다.
+5. 약관에 동의하고, 설치 기본 정보를 입력합니다.
 
      - Create in compartment: Resource Manager Stack이 설치될 위치입니다.
 
@@ -83,7 +87,7 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
 9. 설치가 완료할 때 까지 기다립니다. 실패한 경우, Logs를 확인하여 문제를 해결하고 재시도합니다.
 
-10. 아래 Dynamic Group 및 Policy이 만들어집니다. Log & Object Collection Pods가 있는 Worker Nodes들에 OCI Logging Analytics에 로그를 업로드할 권한을 부여하고 있습니다
+10. 아래 Dynamic Group 및 Policy이 만들어집니다. Log & Object Collection Pods가 있는 Worker Nodes 그룹에게 OCI Logging Analytics에 로그를 업로드할 권한을 부여합니다.
 
      - Dynamic Group: oci-kubernetes-monitoring-xxx...
 
@@ -102,8 +106,9 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
          - OCI Logging Anaytics Comparment로 선택한 Compartment에 생성됨
     
          ```shell
-         Allow dynamic-group oci-kubernetes-monitoring-xxx... to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment oci-hol
-         Allow dynamic-group oci-kubernetes-monitoring-xxx... to use METRICS in compartment oci-hol WHERE target.metrics.namespace = 'mgmtagent_kubernetes_metrics'
+         Allow dynamic-group oci-kubernetes-monitoring-xxx... to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment id ocid1.compartment.oc1..aaaaa_____32sa
+         Allow dynamic-group oci-kubernetes-monitoring-xxx... to use METRICS in compartment id ocid1.compartment.oc1..aaaaa_____32sa WHERE target.metrics.namespace = 'mgmtagent_kubernetes_metrics'
+         Allow dynamic-group oci-kubernetes-monitoring-xxx... to {LOG_ANALYTICS_DISCOVERY_UPLOAD} in tenancy         
          ```
 
 11. 왼쪽 위 내비게이션 메뉴에서 **Observability & Management** > **Logging Analytics** > **Administration**으로 이동합니다.
@@ -121,21 +126,26 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
     - helm chart로 설치된 것을 확인할 수 있습니다.
 
       ```shell
-      $ helm list -n default
-      NAME                            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART           APP VERSION
-      oci-kubernetes-monitoring       default         1               2023-10-16 08:55:30.03630867 +0000 UTC  deployed        oci-onm-3.0.2   3.0.0      
+      $ <copy>helm list -n default -o yaml</copy>
+      - app_version: 3.0.0
+        chart: oci-onm-3.4.0
+        name: oci-kubernetes-monitoring
+        namespace: default
+        revision: "1"
+        status: deployed
+        updated: 2024-04-19 07:42:25.95497648 +0000 UTC
       ```
 
     - oci-onm 네임스페이스에 관련 Pod가 설치되었습니다.
 
       ```shell
-      $ kubectl get pod -n oci-onm
-      NAME                             READY   STATUS    RESTARTS   AGE
-      oci-onm-logan-5959f8f699-jh4sn   1/1     Running   0          25m
-      oci-onm-logan-5ksk2              1/1     Running   0          25m
-      oci-onm-logan-c7cdb              1/1     Running   0          25m
-      oci-onm-logan-sfgbk              1/1     Running   0          25m
-      oci-onm-mgmt-agent-0             1/1     Running   0          25m
+      $ <copy>kubectl get pod -n oci-onm</copy>
+      NAME                                   READY   STATUS      RESTARTS   AGE
+      pod/oci-onm-discovery-28558565-8jz98   0/1     Completed   0          24m
+      pod/oci-onm-logan-7x8l9                1/1     Running     0          24m
+      pod/oci-onm-logan-bgg2s                1/1     Running     0          24m
+      pod/oci-onm-logan-n7vrs                1/1     Running     0          24m
+      pod/oci-onm-mgmt-agent-0               1/1     Running     0          24m      
       ```
       
 
@@ -161,19 +171,17 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
      ![Kubernetes Container Generic Logs](images/log-explorer-drilldown-k8s-generic-log.png)
 
-7. 테스트를 위해 default 네임스페이스에 배포된 nginx 앱을 사용하겠습니다.
-
-8. 필터링을 위해 *Search Fields*에 namespace로 검색합니다. 검색 결과 중에서 Namespace를 클릭하면 현재 검색된 로그들을 Namespace 단위로 카운트가 보입니다. 여기서 default namespace를 선택하고 적용합니다.
+7. 필터링을 위해 *Search Fields*에 namespace로 검색합니다. 검색 결과 중에서 Namespace를 클릭하면 현재 검색된 로그들을 Namespace 단위로 카운트가 보입니다. 여기서 mushop namespace를 선택하고 적용합니다.
 
      ![image-20230907182822235](images/log-explorer-k8s-mushop-namespace.png =50%x*)
 
-9. 검색 쿼리가 아래와 같이 변경되었습니다. 아래와 같이 직접 `and Namespace = mushop`를 입력하여도 됩니다.
+8. 검색 쿼리가 아래와 같이 변경되었습니다. 아래와 같이 직접 `and Namespace = mushop`를 입력하여도 됩니다.
 
      ```shell
      'Log Source' = 'Kubernetes Container Generic Logs' and Namespace = mushop | timestats count as logrecords by 'Log Source' | sort -logrecords
      ```
 
-10. MuShop 앱 접속을 위해 Nginx Ingress Controller의 Load Balancer IP를 다시 확인합니다.
+9. MuShop 앱 접속을 위해 Nginx Ingress Controller의 Load Balancer IP를 다시 확인합니다.
 
     ````
     <copy>    
@@ -189,7 +197,7 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
     ...    
     ````
 
-11. Mushop UI이 store-front Pod의 로그를 조회합니다. app: storefront 레이블을 기준으로 로그를 조회합니다.
+10. Mushop UI인 store-front Pod의 로그를 조회합니다. app: storefront 레이블을 기준으로 로그를 조회합니다.
 
     ````
     <copy>
@@ -211,6 +219,12 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
     ````
 
 14. 결과가 많으면, 쿼리에 검색조건을 추가하여 다시 검색합니다.
+
+    ```
+    <copy>
+    'Log Source' = 'Kubernetes Container Generic Logs' and Namespace = mushop and Container = storefront and logging-analytics-logtest | timestats count as logrecords by 'Log Source' | sort -logrecords
+    </copy>
+    ```
 
      ![Log Query](images/mushop-logging-analytics-log-query.png)
 
@@ -242,13 +256,13 @@ OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Moni
 1. 쿠버네티스 클러스스터에 설치된 자원을 다시 조회해 보면, mgmt-agent가 설치된 것을 알 수 있습니다.
 
      ```shell
-     $ kubectl get pod -n oci-onm
-     NAME                             READY   STATUS    RESTARTS   AGE
-     oci-onm-logan-5959f8f699-jh4sn   1/1     Running   0          25m
-     oci-onm-logan-5ksk2              1/1     Running   0          25m
-     oci-onm-logan-c7cdb              1/1     Running   0          25m
-     oci-onm-logan-sfgbk              1/1     Running   0          25m
-     oci-onm-mgmt-agent-0             1/1     Running   0          25m
+     $ <copy>kubectl get pod -n oci-onm</copy>
+     NAME                                   READY   STATUS      RESTARTS   AGE
+     pod/oci-onm-discovery-28558565-8jz98   0/1     Completed   0          24m
+     pod/oci-onm-logan-7x8l9                1/1     Running     0          24m
+     pod/oci-onm-logan-bgg2s                1/1     Running     0          24m
+     pod/oci-onm-logan-n7vrs                1/1     Running     0          24m
+     pod/oci-onm-mgmt-agent-0               1/1     Running     0          24m   
      ```
 
 2. OCI 콘솔에 로그인합니다.
@@ -297,7 +311,7 @@ OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Moni
     </copy>       
     ```
 
-3. Lab 3, 4에서 사용하던 values.yaml과 중복되지 않도록 다른 폴더에서 진행합니다.
+3. 이전 실습에서 사용하던 values.yaml과 중복되지 않도록 다른 폴더에서 진행합니다.
 
 4. 배포 설정값 정의
  

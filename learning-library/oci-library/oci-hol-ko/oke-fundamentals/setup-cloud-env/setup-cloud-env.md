@@ -31,7 +31,7 @@
   ![Landing Screen](images/landing-screen.png " ")
 
 
-## Task 2: 기본 OCI 인프라 설정
+## Task 2: 기본 OCI 인프라 설정 (X)
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Compartments** 을 선택합니다.
 
@@ -50,7 +50,7 @@
       ![AppDev Compartment](images/compartment-create.png =50%x*)
 
 
-## Task 3: 실습을 위한 Policy 생성
+## Task 3: 실습을 위한 Policy 생성 (X)
 
 *서비스를 사용하기 위한 권한을 설정합니다. 테넌시 기준의 Policy를 포함하고 있기 때문에 관리자로 로그인하여 수행하여야 합니다.*
 
@@ -113,7 +113,7 @@
      Allow group <group-name> to inspect loganalytics-field in tenancy
      Allow group <group-name> to read management-agents in compartment <compartment-name>
      Allow group <group-name> to read alarms in compartment <compartment-name>
-     Allow group <group-name> to manage policy in compartment <compartment-name>
+     Allow group <group-name> to manage policy in tenancy
      Allow group <group-name> to inspect compartments in tenancy
      Allow group <group-name> to inspect loganalytics-ondemand-upload in tenancy
      Allow group <group-name> to inspect loganalytics-lookup in tenancy
@@ -124,6 +124,12 @@
      # DevOps
      Allow group <group-name> to manage devops-family in compartment <compartment-name>
      Allow group <group-name> to manage ons-family in compartment <compartment-name>
+
+     # Cloud Shell
+     Allow group <group-name> to use cloud-shell in tenancy
+
+     # Load Balancers
+     Allow group <group-name> to read load-balancers in compartment <compartment-name>
      ```
 
 4. **Create**를 클릭하여 생성합니다.
@@ -147,11 +153,11 @@
 1. 생성 정보를 아래와 같이 입력합니다.
     - Name: 예, **oke-cluster-1**
     - Kubernetes version:
-        * *이후 업그레이드 실습을 위해, 1.26.x을 선택합니다.*
-        * 2024년 1월 기준, 1.26, 1.27, 1.28 중 *1.26.x* 선택
+        * *이후 업그레이드 실습을 위해, 1.28.x을 선택합니다.*
+        * 2024년 1월 기준, 1.27, 1.28, 1.29 중 *1.28.x* 선택
 
     - Image:
-        * 클러스터와 동일한 버전 선택, 예, 1.26.x
+        * 클러스터와 동일한 버전 선택, 예, 1.28.x
 
     - 다른 값들은 기본값으로 유지합니다.
     - Node type: Managed 선택
@@ -165,11 +171,11 @@
 1. 생성 정보를 아래와 같이 입력합니다.
     - Name: 예, **oke-cluster-1**
     - Kubernetes version:
-        * *이후 업그레이드 실습을 위해, 중간 버전인 1.26.x을 선택합니다.*
-        * 2024년 1월 기준, 1.26, 1.27, 1.28 중 *1.26.x* 선택
+        * *이후 업그레이드 실습을 위해, 1.28.x을 선택합니다.*
+        * 2024년 1월 기준, 1.27, 1.28, 1.29 중 *1.28.x* 선택
 
     - Image:
-        * 클러스터와 동일한 버전 선택, 예, 1.26.x
+        * 클러스터와 동일한 버전 선택, 예, 1.28.x
         * *Oracle Linux 7* 선택, 이미지 목록을 *제일 아래로 스크롤 후* 처음 만나는 7.x 버전 중에서 선택합니다.
 
     - 다른 값들은 기본값으로 유지합니다.
@@ -227,25 +233,30 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
 
   ![CloudShell](images/cloudshell-2.png " ")
 
-2. **Clusters** 목록에서 방금 생성한 클러스터를 선택한 다음 **Access Cluster** 버튼을 클릭합니다.
+2. Cloud Shell VM의 아키턱처를 x86으로 변경하고, Cloud Shell을 재시작합니다.
+
+  ![CloudShell Architecture](images/cloudshell-architecture.png =35%x*)
+  ![CloudShell Architecture](images/cloudshell-architecture-x86.png =40%x*)
+
+3. **Clusters** 목록에서 방금 생성한 클러스터를 선택한 다음 **Access Cluster** 버튼을 클릭합니다.
 
    ![Access Cluster](images/oke-access-cluster.png " ")
 
-3. 복사한 명령을 Cloud Shell 터미널에 붙여 실행하여 kubeconfig을 만듭니다.
+4. 복사한 명령을 Cloud Shell 터미널에 붙여 실행하여 kubeconfig을 만듭니다.
 
    ![Access Cluster](images/oke-access-cluster-cli.png =50%x*)
 
    ![Access Cluster](images/oke-cloud-shell-create-kubeconfig.png " ")
 
-4. 다음 `kubectl` 명령을 사용하여 kubectl 클라이언트 및 kubernetes 서버의 버전을 확인하십시오.
+5. 다음 `kubectl` 명령을 사용하여 kubectl 클라이언트 및 kubernetes 서버의 버전을 확인하십시오.
 
     ````shell
     <copy>
-    kubectl version --short
+    kubectl version
     </copy>
     ````
 
-5. 다음 `kubectl` 명령을 사용하여 Worker 노드 정보를 조회하고 _Ready_ 상태인지 확인하십시오..
+6. 다음 `kubectl` 명령을 사용하여 Worker 노드 정보를 조회하고 _Ready_ 상태인지 확인하십시오..
 
     ````shell
     <copy>
@@ -254,10 +265,10 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
     ````
 
     ````shell
-    NAME          STATUS   ROLES   AGE     VERSION
-    10.0.10.121   Ready    node    5m3s    v1.26.7
-    10.0.10.229   Ready    node    4m40s   v1.26.7
-    10.0.10.23    Ready    node    5m11s   v1.26.7
+    NAME          STATUS   ROLES   AGE   VERSION
+    10.0.10.165   Ready    node    15m   v1.28.2
+    10.0.10.170   Ready    node    15m   v1.28.2
+    10.0.10.210   Ready    node    15m   v1.28.2    
     ````
 
 이제 **다음 실습을 진행**하시면 됩니다.
@@ -265,4 +276,4 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, January 2024
+- **Last Updated By/Date** - DongHee Lee, April 2024

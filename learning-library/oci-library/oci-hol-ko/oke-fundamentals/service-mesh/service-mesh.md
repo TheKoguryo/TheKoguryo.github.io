@@ -32,7 +32,7 @@
 
     ```
     <copy>
-    curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.20.2 TARGET_ARCH=x86_64 sh -
+    curl -L https://istio.io/downloadIstio | ISTIO_VERSION=1.21.1 TARGET_ARCH=x86_64 sh -
     </copy>
     ```
 
@@ -40,7 +40,7 @@
 
     ```
     <copy>
-    cd istio-1.20.2/
+    cd istio-1.21.1/
     </copy>
     ```
 
@@ -250,8 +250,8 @@
     kiali를 위해 prometheus addon도 함께 설치합니다.
     ```
     <copy>
-    kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.19/samples/addons/prometheus.yaml   
-    kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.19/samples/addons/kiali.yaml
+    kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.21/samples/addons/prometheus.yaml   
+    kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.21/samples/addons/kiali.yaml
     </copy>
     ```
 
@@ -490,4 +490,4 @@
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, January 2024
+- **Last Updated By/Date** - DongHee Lee, April 2024

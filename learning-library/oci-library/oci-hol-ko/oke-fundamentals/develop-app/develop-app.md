@@ -446,6 +446,7 @@
           containers:
           - name: spring-boot-greeting
             image: $IMAGE_REGISTRY_PATH
+            imagePullPolicy: Always
           imagePullSecrets:
           - name: ocir-secret
     ---

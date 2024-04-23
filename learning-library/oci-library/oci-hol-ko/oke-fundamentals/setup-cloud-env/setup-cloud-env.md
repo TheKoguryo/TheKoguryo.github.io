@@ -73,6 +73,7 @@
          * `<compartment-name>`: Policy가 적용될 Compartment를 앞서 만든 Compartment로 선택합니다. 예) oci-hol-*xx*
 
      ```
+     <copy>
      # OKE
      Allow group <group-name> to manage instance-family in  compartment <compartment-name>
      Allow group <group-name> to use subnets in  compartment <compartment-name>
@@ -131,6 +132,7 @@
 
      # Load Balancers
      Allow group <group-name> to read load-balancers in compartment <compartment-name>
+     </copy>
      ```
 
 4. **Create**를 클릭하여 생성합니다.

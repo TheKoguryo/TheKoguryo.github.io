@@ -127,6 +127,7 @@
 
      # Cloud Shell
      Allow group <group-name> to use cloud-shell in tenancy
+     Allow group <group-name> to use cloud-shell-public-network in tenancy
 
      # Load Balancers
      Allow group <group-name> to read load-balancers in compartment <compartment-name>

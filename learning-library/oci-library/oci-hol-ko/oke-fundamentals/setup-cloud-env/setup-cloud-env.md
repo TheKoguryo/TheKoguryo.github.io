@@ -168,7 +168,7 @@
         * **Virtual**: Serverless로 가상 Worker Node를 사용하며, OCI가 관리합니다.
     - Show advanced options: 필요시, Worker Node의 Boot Volume 사이즈, Node 접속용 SSH Key 등록 등을 할 수 있습니다.
     
-    ![Cluster Details](images/oke-create-cluster-details.png =70%x*)
+    ![Cluster Details](images/oke-create-cluster-details-platform.png =70%x*)
 </if>
 <if type="for-istio">
 1. 생성 정보를 아래와 같이 입력합니다.
@@ -197,13 +197,13 @@
 
 1. 클러스터 생성 정보를 모두 입력하였습니다. 아래 Next를 클릭
 
-1. 기본적으로 Enhanced Cluster 타입이 선택됩니다. 여기서는 Basic Cluster 사용을 위해 화면 아래 Basic Cluster Confirmation에서 *Create a Basic cluster*를 클릭합니다
+1. 기본적으로 Enhanced Cluster 타입이 선택됩니다.
 
-    ![Basic Cluster Confirmation](images/basic-cluster-confirmation.png " ")
+    ![Basic Cluster Confirmation](images/basic-cluster-confirmation-unchecked.png =60%x*)
 
 1. 생성될 클러스터 정보를 검토하고 **Create Cluster**를 클릭합니다.
 
-    ![Cluster Info](images/oke-create-cluster-details-review.png " ")
+    ![Cluster Info](images/oke-create-cluster-details-review-enhanced.png " ")
 
 1. 일단 시작되면 클러스터가 *완전히 프로비저닝되고 Active 상태로 표시하는 데 일반적으로 3개 노드기준, 약 10-15분이 걸립니다.*
 

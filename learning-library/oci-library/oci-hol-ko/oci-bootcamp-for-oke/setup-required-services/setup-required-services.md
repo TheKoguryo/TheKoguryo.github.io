@@ -76,7 +76,7 @@
 
 6. DB system 타입: **Standalone**을 선택합니다.
 
-7. Configure networking: OKE 클러스터의 Worker Node가 속한 서브넷을 선택합니다.
+7. Configure networking: OKE 클러스터의 *Worker Node가 속한 서브넷*을 선택합니다.
 
     ![Networking](images/mysql-configure-networking.png " ")
 
@@ -93,14 +93,16 @@
 
 11. Create 버튼을 클릭하여, DB를 생성합니다.    
 
-12. 일단 시작되면 MySQL DB가 프로비저닝됩니다. 위 설정기준으로 Active 상태로 되기까지, 약 10~15분 정도 걸립니다.
+12. 일단 시작되면 MySQL DB가 프로비저닝됩니다. 위 설정기준으로 Active 상태로 되기까지, *약 10~15분 정도 걸립니다.*
 
 
 ## Task 3: Cloud Shell에서 생성한 MySQL 접근하기
 
+**MySQL DB가 아직 프로비저닝 중이라면, 기다리는 동안 [Task 4](#Task4:Redis)를 먼저 진행합니다.**
+
 1. 생성된 MySQL의 DB System 상세정보를 확인합니다.
 
-2. 왼쪽 아래 Resources > Endpoints를 클릭하여, Endpoint 주소와 Port를 확인합니다. 
+2. 왼쪽 아래 **Resources** > **Endpoints**를 클릭하여, Endpoint 주소와 Port를 확인합니다. 
 
     *Endpoint 주소는 생성시 지정한 서브넷상의 Private IP임을 유의합니다.*
 
@@ -192,7 +194,7 @@
 
 5. 다음으로 네트워크를 구성합니다.
 
-    - 사용할 VCN과 서브넷을 선택합니다. OKE 클러스터의 Worker Node가 속한 서브넷을 선택합니다.
+    - 사용할 VCN과 서브넷을 선택합니다. OKE 클러스터의 *Worker Node가 속한 서브넷*을 선택합니다.
     - *생성된 Redis 클러스터는 Private Endpoint만 제공하여, Public Subnet을 선택하셔도 인터넷에서 접속은 불가합니다.*
 
     ![Redis Configure Networking](images/redis-create-cluster-configure-networking.png " ")
@@ -203,9 +205,10 @@
 
 8. 동적 변경을 확인하기 위해, 생성된 클러스터 정보에서 **Resize nodes**를 클릭하여, 2개로 변경합니다.
 
-    ![Redis Resize Nodes](images/redis-resize-nodes.png " ")
+    ![Redis Resize Nodes](images/redis-resize-nodes-1.png " ")
+    ![Redis Resize Nodes](images/redis-resize-nodes-2.png " ")
 
-9. 여기서는 변경완료를 기다리지말고 다음으로 넘어갑니다.
+9. 여기서는 *변경완료를 기다리지말고 다음으로 넘어갑니다.*
 
 ## Task 5: Cloud Shell에서 생성한 Redis 클러스터 접근하기
 
@@ -232,11 +235,12 @@
     <copy>
     #!/usr/bin/bash
     cd /tmp
-    wget http://download.redis.io/redis-stable.tar.gz
+    wget https://download.redis.io/redis-stable.tar.gz
     tar xvzf redis-stable.tar.gz
     cd redis-stable
     make distclean
     make redis-cli BUILD_TLS=yes
+    mkdir -p ~/.local/bin 
     cp src/redis-cli ~/.local/bin
     chmod 755 ~/.local/bin/redis-cli
 

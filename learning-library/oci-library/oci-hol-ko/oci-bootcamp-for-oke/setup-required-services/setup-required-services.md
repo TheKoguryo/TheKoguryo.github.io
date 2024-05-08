@@ -70,13 +70,13 @@
 5. Create Administrator credentials: 관리자 이름과 암호를 입력합니다.
 
     - Username: admin
-    - Password: 예) `ThePassword1!`
+    - Password: 예) `Password123!`
 
         * Administrator password must be between 8 and 32 characters, and contain at least 1 uppercase, 1 lowercase, 1 numeric, and 1 special characters.
 
 6. DB system 타입: **Standalone**을 선택합니다.
 
-7. Configure networking: OKE 클러스터의 *Worker Node가 속한 서브넷*을 선택합니다.
+7. Configure networking: OKE 클러스터의 Worker Node가 속한 서브넷(*oke-nodesubnet-...*)을 선택합니다.
 
     ![Networking](images/mysql-configure-networking.png " ")
 
@@ -116,7 +116,7 @@
 
     ![Private Network Setup](images/cloudshell-private-network-setup-1.png " ")
 
-5. Cloud Shell에 연결할 서브넷으로 MySQL이 속한 서브넷을 지정합니다.
+5. Cloud Shell에 연결할 서브넷으로 MySQL이 속한 서브넷(*oke-nodesubnet-...*)을 지정합니다.
 
     ![Private Network Setup](images/cloudshell-private-network-setup-2.png " ")
 
@@ -158,7 +158,7 @@
     ```
     <copy>
     \sql
-    source /home/kildong/mysql-books.sql
+    source ~/mysql-books.sql
     </copy>
     ```
 
@@ -194,7 +194,7 @@
 
 5. 다음으로 네트워크를 구성합니다.
 
-    - 사용할 VCN과 서브넷을 선택합니다. OKE 클러스터의 *Worker Node가 속한 서브넷*을 선택합니다.
+    - 사용할 VCN과 서브넷을 선택합니다. OKE 클러스터의 Worker Node가 속한 서브넷(*oke-nodesubnet-...*)을 선택합니다.
     - *생성된 Redis 클러스터는 Private Endpoint만 제공하여, Public Subnet을 선택하셔도 인터넷에서 접속은 불가합니다.*
 
     ![Redis Configure Networking](images/redis-create-cluster-configure-networking.png " ")
@@ -223,7 +223,7 @@
 
 2. Cloud Shell을 실행합니다.
 
-3. *Network: Ephemeral* 상태로 OKE Worker Node 서브넷에 Private Network으로 설정되었는 지 확인합니다. 
+3. *Network: Ephemeral* 상태로 OKE Worker Node 서브넷(*oke-nodesubnet-...*)에 Private Network으로 설정되었는 지 확인합니다. 
 
     *Network: Public인 경우 MySQL 연결시 한 것처럼 Private Network Setup을 다시 진행합니다.*
 

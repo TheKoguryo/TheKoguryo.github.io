@@ -59,8 +59,8 @@
 
     - 생성된 Redis Cluster 상세정보에서 Primary endpoint, Replicas endpoint로 업데이트
     ```
-    spring.redis.primary-endpoint=xxxxxxxxxx-p.redis.ap-seoul-1.oci.oraclecloud.com
-    spring.redis.replicas-endpoint=xxxxxxxxxx-r.redis.ap-seoul-1.oci.oraclecloud.com
+    spring.redis.primary-endpoint=xxxxxxxxxx-p.redis.ap-chuncheon-1.oci.oraclecloud.com
+    spring.redis.replicas-endpoint=xxxxxxxxxx-r.redis.ap-chuncheon-1.oci.oraclecloud.com
     spring.redis.port=6379
     spring.redis.ssl=true
     ```
@@ -174,7 +174,6 @@
     KEYS *
 
     # 해당 키 값 조회하기
-    GET key
     GET books::1
 
     # 모든 값 삭제하고 초기화히기
@@ -336,17 +335,17 @@
 
         # 작성 예시
         # 각자 환경에 맞게 수정 필요
-        ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+        ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
         ```    
 
 2. 앞서 생성한 이미지에 다음과 같이 태그를 추가합니다.
 
     ````  
-    $ docker tag bookstore-service:1.0 ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+    $ docker tag bookstore-service:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
 
     $ docker images
     REPOSITORY                                                     TAG   IMAGE ID       CREATED          SIZE
-    ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
+    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
     bookstore-service                                              1.0   965b497956bc   30 minutes ago   710MB
     container-registry.oracle.com/graalvm/jdk                      17    73c859405e6f   2 days ago       646MB   
     ````    
@@ -378,7 +377,7 @@
             ````
             # Profile 유저명이 Default/kildong@example.com인 경우
 
-            $ docker login ap-seoul-1.ocir.io -u axjowrxaexxx/default/kildong@example.com
+            $ docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/default/kildong@example.com
             Password: 
             WARNING! Your password will be stored unencrypted in /home/kildong/.docker/config.json.
             Configure a credential helper to remove this warning. See
@@ -392,7 +391,7 @@
     ````  
     $ docker images
     REPOSITORY                                                     TAG   IMAGE ID       CREATED          SIZE
-    ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
+    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
     ...
     ````    
 
@@ -401,7 +400,7 @@
     - 실행예시
 
     ````
-    docker push ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+    docker push ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
     ````
 
 6. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
@@ -487,7 +486,7 @@
 
 3. 작성한 yaml 파일에서 *앞서 OCIR에 Push한 이미지의 주소*를 사용하도록 다음 항목을 변경합니다.
 
-     - *`<YOUR_IMAGE_REGISTRY_PATH>`*: 예시에서는 `ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0`
+     - *`<YOUR_IMAGE_REGISTRY_PATH>`*: 예시에서는 `ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0`
 
 4. 작성한 yaml 파일을 통해 개발한 Spring Boot 앱을 배포합니다.
 
@@ -516,13 +515,28 @@
     replicaset.apps/bookstore-service-deployment-6dd584fb96   1         1         1       3m24s
     ````
 
-6. 다시 돌아가, Pod가 정상적으로 기동이 되고, LoadBalancer의 EXTERNAL-IP가 할당될 때까지 기다랍니다. EXTERNAL-IP가 `<pending>` 상태인 경우 LoadBalancer가 생성완료될때 까지 잠시 기다립니다.
+6. Pod가 Running 상태인지 확인합니다. 
 
-7. 배포가 완료되고, OCI 콘솔에서 Networking > Load balancers > Load balancer으로 이동해서 보면, Kubernetes 자원과 함께 만들어진 Load Balancer를 확인할 수 있습니다. 
+    ```
+    $ <copy>kubectl get pod</copy>
+    NAME                                                READY   STATUS    RESTARTS   AGE
+    pod/bookstore-service-deployment-6dd584fb96-hk7q9   1/1     Running   0          3m24s
+    ```
+
+7. 서비스의 EXTERNAL-IP가 할당될 때까지 기다랍니다. EXTERNAL-IP가 `<pending>` 상태인 경우 LoadBalancer가 생성완료될때 까지 잠시 기다립니다.
+
+    ````
+    $ <copy>kubectl get svc</copy>
+    NAME                      TYPE         CLUSTER-IP   EXTERNAL-IP     PORT(S)           AGE
+    bookstore-service-service LoadBalancer 10.96.59.197 130.xxx.xxx.xxx 80:30392/TCP      3m24s
+    kubernetes                ClusterIP    10.96.0.1    &lt;none&gt;          443/TCP,12250/TCP 4d22h    
+    ````
+
+8. 배포가 완료되고, OCI 콘솔에서 Networking > Load balancers > Load balancer으로 이동해서 보면, Kubernetes 자원과 함께 만들어진 Load Balancer를 확인할 수 있습니다. 
 
     ![OKE Load Balancer](images/load-balancer-createdby-oke.png)
 
-8. Terminal에서 LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
+9. Terminal에서 LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
 
     ```
     $ <copy> curl -s http://130.xxx.xxx.xxx/api/books/1 | jq </copy>
@@ -545,7 +559,7 @@
     }
     ````
 
-9. 호출된 터미널에서 로그를 조회합니다. Code Editor에서 개발시 테스트 했던과 동일하게 Cache Miss로 인해 DB를 조회하고, 캐쉬 엔트리 생성로그가 뜨는 것을 볼 수 있습니다.
+10. 호출된 터미널에서 로그를 조회합니다. Code Editor에서 개발시 테스트 했던과 동일하게 Cache Miss로 인해 DB를 조회하고, 캐쉬 엔트리 생성로그가 뜨는 것을 볼 수 있습니다.
 
     ```
     $ <copy>kubectl logs -f -l app=bookstore-service</copy>
@@ -557,13 +571,13 @@
     2024-04-17T07:09:04.235Z TRACE 1 --- [bookstore] [nio-8080-exec-5] c.e.bookstore.logging.LoggingAspect      : ResponseEntity com.example.bookstore.controller.BookController.getBookById(Integer) executed in 884ms    
     ```
 
-10. 다른 API를 통해 추가 생성, 조회, 삭제 등 테스트를 원하는 경우, 함께 배포된 Swagger UI로 테스트합니다.
+11. 다른 API를 통해 추가 생성, 조회, 삭제 등 테스트를 원하는 경우, 함께 배포된 Swagger UI로 테스트합니다.
 
     - http://{EXTERNAL-IP}/swagger-ui/index.html#/
 
     ![Swagger UI](images/swagger-ui.png =60%x*)    
 
-11. 테스트가 끝나면 자원을 정리합니다.
+12. 테스트가 끝나면 자원을 정리합니다.
 
     ````
     <copy>

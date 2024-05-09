@@ -770,7 +770,14 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
       Normal  Pulled     7m12s  kubelet            Successfully pulled image "ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4" in 4.218s (4.218s including waiting)      
     ```
 
-8. 서비스 주소로 접속시 정상 동작을 확인할 수 있습니다.
+8. 서비스 주소로 다시 요청하면, 변경된 형식(`ratings_count`, `text_reviews_count` 필드 없음)으로 응답이 오는 것을 확인할 수 있습니다.
+
+    ```
+    # Load Balancer - EXTERNAL-IP 확인
+    kubectl get svc
+    # 서비스 요청
+    curl -s http://130.xxx.xxx.xxx/api/books/1 | jq
+    ```
  
     ![Updated Storefront UI](images/pipeline-test-6.png =50%x*)
 

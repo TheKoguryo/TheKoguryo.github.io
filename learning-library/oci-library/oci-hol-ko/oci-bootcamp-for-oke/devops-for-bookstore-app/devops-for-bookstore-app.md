@@ -158,22 +158,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 3. Cloud Shell을 실행합니다.
 
-4. 앞써 개발한 bookstore-service 폴더로 이동합니다.
-
-5. 기존 .git 정보를 삭제하고 다시 초기화합니다.
-
-    ```
-    <copy>
-    rm -rf .git
-    cd complete/
-    git init
-    git add .
-    git commit -m "init"
-    git branch -m master main    
-    </copy>
-    ```
-
-6. Cloud Shell에서 처음 Git을 사용하는 경우 push 하기 전이 아래처럼 사용자정보를 설정합니다.
+4. Cloud Shell에서 처음 Git을 사용하는 경우 아래처럼 먼저 사용자정보를 설정합니다.
 
     ````
     <copy>
@@ -190,16 +175,8 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     </copy>
     ````    
 
-7. GIT URL을 HTTPS로 사용하는 경우 매번 인증이 필요합니다. 이를 줄이기 위해 아래처럼 인증 정보를 저장 또는 캐쉬하도록 설정합니다.
+5. GIT URL을 HTTPS로 사용하는 경우 매번 인증이 필요합니다. 이를 줄이기 위해 아래처럼 인증 정보를 저장 또는 캐쉬하도록 설정합니다.
 
-    - 방법 #1
-    ````
-    <copy>
-    git config credential.helper store
-    </copy>
-    ````
-
-    - 방법 #2
     ````
     <copy>
     git config --global credential.helper cache
@@ -209,6 +186,21 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     </copy>
     ````
 
+6. 앞서 개발한 bookstore-service 폴더로 이동합니다.
+
+7. 기존 .git 정보를 삭제하고 다시 초기화합니다.
+
+    ```shell
+    <copy>
+    rm -rf .git
+    cd complete/
+    git init
+    git add .
+    git commit -m "init"
+    git branch -m master main    
+    </copy>
+    ```
+
 8. 생성된 코드 저장소로 이동하여, Git URL을 확인합니다.
 
     ![GIT URL](images/git-url-1.png =30%x*)
@@ -216,19 +208,19 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
 9. 복사한 주소로 Remote Repository로 설정합니다.
 
-    ````
+    ````shell
     git remote add origin <Your-Clone-with-HTTPS-URL>
     ```
 
     - 실행예시
 
-    ```
+    ```shell
     git remote add origin https://devops.scmservice.ap-chuncheon-1.oci.oraclecloud.com/namespaces/axjowrxaexxx/projects/oci-hol-xx-devops-project/repositories/bookstore-service-code-repo
     ```
 
 10. 새 DevOps Code Repository로 변경사항을 푸쉬합니다
 
-    ```
+    ```shell
     <copy>
     git fetch   
     git branch --set-upstream-to=origin/main main

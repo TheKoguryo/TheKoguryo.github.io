@@ -78,9 +78,9 @@
     Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.22+9-LTS-219, mixed mode)
 
     $ <copy>csruntimectl java list</copy>
-       graalvmjdk-17                                      /usr/lib64/graalvm/graalvm-java17
-       oraclejdk-1.8                                        /usr/lib/jvm/jdk-1.8-oracle-x64
-     * oraclejdk-11                                          /usr/lib/jvm/jdk-11-oracle-x64       
+       graalvmjdk-17                               /usr/lib64/graalvm/graalvm-java17
+       oraclejdk-1.8                                 /usr/lib/jvm/jdk-1.8-oracle-x64
+     * oraclejdk-11                                   /usr/lib/jvm/jdk-11-oracle-x64       
     ````
 
 10. csruntimectl을 통해 생성한 Spring Boot 설정에 맞게 JDK 17로 변경합니다.
@@ -190,13 +190,7 @@
 
     `No cache entry for key '1' in cache(s) [books]`와 같이 캐쉬에 해당 키가 없어서, 캐쉬 엔트리를 생성하는 로그를 확인할 수 있습니다. 또한 jpa 로그 상으로 DB에 select 구문이 실행되었습니다. 
 
-    ```
-    ...
-    2024-04-17T03:56:44.469Z TRACE 19885 --- [bookstore] [nio-8080-exec-1] o.s.cache.interceptor.CacheInterceptor   : No cache entry for key '1' in cache(s) [books]
-    Hibernate: select b1_0.id,b1_0.authors,b1_0.average_rating,b1_0.isbn,b1_0.isbn13,b1_0.language_code,b1_0.num_pages,b1_0.publication_date,b1_0.publisher,b1_0.ratings_count,b1_0.text_reviews_count,b1_0.title from books b1_0 where b1_0.id=?
-    2024-04-17T03:56:44.540Z TRACE 19885 --- [bookstore] [nio-8080-exec-1] o.s.cache.interceptor.CacheInterceptor   : Creating cache entry for key '1' in cache(s) [books]
-    2024-04-17T03:56:44.561Z TRACE 19885 --- [bookstore] [nio-8080-exec-1] c.e.bookstore.logging.LoggingAspect      : ResponseEntity com.example.bookstore.controller.BookController.getBookById(Integer) executed in 733ms
-    ```
+    ![Log Cache Miss](images/log-1-cache-miss.png)    
 
 20. 두 번째 Terminal에서 동일한 명령으로 다시 한번 호출합니다.
 
@@ -210,11 +204,7 @@
 
     `Cache entry for key '1' found in cache(s) [books]`와 같이 캐쉬에 해당 키가 있어, DB 조회없이, 찾은 캐쉬 엔트리를 사용하는 것을 볼 수 있습니다.
 
-    ```
-    ...
-    2024-04-17T03:58:27.142Z TRACE 19885 --- [bookstore] [nio-8080-exec-2] o.s.cache.interceptor.CacheInterceptor   : Cache entry for key '1' found in cache(s) [books]
-    2024-04-17T03:58:27.143Z TRACE 19885 --- [bookstore] [nio-8080-exec-2] c.e.bookstore.logging.LoggingAspect      : ResponseEntity com.example.bookstore.controller.BookController.getBookById(Integer) executed in 9ms
-    ```
+    ![Log Cache Hit](images/log-2-cache-hit.png =90%x*)      
 
 22. 첫 번째 Terminal에서 실행되는 앱을 Control+C를 눌러 중지합니다.
 
@@ -244,7 +234,7 @@
 
 3. 그래서 여기서는 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/) 에서 제공하는 Oracle GraalVM Container Image을 베이스 이미지로 사용합니다.
 
-    프로젝트 폴더(여기서는 complete 폴더 아래)에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다. 
+    프로젝트 폴더(여기서는 *complete 폴더 아래*)에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다. 
 
     ````
     <copy>

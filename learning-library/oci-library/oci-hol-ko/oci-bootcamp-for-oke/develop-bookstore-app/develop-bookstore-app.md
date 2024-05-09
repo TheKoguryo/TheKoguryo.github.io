@@ -27,9 +27,13 @@
 
     ![Code Editor](images/code-editor-start.png =35%x*)
 
-2. Code Editor 메뉴에서 **Terminal** &gt; **New Terminal**을 클릭하여 Terminal을 실행합니다.
+2. MySQL, Redis가 속한 서브넷(oke-nodesubnet-…)에 Private Network으로 연결된 상태로 Network: Ephemeral로 표시되는 지 확인합니다. 아닌 경우, Lab 2를 참고하여, 다시 연결합니다.
 
-3. Spring Boot 기반 마이크로 서비스를 프로젝트 생성부터 시나리오에 맞게 코드 개발하는 과정이 필요합니다. 본 교육은 코드 개발을 위한 과정이 아니므로, 여기서는 이미 만들어진 소스를 가져와서 시작합니다.
+    ![Private Network Connected](images/cloudshell-private-network-setup-connected.png " ")
+
+3. Code Editor 메뉴에서 **Terminal** &gt; **New Terminal**을 클릭하여 Terminal을 실행합니다.
+
+4. Spring Boot 기반 마이크로 서비스를 프로젝트 생성부터 시나리오에 맞게 코드 개발하는 과정이 필요합니다. 본 교육은 코드 개발을 위한 과정이 아니므로, 여기서는 이미 만들어진 소스를 가져와서 시작합니다.
 
     - Spring Boot 3.x, Spring Data JPA, Caching, Java 17 기반으로 작성되었습니다.
     ```
@@ -39,13 +43,13 @@
     </copy>
     ```
 
-4. Code Editor 메뉴에서 **File** &gt; **Open**을 클릭하여 방금 가져온 bookstore-service 폴더를 선택합니다.
+5. Code Editor 메뉴에서 **File** &gt; **Open**을 클릭하여 방금 가져온 bookstore-service 폴더를 선택합니다.
 
-5. 대상 시스템 접속 정보 변경을 위해 Code Editor 탐색기에서 complete/src/main/resources/application.properties 파일을 엽니다.
+6. 대상 시스템 접속 정보 변경을 위해 Code Editor 탐색기에서 complete/src/main/resources/application.properties 파일을 엽니다.
 
     ![Code Editor - application.properties](images/code-editor-application.properties.png)
 
-6. 사용할 MySQL 접속 정보로 업데이트합니다.
+7. 사용할 MySQL 접속 정보로 업데이트합니다.
 
     - 생성한 MySQL DB System의 Endpoint 주소의 IP로 url 업데이트
     - 생성시 입력한 관리자 이름 및 암호로 업데이트
@@ -55,7 +59,7 @@
     spring.datasource.password=xxxxxxxx
     ```
 
-7. 사용할 Redis 클러스터 접속 정보로 업데이트합니다.
+8. 사용할 Redis 클러스터 접속 정보로 업데이트합니다.
 
     - 생성된 Redis Cluster 상세정보에서 Primary endpoint, Replicas endpoint로 업데이트
     ```
@@ -65,7 +69,7 @@
     spring.redis.ssl=true
     ```
 
-8. Terminal에서 현재 JDK 버전을 확인합니다.
+9. Terminal에서 현재 JDK 버전을 확인합니다.
 
     ````
     $ java -version
@@ -79,7 +83,7 @@
      * oraclejdk-11                                          /usr/lib/jvm/jdk-11-oracle-x64       
     ````
 
-8. csruntimectl을 통해 생성한 Spring Boot 설정에 맞게 JDK 17로 변경합니다.
+10. csruntimectl을 통해 생성한 Spring Boot 설정에 맞게 JDK 17로 변경합니다.
 
     ````
     $ <copy>csruntimectl java set graalvmjdk-17</copy>
@@ -91,9 +95,9 @@
     Java HotSpot(TM) 64-Bit Server VM Oracle GraalVM 17.0.10+11.1 (build 17.0.10+11-LTS-jvmci-23.0-b27, mixed mode, sharing)
     ````
 
-9. Terminal에서 **bookstore-service/complete** 폴더로 이동합니다.
+11. Terminal에서 **bookstore-service/complete** 폴더로 이동합니다.
 
-10. Terminal에서 실행을 위해 코드를 빌드합니다.
+12. Terminal에서 실행을 위해 코드를 빌드합니다.
 
     ````
     <copy>
@@ -101,7 +105,7 @@
     </copy>
     ````
 
-11. Terminal에서 빌드된 JAR 파일을 실행합니다.
+13. Terminal에서 빌드된 JAR 파일을 실행합니다.
 
     ````
     <copy>
@@ -130,9 +134,9 @@
     2024-04-17T02:36:44.952Z  INFO 9509 --- [bookstore] [           main] c.e.bookstore.BookstoreApplication       : Started BookstoreApplication in 7.845 seconds (process running for 8.556)    
     ````
 
-12. Code Editor 메뉴에서 **Terminal** &gt; **New Terminal**을 클릭하여 Terminal을 하나 더 실행합니다.
+14. Code Editor 메뉴에서 **Terminal** &gt; **New Terminal**을 클릭하여 Terminal을 하나 더 실행합니다.
 
-13. 두 번째 Terminal에서 서비스를 테스트합니다.
+15. 두 번째 Terminal에서 서비스를 테스트합니다.
 
     ````
     <copy>
@@ -159,15 +163,15 @@
 
     ![Code Editor - Terminal](images/code-editor-code-test.png)
 
-14. Code Editor 메뉴에서 **Terminal** &gt; **New Terminal**을 클릭하여 세 번째 Terminal을 하나 더 실행합니다.    
+16. Code Editor 메뉴에서 **Terminal** &gt; **New Terminal**을 클릭하여 세 번째 Terminal을 하나 더 실행합니다.    
 
-15. 세 번째 Terminal에서 redis-cli로 Redis 클러스터에 접속합니다.
+17. 세 번째 Terminal에서 redis-cli로 Redis 클러스터에 접속합니다.
 
     ```
     redis-cli --tls -h <Primary-Endpoint>
     ```
 
-16. 앞선 REST API 호출로 캐쉬에 저장된 것이 있는 지 redis-cli에서 아래 명령어로 확인합니다.
+18. 앞선 REST API 호출로 캐쉬에 저장된 것이 있는 지 redis-cli에서 아래 명령어로 확인합니다.
 
     ```
     # 모든 키 조회하기
@@ -182,7 +186,7 @@
 
     ![REDIS-CLI](images/redis-cli-command-1.png)
     
-17. 첫 번째 Terminal에서 애플리케이션 로그를 확인합니다. 
+19. 첫 번째 Terminal에서 애플리케이션 로그를 확인합니다. 
 
     `No cache entry for key '1' in cache(s) [books]`와 같이 캐쉬에 해당 키가 없어서, 캐쉬 엔트리를 생성하는 로그를 확인할 수 있습니다. 또한 jpa 로그 상으로 DB에 select 구문이 실행되었습니다. 
 
@@ -194,7 +198,7 @@
     2024-04-17T03:56:44.561Z TRACE 19885 --- [bookstore] [nio-8080-exec-1] c.e.bookstore.logging.LoggingAspect      : ResponseEntity com.example.bookstore.controller.BookController.getBookById(Integer) executed in 733ms
     ```
 
-18. 두 번째 Terminal에서 동일한 명령으로 다시 한번 호출합니다.
+20. 두 번째 Terminal에서 동일한 명령으로 다시 한번 호출합니다.
 
     ````
     <copy>
@@ -202,7 +206,7 @@
     </copy>    
     ````
 
-19. 첫 번째 Terminal에서 애플리케이션 로그를 확인합니다. 
+21. 첫 번째 Terminal에서 애플리케이션 로그를 확인합니다. 
 
     `Cache entry for key '1' found in cache(s) [books]`와 같이 캐쉬에 해당 키가 있어, DB 조회없이, 찾은 캐쉬 엔트리를 사용하는 것을 볼 수 있습니다.
 
@@ -212,7 +216,7 @@
     2024-04-17T03:58:27.143Z TRACE 19885 --- [bookstore] [nio-8080-exec-2] c.e.bookstore.logging.LoggingAspect      : ResponseEntity com.example.bookstore.controller.BookController.getBookById(Integer) executed in 9ms
     ```
 
-14. 첫 번째 Terminal에서 실행되는 앱을 Control+C를 눌러 중지합니다.
+22. 첫 번째 Terminal에서 실행되는 앱을 Control+C를 눌러 중지합니다.
 
 
 ## Task 2: Container Image 만들기
@@ -595,4 +599,4 @@
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, April 2024
+- **Last Updated By/Date** - DongHee Lee, May 2024

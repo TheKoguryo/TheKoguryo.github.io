@@ -46,112 +46,99 @@ OCI Logging Analytics에서 지원하는 방법에 맞춰 컨테이너 로그도
 
 ### OCI Kubernetes Monitoring Solution 설치
 
-OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스를 통해 Resource Manager, Terraform, Helm 등으로 설치할 수 있습니다. 여기서는 OCI Logging Analytics에 통합되어 솔루션으로 제공하는 기능을 사용하겠습니다.
+OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스를 통해 Resource Manager, Terraform, Helm 등으로 설치할 수 있습니다. 여기서는 Resource Manager을 통해 설치합니다.
 
-1. OCI 콘솔로 이동합니다.
+1. [GitHub - OCI Kubernetes Monitoring Solution](https://github.com/oracle-quickstart/oci-kubernetes-monitoring) 으로 이동합니다.
 
-2. 왼쪽 위 내비게이션 메뉴에서 **Observability & Management** > **Logging Analytics** > **Solutions**로 이동합니다.
+2. 설명 중 [OCI Resource Manager](https://github.com/oracle-quickstart/oci-kubernetes-monitoring?tab=readme-ov-file#oci-resource-manager) 아래 *Deploy to Oracle Cloud*를 클릭하면 최신 소스를 Resource Manager로 설치할 수 있습니다.
 
-3. **Kubernetes**를 클릭합니다.
+    ![Deploy to Oracle Cloud](images/deploy-to-oracle-cloud.png)
 
-    ![Solution Kubernetes](images/la-oke-solution.png)
+3. 클릭하면 Resource Manager의 Stack 생성화면으로 이동됩니다.
 
-4. 연결을 위해 **Connect cluster**를 클릭합니다.
+4. 작성일 기준으로 V3.4.0 버전을 사용하였습니다.
 
-    ![Connect Cluster](images/la-oke-solution-connect-cluster.png)
+5. 약관에 동의하고, 설치 기본 정보를 입력합니다.
 
-5. Add Data에서 Monitor Kubernetes 아래 Oracle OKE를 클릭합니다.
+     - Create in compartment: Resource Manager Stack이 설치될 위치입니다.
 
-    ![Add Data OKE](images/la-oke-solution-add-data-oke.png)
+     ![Create Stack](images/k8s-oke-monitoring-create-stack-1.png)
 
-6. 현재 Region에 있는 OKE 클러스터 목록이 보입니다. 이 중에서 모니터링하려는 클러스터를 클릭하고 Next를 클릭합니다.
+6. 변수값을 입력합니다.
 
-    ![Select OKE Cluster](images/la-oke-solution-select-oke-cluster.png)
+     - OKE Cluster: OKE Cluster가 위치한 Compartment와 대상 클러스터를 선택합니다.
+     - OCI Observability & Management Service Configuration: Logging Analytics 대쉬보드와 LogGroup의 위치하는 Compartment를 선택하고, 만들 Logging Analytics LogGroup을 이름을 입력합니다.
+         * Enable Metric Server Installation: mushop-utilities에서 이미 metric-server를 OKE에 설치한 상태이므로 여기서는 *체크하지 않습니다.*
+         * OCI Logging Analytics Log Group Name: MyOKELogGroup-*xx*
+     - OCI IAM Policies and Dynamic Groups: 모니터링할 OKE 클러스터에 대한 접근을 위해 자동으로 Dynamic Group과 Policy가 만들어집니다. 자동설치가 싫거나, 권한이 없는 경우, 사전에 별도로 권한에 설정합니다.
 
-7. 설치 사항을 선택합니다.
+     ![Create Stack](images/k8s-oke-monitoring-create-stack-2-metric-server.png)
 
-    - **Select a compartment for telemetry data and related monitoring resources**: 수집된 데이터와 자원을 위한 Compartment를 선택
-    - **Policies**: Agent 설치 및 수집된 정보를 Logging Analytics로 업로드할 수 있도록 여기서는 동적 그룹 및 Policy를 자동으로 생성하도록 선택
-    - **Metric server**:  대상 클러스터에 이미 metric-server를 설치된 상태가 아닌 경우, 자동으로 설치되도록 체크합니다.
-    - **Solution deployment options**: 자동 설치하는 옵션을 선택합니다.
+7. Next를 클릭합니다.
 
-    ![Configure OKE Cluster](images/la-oke-solution-configure-oke-cluster.png)
+8. 결과를 리뷰하고, **Create**를 클릭하여, 설치 및 적용합니다.
 
-    - 아래 **Show More**를 클릭하면, 설치되는 사항을 확인할 수 있습니다.
+9. 설치가 완료할 때 까지 기다립니다. 실패한 경우, Logs를 확인하여 문제를 해결하고 재시도합니다.
+
+10. 아래 Dynamic Group 및 Policy이 만들어집니다. Log & Object Collection Pods가 있는 Worker Nodes 그룹에게 OCI Logging Analytics에 로그를 업로드할 권한을 부여합니다.
+
+     - Dynamic Group: oci-kubernetes-monitoring-xxx...
 
          ```shell
-         # 설치되는 자원 목록:
-         - IAM Policy and Dynamic Groups
-         - Logging Analytics Log Groups and Entities
-         - Agent key
-         - Metric namespace
-         - Management Agent configuration
-         - Fluentd configuration
-         - Kubernetes manifests and helm chart         
-
-         # 클러스터 모니터링을 위해 만들어지는 Dynamic Group과 Policy
-         ALL {instance.compartment.id = '<OKE_COMPARTMENT_OCID>'}
-         ALL {resource.type='managementagent', resource.compartment.id='<TELEMETRY_COMPARTMENT_OCID>'}
+         Match any rules defined below
          
-         allow dynamic-group <dynamic_group_name> to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment id <TELEMETRY_COMPARTMENT_OCID>
-         allow dynamic-group <dynamic_group_name> to use METRICS in compartment id <TELEMETRY_COMPARTMENT_OCID> WHERE target.metrics.namespace = 'mgmtagent_kubernetes_metrics'
-         allow dynamic-group <dynamic_group_name> to {LOG_ANALYTICS_DISCOVERY_UPLOAD} in tenancy
+         # Rule 1
+         ALL {instance.compartment.id = 'ocid1.compartment.oc1..aaaaa_____32sa'}
+         
+         # Rule 2
+         ALL {resource.type='managementagent', resource.compartment.id='ocid1.compartment.oc1..aaaaa_____32sa'}
          ```
 
-8. 설치가 완료되었습니다.
+     - Policy: oci-kubernetes-monitoring-yyy...
 
-    - Entity, Log Group, ORM Stack은 모두 설정시 선택한 Compartment에 생성됩니다.
-    - Policy는 Tenancy 레벨 설정이 있기 때문에 모두 Root Compartment에 생성됩니다.
+         - OCI Logging Anaytics Comparment로 선택한 Compartment에 생성됨
+    
+         ```shell
+         Allow dynamic-group oci-kubernetes-monitoring-xxx... to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment id ocid1.compartment.oc1..aaaaa_____32sa
+         Allow dynamic-group oci-kubernetes-monitoring-xxx... to use METRICS in compartment id ocid1.compartment.oc1..aaaaa_____32sa WHERE target.metrics.namespace = 'mgmtagent_kubernetes_metrics'
+         Allow dynamic-group oci-kubernetes-monitoring-xxx... to {LOG_ANALYTICS_DISCOVERY_UPLOAD} in tenancy         
+         ```
 
-    ![Configuration Finished](images/la-oke-solution-configure-finished.png)
+11. 왼쪽 위 내비게이션 메뉴에서 **Observability & Management** > **Logging Analytics** > **Administration**으로 이동합니다.
 
-9. 아래 **Take me to Kubernetes**를 클릭합니다.
+12. Resources > Log Groups에 보면 설치시 생성된 LogGroup를 확인할 수 있습니다.
 
-10. 연결된 클러스터 목록이 보입니다. 
+     ![Log Group](images/k8s-oke-monitoring-log-group.png)
 
-    - 대상 클러스터에 실제 Agent Pod가 설치되어, 연결되면, CPU, Memory, Pods 정보가 보입니다.
+13. Dashboard 메뉴를 클릭하면, Kubernetes 대쉬보드가 추가된 것을 확인할 수 있습니다.
 
-    ![Connected OKE Clusters](images/la-oke-solution-connected-oke-clusters.png)
+     ![OKE Monitoring Dashboard](images/k8s-oke-monitoring-dashboards.png)
 
-11. 연결된 클러스터를 클릭합니다.
-
-12. 연결된 클러스터에 대해 Cluster, Workload, Node, Pod 기준으로 대쉬보드를 제공합니다. 대상 시간을 지난 24시간으로 선택합니다.
-
-    ![Dashboard - Cluster](images/la-oke-solution-dashboard-cluster.png)
-
-13. 선택된 단위에 우클릭하여, 팝업에서 단위로 필터링 하거나, 로그를 확인할 수 있습니다. View Logs를 클릭합니다.
-
-14. 선택된 단위에 대해 지난 24시간 동안 발생한 로그 중, 특이한 로그를 보여줍니다.
-
-    ![Dashboard - Log](images/la-oke-solution-dashboard-log.png)
-
-15. 대상으로 지정된 OKE 클러스터 설치된 자원을 확인합니다.
+14. 대상으로 지정된 OKE 클러스터 설치된 자원을 확인합니다.
 
     - helm chart로 설치된 것을 확인할 수 있습니다.
 
       ```shell
       $ <copy>helm list -n default -o yaml</copy>
       - app_version: 3.0.0
-        chart: oci-onm-3.4.1
+        chart: oci-onm-3.4.0
         name: oci-kubernetes-monitoring
         namespace: default
         revision: "1"
         status: deployed
-        updated: 2024-05-08 07:23:53.62520904 +0000 UTC        
+        updated: 2024-04-19 07:42:25.95497648 +0000 UTC
       ```
 
-    - oci-onm 네임스페이스에 관련 Pod가 설치되었습니다. Worker Node 마다 로그를 전송하는 oci-onm-logan Pod와 metric을 전송하는 management agent Pod 등을 볼 수 있습니다.
+    - oci-onm 네임스페이스에 관련 Pod가 설치되었습니다.
 
       ```shell
       $ <copy>kubectl get pod -n oci-onm</copy>
-      NAME                               READY   STATUS      RESTARTS   AGE
-      oci-onm-discovery-28586260-mhmb2   0/1     Completed   0          10m
-      oci-onm-discovery-28586265-t268x   0/1     Completed   0          5m58s
-      oci-onm-discovery-28586270-j2wr4   0/1     Completed   0          58s
-      oci-onm-logan-sw9pd                1/1     Running     0          1h27m
-      oci-onm-logan-tpdlz                1/1     Running     0          1h27m
-      oci-onm-logan-wjc7m                1/1     Running     0          1h27m
-      oci-onm-mgmt-agent-0               1/1     Running     0          1h27m        
+      NAME                                   READY   STATUS      RESTARTS   AGE
+      pod/oci-onm-discovery-28558565-8jz98   0/1     Completed   0          24m
+      pod/oci-onm-logan-7x8l9                1/1     Running     0          24m
+      pod/oci-onm-logan-bgg2s                1/1     Running     0          24m
+      pod/oci-onm-logan-n7vrs                1/1     Running     0          24m
+      pod/oci-onm-mgmt-agent-0               1/1     Running     0          24m      
       ```
       
 
@@ -179,7 +166,7 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
 7. 필터링을 위해 *Search Fields*에 namespace로 검색합니다. 검색 결과 중에서 Namespace를 클릭하면 현재 검색된 로그들을 Namespace 단위로 카운트가 보입니다. 여기서 default namespace를 선택하고 적용합니다.
 
-     ![image-20230907182822235](images/log-explorer-k8s-mushop-namespace-default.png =40%x*)
+     ![image-20230907182822235](images/log-explorer-k8s-mushop-namespace-default.png =50%x*)
 
 8. 검색 쿼리가 아래와 같이 변경되었습니다. 아래와 같이 직접 `and Namespace = mushop`를 입력하여도 됩니다.
 
@@ -217,7 +204,7 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
 12. 발생한 POD 로그는 다음과 같습니다.
 
-    ````shell
+    ````
     $ kubectl logs -f -l app=bookstore-service
     2024-04-29T07:09:55.171Z TRACE 1 --- [bookstore] [nio-8080-exec-5] o.s.cache.interceptor.CacheInterceptor   : Computed cache key '1' for operation Builder[public com.example.bookstore.entities.Book com.example.bookstore.services.BookService.getBookById(java.lang.Integer)] caches=[books] | key='#bookId' | keyGenerator='' | cacheManager='' | cacheResolver='' | condition='' | unless='' | sync='false'
     2024-04-29T07:09:55.899Z TRACE 1 --- [bookstore] [nio-8080-exec-5] o.s.cache.interceptor.CacheInterceptor   : No cache entry for key '1' in cache(s) [books]
@@ -226,9 +213,9 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
     2024-04-29T07:09:56.135Z TRACE 1 --- [bookstore] [nio-8080-exec-5] c.e.bookstore.logging.LoggingAspect      : ResponseEntity com.example.bookstore.controller.BookController.getBookById(Integer) executed in 972ms
     ````
 
-13. Log Explorer에서 결과가 많으면, 쿼리에 검색조건(`and 'Creating cache entry'`)을 추가하여 다시 검색합니다.
+14. Log Explorer에서 결과가 많으면, 쿼리에 검색조건을 추가하여 다시 검색합니다.
 
-    ```shell
+    ```
     <copy>
     'Log Source' = 'Kubernetes Container Generic Logs' and Namespace = default and 'Creating cache entry' | timestats count as logrecords by 'Log Source' | sort -logrecords
     </copy>
@@ -237,14 +224,68 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
      ![Log Query](images/default-logging-analytics-log-query.png)
 
 
+### Logging Analytics - Dashboard
+
+1. **Logging Analytics** > **Dashboard**로 이동합니다.
+
+2. Kubernetes 대쉬보드가 추가된 것을 확인할 수 있습니다.
+
+     ![Kubernetes Monitoring Dashboards](images/k8s-oke-monitoring-dashboards.png)
+
+3. Kubernetes Cluster Summary를 클릭합니다.
+
+     ![Cluster Summary Dashboard](images/k8s-oke-monitoring-dashboard-cluster-summary.png)
+
+4. 배치된 위젯을 클릭하면, 해당 조건에 따라 로그를 쿼리하는 화면으로 이동합니다.
+
+     ![Widget](images/k8s-oke-monitoring-dashboard-widget.png)
+     ![Widget Query](images/k8s-oke-monitoring-dashboard-widget-query.png)
+ 
+5. 다른 대쉬보드들로 비슷한 형식으로 제공합니다.
+
+
+### Management Agent 및 메트릭 확인
+
+OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Monitoring Solution 설치시 OCI Management Agent도 함께 설치되어, OCI Monitoring상에 추가적으로 대상 쿠버네티스 클러스터에서 수집된 메트릭을 제공합니다.
+
+1. 쿠버네티스 클러스스터에 설치된 자원을 다시 조회해 보면, mgmt-agent가 설치된 것을 알 수 있습니다.
+
+     ```shell
+     $ <copy>kubectl get pod -n oci-onm</copy>
+     NAME                                   READY   STATUS      RESTARTS   AGE
+     pod/oci-onm-discovery-28558565-8jz98   0/1     Completed   0          24m
+     pod/oci-onm-logan-7x8l9                1/1     Running     0          24m
+     pod/oci-onm-logan-bgg2s                1/1     Running     0          24m
+     pod/oci-onm-logan-n7vrs                1/1     Running     0          24m
+     pod/oci-onm-mgmt-agent-0               1/1     Running     0          24m   
+     ```
+
+2. OCI 콘솔에 로그인합니다.
+
+3. 왼쪽 위 내비게이션 메뉴에서  **Observability & Management** > **Management Agents** > **Agent**로 이동합니다.
+
+4. Agent가 등록된 것을 확인합니다.
+
+     ![Management Agent](images/management-agents.png)
+
+5. 등록된 Agent를 클릭하면, 설치된 Agent의 현재 상태를 확인할 수 있습니다. 필요하면, 왼쪽 Time range에서 조회 시간을 1시간으로 변경합니다.
+
+     ![Management Agent with Time Range](images/management-agents-k8s-agent.png)
+
+6. 내비게이션 메뉴에서  **Observability & Management** > **Monitoring** > **Metrics Explorer**로 이동합니다.
+
+7. 화면 아래 Query 부분으로 이동합니다. Management Agent 설치로 인해 Metric namespace에 `mgmtagent_kubernetes_metrics`가 추가되었습니다. 선택하면 Metric name에서 제공하는 메트릭들을 볼 수 있습니다.
+
+     ![Kubernetes Metrics](images/management-agents-k8s-metrics.png)
+
+7. OKE에 설치된 Agent Pod를 통해 수집된 메트릭을 OCI Monitoring상의 메트릭으로 제공하는 것을 확인했습니다. 이를 사용해 OCI에서 제공하는 메트릭 모니터링, 알람 설정 등을 하거나, Logging Analytics 상의 대쉬보드로 구성하는 등 추가적인 모니터링 관련 설정을 할 수 있습니다.
+
 이제 **다음 실습을 진행**하시면 됩니다.
 
 
 ## Learn More
 
-- [Logging Analytics Solutions > Kubernetes Solution](https://docs.public.oneportal.content.oci.oraclecloud.com/en-us/iaas/logging-analytics/doc/kubernetes-solution.html)
-
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, May 2024
+- **Last Updated By/Date** - DongHee Lee, April 2024

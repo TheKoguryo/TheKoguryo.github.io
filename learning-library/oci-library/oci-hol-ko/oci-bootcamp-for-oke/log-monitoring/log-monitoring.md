@@ -191,14 +191,14 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
     ````
     <copy>    
-    kubectl get svc bookstore-service-service
+    kubectl get svc bookstore-service-lb
     </copy>    
     ````
 
     결과 예시
     ````
     NAME                        TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)        AGE
-    bookstore-service-service   LoadBalancer   10.96.185.81   130.xxx.xx.xx  80:30225/TCP   125m
+    bookstore-service-lb        LoadBalancer   10.96.185.81   130.xxx.xx.xx  80:30225/TCP   125m
     ````
 
 10. bookstore-service Pod의 로그를 조회합니다. app: bookstore-service 레이블을 기준으로 로그를 조회합니다.

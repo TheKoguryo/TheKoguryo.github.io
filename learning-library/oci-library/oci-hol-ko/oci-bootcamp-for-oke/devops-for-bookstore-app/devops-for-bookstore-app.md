@@ -48,14 +48,14 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
     - Rule 설정
         * 모든 규칙 만족 - Match all rules defined below
         * Rule 1
-            ```
+            ```shell
             <copy>
             Any {resource.type = 'devopsdeploypipeline', resource.type = 'devopsbuildpipeline', resource.type = 'devopsrepository', resource.type = 'devopsconnection'}
             </copy>
             ```
     
         * Rule 2 - compartmentOCID를 복사해둔 OCID로 대체
-            ```
+            ```shell
             <copy>
             Any {resource.compartment.id = 'compartmentOCID'}
             </copy>
@@ -80,7 +80,7 @@ DevOps 서비스를 사용하기 위해서는 DevOps 자원들에 권한 설정�
     - `<group-name>`을 적용할 사용자 그룹으로 변경합니다. 예, 'Default'/'DevOpsDynamicGroup'
     - `<compartment-name>`을 적용할 Compartment 이름 변경합니다. 예, oci-hol-*xx*
 
-        ```
+        ```shell
         <copy>
         Allow dynamic-group <group-name> to manage devops-family in compartment <compartment-name>
         Allow dynamic-group <group-name> to read secret-family in compartment <compartment-name>
@@ -280,29 +280,32 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
         ![Build Stage](images/build-stage-1.png)
 
-    - Connect to your tenancy subnet: Private 접근이 필요한 MySQL, Redis 클러스터에 대해서 빌드 테스트시 연결을 위해 추가 설정합니다.
+    - Connect to your tenancy subnet: 
+        * Private 접근이 필요한 MySQL, Redis 클러스터에 대해서 빌드 테스트시 연결을 위해 추가 설정합니다.
+        * OKE 클러스터의 Worker Node가 속한 서브넷(*oke-nodesubnet-…*)을 선택합니다.
 
         ![Build Stage](images/build-stage-2.png)
 
     - **Build Spec File Path**: 빌드 스크립트 경로를 지정합니다. 따로 설정하지 않으면, 기본적으로 소스 루트에 있는 build_spec.yaml을 파일을 사용합니다.
     - **Primary Code Repository**: 빌드할 메인 소스가 있는 코드 저장소를 지정합니다.
 
-        * OCI Code Repository 유형에서 앞서 만든 Code Repository(예, bookstore-service-code-repo)를 선택
+        * *OCI Code Repository* 유형에서 앞서 만든 Code Repository(예, *bookstore-service-code-repo*)를 선택
     
         ![Build Stage](images/build-stage-3.png)
 
 3. 설정된 Stage를 **Add**를 클릭하여 추가합니다.
 
-4. 아래 예시와 같이 소스 코드 변경시 빌드 파이프라인은 수행하기 위해서는 Build Spec 정의가 필요합니다.
+4. 소스 코드 변경시 Build Stage에서 수행할 Build Spec 정의가 필요합니다.
 
     - Cloud Shell로 돌아갑니다.
 
-    - 소스 코드 폴더(bookstore-service-code-repo)에 build_spec.yaml 파일을 다음과 같이 정의하고 코드 저장소에 저장합니다.
-        * 참조 문서 - https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm
-
-    - build_spec.yaml
+    - bookstore-service-code-repo의 루트에 해당하는 소스 코드 폴더(bookstore-service/complete)로 이동합니다.
     
-        ```
+    - build_spec.yaml 파일을 생성하여 다음과 같이 정의합니다.
+
+        * spec 참조 문서 - https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm
+    
+        ```yaml
         <copy>
         version: 0.1
         component: build
@@ -395,7 +398,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
     - 생성한 build_spec.yaml을 Code Repository에 반영합니다.
 
-        ````
+        ````shell
         <copy>
         git add build_spec.yaml
         git commit -m "add build_spec.yaml"
@@ -407,10 +410,10 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
 6. **Parameters** 탭으로 이동하여, 아래 값을 입력합니다. build_spec에서 사용하는 디폴트값을 아래와 같이 입력할 수 있습니다.
 
-    - `REPO_NAME_PREFIX`: 예, `oci-hol-xx`
+    - `REPO_NAME_PREFIX`: 예, `oci-hol-`*xx*
 
         * 다른 사람과 충돌되지 않게 할당받은 Compartment Name을 입력합니다.
-        * 그러면, build_spec.yaml 상에서 사용하는 OCIR Repository 이름은 $`REPO_NAME_PREFIX`/$`APP_NAME`이 됩니다. 예, `oci-hol-xx/bookstore-service`
+        * 그러면, build_spec.yaml 상에서 사용하는 OCIR Repository 이름은 $`REPO_NAME_PREFIX`/$`APP_NAME`이 됩니다. 예, `oci-hol-`*xx*`/bookstore-service`
 
     ![Build Spec Parameters](images/build-pipeline-parameters.png)
 
@@ -556,7 +559,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
         apiVersion: v1
         kind: Service
         metadata:
-          name: bookstore-service-service
+          name: bookstore-service-lb
           annotations:
             oci.oraclecloud.com/load-balancer-type: "lb"
             service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
@@ -573,16 +576,6 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
           type: LoadBalancer
         </copy>        
         ```
-
-7. Cloud Shell로 돌아가 배포될 default namespace에 ocir-secret을 이전 실습에서 이미 만든 것을 그대로 사용합니다. 없는 경우 다시 생성합니다.
-
-    ````
-    <copy>
-    kubectl create secret generic ocir-secret \
-    --from-file=.dockerconfigjson=$HOME/.docker/config.json \
-    --type=kubernetes.io/dockerconfigjson -n default
-    </copy>
-    ````
 
 ### Kubernetes Environment 등록하기
 
@@ -677,7 +670,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
     응답메시지에서 제외되도록 @JsonIgnore annotation을 두 멤버변수 앞에 추가합니다.
 
-    ````
+    ````java
     ...
 
     @JsonIgnore
@@ -690,7 +683,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 3. 코드를 Code Repository에 Push 합니다.
 
-    ````
+    ````shell
     <copy>    
     git add .
     git commit -m "add JsonIgnore to count fields"
@@ -752,7 +745,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 
     Pod가 새롭게 배포되었고, 이미지 주소가 새로 생성된 것으로 태그가 Commit ID와 동일함을 알수있습니다.
-    ```
+    ```shell
     $ kubectl get pod
     NAME                                            READY   STATUS    RESTARTS   AGE
     bookstore-service-deployment-5447bb749b-xl6t9   1/1     Running   0          6m59s
@@ -762,16 +755,25 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
       Normal  Pulled     7m12s  kubelet            Successfully pulled image "ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4" in 4.218s (4.218s including waiting)      
     ```
 
-8. 서비스 주소로 다시 요청하면, 변경된 형식(`ratings_count`, `text_reviews_count` 필드 없음)으로 응답이 오는 것을 확인할 수 있습니다.
+8. 서비스 주소로 다시 요청합니다.
 
-    ```
-    # Load Balancer - EXTERNAL-IP 확인
-    kubectl get svc
-    # 서비스 요청
-    curl -s http://130.xxx.xxx.xxx/api/books/1 | jq
-    ```
- 
-    ![Updated Storefront UI](images/pipeline-test-6.png =50%x*)
+    - Load Balancer - EXTERNAL-IP 확인
+
+        ```shell
+        $ <copy>kubectl get svc bookstore-service-lb</copy>
+        NAME                      TYPE         CLUSTER-IP   EXTERNAL-IP     PORT(S)           AGE
+        bookstore-service-lb      LoadBalancer 10.96.59.197 130.xxx.xxx.xxx 80:30392/TCP      3m24s
+        ```
+
+    - 서비스 요청
+
+        ```shell
+        curl -s http://130.xxx.xxx.xxx/api/books/1 | jq
+        ```
+
+    - 변경된 형식(`ratings_count`, `text_reviews_count` 필드 없음)으로 응답이 오는 것을 확인할 수 있습니다.
+
+        ![Updated Storefront UI](images/pipeline-test-6.png =50%x*)
 
 
 이제 **다음 실습을 진행**하시면 됩니다.
@@ -783,4 +785,4 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, April 2024
+- **Last Updated By/Date** - DongHee Lee, May 2024

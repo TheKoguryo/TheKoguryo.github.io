@@ -354,7 +354,8 @@
 
     - Docker CLI 로그인용 Password: 사용자의 Auth Token을 사용
     
-        * **유저명** 또는 **My Profile** 클릭후 **Auth tokens** > **Generate token** 을 클릭합니다. Auth Token은 생성시점에만 확인이 가능하므로 복사해서 기록해 둡니다.
+        * **유저명** 또는 **My Profile** 클릭후 **Auth tokens** > **Generate token** 을 클릭합니다.
+        * *Auth Token은 생성시점에만 확인이 가능하므로 생성된 Auth Token을 복사해서 기록해 둡니다. 다음 실습에서도 Auth Token이 필요합니다.*
 
         ![Auth Token](images/auth-token-identity-domain-1.png =40%x*) 
         ![Auth Token](images/auth-token-identity-domain-2.png =40%x*) 
@@ -460,7 +461,7 @@
     apiVersion: v1
     kind: Service
     metadata:
-      name: bookstore-service-service
+      name: bookstore-service-lb
       annotations:
         oci.oraclecloud.com/load-balancer-type: "lb"
         service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
@@ -499,7 +500,7 @@
     pod/bookstore-service-deployment-6dd584fb96-hk7q9   1/1     Running   0          3m24s
     
     NAME                                TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)             AGE
-    service/bookstore-service-service   LoadBalancer   10.96.59.197   130.xxx.xxx.xxx   80:30392/TCP        3m24s
+    service/bookstore-service-lb        LoadBalancer   10.96.59.197   130.xxx.xxx.xxx   80:30392/TCP        3m24s
     service/kubernetes                  ClusterIP      10.96.0.1      <none>            443/TCP,12250/TCP   4d22h
     
     NAME                                           READY   UP-TO-DATE   AVAILABLE   AGE
@@ -522,7 +523,7 @@
     ````
     $ <copy>kubectl get svc</copy>
     NAME                      TYPE         CLUSTER-IP   EXTERNAL-IP     PORT(S)           AGE
-    bookstore-service-service LoadBalancer 10.96.59.197 130.xxx.xxx.xxx 80:30392/TCP      3m24s
+    bookstore-service-lb      LoadBalancer 10.96.59.197 130.xxx.xxx.xxx 80:30392/TCP      3m24s
     kubernetes                ClusterIP    10.96.0.1    &lt;none&gt;          443/TCP,12250/TCP 4d22h    
     ````
 

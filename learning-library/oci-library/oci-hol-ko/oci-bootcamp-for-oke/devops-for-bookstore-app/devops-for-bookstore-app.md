@@ -280,11 +280,13 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
         ![Build Stage](images/build-stage-1.png)
 
+<if type="private">
     - Connect to your tenancy subnet: 
         * Private 접근이 필요한 MySQL, Redis 클러스터에 대해서 빌드 테스트시 연결을 위해 추가 설정합니다.
         * OKE 클러스터의 Worker Node가 속한 서브넷(*oke-nodesubnet-…*)을 선택합니다.
 
         ![Build Stage](images/build-stage-2.png)
+</if>
 
     - **Build Spec File Path**: 빌드 스크립트 경로를 지정합니다. 따로 설정하지 않으면, 기본적으로 소스 루트에 있는 build_spec.yaml을 파일을 사용합니다.
     - **Primary Code Repository**: 빌드할 메인 소스가 있는 코드 저장소를 지정합니다.
@@ -327,22 +329,22 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
             command: |
               APP_NAME=$appName
               echo $APP_NAME   
-        
+
           - type: Command
-            name: "Install the latest Oracle GraalVM for JDK 17 - JDK and Native Image"
+            name: "Install the latest Oracle GraalVM for JDK 17"
             command: |
-              yum -y install graalvm-17-native-image
-              
-          - type: Command
-            name: "Set the PATH here. JAVA_HOME already set in env > variables above."
-            command: |
-              export PATH=$JAVA_HOME/bin:$PATH      
+              wget https://download.oracle.com/graalvm/17/latest/graalvm-jdk-17_linux-x64_bin.tar.gz
+              tar xvzf graalvm-jdk-17_linux-x64_bin.tar.gz
+              mv graalvm-jdk-17.* graalvm-jdk-17
+              export JAVA_HOME=`pwd`/graalvm-jdk-17
+              export PATH=$JAVA_HOME/bin:$PATH
+              java -version              
         
           - type: Command
             name: "Build Source"
             timeoutInSeconds: 4000
             command: |
-              ./mvnw clean package
+              ./mvnw clean package -DskipTests
         
           - type: Command
             name: "Define Image Tag - Commit ID"
@@ -437,7 +439,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
    ![OCIR Stage](images/ocir-stage-1.png)
 
-3. **Delivery Artifacts Stage** 유형을 선택합니다.
+3. **Deliver Artifacts Stage** 유형을 선택합니다.
 
 4. stage 이름을 입력하고 Create Artifact를 클릭합니다.
 
@@ -467,7 +469,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
         ![Associate Artifacts](images/associate-artifacts-2.png =55%x*)
 
-8. 아래쪽 **Add** 버튼을 클릭하여, 이제 delivery stage을 추가 완료합니다.
+8. 아래쪽 **Add** 버튼을 클릭하여, 이제 deliver stage을 추가 완료합니다.
 
 9. 파이프라인을 다시 실행해 봅니다. 
 

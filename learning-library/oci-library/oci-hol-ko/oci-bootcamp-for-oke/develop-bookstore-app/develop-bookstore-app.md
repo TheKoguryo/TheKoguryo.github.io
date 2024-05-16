@@ -300,66 +300,46 @@
 
 ## Task 3: OCIR에 이미지 등록하기
 
-1. OCIR에 컨테이너 이미지를 푸시하기 위해서는 다음과 같은 이미지 태그 네이밍 규칙을 따라야 합니다. 규칙은 아래와 같습니다.
+### OCIR Repository 생성
 
-    > ````<OCI_REGION>.ocir.io/<TENANCY_NAMESPACE>/<REPO_NAME>:<TAG>````
+OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합니다.
 
-    - OCI_REGION: 여기서 서울은 ap-seoul-1, 춘천은 ap-chuncheon-1을 쓰면 됩니다.
-        * 전체 리전별 주소정보는 [OCIR Available Endpoints](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability)에서 확인하세요.
-    - TENANCY_NAMESPACE: OCI 콘솔 Tenancy 상세 정보에서 Object Storage Namespace로 확인하거나, 아래와 같이 Cloud Shell 또는 Code Editor Terminal에서 확인합니다.
+1. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
 
-        ````
-        $ <copy>oci os ns get</copy>
-        {
-            "data": "axjowrxaexxx"
-        }
-        ````
+2. Create repository를 클릭합니다.
 
-    - REPO_NAME: OCIR에서 Cloud Account내에서 고유하게 사용하는 저장소 이름입니다. 사용할 이미지 이름 또는 경로가 있는 경우 경로까지 포함하여 원하는 이름을 사용합니다.
+3. 생성할 Repository name은 Cloud Account내에서 *고유하게 사용하는 저장소 이름*입니다. 다른 유저와 충돌되지 않게 다음 형식으로 이름을 입력합니다.
 
-        * 예시) oci-hol-*xx*/bookstore-service
+    - 예시) oci-hol-*xx*/bookstore-service
 
-    - TAG: 예시) 1.0
+     ![OCIR Repository](images/ocir-repository-create.png =60%x*) 
 
-    - 작성 태그 예시
+4. 생성된 Repository를 확인합니다. 아직 이미지가 없는 빈 Repository가 생성되었습니다.
 
-        ```
-        # 네이밍 규칙
-        <OCI_REGION>.ocir.io/<TENANCY_NAMESPACE>/<REPO_NAME>:<TAG>
+    - 생성된 Repository 정보에서 *Namespace*를 확인합니다. 이후 이미지 등록시 필요한 정보이니 기록해 둡니다.
 
-        # 작성 예시
-        # 각자 환경에 맞게 수정 필요
-        ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
-        ```    
+     ![OCIR Repository](images/ocir-repository-created.png)
 
-2. 앞서 생성한 이미지에 다음과 같이 태그를 추가합니다.
 
-    ````  
-    $ docker tag bookstore-service:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+### Docker CLI로 OCIR에 로그인
 
-    $ docker images
-    REPOSITORY                                                     TAG   IMAGE ID       CREATED          SIZE
-    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
-    bookstore-service                                              1.0   965b497956bc   30 minutes ago   710MB
-    container-registry.oracle.com/graalvm/jdk                      17    73c859405e6f   2 days ago       646MB   
-    ````    
-
-3. OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.
+1. OCIR에 이미지를 Push 하기 위해서는 Docker CLI로 OCIR에 로그인이 필요합니다. Username 및 Password는 다음과 같습니다.
     - Docker CLI 로그인용 Username: `<TENANCY_NAMESPACE>/<USER_NAME>` 형식
+        * `<TENANCY_NAMESPACE>`: 생성한 OCI Repository 정보에서 확인한 *Namespace*, 예, axjowrxaexxx
         * `<USER_NAME>`: OCI 서비스 콘솔에서 유저 Profile에서 보이는 Identity Domain 이름을 포함한 유저명
         
             * 예, default/kildong@example.com
 
-        ![OCI User Name](images/oci-user-name-identity-domain.png =40%x*)   
+            ![OCI User Name](images/oci-user-name-identity-domain.png =40%x*)   
 
     - Docker CLI 로그인용 Password: 사용자의 Auth Token을 사용
     
         * **유저명** 또는 **My Profile** 클릭후 **Auth tokens** > **Generate token** 을 클릭합니다.
         * *Auth Token은 생성시점에만 확인이 가능하므로 생성된 Auth Token을 복사해서 기록해 둡니다. 다음 실습에서도 Auth Token이 필요합니다.*
 
-        ![Auth Token](images/auth-token-identity-domain-1.png =40%x*) 
-        ![Auth Token](images/auth-token-identity-domain-2.png =40%x*) 
-        ![Auth Token](images/auth-token-identity-domain-3.png =50%x*) 
+            ![Auth Token](images/auth-token-identity-domain-1.png =40%x*) 
+            ![Auth Token](images/auth-token-identity-domain-2.png =40%x*) 
+            ![Auth Token](images/auth-token-identity-domain-3.png =50%x*) 
 
     - 아래와 같이 Docker CLI로 로그인합니다.    
 
@@ -381,16 +361,54 @@
             Login Succeeded            
             ````    
 
-4. 앞서 추가한 태그의 이미지를 확인합니다.
+### OCIR에 이미지를 Push
+
+1. OCIR에 컨테이너 이미지를 푸시하기 위해서는 다음과 같은 이미지 태그 네이밍 규칙을 따라야 합니다. 규칙은 아래와 같습니다.
+
+    > ````<OCI_REGION>.ocir.io/<TENANCY_NAMESPACE>/<REPO_NAME>:<TAG>````
+
+    - `<OCI_REGION>`: 여기서 서울은 ap-seoul-1, 춘천은 ap-chuncheon-1을 쓰면 됩니다.
+        * 전체 리전별 주소정보는 [OCIR Available Endpoints](https://docs.oracle.com/en-us/iaas/Content/Registry/Concepts/registryprerequisites.htm#regional-availability)에서 확인하세요.
+    - `<TENANCY_NAMESPACE>`: 생성한 OCI Repository 정보에서 확인한 *Namespace*, 예, axjowrxaexxx        
+    - `<REPO_NAME>`: OCIR에서 Cloud Account내에서 고유하게 사용하는 저장소 이름입니다. 앞서 생성한 OCI Repository 정보
+
+        * 예시) oci-hol-*xx*/bookstore-service
+
+    - `<TAG>`: 예시) 1.0
+
+    - 작성 태그 예시
+
+        ```
+        # 네이밍 규칙
+        <OCI_REGION>.ocir.io/<TENANCY_NAMESPACE>/<REPO_NAME>:<TAG>
+
+        # 작성 예시
+        # 각자 환경에 맞게 수정 필요
+        ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+        ```    
+
+2. 앞서 생성한 이미지에 다음과 같이 태그를 추가합니다.
+
+    ````  
+    $ docker tag bookstore-service:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+
+    $ docker images
+    REPOSITORY                                                         TAG   IMAGE ID       CREATED          SIZE
+    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
+    bookstore-service                                                  1.0   965b497956bc   30 minutes ago   710MB
+    container-registry.oracle.com/graalvm/jdk                          17    73c859405e6f   2 days ago       646MB   
+    ````    
+
+3. 앞서 추가한 태그의 이미지를 확인합니다.
 
     ````  
     $ docker images
-    REPOSITORY                                                     TAG   IMAGE ID       CREATED          SIZE
+    REPOSITORY                                                         TAG   IMAGE ID       CREATED          SIZE
     ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
     ...
     ````    
 
-5. OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.
+4. OCIR를 위해 단 이미지 태그를 사용하여 이미지를 Push합니다.
 
     - 실행예시
 
@@ -398,13 +416,11 @@
     docker push ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
     ````
 
-6. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
+5. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
 
-7. OCI 콘솔 왼쪽 아래 List scope에서 **Compartment**를 *root*로 변경합니다.
+6. Push한 이미지가 등록된 것을 볼 수 있습니다.
 
-8. Push한 이미지가 등록된 것을 볼 수 있습니다.
-
-    > 특정 Compartment에 이미지를 Push 하기 위해서는 Push 되기 전에 OCIR에 Repository가 만들어져 있어야 합니다. 없는 경우 Root Compartment에 자동으로 Private Repository가 생성되도록 기본 설정되어 있습니다.
+    > 특정 Compartment에 이미지를 Push 하기 위해서는 Push 되기 전에 OCIR에 Repository가 만들어져 있어야 합니다. 없는 경우 Root Compartment에 생성되도록 기본 설정되어 있습니다.
 
     ![OCIR Image](images/ocir-spring-boot-bookstore-serivce.png)     
 

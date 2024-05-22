@@ -215,7 +215,7 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     - 실행예시
 
     ```shell
-    git remote add origin https://devops.scmservice.ap-chuncheon-1.oci.oraclecloud.com/namespaces/axjowrxaexxx/projects/oci-hol-xx-devops-project/repositories/bookstore-service-code-repo
+    git remote add origin https://devops.scmservice.ap-seoul-1.oci.oraclecloud.com/namespaces/axjowrxaexxx/projects/oci-hol-xx-devops-project/repositories/bookstore-service-code-repo
     ```
 
 10. 새 DevOps Code Repository로 변경사항을 푸쉬합니다
@@ -755,8 +755,8 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     bookstore-service-deployment-5447bb749b-xl6t9   1/1     Running   0          6m59s
     
     $ kubectl describe pod bookstore-service-deployment-5447bb749b-xl6t9 | grep image
-      Normal  Pulling    7m16s  kubelet            Pulling image "ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4"
-      Normal  Pulled     7m12s  kubelet            Successfully pulled image "ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4" in 4.218s (4.218s including waiting)      
+      Normal  Pulling    7m16s  kubelet            Pulling image "ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4"
+      Normal  Pulled     7m12s  kubelet            Successfully pulled image "ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4" in 4.218s (4.218s including waiting)      
     ```
 
 8. 서비스 주소로 다시 요청합니다.

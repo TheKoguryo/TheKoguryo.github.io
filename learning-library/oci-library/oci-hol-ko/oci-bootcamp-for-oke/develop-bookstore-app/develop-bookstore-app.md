@@ -63,8 +63,8 @@
 
     - 생성된 Redis Cluster 상세정보에서 Primary endpoint, Replicas endpoint로 업데이트
     ```
-    spring.redis.primary-endpoint=xxxxxxxxxx-p.redis.ap-chuncheon-1.oci.oraclecloud.com
-    spring.redis.replicas-endpoint=xxxxxxxxxx-r.redis.ap-chuncheon-1.oci.oraclecloud.com
+    spring.redis.primary-endpoint=xxxxxxxxxx-p.redis.ap-seoul-1.oci.oraclecloud.com
+    spring.redis.replicas-endpoint=xxxxxxxxxx-r.redis.ap-seoul-1.oci.oraclecloud.com
     spring.redis.port=6379
     spring.redis.ssl=true
     ```
@@ -352,7 +352,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
             ````
             # Profile 유저명이 Default/kildong@example.com인 경우
 
-            $ docker login ap-chuncheon-1.ocir.io -u axjowrxaexxx/default/kildong@example.com
+            $ docker login ap-seoul-1.ocir.io -u axjowrxaexxx/default/kildong@example.com
             Password: 
             WARNING! Your password will be stored unencrypted in /home/kildong/.docker/config.json.
             Configure a credential helper to remove this warning. See
@@ -384,17 +384,17 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
         # 작성 예시
         # 각자 환경에 맞게 수정 필요
-        ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+        ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
         ```    
 
 2. 앞서 생성한 이미지에 다음과 같이 태그를 추가합니다.
 
     ````  
-    $ docker tag bookstore-service:1.0 ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+    $ docker tag bookstore-service:1.0 ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
 
     $ docker images
     REPOSITORY                                                         TAG   IMAGE ID       CREATED          SIZE
-    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
+    ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service       1.0   965b497956bc   30 minutes ago   710MB
     bookstore-service                                                  1.0   965b497956bc   30 minutes ago   710MB
     container-registry.oracle.com/graalvm/jdk                          17    73c859405e6f   2 days ago       646MB   
     ````    
@@ -404,7 +404,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
     ````  
     $ docker images
     REPOSITORY                                                         TAG   IMAGE ID       CREATED          SIZE
-    ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service   1.0   965b497956bc   30 minutes ago   710MB
+    ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service       1.0   965b497956bc   30 minutes ago   710MB
     ...
     ````    
 
@@ -413,7 +413,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
     - 실행예시
 
     ````
-    docker push ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
+    docker push ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
     ````
 
 5. OCI 콘솔에서 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Developer Services**로 이동한 다음 **Container Registry**를 선택 합니다.
@@ -497,7 +497,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 3. 작성한 yaml 파일에서 *앞서 OCIR에 Push한 이미지의 주소*를 사용하도록 다음 항목을 변경합니다.
 
-     - *`<YOUR_IMAGE_REGISTRY_PATH>`*: 예시에서는 `ap-chuncheon-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0`
+     - *`<YOUR_IMAGE_REGISTRY_PATH>`*: 예시에서는 `ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0`
 
 4. 작성한 yaml 파일을 통해 개발한 Spring Boot 앱을 배포합니다.
 

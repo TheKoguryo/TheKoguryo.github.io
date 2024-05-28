@@ -95,6 +95,7 @@
 
 12. 일단 시작되면 MySQL DB가 프로비저닝됩니다. 위 설정기준으로 Active 상태로 되기까지, *약 10~15분 정도 걸립니다.*
 
+13. 생성되는 동안, [Task 4로 이동](#Task4:Redis)하여 다음 자원을 먼저 생성합니다.
 
 ## Task 3: Cloud Shell에서 생성한 MySQL 접근하기
 
@@ -104,7 +105,7 @@
 
 2. 왼쪽 아래 **Resources** > **Endpoints**를 클릭하여, Endpoint 주소와 Port를 확인합니다. 
 
-    *Endpoint 주소는 생성시 지정한 서브넷상의 Private IP임을 유의합니다.*
+    *Endpoint 주소는 생성시 지정한 서브넷상의 Private IP임을 유의합니다.* *이후 실습에서 필요하니 기록해 둡니다.*
 
     ![MySQL Endpoints](images/mysql-endpoints.png " ")
 
@@ -141,7 +142,7 @@
 
 8. MySQL Shell(mysqlsh)을 사용하여, MySQL DB에 로그인합니다.
 
-    - Administrator Username / Password로 로그인
+    - 생성시 입력한 Administrator Username(예, admin) / Password로 로그인
 
     ```
     <copy>
@@ -201,22 +202,32 @@
 
 6. 입력 정보를 리뷰한 후 클러스터를 생성합니다.
 
-7. 참고로, 입력한 정보를 기준으로 클러스터 생성은 7분 정도 걸렸습니다. 환경에 따라 달라 질 수 있습니다.
+7. 참고로, 입력한 정보를 기준으로 *클러스터 생성은 7분 정도 걸렸습니다. 환경에 따라 달라 질 수 있습니다.*
 
-8. 동적 변경을 확인하기 위해, 생성된 클러스터 정보에서 **Resize nodes**를 클릭하여, 2개로 변경합니다.
+8. Task 3을 수행하지 않은 경우, Redis 클러스터가 생성되는 동안, [Task 3로 이동](#Task3:CloudShellMySQL)하여 MySQL 생성 확인 및 접속을 테스트합니다.
+
+
+## Task 5: Redis 클러스터 동적변경
+
+1. 생성된 Redis 클러스터의 상세정보를 확인합니다.
+
+2. 동적 변경을 확인하기 위해, 생성된 클러스터 정보에서 **Resize nodes**를 클릭하여, 2개로 변경합니다.
 
     ![Redis Resize Nodes](images/redis-resize-nodes-1.png " ")
     ![Redis Resize Nodes](images/redis-resize-nodes-2.png " ")
 
-9. 여기서는 *변경완료를 기다리지말고 다음으로 넘어갑니다.*
+3. 여기서는 *변경완료를 기다리지말고 다음으로 넘어갑니다.*
 
-## Task 5: Cloud Shell에서 생성한 Redis 클러스터 접근하기
+
+## Task 6: Cloud Shell에서 생성한 Redis 클러스터 접근하기
 
 1. 생성된 Redis Cluster 상세정보를 확인합니다. 접속시 Primary endpoint를 사용할 예정입니다.
 
     - Primary endpoint: 항상 클러스터의 Primary Node에 연결하는 Endpoint입니다. 인터넷에서 직접 접속은 불가합니다. 기본적으로는 같은 VCN 내에서만 접속이 가능합니다.
-    - Replicas endpoint: 클러스터의 Replica 노드 중 하나로 연결하는 Endpoint입니다. Replica가 둘 이상인 경우, 연결시 이전과 다른 노드로 연결될 수 있습니다.
+    - Replicas endpoint: 클러스터의 Replica 노드 중 하나로 연결하는 Endpoint입니다. Replica가 둘 이상인 경우, 부하 분배로, 각 연결은 이전과 다른 노드로 연결될 수 있습니다.
     - Node endpoints: 각 노드로 직접 연결하는 Endpoint입니다. 각 노드로 연결이 잘 되는지 확인용으로 사용할 수 있습니다.
+
+    *이후 실습에서 필요하니 Primary endpoint를 기록해 둡니다.*
 
     ![Redis Primary Endpoint](images/redis-primary-endpoint.png " ")
 

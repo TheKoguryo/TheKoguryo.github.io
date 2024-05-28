@@ -159,13 +159,12 @@
         * *이후 업그레이드 실습을 위해, 1.28.x을 선택합니다.*
         * 2024년 1월 기준, 1.27, 1.28, 1.29 중 *1.28.x* 선택
 
-    - Image:
-        * 클러스터와 동일한 버전 선택, 예, 1.28.x
-
-    - 다른 값들은 기본값으로 유지합니다.
     - Node type: Managed 선택
         * **Managed**: Worker Node가 Compute 인스턴스로 생성되며, SSH로 접근이 가능한 일반적인 쿠버네티스 노드입니다.
         * **Virtual**: Serverless로 가상 Worker Node를 사용하며, OCI가 관리합니다.
+
+    - 다른 값들은 기본값으로 유지합니다.
+
     - Show advanced options: 필요시, Worker Node의 Boot Volume 사이즈, Node 접속용 SSH Key 등록 등을 할 수 있습니다.
     
     ![Cluster Details](images/oke-create-cluster-details-platform.png =70%x*)
@@ -177,14 +176,16 @@
         * *이후 업그레이드 실습을 위해, 1.28.x을 선택합니다.*
         * 2024년 1월 기준, 1.27, 1.28, 1.29 중 *1.28.x* 선택
 
+    - Node type: Managed 선택
+        * **Managed**: Worker Node가 Compute 인스턴스로 생성되며, SSH로 접근이 가능한 일반적인 쿠버네티스 노드입니다.
+        * **Virtual**: Serverless로 가상 Worker Node를 사용하며, OCI가 관리합니다.
+
     - Image:
         * 클러스터와 동일한 버전 선택, 예, 1.28.x
         * *Oracle Linux 7* 선택, 이미지 목록을 *제일 아래로 스크롤 후* 처음 만나는 7.x 버전 중에서 선택합니다.
 
     - 다른 값들은 기본값으로 유지합니다.
-    - Node type: Managed 선택
-        * **Managed**: Worker Node가 Compute 인스턴스로 생성되며, SSH로 접근이 가능한 일반적인 쿠버네티스 노드입니다.
-        * **Virtual**: Serverless로 가상 Worker Node를 사용하며, OCI가 관리합니다.
+
     - Show advanced options: 필요시, Worker Node의 Boot Volume 사이즈, Node 접속용 SSH Key 등록 등을 할 수 있습니다.
     
     ![Cluster Details](images/oke-create-cluster-details-ol-7.png =70%x*)
@@ -208,6 +209,12 @@
 1. 일단 시작되면 클러스터가 *완전히 프로비저닝되고 Active 상태로 표시하는 데 일반적으로 3개 노드기준, 약 10-15분이 걸립니다.*
 
     ![Cluster Created](images/oke-cluster-created.png )
+
+    - 생성된 Node Pool
+    ![Cluster Created](images/oke-cluster-created-nodepool.png =50%x*)
+
+    - Node Pool내 생성된 노드들 - Compute 인스턴스가 생성되고, 쿠버네티스 자원이 설치되어 Ready 상태로 되기까지 시간이 걸립니다.
+    ![Cluster Created](images/oke-cluster-created-nodepool-nodes.png )
 
 ### Basic Cluster vs Enhanced Cluster 설명
 
@@ -241,17 +248,22 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
   ![CloudShell Architecture](images/cloudshell-architecture.png =35%x*)
   ![CloudShell Architecture](images/cloudshell-architecture-x86.png =40%x*)
 
-3. **Clusters** 목록에서 방금 생성한 클러스터를 선택한 다음 **Access Cluster** 버튼을 클릭합니다.
+3. `echo $CPU_ARCHITECTURE` 명령으로 변경여부를 확인합니다.
+
+   ![CloudShell Architecture](images/cloudshell-check-architecture-x86.png =40%x*)
+
+
+4. **Clusters** 목록에서 방금 생성한 클러스터를 선택한 다음 **Access Cluster** 버튼을 클릭합니다.
 
    ![Access Cluster](images/oke-access-cluster.png " ")
 
-4. 복사한 명령을 Cloud Shell 터미널에 붙여 실행하여 kubeconfig을 만듭니다.
+5. 복사한 명령을 Cloud Shell 터미널에 붙여 실행하여 kubeconfig을 만듭니다.
 
    ![Access Cluster](images/oke-access-cluster-cli.png =50%x*)
 
    ![Access Cluster](images/oke-cloud-shell-create-kubeconfig.png " ")
 
-5. 다음 `kubectl` 명령을 사용하여 kubectl 클라이언트 및 kubernetes 서버의 버전을 확인하십시오.
+6. 다음 `kubectl` 명령을 사용하여 kubectl 클라이언트 및 kubernetes 서버의 버전을 확인하십시오.
 
     ````shell
     <copy>
@@ -259,7 +271,7 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
     </copy>
     ````
 
-6. 다음 `kubectl` 명령을 사용하여 Worker 노드 정보를 조회하고 _Ready_ 상태인지 확인하십시오..
+7. 다음 `kubectl` 명령을 사용하여 Worker 노드 정보를 조회하고 _Ready_ 상태인지 확인하십시오..
 
     ````shell
     <copy>
@@ -279,4 +291,4 @@ OKE 클러스터를 만들때 두 가지 클러스터 타입중에서 선택해�
 ## Acknowledgements
 
 - **Author** - DongHee Lee
-- **Last Updated By/Date** - DongHee Lee, April 2024
+- **Last Updated By/Date** - DongHee Lee, May 2024

@@ -27,7 +27,7 @@
 
     ![Code Editor](images/code-editor-start.png =35%x*)
 
-2. MySQL, Redis가 속한 서브넷(oke-nodesubnet-…)에 Private Network으로 연결된 상태로 Network: Ephemeral로 표시되는 지 확인합니다. 아닌 경우, Lab 2를 참고하여, 다시 연결합니다.
+2. MySQL, Redis가 속한 서브넷(oke-nodesubnet-…)에 Private Network으로 연결된 상태로 Network: Ephemeral로 표시되는 지 확인합니다. 아닌 경우, [Lab 2](?lab=setup-required-services#Task3:CloudShellMySQL)를 참고하여, 다시 연결합니다.
 
     ![Private Network Connected](images/cloudshell-private-network-setup-connected.png " ")
 
@@ -36,6 +36,7 @@
 4. Spring Boot 기반 마이크로 서비스를 프로젝트 생성부터 시나리오에 맞게 코드 개발하는 과정이 필요합니다. 본 교육은 코드 개발을 위한 과정이 아니므로, 여기서는 이미 만들어진 소스를 가져와서 시작합니다.
 
     - Spring Boot 3.x, Spring Data JPA, Caching, Java 17 기반으로 작성되었습니다.
+    - 새로 연 Terminal에서 아래 명령을 실행합니다.
     ```
     <copy>
     cd
@@ -51,9 +52,9 @@
 
 7. 사용할 MySQL 접속 정보로 업데이트합니다.
 
-    - 생성한 MySQL DB System의 Endpoint 주소의 IP로 url 업데이트
-    - 생성시 입력한 관리자 이름 및 암호로 업데이트
-    ```
+    - 생성한 MySQL DB System의 *Endpoint 주소의 IP로 url 업데이트*
+    - 생성시 입력한 관리자 이름 및 *암호 업데이트*
+    ```properties
     spring.datasource.url=jdbc:mysql://${MYSQL_HOST:10.0.xx.xxx}:3306/bookstore
     spring.datasource.username=admin
     spring.datasource.password=xxxxxxxx
@@ -61,8 +62,8 @@
 
 8. 사용할 Redis 클러스터 접속 정보로 업데이트합니다.
 
-    - 생성된 Redis Cluster 상세정보에서 Primary endpoint, Replicas endpoint로 업데이트
-    ```
+    - 생성된 Redis Cluster 상세정보에서 *Primary endpoint, Replicas endpoint로 업데이트*
+    ```properties
     spring.redis.primary-endpoint=xxxxxxxxxx-p.redis.ap-seoul-1.oci.oraclecloud.com
     spring.redis.replicas-endpoint=xxxxxxxxxx-r.redis.ap-seoul-1.oci.oraclecloud.com
     spring.redis.port=6379
@@ -96,6 +97,12 @@
     ````
 
 11. Terminal에서 **bookstore-service/complete** 폴더로 이동합니다.
+
+    ```
+    <copy>
+    cd ~/bookstore-service/complete/
+    </copy>
+    ```
 
 12. Terminal에서 실행을 위해 코드를 빌드합니다.
 
@@ -257,6 +264,9 @@
     ````
 
     ````
+    $ pwd
+    /home/kildong/bookstore-service/complete
+
     $ ls
     Dockerfile  mvnw  mvnw.cmd  pom.xml  src  target
 
@@ -308,7 +318,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 2. Create repository를 클릭합니다.
 
-3. 생성할 Repository name은 Cloud Account내에서 *고유하게 사용하는 저장소 이름*입니다. 다른 유저와 충돌되지 않게 다음 형식으로 이름을 입력합니다.
+3. Repository name은 Cloud Account내에서 *고유하게 사용하는 저장소 이름*입니다. 다른 유저와 충돌되지 않게 다음 형식으로 이름을 입력합니다.
 
     - 예시) oci-hol-*xx*/bookstore-service
 
@@ -334,11 +344,14 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     - Docker CLI 로그인용 Password: 사용자의 Auth Token을 사용
     
-        * **유저명** 또는 **My Profile** 클릭후 **Auth tokens** > **Generate token** 을 클릭합니다.
-        * *Auth Token은 생성시점에만 확인이 가능하므로 생성된 Auth Token을 복사해서 기록해 둡니다. 다음 실습에서도 Auth Token이 필요합니다.*
+        * **My Profile** 클릭후 **Auth tokens** > **Generate token** 을 클릭합니다.
 
             ![Auth Token](images/auth-token-identity-domain-1.png =40%x*) 
             ![Auth Token](images/auth-token-identity-domain-2.png =40%x*) 
+            ![Auth Token](images/auth-token-description.png =25%x*) 
+
+        * *Auth Token은 생성시점에만 확인이 가능하므로 생성된 Auth Token을 복사해서 기록해 둡니다. 다음 실습에서도 Auth Token이 필요합니다.*
+
             ![Auth Token](images/auth-token-identity-domain-3.png =50%x*) 
 
     - 아래와 같이 Docker CLI로 로그인합니다.    
@@ -430,7 +443,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     이미 Cloud Shell에서 Docker CLI로 OCIR에 이미 로그인 했으므로 해당 정보를 이용하여 생성합니다.
 
-    ````
+    ```shell
     <copy>
     kubectl create secret generic ocir-secret \
     --from-file=.dockerconfigjson=$HOME/.docker/config.json \
@@ -440,7 +453,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     - 생성결과 확인
 
-        ```
+        ```shell
         $ <copy>kubectl get secret</copy>
         NAME          TYPE                             DATA   AGE
         ocir-secret   kubernetes.io/dockerconfigjson   1       1m
@@ -450,7 +463,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     - 배포 파일 생성합니다. 예, 파일명: bookstore-service.yaml
     
-    ````
+    ````yaml
     <copy>
     apiVersion: apps/v1
     kind: Deployment
@@ -501,7 +514,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 4. 작성한 yaml 파일을 통해 개발한 Spring Boot 앱을 배포합니다.
 
-    ````
+    ````shell
     <copy>
     kubectl apply -f bookstore-service.yaml
     </copy>
@@ -510,7 +523,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 5. kubectl get all 명령으로 배포된 자원을 확인합니다.
 
-    ````
+    ````shell
     $ <copy>kubectl get all</copy>
     NAME                                                READY   STATUS    RESTARTS   AGE
     pod/bookstore-service-deployment-6dd584fb96-hk7q9   1/1     Running   0          3m24s
@@ -528,7 +541,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 6. Pod가 Running 상태인지 확인합니다. 
 
-    ```
+    ```shell
     $ <copy>kubectl get pod</copy>
     NAME                                                READY   STATUS    RESTARTS   AGE
     pod/bookstore-service-deployment-6dd584fb96-hk7q9   1/1     Running   0          3m24s
@@ -536,24 +549,35 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 7. 서비스의 EXTERNAL-IP가 할당될 때까지 기다랍니다. EXTERNAL-IP가 `<pending>` 상태인 경우 LoadBalancer가 생성완료될때 까지 잠시 기다립니다.
 
-    ````
+    ````shell
     $ <copy>kubectl get svc</copy>
     NAME                      TYPE         CLUSTER-IP   EXTERNAL-IP     PORT(S)           AGE
     bookstore-service-lb      LoadBalancer 10.96.59.197 130.xxx.xxx.xxx 80:30392/TCP      3m24s
     kubernetes                ClusterIP    10.96.0.1    &lt;none&gt;          443/TCP,12250/TCP 4d22h    
     ````
 
-8. 배포가 완료되고, OCI 콘솔에서 Networking > Load balancers > Load balancer으로 이동해서 보면, Kubernetes 자원과 함께 만들어진 Load Balancer를 확인할 수 있습니다. 
+8. EXTERNAL-IP 할당 이후, OCI 콘솔에서 Networking > Load balancers > Load balancer으로 이동해서 보면, Kubernetes 자원과 함께 만들어진 Load Balancer를 확인할 수 있습니다. 
 
     ![OKE Load Balancer](images/load-balancer-createdby-oke.png)
 
-9. Terminal에서 LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
+9. Terminal로 돌아가 LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
 
-    ```
-    $ <copy> curl -s http://130.xxx.xxx.xxx/api/books/1 | jq </copy>
+    ```shell
+    <copy>
+    EXTERNAL_IP=`kubectl get svc bookstore-service-lb -o jsonpath='{.status..ip}'`
+    echo ${EXTERNAL_IP}
+    
+    curl -s http://${EXTERNAL_IP}/api/books/1 | jq
+    </copy>
+
     ```
 
     ````
+    $ EXTERNAL_IP=`kubectl get svc bookstore-service-lb -o jsonpath='{.status..ip}'`
+    $ echo ${EXTERNAL_IP}
+    130.xxx.xxx.xxx
+    $ 
+    $ curl -s http://${EXTERNAL_IP}/api/books/1 | jq
     {
       "id": 1,
       "title": "Harry Potter and the Half-Blood Prince (Harry Potter  #6)",

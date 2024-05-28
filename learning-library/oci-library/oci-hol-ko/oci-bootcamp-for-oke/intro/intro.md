@@ -13,7 +13,6 @@ OCI에서 제공하는 데이터베이스(OCI MySQL Database) 서비스, 캐시 
 * Redis 클러스터 만들기
 * 쿠버네티스 클러스터 및 배포된 앱 모니터링
 * CI/CD를 통해 소스 코드 변경 작업에 대한 자동 배포
-* 모든 실습이 끝나고 사용한 자원 정리
 
 ![Architecture](images/query-caching.png)
 
@@ -36,4 +35,4 @@ OCI에서 제공하는 데이터베이스(OCI MySQL Database) 서비스, 캐시 
 ## Acknowledgements
 
 * **Author** - DongHee Lee, January 2024
-* **Last Updated By/Date** - DongHee Lee, April 2024
+* **Last Updated By/Date** - DongHee Lee, May 2024

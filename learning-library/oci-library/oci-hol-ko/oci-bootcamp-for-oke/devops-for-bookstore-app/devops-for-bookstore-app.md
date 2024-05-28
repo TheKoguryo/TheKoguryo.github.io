@@ -175,18 +175,21 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     </copy>
     ````    
 
-5. GIT URL을 HTTPS로 사용하는 경우 매번 인증이 필요합니다. 이를 줄이기 위해 아래처럼 인증 정보를 저장 또는 캐쉬하도록 설정합니다.
+5. GIT URL을 HTTPS로 사용하는 경우 매번 인증이 필요합니다. 이를 줄이기 위해 아래처럼 인증 정보를 저장하도록 설정합니다.
 
     ````
     <copy>
-    git config --global credential.helper cache
-
-    # 캐시 유효기간을 10시간=36000초로 변경
-    git config --global credential.helper 'cache --timeout=36000'
+    git config --global credential.helper store
     </copy>
     ````
 
 6. 앞서 개발한 bookstore-service 폴더로 이동합니다.
+
+    ```shell
+    <copy>
+    cd ~/bookstore-service
+    </copy>    
+    ```
 
 7. 기존 .git 정보를 삭제하고 다시 초기화합니다.
 
@@ -201,12 +204,12 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     </copy>
     ```
 
-8. 생성된 코드 저장소로 이동하여, Git URL을 확인합니다.
+8. 생성된 DevOps Code Repository로 이동하여, Git HTTP URL을 복사합니다.
 
     ![GIT URL](images/git-url-1.png =30%x*)
     ![GIT URL](images/git-url-2.png =50%x*)
 
-9. 복사한 주소로 Remote Repository로 설정합니다.
+9. 복사한 주소를 로컬 git 저장소의 Remote Repository로 설정합니다.
 
     ````shell
     git remote add origin <Your-Clone-with-HTTPS-URL>
@@ -215,7 +218,10 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
     - 실행예시
 
     ```shell
-    git remote add origin https://devops.scmservice.ap-seoul-1.oci.oraclecloud.com/namespaces/axjowrxaexxx/projects/oci-hol-xx-devops-project/repositories/bookstore-service-code-repo
+    $ pwd
+    /home/kildong/bookstore-service/complete
+
+    $ git remote add origin https://devops.scmservice.ap-seoul-1.oci.oraclecloud.com/namespaces/axjowrxaexxx/projects/oci-hol-xx-devops-project/repositories/bookstore-service-code-repo
     ```
 
 10. 새 DevOps Code Repository로 변경사항을 푸쉬합니다
@@ -254,6 +260,8 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 해당되는 부분을 Build Pipeline을 통해 구성이 가능합니다.
 
 1. **DevOps 프로젝트 페이지**로 이동하여 왼쪽 메뉴의 **Build Pipelines**으로 이동합니다.
+
+    ![Build Pipeline](images/build-pipeline.png =40%x*)
 
 2. **Create build pipeline**을 클릭하여 파이프라인을 생성합니다.
 
@@ -295,7 +303,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
     
         ![Build Stage](images/build-stage-3.png)
 
-3. 설정된 Stage를 **Add**를 클릭하여 추가합니다.
+3. **Add**를 클릭하여 설정된 Stage를 추가합니다.
 
 4. 소스 코드 변경시 Build Stage에서 수행할 Build Spec 정의가 필요합니다.
 
@@ -447,7 +455,7 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
    ![OCIR Stage](images/ocir-stage-2.png)
 
-5. Container Image Repository 유형의 Artifact를 추가하는 과정입니다.
+5. Container Image Repository 유형의 Artifact를 다음과 같이 추가 아래쪽 **Add** 버튼을 클릭합니다.
 
     - Name: `generated_image_with_tag`
     - Artifact source: `${OCIR_PATH}:${TAG}`
@@ -469,15 +477,15 @@ CI/CD 중에 코드를 빌드하여 배포 산출물을 만드는 CI 과정에 �
 
         ![Associate Artifacts](images/associate-artifacts-2.png =55%x*)
 
-8. 아래쪽 **Add** 버튼을 클릭하여, 이제 deliver stage을 추가 완료합니다.
+8. 아래쪽 **Add** 버튼을 클릭하여, 이제 deliver stage을 추가되었습니다.
 
 9. 파이프라인을 다시 실행해 봅니다. 
 
-10. 이제 실제 소스코드로 빌드된 컨테이너 이미지가 OCIR에 자동으로 등록됩니다.
+10. 파이프라인 실행이 완료되고 나면, 이제 실제 소스코드로 빌드된 컨테이너 이미지가 OCIR에 자동으로 등록됩니다.
 
     > 특정 Compartment에 이미지를 Push 하기 위해서는 Push 되기 전에 OCIR에 Repository가 만들어져 있어야 합니다. 없는 경우 Root Compartment에 생성되도록 기본 설정되어 있습니다.
 
-    ![Pushed Image](images/pushed-image.png)
+    ![Pushed Image](images/pushed-image.png =60%x*)
 
 
 
@@ -534,7 +542,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
     - Value
 
-        build-stage 실행결과 중에서 exportedVariables를 사용하도록, 이전 실습에서 배포시 사용한 yaml 파일에서 Image URL만 build-stage에서의 결과값을 사용하도록 수정된 내용입니다. 아래 내용을 복사해 그대로 사용하면 됩니다.
+        이전 실습에서 배포시 사용한 yaml 파일에서 Image URL만 build-stage에서의 결과값을 사용하도록 수정된 내용입니다. 아래 내용을 복사해 그대로 사용하면 됩니다.
 
         ```
         <copy>
@@ -602,15 +610,19 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 2. **Add Stage**를 클릭하여 **Apply manifest to your Kubernetes cluster** Stage를 추가합니다.
 
-3. 배포할 환경을 선택합니다.
-
-4. 배포할 manifest 파일을 선택합니다
+3. stage 이름을 입력합니다.
 
     - Name: 예, apply-manifest-to-oke-stage
 
+4. 배포할 환경을 선택합니다.
+
+5. 배포할 manifest 파일을 선택합니다
+
+    - 앞서 Artifact로 등록한 bookstore-service.yaml 
+
     ![Select Manifest](images/deploy-to-oke-1.png =70%x*)
 
-5. 파이프라인 완성
+6. 파이프라인 완성
 
     ![Completed Pipeline](images/deploy-to-oke-2.png =30%x*)
 
@@ -626,13 +638,17 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 3. **Trigger Deployment** 유형을 선택합니다.
 
-4. 설정한 Deployment Pipeline을 지정합니다.
+4. stage 이름을 입력합니다.
 
     - Name: 예, trigger-deployment-stage
 
+5. 만든 Deployment Pipeline를 호출 대상으로 지정합니다.
+
+    - bookstore-service-deployment-pipeline
+
    ![Deployment Pipeline](images/trigger-deployment-pipeline.png)
 
-5. 전체 흐름이 완료되었습니다.
+6. 전체 흐름이 완료되었습니다.
 
    ![Deployment Pipeline Completed](images/deployment-pipeline-completed.png)
 
@@ -648,7 +664,8 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 3. Trigger를 설정합니다.
 
     - **Name**: 예, bookstore-service-trigger
-    - **Source Code Repository**: OCI Code Repository를 포함하여, 여러 유형의 Git Repository 연동을 지원합니다. 예제에서는 앞서 만든 OCI Code Repository상의 bookstore-service-code-repo를 선택합니다.
+    - **Source connection**: 여러 유형의 Git Repository 연동을 지원합니다. 여기서는 OCI Code Repository를 선택합니다.
+    - **Source Code Repository**: bookstore-service-code-repo를 선택합니다.
     - **Actions**: 트리거링 되었을 때 호출하는 액션으로 작성한 빌드 파이프라인인 bookstore-service-build-pipeline을 선택합니다.
  
         ![Create Trigger](images/create-trigger.png =60%x*)
@@ -658,7 +675,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 ## Task 6: 작성한 전체 CI/CD 파이프라인 테스트하기
 
-응답 메시지 중 일부를 변경하는 요청사항이 있다는 가정하에, 소스 코드를 변경하고, Code Repository에 반영하여, CI/CD 파이프라인이 실행되게 합니다.
+응답 메시지 중 일부를 변경하는 요청사항이 있다는 가정하에, 소스 코드를 변경하고, Code Repository에 반영합니다. 그에 따라 트리거링 되어, CI/CD 파이프라인이 실행되어, 빌드, 배포과정이 수행되는 과정을 테스트합니다.
 
 - 수정 전
     
@@ -670,14 +687,23 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 1. Cloud Shell를 실행합니다.
 
-2. Cloud Shell에서 src/main/java/com/example/bookstore/entities/Book.java 파일을 변경합니다.
+2. 소스코드 위치로 이동합니다.
+
+    ```text
+    <copy>        
+    cd ~/bookstore-service/complete/
+    </copy>    
+    ```
+
+3. Cloud Shell에서 src/main/java/com/example/bookstore/entities/Book.java 파일을 변경합니다.
 
     응답메시지에서 제외되도록 @JsonIgnore annotation을 두 멤버변수 앞에 추가합니다.
 
     ````java
     ...
-
+    <copy> 
     @JsonIgnore
+    </copy>     
     private int ratings_count;
     @JsonIgnore
     private int text_reviews_count;
@@ -685,7 +711,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     ...    
     ````
 
-3. 코드를 Code Repository에 Push 합니다.
+4. 코드를 Code Repository에 Push 합니다.
 
     ````shell
     <copy>    
@@ -703,7 +729,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 
 2. 메뉴에서 **File** &gt; **Open** 을 통해 bookstore-service 폴더를 엽니다.
 
-3. 열린 폴더안의 src/main/java/com/example/bookstore/entities/Book.java 파일을 변경합니다.
+3. 열린 폴더안의 complete/src/main/java/com/example/bookstore/entities/Book.java 파일을 변경합니다.
 
     응답메시지에서 제외되도록 @JsonIgnore annotation을 두 멤버변수 앞에 추가합니다.
     ![Code Editor - OpeningHours](images/code-editor-books.png)
@@ -711,7 +737,7 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
 5. 왼쪽 메뉴에서 Source Control로 이동하여, 변경사항을 스테이지합니다.
     ![Code Editor - OpeningHours](images/code-editor-stage-all-changes.png)
 
-6. 코멘트(예, update opening-hours) 추가하고, 스테이지된 변경사항을 커밋합니다.     
+6. 코멘트(예, add JsonIgnore to count fields) 추가하고, 스테이지된 변경사항을 커밋합니다.     
     ![Code Editor - OpeningHours](images/code-editor-commit.png)
 
 7. DevOps Code Repository로 반영하기 위해 왼쪽 아래의 Push 아이콘을 클릭합니다.    
@@ -752,9 +778,9 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     ```shell
     $ kubectl get pod
     NAME                                            READY   STATUS    RESTARTS   AGE
-    bookstore-service-deployment-5447bb749b-xl6t9   1/1     Running   0          6m59s
+    bookstore-service-deployment-5447bb749b-xl6t9   1/1     Running   0          92s
     
-    $ kubectl describe pod bookstore-service-deployment-5447bb749b-xl6t9 | grep image
+    $ <copy>kubectl describe pod -l app=bookstore-service | grep image</copy>
       Normal  Pulling    7m16s  kubelet            Pulling image "ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4"
       Normal  Pulled     7m12s  kubelet            Successfully pulled image "ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:2f5c8a4" in 4.218s (4.218s including waiting)      
     ```
@@ -772,7 +798,12 @@ Kubernetes에 배포할 Stage 유형을 사용하기 위해서는 사전에 배�
     - 서비스 요청
 
         ```shell
-        curl -s http://130.xxx.xxx.xxx/api/books/1 | jq
+        <copy>
+        EXTERNAL_IP=`kubectl get svc bookstore-service-lb -o jsonpath='{.status..ip}'`
+        echo ${EXTERNAL_IP}
+        
+        curl -s http://${EXTERNAL_IP}/api/books/1 | jq        
+        </copy>
         ```
 
     - 변경된 형식(`ratings_count`, `text_reviews_count` 필드 없음)으로 응답이 오는 것을 확인할 수 있습니다.

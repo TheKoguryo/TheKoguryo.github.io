@@ -40,7 +40,8 @@ OCI Logging Analytics에서 지원하는 방법에 맞춰 컨테이너 로그도
 
 ### OCI Logging Analytics가 활성화
 
-*설치전에 대상 Region에 OCI Logging Analytics가 활성화되어 있어야 합니다. 내비게이션 메뉴에서 **Observability & Management** > **Logging Analytics** 화면으로 이동하여, 활성화되었는지 확인합니다. 활성화되지 않은 경우 먼저 활성화합니다.*
+*설치전에 대상 Region에 OCI Logging Analytics가 활성화되어 있어야 합니다. 내비게이션 메뉴에서 **Observability & Management** > **Logging Analytics** 화면으로 이동하여, 활성화되었는지 확인합니다.*
+*활성화되지 않은 경우 Start Using Logging Analytics 버튼을 클릭하여 경우 먼저 활성화합니다.*
 
 ![Start Using Logging Analytics](images/start-using-logging-analytics.png)
 
@@ -98,34 +99,38 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
          allow dynamic-group <dynamic_group_name> to {LOG_ANALYTICS_DISCOVERY_UPLOAD} in tenancy
          ```
 
-8. 설치가 완료되었습니다.
+8. Configure log collection을 클릭하여 대상 클러스터에 설치합니다.
+
+9. 설치가 완료되었습니다.
 
     - Entity, Log Group, ORM Stack은 모두 설정시 선택한 Compartment에 생성됩니다.
     - Policy는 Tenancy 레벨 설정이 있기 때문에 모두 Root Compartment에 생성됩니다.
+    - ORM Stack, 즉 Terraform을 설치되며, 환경에 따라 달라질수 있으며, 약 4분 정도 걸립니다.
 
     ![Configuration Finished](images/la-oke-solution-configure-finished.png)
 
-9. 아래 **Take me to Kubernetes**를 클릭합니다.
+10. 아래 **Take me to Kubernetes**를 클릭합니다.
 
-10. 연결된 클러스터 목록이 보입니다. 
+11. 연결된 클러스터 목록이 보입니다. 
 
+    - Latest telemetry 항목이 Unknown인 경우 설치완료될때까지 기다립니다. 오른쪽 리프레쉬 버튼을 클릭하여 상태를 확인합니다.
     - 대상 클러스터에 실제 Agent Pod가 설치되어, 연결되면, CPU, Memory, Pods 정보가 보입니다.
 
     ![Connected OKE Clusters](images/la-oke-solution-connected-oke-clusters.png)
 
-11. 연결된 클러스터를 클릭합니다.
+12. 연결된 클러스터를 클릭합니다.
 
-12. 연결된 클러스터에 대해 Cluster, Workload, Node, Pod 기준으로 대쉬보드를 제공합니다. 대상 시간을 지난 24시간으로 선택합니다.
+13. 연결된 클러스터에 대해 Cluster, Workload, Node, Pod 기준으로 대쉬보드를 제공합니다. 대상 시간을 지난 24시간으로 선택합니다.
 
     ![Dashboard - Cluster](images/la-oke-solution-dashboard-cluster.png)
 
-13. 선택된 단위에 우클릭하여, 팝업에서 단위로 필터링 하거나, 로그를 확인할 수 있습니다. View Logs를 클릭합니다.
+14. 선택된 단위에 우클릭하여, 팝업에서 단위로 필터링 하거나, 로그를 확인할 수 있습니다. View Logs를 클릭합니다.
 
-14. 선택된 단위에 대해 지난 24시간 동안 발생한 로그 중, 특이한 로그를 보여줍니다.
+15. 선택된 단위에 대해 지난 24시간 동안 발생한 로그 중, 특이한 로그를 보여줍니다.
 
     ![Dashboard - Log](images/la-oke-solution-dashboard-log.png)
 
-15. 대상으로 지정된 OKE 클러스터 설치된 자원을 확인합니다.
+16. 대상으로 지정된 OKE 클러스터 설치된 자원을 확인합니다.
 
     - helm chart로 설치된 것을 확인할 수 있습니다.
 
@@ -189,21 +194,21 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
 9. 앱 접속을 위해 Load Balancer IP를 다시 확인합니다.
 
-    ````
+    ````text
     <copy>    
     kubectl get svc bookstore-service-lb
     </copy>    
     ````
 
     결과 예시
-    ````
+    ````text
     NAME                        TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)        AGE
     bookstore-service-lb        LoadBalancer   10.96.185.81   130.xxx.xx.xx  80:30225/TCP   125m
     ````
 
 10. bookstore-service Pod의 로그를 조회합니다. app: bookstore-service 레이블을 기준으로 로그를 조회합니다.
 
-    ````
+    ````text
     <copy>
     kubectl logs -f -l app=bookstore-service
     </copy>
@@ -211,7 +216,7 @@ OCI 마켓플레이스를 통해 설치하거나, GitHub 리파지토리 소스�
 
 11. Terminal에서 LoadBalancer의 EXTERNAL-IP를 통해 서비스를 요청합니다.
 
-    ```
+    ```text
     $ curl -s http://130.xxx.xxx.xxx/api/books/1 | jq
     ```
 

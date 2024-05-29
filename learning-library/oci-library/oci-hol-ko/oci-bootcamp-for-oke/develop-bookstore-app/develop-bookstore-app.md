@@ -86,7 +86,7 @@
 
 10. csruntimectl을 통해 생성한 Spring Boot 설정에 맞게 JDK 17로 변경합니다.
 
-    ````
+    ````text
     $ <copy>csruntimectl java set graalvmjdk-17</copy>
     The current managed java version is set to graalvmjdk-17.
     
@@ -98,7 +98,7 @@
 
 11. Terminal에서 **bookstore-service/complete** 폴더로 이동합니다.
 
-    ```
+    ```text
     <copy>
     cd ~/bookstore-service/complete/
     </copy>
@@ -106,7 +106,7 @@
 
 12. Terminal에서 실행을 위해 코드를 빌드합니다.
 
-    ````
+    ````text
     <copy>
     ./mvnw clean package
     </copy>
@@ -114,7 +114,7 @@
 
 13. Terminal에서 빌드된 JAR 파일을 실행합니다.
 
-    ````
+    ````text
     <copy>
     java -jar target/bookstore-0.0.1-SNAPSHOT.jar
     </copy>
@@ -145,13 +145,13 @@
 
 15. 두 번째 Terminal에서 서비스를 테스트합니다.
 
-    ````
+    ````text
     <copy>
     curl -s http://localhost:8080/api/books/1 | jq
     </copy>    
     ````
 
-    ````
+    ````json
     {
       "id": 1,
       "title": "Harry Potter and the Half-Blood Prince (Harry Potter  #6)",
@@ -192,6 +192,11 @@
     ```
 
     ![REDIS-CLI](images/redis-cli-command-1.png)
+
+    - 참고: *브라우저 창 크기를 변경한 경우, Code Editor의 Terminal의 최대 폭 인지 버그로 인해 창 끝까지 타이핑되지 않는 경우 Terminal의 높이를 변경하여 문제를 우회합니다.*
+
+        ![Code Editor - Terminal Resize](images/code-editor-terminal-resize.png =850x*) 
+        ![Code Editor - Terminal Resize](images/code-editor-terminal-resize-animated.gif =850x*) 
     
 19. 첫 번째 Terminal에서 애플리케이션 로그를 확인합니다. 
 
@@ -201,7 +206,7 @@
 
 20. 두 번째 Terminal에서 동일한 명령으로 다시 한번 호출합니다.
 
-    ````
+    ````text
     <copy>
     curl -s http://localhost:8080/api/books/1 | jq
     </copy>    
@@ -222,7 +227,7 @@
 
 1. [Getting Started | Spring Boot Docker](https://spring.io/guides/topicals/spring-boot-docker) 예시에서 보면 Dockerfile 베이스 이미지로 Docker Hub에 있는 eclipse-temurin:17-jdk-alpine 이미지를 사용합니다.
 
-    ```
+    ```text
     # Dockerfile
     FROM eclipse-temurin:17-jdk-alpine
     VOLUME /tmp
@@ -243,7 +248,7 @@
 
     프로젝트 폴더(여기서는 *complete 폴더 아래*)에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다. 
 
-    ````
+    ````text
     <copy>
     FROM container-registry.oracle.com/graalvm/jdk:17
     WORKDIR /app
@@ -257,13 +262,13 @@
 
 4. Terminal에서 이미지를 빌드합니다. 생성한 Dockerfile이 위치한 곳에서 실행합니다.
 
-    ````
+    ````text
     <copy>
     docker build -t bookstore-service:1.0 .
     </copy>
     ````
 
-    ````
+    ````shell
     $ pwd
     /home/kildong/bookstore-service/complete
 
@@ -322,7 +327,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     - 예시) oci-hol-*xx*/bookstore-service
 
-     ![OCIR Repository](images/ocir-repository-create.png =60%x*) 
+     ![OCIR Repository](images/ocir-repository-create.png =50%x*) 
 
 4. 생성된 Repository를 확인합니다. 아직 이미지가 없는 빈 Repository가 생성되었습니다.
 
@@ -425,7 +430,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     - 실행예시
 
-    ````
+    ````text
     docker push ap-seoul-1.ocir.io/axjowrxaexxx/oci-hol-xx/bookstore-service:1.0
     ````
 
@@ -435,7 +440,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
     > 특정 Compartment에 이미지를 Push 하기 위해서는 Push 되기 전에 OCIR에 Repository가 만들어져 있어야 합니다. 없는 경우 Root Compartment에 생성되도록 기본 설정되어 있습니다.
 
-    ![OCIR Image](images/ocir-spring-boot-bookstore-serivce.png)     
+    ![OCIR Image](images/ocir-spring-boot-bookstore-serivce.png =55%x*) 
 
 ## Task 4: OKE에 마이크로 서비스 배포하기
 
@@ -576,7 +581,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
     $ EXTERNAL_IP=`kubectl get svc bookstore-service-lb -o jsonpath='{.status..ip}'`
     $ echo ${EXTERNAL_IP}
     130.xxx.xxx.xxx
-    $ 
+    
     $ curl -s http://${EXTERNAL_IP}/api/books/1 | jq
     {
       "id": 1,
@@ -596,7 +601,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 10. 호출된 터미널에서 로그를 조회합니다. Code Editor에서 개발시 테스트 했던과 동일하게 Cache Miss로 인해 DB를 조회하고, 캐쉬 엔트리 생성로그가 뜨는 것을 볼 수 있습니다.
 
-    ```
+    ```text
     $ <copy>kubectl logs -f -l app=bookstore-service</copy>
     ...
     2024-04-17T07:09:03.356Z TRACE 1 --- [bookstore] [nio-8080-exec-5] o.s.cache.interceptor.CacheInterceptor   : Computed cache key '1' for operation Builder[public com.example.bookstore.entities.Book com.example.bookstore.services.BookService.getBookById(java.lang.Integer)] caches=[books] | key='#bookId' | keyGenerator='' | cacheManager='' | cacheResolver='' | condition='' | unless='' | sync='false'
@@ -614,7 +619,7 @@ OCIR에 이미지를 등록하기 전에 먼저 Repository를 생성해야 합�
 
 12. 테스트가 끝나면 자원을 정리합니다.
 
-    ````
+    ````text
     <copy>
     kubectl delete -f bookstore-service.yaml 
     </copy>

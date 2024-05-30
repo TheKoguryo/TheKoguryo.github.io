@@ -170,7 +170,7 @@
 
 ## Task 4: Redis 클러스터 만들기
 
-1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Databases**로 이동한 다음 **Redis** 하위 **Clusters로**를 선택합니다.
+1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Databases**로 이동한 다음 **OCI Cache** 하위 **Clusters로**를 선택합니다.
 
 2. 생성을 위해 Create cluster을 클릭합니다.
 

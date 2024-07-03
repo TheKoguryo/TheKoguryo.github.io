@@ -19,6 +19,7 @@ Oracle Cloud Infrastructure Compute 인스턴스 작업에 대한 추가 정보�
 - Apache HTTP 서버 설치
 
 ### 전제조건
+
 - Oracle Cloud Trial Account 또는 Paid Account
   
 ## Task 1: Compute 인스턴스 생성
@@ -44,7 +45,9 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
     ![Create Instance](images/instance-name.png =60%x*)
 
-4. Placement - 고급 옵션을 열면 Capacity Type을 선택할 수 있습니다. 여기서는 기본값인 **On-demand capacity**을 사용합니다.
+4. Placement - 기본 선택된 **On-demand capacity**을 사용합니다.
+
+    Edit를 클릭하여 변경할 수 있습니다. 고급 옵션을 열면 Capacity Type을 선택할 수 있습니다.
 
      ![Create Instance - Placement](images/instance-placement.png =60%x*)
 
@@ -55,7 +58,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
     - **노트** - _OCI는 모든 리전에서 동일한 성능과 가격을 제공하는 [일관된 글로벌 가격](https://www.oracle.com/cloud/pricing/#rc30p1)을 제공합니다._
 
-5. Image & Shape - 사용할 이미지와 Shape(CPU, Memory 크기)을 선택합니다.
+5. Image and shape - 사용할 이미지와 Shape(CPU, Memory 크기)을 선택합니다.
 
     ![Create Instance - Image & Shape](images/instance-image-n-shape.png =60%x*)
 
@@ -69,12 +72,12 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
         ![Shape을](images/instance-shape.png =60%x*)
 
-        * _Flex Shape을 제공하여, 비용 최적화된 Shape을 사용할 수 있습니다._ 고정된 CPU, Memory 중에 고르는 것이 아니라, 원하는 CPU, 원하는 메모리 크기를 직접 고를 수 있습니다. 
+        * VM.Standard.E4.Flex을 선택합니다. _Flex Shape으로, 비용 최적화된 Shape을 사용할 수 있습니다._ 고정된 CPU, Memory 중에 고르는 것이 아니라, 원하는 CPU, 원하는 메모리 크기를 직접 고를 수 있습니다. 
 
         ![Shape을](images/instance-shape-flex.png =70%x*)
     
 
-6. Networking - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다. **Automatically assign a public IPv4 address**을 선택되었는지 확인합니다.
+6. Primary VNIC information - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다. **Automatically assign a public IPv4 address**을 선택되었는지 확인합니다.
 
     ![Networking](images/instance-networking.png =60%x*)
 
@@ -85,104 +88,119 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 8. Create를 클릭하여 인스턴스를 생성합니다.
 
-9. 콘솔 상단에서 Cloud Shell 아이콘을 클릭합니다.
+9. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 Public IP를 확인합니다.
+
+    ![Public IP](images/instance-public-ip.png)
+
+
+## Task 2: Compute 인스턴스 SSH로 접속하기
+
+> SSH 접속을 위한 클라이언트를 통해 생성한 컴퓨트 인스턴스에 접속할 수 있습니다. 여기서는 편의상 OCI에서 제공하는 Cloud Shell을 통해 접속하겠습니다.
+
+1. OCI 콘솔 상단에서 Cloud Shell 아이콘을 클릭합니다.
 
     Cloud Shell이 ​​시작될 때 콘솔의 Region 기준으로, Cloud Shell의 OCI CLI 컨텍스트가 기본 설정됩니다.
 
     ![Cloud Shell](images/cloudshell-1.png)
 
-10. 다운받은 SSH Key를 업로드하기 위해 Cloud Shell 오른쪽 위의 아이콘을 클릭한후 Upload를 클릭합니다.
+2. Cloud Shell VM의 아키턱처를 x86으로 변경하고, Cloud Shell을 재시작합니다.
+
+    ![CloudShell Architecture](images/cloudshell-architecture.png =35%x*)
+    ![CloudShell Architecture](images/cloudshell-architecture-x86.png =40%x*)
+
+3. `echo $CPU_ARCHITECTURE` 명령으로 변경여부를 확인합니다.
+
+    ![CloudShell Architecture](images/cloudshell-check-architecture-x86.png =40%x*)
+
+4. 다운받은 SSH Key를 업로드하기 위해 Cloud Shell 오른쪽 위의 아이콘을 클릭한후 Upload를 클릭합니다.
 
     ![Upload를](images/cloud-shell-upload.png)
 
-11. 개인키를 먼저 업로드 합니다.
+5. 개인키를 먼저 업로드 합니다.
 
     ![Upload Private Key](images/cloud-shell-upload-key.png =60%x*)
 
-12. 공개키도 동일하게 업로드 합니다.
+6. 공개키도 동일하게 업로드 합니다.
 
     ![Upload Public Key](images/cloud-shell-keys.png)
 
-13. 파일의 권한을 변경합니다.
+7. 파일의 권한을 변경합니다.
 
-    ```
+    ```shell
     chmod 400 ssh-key-2023-03-03.key*
     ```
 
-14. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 Public IP를 확인합니다.
-
-    ![Public IP](images/instance-public-ip.png)
-
-## Task 2: Compute 인스턴스 접속 및 웹서버 설치하기
-
-1. 인스턴스에 접속하기 위해, Cloud Shell에서 다음 명령을 실행합니다.
+8. 인스턴스에 접속하기 위해, 다음 명령을 실행합니다.
 
     >**노트:** Oracle Linux VM에서 기본 유저명은 **opc**입니다.
 
-    ```
+    ```shell
     <copy>ssh -i <private_ssh_key> opc@<public_ip_address></copy>
     ```
 
     ![Cloud Shell](images/ssh-to-compute-instance.png)
 
-2. 컴퓨트 인스턴스에 아파치 HTTP 웹서버를 설치하고, 인터넷으로 접속할 예정입니다. Cloud Shell에서 SSH로 접속한 상태에서 다음 명령들을 순서대로 실행합니다.
+
+## Task 3: Compute 인스턴스에 웹서버 설치하기    
+
+1. 컴퓨트 인스턴스에 아파치 HTTP 웹서버를 설치하고, 인터넷으로 접속할 예정입니다. Cloud Shell에서 SSH로 접속한 상태에서 다음 명령들을 순서대로 실행합니다.
 
     >**노트:** 아파치 HTTP 웹서버는 Apache Software Foundation에서 개발한 오픈소스 웹서버입니다. 웹 컨텐츠를 호스팅하고, 브라우저의 요청에 대한 응답을 합니다. 테스트 목적으로 아래와 같이 설치합니다.
 
     - Apache HTTP 서버 설치
 
-        ```
+        ```shell
         <copy>sudo yum install httpd -y</copy>
         ```
 
     - Apache 서버를 시작하고, VM 재시작시에도 자동으로 시작되게 설정합니다.
 
-        ```
+        ```shell
         <copy>sudo apachectl start
         sudo systemctl enable httpd</copy>
         ```
 
     - Apache 설정이 정상인지 체크합니다.
 
-        ```
+        ```shell
         <copy>sudo apachectl configtest</copy>
         ```
 
-    - HTTP 서버가 외부 요청을 수신할 수 있도록 리눅스 OS 레벨 방화벽을 개방합니다.
+    - HTTP 서버가 외부 요청을 수신할 수 있도록 *리눅스 OS 레벨 방화벽에서 사용할 포트를 개방합니다.*
 
-        ```
+        ```shell
         <copy>sudo firewall-cmd --permanent --zone=public --add-service=http
         sudo firewall-cmd --reload</copy>
         ```
 
     - 웹서버의 인덱스 파일을 생성합니다.
 
-        ```
+        ```shell
         <copy>sudo bash -c 'echo Hello Apache on Web-Server-1 >/var/www/html/index.html'</copy>
         ```
 
-3. 브라우저를 열고 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다.
+2. 브라우저를 열고 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다.
 
     - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
 
-        ```
+        ```shell
         curl http://144.24.xx.xxx
         ```
 
-    >**노트:** Security Lists에 아직 80 포트가 열려있지 않기 때문에, 응답에 실패하는 것이 정상입니다.
+    - *Security Lists에 아직 80 포트가 열려있지 않기 때문에, 응답에 실패하는 것이 정상입니다.*
 
 
-4. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
+3. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
 
-5. 실습에서 만들어서 사용하는 VCN을 클릭합니다. 예, oci-hol-vcn
+4. 실습에서 만들어서 사용하는 VCN을 클릭합니다. 예, oci-hol-vcn
 
-6. 왼쪽 아래 Resources 아래 **Security Lists**을 클릭합니다.
+5. 왼쪽 아래 Resources 아래 **Security Lists**을 클릭합니다.
 
     ![Click on Security Lists](images/security-list.png)
 
-7. **Default Security List**를 클릭합니다.
+6. **Default Security List**를 클릭합니다.
 
-8. 80 포트에 대한 개방이 필요합니다. **Add Ingress Rules**을 클릭한 후 아래 값으로 인그레스 규칙을 추가합니다.
+7. 80 포트에 대한 개방이 필요합니다. **Add Ingress Rules**을 클릭한 후 아래 값으로 인그레스 규칙을 추가합니다.
 
     - **Source Type:** CIDR
     - **Source CIDR**: 0.0.0.0/0
@@ -247,4 +265,4 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 - **Author** - Rajeshwari Rai, Prasenjit Sarkar, DongHee Lee
 - **Contributors** - Oracle LiveLabs QA Team (Kamryn Vinson, QA Intern, Arabella Yao, Product Manager, DB Product Management)
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, July 2024

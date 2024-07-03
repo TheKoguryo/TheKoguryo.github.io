@@ -115,5 +115,5 @@ Public IP 주소는 인터넷에서 연결할 수 있는 IPv4 주소입니다. �
 - **Author** - Flavio Pereira, Larry Beausoleil, DongHee Lee
 - **Adapted by** -  Yaisah Granillo, Cloud Solution Engineer
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, July 2024
 

@@ -26,171 +26,182 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 - Oracle Cloud Trial Account 또는 Paid Account
 - [Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service) 완료
 
-## Task 1: Web-Server-2 - Compute 인스턴스 생성 
+## Task 1: Web-Server-1 - Private Subnet으로 이동
 
-[Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service#Task1:Compute)에서 Compute 인스턴스 - Web-Server-1을 생성하고 웹서버를 설치하였습니다. 동일한 방식으로 두 번째 인스턴스를 생성합니다.
+Public Subnet에서는 Public Load Balancer가 위치하고 Web Server는 Private Subnet에 위치하는 구조로 변경하고자 합니다.
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Compute**으로 이동한 다음 **Instances** 을 선택합니다.
 
-2. 새 Compute Instance를 생성합니다.
+2. 앞서 만든 Web-Server-1 인스턴스를 클릭합니다.
 
-    이름을 **Web-Server-2**로 입력합니다
+3. 인스턴스를 종료하기 위해 **Terminate**를 클릭합니다. 
+
+    *기본적으로는 부트 볼륨은 삭제되지 않고 보존됩니다. 실제 소유한 Cloud Account에서 작업시에도 이를 유의하여 사용합니다.*
+
+    ![Terminate Instance](images/terminate-instance.png)
+
+4. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Storage**으로 이동한 다음 **Block Storage**를 선택합니다.
+
+5. 왼쪽 메뉴에서 Boot Volumes을 선택합니다.
+
+6. **Web-Server-1 (Boot Volume)** 부트 볼륨이 보입니다. 오른쪽 액션 메뉴에서 복제본 생성을 위해 **Create Instance** 버튼을 클릭합니다.
+
+     ![Create Instance from Boot Volume](images/create-instance-from-boot-volume.png) 
+
+7. 이름을 **Web-Server-1**로 입력합니다.
+
+8. Image and shape - 사용할 이미지와 Shape(CPU, Memory 크기)를 선택합니다.
+
+    - Image: 부트 볼륨인 Web-Server-1이 자동으로 선택됨.
+    - Shape: AMD 타입에서, VM.Standard.E4.Flex - 1 OCPU, _4 GB memory_ 로 설정
+
+    ![Create Instance - Image](images/instance-from-boot-volume.png)
+
+
+9. Primary VNIC information
+
+    - 앞선 실습에서 만든 VCN내에 *Private* Subnet을 선택합니다.
+
+    ![Private Subnet](images/instance-networking-private-subnet.png)
+
+
+10. Add SSH Keys - 부트 볼륨에 이미 등록되어 있기 때문에 여기서는 **No SSH keys**를 선택합니다.
+
+11. Create를 클릭하여 인스턴스를 생성합니다.
+
+12. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 IP를 확인합니다. Public IP 없이 Private IP만 있는 것을 볼 수 있습니다.
+
+    ![Instance IP](images/instance-ip-web-server-1.png)
+
+13. 상세화면에서 속한 서브넷 *private subnet-oci-hol-vcn*을 클릭하여, 해당 서브넷으로 이동합니다.
+
+14. 해당 서브넷에 하나 있는 Security List를 클릭합니다. 예, security list for private subnet-oci-hol-vcn
+
+15. 80 포트에 대한 개방이 필요합니다. **Add Ingress Rules**을 클릭한 후 같은 VCN내에서 접속할 수 있게 아래 값으로 인그레스 규칙을 추가합니다.
+
+    - **Source Type:** CIDR
+    - **Source CIDR**: 10.0.0.0/16
+    - **IP Protocol:** TCP
+    - **Source Port Range:** All
+    - **Destination Port Range:** 80
+    - 아래 **Add Ingress Rules** 클릭
+
+    ![Add Ingress Rule](images/ingress-rule.png)
+
+## Task 2: Compute 인스턴스 SSH로 접속하기
+
+> Private IP만 있는 자원에 SSH 접속을 위해서는 VPN 등을 통해 연결되거나 또는 Bastion/Jumpbox 서버 등을 거쳐 접속해야 합니다. 여기서는 편의상 Cloud Shell의 Private Network을 통해 접속하겠습니다.
+
+1. Cloud Shell을 실행합니다.
+
+2. Cloud Shell은 기본적으로는 유저 테넌시 환경의 프라이빗 네트워크에 접속이 안됩니다. 현재는 Home Region 상에 있는 자원에 대해서는 Private Network 설정을 통해 프라이빗 네트워크에 접속됩니다.
+
+    Cloud Shell의 왼쪽 위 Network 항목에서 **Ephemeral private network setup**을 클릭합니다.
+
+    ![Private Network Setup](images/cloudshell-private-network-setup-1.png " ")
+
+3. Cloud Shell에 연결할 Private 서브넷으로 Web-Server-1이 속한 서브넷(*private subnet-oci-hol-vcn*)을 지정합니다.
+
+    ![Private Network Setup](images/cloudshell-private-network-setup-2.png " ")
+
+4. 연결이 완료되면, *Network: Ephemeral*로 표시됩니다.
+
+    - 연결 중
+    ![Private Network Connecting](images/cloudshell-private-network-setup-connecting.png " ")
+
+    - 연결 완료
+    ![Private Network Connected](images/cloudshell-private-network-setup-connected.png " ")
+
+5. 접속한 터미널에서 curl 명령으로 Web-Server-1의 Private IP로 접속해 봅니다. Cloud Shell에서 접속되는 것을 알 수 있습니다.
+
+    ```
+    $ curl http://10.0.1.173
+    Hello Apache on Web-Server-1
+    ```
+
+6. Web-Server-1 인스턴스에 접속하기 위해, 다음 명령을 실행합니다.
+
+    ```
+    ssh -i <private_ssh_key> opc@<private_ip_address>
+    ```
+
+    ![Cloud Shell](images/ssh-to-compute-instance.png)
+
+
+
+## Task 3: Web-Server-2 - Compute 인스턴스 생성
+
+[Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service#Task1:Compute)에서 Compute 인스턴스 - Web-Server-1을 생성하고 웹서버를 설치하였습니다. 동일한 방식으로 두 번째 인스턴스를 생성후 HTTP Server 설치해도 됩니다. 여기서는 생성된 Web-Server-1의 부트 볼륨의 복제본을 통해 2번째 서버를 생성하는 방법을 실습합니다.
+
+1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Storage**으로 이동한 다음 **Block Storage**를 선택합니다.
+
+2. 왼쪽 메뉴에서 Boot Volumes을 선택합니다.
+
+3. **Web-Server-1 (Boot Volume)** 부트 볼륨이 보입니다. 오른쪽 액션 메뉴에서 복제본 생성을 위해 **Create Clone** 버튼을 클릭합니다.
+
+    ![Create Clone](images/boot-volume-create-clone.png)
+
+4. 이름을 **Web-Server-2**로 입력하여 부트 볼륨을 복제합니다.
+
+     ![Create Clone](images/boot-volume-create-clone-details.png)
+
+5. 복제된 부트 볼륨의 오른쪽 액션 메뉴에서 컴퓨트 인스턴스 생성을 위해 **Create Instance** 버튼을 클릭합니다.
+
+     ![Create Instance from Clone](images/create-instance-from-cloned-boot-volume.png) 
+
+6. 이름을 **Web-Server-2**로 입력합니다.
 
     ![Web-Server-2](images/instance-name-web-server-2.png =60%x*)
 
-3. Image & Shape - 사용할 이미지와 Shape(CPU, Memory 크기)를 선택합니다.
+7. Image and shape - 사용할 이미지와 Shape(CPU, Memory 크기)를 선택합니다.
 
-    - Image: Oracle Linux 8
-    - Shape: VM.Standard.E4.Flex - 1 OCPU, _4 GB memory_
+    - Image: 복제된 부트 볼륨인 Web-Server-2이 자동으로 선택됨.
+    - Shape: AMD 타입에서, VM.Standard.E4.Flex - 1 OCPU, _4 GB memory_ 로 설정
 
-4. Networking
+    ![Create Instance - Image](images/instance-cloned-boot-volume.png)
 
-    - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다.
-    - 생성될 인스턴스에 대한 접속을 위해 **Assign a public IPv4 address**을 선택하여 Public IP를 할당합니다.
+8. Primary VNIC information
 
-5. Add SSH Keys - SSH 접속을 위한 키를 등록하는 부분입니다.
+    - Web-Server-1과 동일하게 앞선 실습에서 만든 VCN내에 *Private* Subnet을 선택합니다.
 
-    - 동일한 키를 그대로 사용하기 위해 이번에는 **Paste public keys**를 선택하고, Web-Server-1 생성시 자동 생성한 public key 내용을 복사합니다.
+9. Add SSH Keys - 복제된 부트 볼륨에 이미 등록되어 있기 때문에 여기서는 **No SSH keys**를 선택합니다.
 
-         ```
-         $ cat ssh-key-2023-03-03.key.pub 
-         ssh-rsa AAAAB3NzaC__________MVD1uN4kuv ssh-key-2023-03-03
-         ```
+10. 화면 제일 아래에 있는 **Show advanced options**를 클릭합니다.
 
-     ![Paste public keys](images/instance-add-ssh-keys-paste.png =60%x*)
+11. **Management** 탭에서 **cloud-init** 스크립트로 다음을 추가합니다.
 
-6. Create를 클릭하여 인스턴스를 생성합니다.
-
-7. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 Public IP를 확인합니다.
-
-    ![Public IP](images/instance-public-ip-web-server-2.png)
-
-## Task 2: Web-Server-2 - Compute 인스턴스 접속 및 웹서버 설치하기
-
-[Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service#Task2:Compute)에서 Compute 인스턴스 - Web-Server-1을 생성하고 웹서버를를 설치하였습니다. 동일한 방식으로 웹서버를 설치합니다.
-
-
-1. Cloud Shell에서 Web-Server-2 인스턴스에 접속합니다.
-
-    >**노트:** Oracle Linux VM에서 기본 유저명은 **opc**입니다.
+    VM 생성시 설치되어야 하는 툴들은 cloud-init를 통해 실행할 수 있습니다. HTTP Server는 이미 설치된 상태이므로, 추가로 변경이 필요한 부분만 아래와 같이 추가합니다. 웹서버의 인덱스 파일만 변경합니다.
 
     ```
-    <copy>ssh -i <private_ssh_key> opc@<public_ip_address></copy>
+    <copy>
+    #!/bin/bash
+    sudo bash -c 'echo Hello Apache on Web-Server-2 >/var/www/html/index.html'
+    </copy>
     ```
 
-    ![SSH to Web-Server-2](images/ssh-to-compute-instance-web-server-2.png)
+    ![Instance cloud-init](images/instance-cloud-init.png)    
 
-2. 컴퓨트 인스턴스에 아파치 HTTP 웹서버를 설치합니다.
+12. Create를 클릭하여 인스턴스를 생성합니다.
 
-    - Apache HTTP 서버 설치
+13. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 Private IP를 확인합니다.
 
-        ```
-        <copy>
-        # Apache HTTP 서버 설치
-        sudo yum install httpd -y
-        # Apache 서버를 시작
-        sudo apachectl start
-        sudo systemctl enable httpd
-        # Apache 설정이 정상인지 체크
-        sudo apachectl configtest
-        # 리눅스 OS 레벨 방화벽을 개방
-        sudo firewall-cmd --permanent --zone=public --add-service=http
-        sudo firewall-cmd --reload
-        </copy>
-        ```
+    ![Private IP](images/instance-public-ip-web-server-2.png)
 
-    - 웹서버의 인덱스 파일을 생성합니다. _Web-Server-2_로 표시합니다.
+## Task 4: Web-Server-2 - 웹서버 접속하기
 
-        ```
-        <copy>sudo bash -c 'echo Hello Apache on Web-Server-2 >/var/www/html/index.html'</copy>
-        ```
+1. Cloud Shell을 실행합니다.
 
-3. 브라우저를 열고 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다. 아래와 같이 index.html 페이지 접속된 결과가 보일 것입니다.
+2. Cloud Shell은 앞서 연결한 Private 서브넷인 Web-Server-1, 2가 속한 서브넷(*private subnet-oci-hol-vcn*)으로 그대로 연결된 상태인지 확인합니다.
 
-    >**노트:** Web-Server-1과 같은 서브넷을 사용하기 때문에 이미 Security Lists에 80 포트를 개방했으므로, 추가 작업이 필요하지 않습니다.
+3. 접속한 터미널에서 curl 명령으로 Web-Server-2의 Private IP로 접속해 봅니다.
 
-4. 브라우저에서 다시 `http://<public_ip_address>` (Linux VM의 Public IP)로 접속해 봅니다. 아래와 같이 index.html 페이지 접속된 결과가 보일 것입니다.
+    ```
+    $ curl http://10.0.1.119
+    Hello Apache on Web-Server-2
+    ```    
 
-    ![Open you browser to the public IP address](images/browser-to-apache-web-server-2.png =40%x*)
 
-    - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
-
-        ```
-        curl http://152.69.xx.xxx
-        ```    
-
-## Task 3: Load Balancer를 위한 별도 서브넷 추가
-
-여기서는 Load Balancer를 위한 별도 서브넷을 새로 만들겠습니다. 새 서브넷은 자기만의 규칙을 적용 위해 새 Security List와 Route Table을 먼저 만든 후에 서브넷을 만듭니다.
-
-1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
-
-2. 사용하고 있는 VCN을 클릭합니다. 예, oci-hol-xx
-
-3. VCN 상세 페이지에서 Resources 하위의 **Security Lists**을 선택한 후, **Create Security List**을 클릭합니다.
-
-	![Create Security List](./images/create-security-list.png)
-
-4. Create Security List 생성화면에서 다음을 입력합니다:
-
-    - **Name:** 예) LB Security List
-	- **Create In Compartment:** 사용중인 Compartment
-    - 지금은 따로 인그레스, 이그레스 규칙을 만들지 않습니다.
-
-	![Create Security List](./images/create-security-list-details.png =50%x*)
-
-5.  **Create Security List**을 클릭하여 Security List를 만듭니다.
-
-6. Resources 하위의 **Route Tables**을 선택한 후, **Create Route Table**을 클릭합니다.
-
-	![Create Route Table](./images/create-route-table.png =70%x*)
-
-7. Create Route Table 생성화면에서 다음을 입력합니다:
-
-    Public IP로 서비스가 가능하도록 Internet Gateway를 통한 라우팅을 설정합니다.
-
-    - **Name:** 예, LB Route Table
-    - **Create In Compartment:** 사용중인 Compartment
-	- **+ Another Route Rules** 클릭
-
-	    ![Another Route Rules](./images/create-route-table-details.png =50%x*)
-
-    - **Target Type:** 드랍다운 메뉴에서 **Internet Gateway** 선택
-    - **Destination CIDR Block:** 0.0.0.0/0
-    - **Compartment:** 사용중인 Compartment
-    - **Target Internet Gateway:** 드랍다운 메뉴에서 현재 VCN에서 생성된 Internet Gateway 선택
-
-        ![Target Internet Gateway](./images/create-route-table-details-rules.png =50%x*)
-
-8. **Create**을 클릭하여 Route Table을 만듭니다.
-
-9. Resources 하위의 **Subnets**을 선택한 후, **Create Subnets**을 클릭합니다.
-
-    ![Create Subnets](images/create-lb-subnet.png)
-
-10. Create Subnet 생성화면에서 다음을 입력합니다:
-
-    - **Name:** 예, LB-Subnet
-	- **Create In Compartment:** 사용중인 Compartment
-    - **Subnet Type:** Regional 선택
-
-        ![Create Subnet](images/create-lb-subnet-details-1.png =60%x*)
-
-    - **CIDR Block:** 10.0.2.0/24 - VCN CIDR 내에서 사용하지 않는 대역 중에 선택합니다.
-    - **Route Table:** 드랍다운 메뉴에서 앞서 만든 LB Route Table을 선택
-    - **Subnet Access**: Public Subnet 선택
-    - **Dhcp Options Compartment:** 드랍다운 메뉴에서 **Default DHCP Options for oci-hox-xx** 선택
-    - **Security List Complartment:** 드랍다운 메뉴에서 앞서 만든 LB Security List을 선택.
-
-        ![Create Subnet](images/create-lb-subnet-details-2.png =60%x*)
-
-11. 나머지 항목은 기본값으로 두고 **Create Subnet**을 클릭합니다.
-
-12. Load Balancer에서 사용한 서브넷을 만들었습니다.
-
-	![LB-Subnet](./images/create-lb-subnet-created.png)
-
-## Task 4: Load Balancer 생성
+## Task 5: Load Balancer 생성
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Load Balancers** 를 선택합니다.
 
@@ -215,13 +226,13 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
         ![Flexible Shapes](./images/create-lb-details-bandwidth.png =60%x*)
 
     - **Virtual Cloud Network:** 사용중인 VCN
-    - **Subnet:** 앞서 만든 LB-Subnet 선택
+    - **Subnet:** Public Subnet 선택
 
   	    ![LB-Subnet](./images/create-lb-details-networking.png =60%x*)
 
 	- **Next**를 클릭합니다.
     
-5. **Choose Backends** 화면에서 다음을 입력합니다:
+4. **Choose Backends** 화면에서 다음을 입력합니다:
 
     - **Load Balancing Policy:** 기본 값인 **Weighted Round Robin** 선택
     - **Add Backend**를 클릭하여 분배 대상이 되는 Web-Server-1,2가 있는 컴퓨트 인스턴스를 선택합니다.
@@ -248,7 +259,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 	- **Next**를 클릭합니다.
     
     
-6. **Configure Listener** 화면에서 다음을 입력합니다:
+5. **Configure Listener** 화면에서 다음을 입력합니다:
 
     생성할 Load Balancer가 서비스할 요청 프로토콜과 포트를 설정합니다.
 
@@ -261,35 +272,33 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
 	- **Next**를 클릭합니다.
 
-7. **Manage Logging** 화면에서 다음을 입력합니다:
+6. **Manage Logging** 화면에서 다음을 입력합니다:
 
     - Error와 Access 로그를 활성화하여 OCI Logging으로 수집할 수 있습니다. 여기서는 둘다 비활성화합니다.
 
 	![Manage Logging](./images/create-lb-logging.png =80%x*)
 
-8. **Submit**을 클릭하여 Load Balancer를 생성합니다.
+7. **Submit**을 클릭하여 Load Balancer를 생성합니다.
 
-9. 생성이 완료되고, 잠시후 백엔드 서버에 대한 헬스체크가 성공한 것을 확인합니다. Load Balancer의 Public IP는 이후 테스트를 위해 확인해 둡니다.
+8. 생성이 완료되고, 잠시후 백엔드 서버에 대한 헬스체크가 성공한 것을 확인합니다. Load Balancer의 Public IP는 이후 테스트를 위해 확인해 둡니다.
 
     ![Load Balancer - Public IP](./images/load-balancer-created.png)
 
-10. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
+9. 현재 페이지에서 Load Balancer가 속한 Subnet을 클릭합니다. 예, public subnet-oci-hol-vcn
 
-11. 사용하고 있는 VCN을 클릭합니다. 예, oci-hol-xx
+10. Subnet 상세 페이지에서 Resources 하위의 **Security Lists**을 선택한 후, 하나 있는 Security List를 클릭합니다. 예, Default Security List for oci-hol-vcn
 
-12. VCN 상세 페이지에서 Resources 하위의 **Security Lists**을 선택한 후, LB Security List를 클릭합니다.
+11. [Lab 3: Create a Compute Service](../workshops/tenancy/index.html?lab=compute-service#Task1:Compute)에서 이미 80 포트를 개방하지 않는 경우에 아래와 같이 규칙을 추가합니다.
 
-13. Ingress 규칙에서 **Add Ingress Rule**를 클릭합니다.
+    - Ingress 규칙에서 **Add Ingress Rule**를 클릭합니다.
 
-    ![Add Ingress Rule](./images/add-lb-ingress-rule-80.png)
+    - 인터넷상에서 Load Balancer로 80 포트로 접속할 수 있게 아래와 같이 인그레스 규칙을 추가합니다.
 
-14. 인터넷상에서 Load Balancer로 80 포트로 접속할 수 있게 아래와 같이 인그레스 규칙을 추가합니다.
+        ![Load Balancer - 80](./images/add-lb-ingress-rule.png =60%x*)
 
-    ![Load Balancer - 80](./images/add-lb-ingress-rule.png =60%x*)
+12. Load Balancer -> Web-Server-1,2간의 80 포트 통신을 위한 인그레스, 이그레스 규칙은 Load Balancer 생성시 설정이 추가되었습니다.
 
-15. Load Balancer -> Web-Server-1,2간의 80 포트 통신을 위한 인그레스, 이그레스 규칙은 Load Balancer 생성시 설정이 추가되었습니다.
-
-## Task 5: 웹 서버 가용성 테스트
+## Task 6: 웹 서버 가용성 테스트
 
 여기서는 Load Balancer의 공용 IP 주소를 사용하여 이전에 구성된 두 웹 서버에 접근이 되고, 선택한 라운드 로빈 기반 정책에 따라 트래픽을 라우팅하는 것을 확인합니다. 웹 서버 중 하나가 장애시 웹 콘텐츠는 나머지 서버를 통해 서비스되어 가용성을 보장합니다.
 
@@ -303,7 +312,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
     - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
 
-        ```
+        ```shell
         curl http://150.230.xx.xxx
         ```
 
@@ -316,7 +325,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
     - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
 
-        ```
+        ```shell
         kildong@cloudshell:~ (ap-chuncheon-1)$ curl http://150.230.xx.xxx
         Hello Apache on Web-Server-2
         kildong@cloudshell:~ (ap-chuncheon-1)$ curl http://150.230.xx.xxx
@@ -334,14 +343,14 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
     - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
 
-        ```
+        ```shell
         kildong@cloudshell:~ (ap-chuncheon-1)$ curl http://150.230.xx.xxx
         Hello Apache on Web-Server-2
         ```    
 
 6. 클라우드 콘솔로 돌아가 Stop된 웹서버를 Start 시킵니다. RUNNING 상태가 되고 테스트 브라우저에서 다시 확인해 보면, 다시 두 웹서버를 번갈아가며 라우팅 되는 것을 확인할 수 있습니다.
 
-## Task 6: 인스턴스 정리
+## Task 7: 인스턴스 정리
 
 다음 실습을 위해 자원을 정리합니다.
 
@@ -351,7 +360,7 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 
     _Boot Volume도 함께 삭제하기 위해 옵션도 체크합니다._
 
-    ![Terminate](images/terminate-instance.png)
+    ![Terminate](images/terminate-instance-with-boot-volume.png)
 
 3. Web-Server-2 인스턴스도 같은 방법으로 종료 시킵니다.
 
@@ -377,4 +386,4 @@ Load Balancer을 이해하기 위해 [Load Balancer 개요](https://docs.oracle.
 - **Adapted by** -  Yaisah Granillo, Cloud Solution Engineer
 - **Contributors** - Anoosha Pilli, Product Manager, Oracle Database
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, July 2024

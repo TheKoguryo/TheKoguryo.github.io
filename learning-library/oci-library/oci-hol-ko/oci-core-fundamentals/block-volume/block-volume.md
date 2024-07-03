@@ -92,21 +92,26 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 
      - **iSCSI:** 베어 메탈 인스턴스에 연결할 때는 iSCSI 방식이 유일한 옵션입니다. 볼륨이 부착되면, 컴퓨트 인스턴스에 로그인하여 추가적인 iscsiadm 명령들을 수행하여 iSCSI 연결을 구성해야 합니다.
 
-     - **Paravirtualized(반가상화):** VM 인스턴스에 볼륨을 연결할 때는 추가적으로 반가상화 방식도 사용가능합니다. 반가상화 방식으로 볼륨이 부착되면, 바로 컴퓨트 인스턴스에서 사용할 수 있습니다. 추가적 명령을 실행할 필요가 없습니다. 그러나 가상화 오버헤드로 인해 더 큰 블록 볼륨에 대한 최대 IOPS 성능이 감소합니다. 자세한 내용은 [VM Shapes for Paravirtualized Attached Volumes](https://docs.cloud.oracle.com/iaas/Content/Block/Concepts/blockvolumeperformance.htm#paraPerf)을 참조하세요.     
+     - **Paravirtualized(반가상화):** VM 인스턴스에 볼륨을 연결할 때는 추가적으로 반가상화 방식도 사용가능합니다. 반가상화 방식으로 볼륨이 부착되면, 바로 컴퓨트 인스턴스에서 사용할 수 있습니다. 추가적 명령을 실행할 필요가 없습니다. 그러나 iSCSI 방식의 IOPS 성능이 반가상화 방식의 IOPS 보다 더 높습니다.
+
+         * 참조 [Volume Attachment Types](https://docs.oracle.com/en-us/iaas/Content/Block/Concepts/overview.htm#attachtype)
+
+     여기서는 추가적인 명령이 필요한 사항을 확인하기 위해 ISCSI 방식으로 연결해 보겠습니다.
 
 2. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Compute**으로 이동한 다음 **Instances** 을 선택합니다. 이전 실습에서 만든 인스턴스로 이동합니다. 왼쪽 아래 **Resource** 하위에 **Attached block volumes**을 클릭합니다.
 
+3. **Attach block volume**을 클릭합니다.
+
     ![Attached block volumes](images/attached-bv.png " ")
 
-3.  **Attach block volume**을 클릭합니다.
 
 4. 만든 Block Volume을 아래와 같이 부착합니다:
 
      - **Volume:** 방금 만든 Block Volume, 예, blockvolume-xx
-     - **Device Path:** Select `/dev/oracleoci/oraclevdb`
      - **Attachment type:** iSCSI
+     - **Device Path:** `/dev/oracleoci/oraclevdb` 선택
 
-   ![Volume Details](images/attach-bv.png =60%x*)
+   ![Volume Details](images/attach-bv.png)
 
      - **Attach**을 클릭합니다.   
 
@@ -215,4 +220,4 @@ Block Volume의 일반적인 용도는 컴퓨트 인스턴스에 스토리지 �
 - **Author** - Rajeshwari Rai, Prasenjit Sarkar, DongHee Lee
 - **Contributors** - Oracle LiveLabs QA Team (Kamryn Vinson, QA Intern, Arabella Yao, Product Manager, DB Product Management)
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, July 2024

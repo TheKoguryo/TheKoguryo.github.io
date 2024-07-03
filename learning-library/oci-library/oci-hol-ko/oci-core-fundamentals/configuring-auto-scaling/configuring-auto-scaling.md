@@ -127,7 +127,9 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
         ![Configure Pool Placement - Availability Domain](images/create-instance-pool-placement-ad.png =80%x*)
 
-4. **Configure Pool Placement** - Load Balancer
+4. **Attach a load balancer**을 체크합니다.
+
+5. **Configure Pool Placement** - Load Balancer
 
     생성된 인스턴스가 백엔드로 추가될 로드밸랜서를 지정합니다.
 
@@ -140,7 +142,7 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
     - **Next** 클릭
 
-5. 설정한 내용을 리뷰하고 **Create** 클릭하여 생성합니다.
+6. 설정한 내용을 리뷰하고 **Create** 클릭하여 생성합니다.
 
 ### 오토 스케일링 규칙 설정
 
@@ -171,25 +173,25 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 
     - **Next** 클릭
 
-5. 설정한 내용을 리뷰하고 **Create** 클릭하여 생성합니다.
+4. 설정한 내용을 리뷰하고 **Create** 클릭하여 생성합니다.
 
-6. 컴퓨트 인스턴스 1개에서 시작하는 오토 스케일 정책을 만들었습니다. CPU 사용률이 최소 300초 동안 50% 이상인 것으로 확인되면 다른 컴퓨트 인스턴스가 자동으로 생성됩니다. CPU 사용률이 300초 동안 10% 미만인 것으로 확인되면 컴퓨팅 인스턴스 하나가 종료됩니다. 풀에는 항상 최소 1개의 컴퓨트 인스턴스가 있습니다.
+5. 컴퓨트 인스턴스 1개에서 시작하는 오토 스케일 정책을 만들었습니다. CPU 사용률이 최소 300초 동안 50% 이상인 것으로 확인되면 다른 컴퓨트 인스턴스가 자동으로 생성됩니다. CPU 사용률이 300초 동안 10% 미만인 것으로 확인되면 컴퓨팅 인스턴스 하나가 종료됩니다. 풀에는 항상 최소 1개의 컴퓨트 인스턴스가 있습니다.
 
     ![autoscaling-policy-created](images/autoscaling-policy-created.png)
 
 ## Task 3: 테스트
 
-1. 오토스케일 정책에서 **Instance Pools**을 클릭하거나 또는 내비게이션을 통해 **Instance Pools** 화면으로 이동합니다.
+1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Compute**으로 이동한 다음 **Instance Pools**를 선택합니다.
 
-2. **Resources** 하위에 **Attached Instances**를 클릭합니다.
+2. 앞서 만든 Instance Pool을 클릭합니다.
 
-3. 설정한 오토 스케일 정책에 따라 초기, 최소 구성인 1개 인스턴스가 만들어 진 걸 볼 수 있습니다.
+3. **Resources** 하위에 **Attached Instances**를 클릭합니다.
+
+4. 설정한 오토 스케일 정책에 따라 초기, 최소 구성인 1개 인스턴스가 만들어 진 걸 볼 수 있습니다.
 
     ![autoscaling-initial-instances](images/autoscaling-initial-instances.png)
 
-4. 해당 인스턴스를 클릭하여 Private IP와 Public IP를 확인합니다.
-
-5. 인스턴스 풀 설정시 등록한 로드밸런서의 Public IP를 확인합니다. 실습을 순서대로 진행한 경우, 기존 Load Balancer IP, 즉, 예약된 Public IP입니다.
+5. 해당 인스턴스를 클릭하여 Private IP와 Public IP를 확인합니다.
 
 6. 브라우저로 로드밸런서 IP로 접속해 봅니다. 로드밸런서에도 잘 등록되어 서비스 되는 것을 알 수 있습니다.
 
@@ -263,4 +265,4 @@ Auto Scaling을 사용하면 인스턴스 풀의 컴퓨팅 인스턴스 수를 �
 - **Author** - Flavio Pereira, Larry Beausoleil, DongHee Lee
 - **Adapted by** -  Yaisah Granillo, Cloud Solution Engineer
 - **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, November 2023
+- **Last Updated By/Date** - DongHee Lee, July 2024

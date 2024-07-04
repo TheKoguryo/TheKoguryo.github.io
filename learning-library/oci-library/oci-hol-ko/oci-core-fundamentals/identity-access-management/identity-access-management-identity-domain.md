@@ -130,15 +130,27 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
     - 직접 입력하기 위해 **Show manual editor**를 클릭하고, 아래 규칙을 직접 입력합니다.
     - 유저 그룹 또는 Compartment 이름이 다른 경우 사용할 값으로 변경합니다.
 
-    ```shell
-    <copy>
-    allow group default/oci-group to manage all-resources in compartment oci-hol-xx
-    </copy>
-    ```
+    - Compartment 내에 모든 자원에 대한 권한을 주는 경우
 
-    ![Policy Builder](images/id-domain-create-policy-manual.png)
+        ```shell
+        <copy>
+        allow group default/oci-group to manage all-resources in compartment oci-hol-xx
+        </copy>
+        ```
+    
+        ![Policy Builder](images/id-domain-create-policy-manual.png)
 
-   **노트**: _그룹이름_ 앞에 _Identity Domain Name_ 이름이 없는 경우 Default Domain으로 적용됩니다.
+    - 자원 유형별로 주는 경우
+        ```shell
+        <copy>
+        allow group default/oci-group to manage instance-family in compartment oci-hol-xx
+        allow group default/oci-group to manage volume-family in compartment oci-hol-xx
+        allow group default/oci-group to manage virtual-network-family in oci-hol-xx
+        allow group default/oci-group to manage load-balancers in oci-hol-xx
+        </copy>
+        ```       
+
+    **노트**: _그룹이름_ 앞에 _Identity Domain Name_ 이름이 없는 경우 Default Domain으로 적용됩니다.
 
     **Create**를 클릭하여 정책을 생성합니다.
 

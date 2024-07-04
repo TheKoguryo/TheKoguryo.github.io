@@ -38,6 +38,17 @@ Cost Analysis: OCI 콘솔에서 액세스할 수 있는 비용 분석 시각화 
 
     ![Budget Alert Rule](./images/create-budget-alert-rule.png " ")
 
+    - Email Message 예시
+
+        ```text
+        <copy>
+        OCI Budget Alert: Budget-For-KilDong has exceeded your alert threshold
+        Compartment: oci-hol-kildong
+        Total Budget: 50 SGD
+        Threshold: 75%
+        </copy>
+        ```
+
 6. 생성된 Budget을 클릭합니다.
 
 7. Budget 상세화면에서, **Create Budget Alert Rule**을 클릭하여, 하나의 예산에 대해서 다른 Threshold 기준으로 Alert Rule을 추가 생성할 수 있습니다.

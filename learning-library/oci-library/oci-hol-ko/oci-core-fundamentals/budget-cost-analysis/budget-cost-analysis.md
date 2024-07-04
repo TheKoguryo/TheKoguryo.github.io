@@ -78,6 +78,37 @@ Cost Analysis: OCI 콘솔에서 액세스할 수 있는 비용 분석 시각화 
 
 이제 **다음 실습을 진행**하시면 됩니다.
 
+## 참고 IAM Policy
+
+1. 왼쪽 상단의 Navigation Menu를 클릭하고 Identity & Security으로 이동한 다음 Policies 을 선택합니다.
+
+2. 아래 항목을 참고하여 필요한 Policy를 설정합니다.
+
+    ```text
+    # Cost and Usage Reports
+    define tenancy usage-report as ocid1.tenancy.oc1..aaaaaaaaned4fkpkisbwjlr56u7cj63lf3wffbilvqknstgtvzub7vhqkggq
+    endorse group <identity_domain_name>/<group_name> to read objects in tenancy usage-report
+    
+    # Cost and Usage Reports
+    # Cost analysis
+    # Scheduled reports
+    Allow group <identity_domain_name>/<group_name> to read usage-report in tenancy
+    
+    # Budgets
+    Allow group <identity_domain_name>/<group_name> to manage usage-budgets in tenancy
+    
+    # Oracle FinOps Hub
+    ## Active Subscription
+    Allow group <identity_domain_name>/<group_name> to read subscription in tenancy
+    Allow group <identity_domain_name>/<group_name> to read computed-usage in tenancy
+    
+    ## Optimize
+    Allow group <identity_domain_name>/<group_name> to read optimizer-api-family in tenancy
+    
+    # Billing > Subscriptions > Rate card
+    Allow group <identity_domain_name>/<group_name> to read rate-cards in tenancy
+    ```
+
 ## Learn More
 
 - [Oracle Cloud Infrastructure Documentation > Billing and Cost Management > Budgets](https://docs.cloud.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm)

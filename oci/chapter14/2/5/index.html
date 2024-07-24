@@ -3,7 +3,7 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>14.2.5 Postman - OCI REST APIs 워크스페이스 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
+<title>14.2.5 Postman - OCI REST APIs 호출하기 - TheKoguryo&#39;s 기술 블로그</title>
 <meta name="generator" content="Hugo 0.126.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter14/2/5/">
@@ -30,13 +30,13 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter14/2/5/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
-  <meta property="og:title" content="14.2.5 Postman - OCI REST APIs 워크스페이스 사용하기">
-  <meta property="og:description" content="14.2.5 Postman - Oracle Cloud Infrastructure REST APIs 워크스페이스 사용하기 Oracle Developers 커뮤니티에서 Postman 사이트에 Oracle Cloud Infrastructure (OCI)에서 제공하는 REST API 목록을 Postman에서 바로 사용할 수 있는 워크스">
+  <meta property="og:title" content="14.2.5 Postman - OCI REST APIs 호출하기">
+  <meta property="og:description" content="14.2.5 Postman - Oracle Cloud Infrastructure REST APIs 호출하기 Oracle Cloud Infrastructure REST API는 REST Client를 사용해서 호출할 수 있습니다. 대표적인 많이 사용하는 클라이언트 툴로, Postman, Insomnia 등이 있지만, Pos">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
-    <meta property="article:published_time" content="2024-07-18T00:00:00+00:00">
-    <meta property="article:modified_time" content="2024-07-18T00:00:00+00:00">
+    <meta property="article:published_time" content="2024-07-24T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-07-24T00:00:00+00:00">
     <meta property="article:tag" content="OCI REST API">
     <meta property="article:tag" content="Postman">
 
@@ -45,7 +45,7 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">&nbsp;Version 2024.06.21</span>
+ <span class="version">&nbsp;Version 2024.07.24</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -62,11 +62,24 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h3 id="1425-postman---oracle-cloud-infrastructure-rest-apis-워크스페이스-사용하기">14.2.5 Postman - Oracle Cloud Infrastructure REST APIs 워크스페이스 사용하기</h3>
-<p>Oracle Developers 커뮤니티에서 Postman 사이트에 Oracle Cloud Infrastructure (OCI)에서 제공하는 REST API 목록을 Postman에서 바로 사용할 수 있는 워크스페이스로 제공하고 있습니다. 여기서는 이를 사용하는 방법을 알아봅니다.</p>
+<main><h3 id="1425-postman---oracle-cloud-infrastructure-rest-apis-호출하기">14.2.5 Postman - Oracle Cloud Infrastructure REST APIs 호출하기</h3>
+<p>Oracle Cloud Infrastructure REST API는 REST Client를 사용해서 호출할 수 있습니다. 대표적인 많이 사용하는 클라이언트 툴로, Postman, Insomnia 등이 있지만, Postman의 경우, Oracle Developers 커뮤니티에서 Oracle Cloud Infrastructure (OCI) REST API 목록을 Postman에서 바로 사용할 수 있는 워크스페이스 형태로 사전 등록하여, 제공하고 있습니다. REST API들이 모두 등록되어 있고, 인증처리에 필요한 스크립트도 기본 설정되어 있어, 호출을 위한 인증정보만 업데이트 해주면 되기 때문에 사용하기 편리합니다.
+그래서 여기서는 Postman에서 이를 활용하여, OCI REST API들을 호출하는 방법을 알아봅니다.</p>
+<ul>
+<li>
+<p>OCI API Reference and Endpoints</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/api/#/">https://docs.oracle.com/en-us/iaas/api/#/</a></li>
+</ul>
+</li>
+<li>
+<p>Postman - Oracle Developers</p>
 <ul>
 <li><a href="https://www.postman.com/oracledevs">https://www.postman.com/oracledevs</a></li>
 </ul>
+</li>
+</ul>
+<h4 id="postman에서-oci-rest-api-rest-apis-호출하기">Postman에서 OCI REST API REST APIs 호출하기</h4>
 <ol>
 <li>
 <p>Postman에 접속하여 로그인합니다.</p>
@@ -85,14 +98,14 @@
 </p>
 </li>
 <li>
-<p>아래 정보로 워크스페이스를 생성합니다.</p>
+<p>아래 정보로 사용할 워크스페이스를 생성합니다.</p>
 <ul>
 <li><strong>template</strong>: Blank workspace</li>
 <li><strong>Name</strong>: Oracle Cloud Infrastructure REST APIs</li>
 </ul>
 </li>
 <li>
-<p>이미 등록된 Oracle Cloud Infrastructure REST APIs 목록을 사용하기 위해 아래 주소로 접속합니다. 왼쪽 목록에서 보듯, 서비스별로 Collection으로 OCI REST APIs를 제공하는 것을 볼 수 있습니다.</p>
+<p>Oracle Developers 커뮤니티에서 이미 등록하여 공개한 Oracle Cloud Infrastructure REST APIs 목록을 사용하기 위해 아래 주소로 접속합니다. 왼쪽 목록에서 보듯, 서비스별로 Collection형태로 OCI REST APIs를 제공하고 있습니다.</p>
 <p><a href="https://www.postman.com/oracledevs/workspace/oracle-cloud-infrastructure-rest-apis/overview">https://www.postman.com/oracledevs/workspace/oracle-cloud-infrastructure-rest-apis/overview</a></p>
 <p>
 
@@ -223,7 +236,7 @@
 <p>Postman 화면으로 돌아갑니다.</p>
 </li>
 <li>
-<p>API key 생성시 확인한 값  <strong>tenancy_ocid</strong>, <strong>user_ocid</strong>, <strong>fingerprint</strong>, <strong>tenancy_ocid</strong>, <strong>region</strong>을 여기에 입력합니다. <strong>private_key</strong>에는 다운로드 받은 API Key의 Private Key파일을 열어 텍스트를 그대로 복사합니다.</p>
+<p>API key 생성시 확인한 값  <strong>tenancy_ocid</strong>, <strong>user_ocid</strong>, <strong>fingerprint</strong>, <strong>tenancy_ocid</strong>, <strong>region</strong>을 OCI Credentials의 각 항목에 입력합니다. 다운로드 받은 API Key의 Private Key파일을 텍스트 보기 툴로 열어 텍스트를 <strong>private_key</strong>에 그대로 복사합니다.</p>
 <p>
 
 
@@ -262,7 +275,13 @@
 </p>
 </li>
 </ol>
-<h4 id="예시-compartment-목록-조회">예시, Compartment 목록 조회</h4>
+<h4 id="예시-1-compartment-관리">예시 #1, Compartment 관리</h4>
+<p><a href="https://docs.oracle.com/en-us/iaas/api/#/">API Reference and Endpoints</a> 설명에 따라 Compartment는 Identity and Access Management Service API로 Compartment를 관리할 수 있습니다.</p>
+<h5 id="identity-and-access-management-service-api">Identity and Access Management Service API</h5>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/">https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/</a></li>
+</ul>
+<h6 id="1-postman에서-compartment-목록-조회---listcompartmentshttpsdocsoraclecomen-usiaasapienidentity20160918compartmentlistcompartments">#1. Postman에서 Compartment 목록 조회 - <a href="https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/Compartment/ListCompartments">ListCompartments</a></h6>
 <ol>
 <li>
 <p>Oracle Developers의 Oracle Cloud Infrastructure REST APIs 워크스페이스로 이동합니다.</p>
@@ -301,6 +320,86 @@
 </p>
 </li>
 </ol>
+<h6 id="2-postman에서-compartment-생성---createcompartmenthttpsdocsoraclecomen-usiaasapienidentity20160918compartmentcreatecompartment">#2. Postman에서 Compartment 생성 - <a href="https://docs.oracle.com/en-us/iaas/api/#/en/identity/20160918/Compartment/CreateCompartment">CreateCompartment</a></h6>
+<ol>
+<li>
+<p><strong>Identity and Access Management Service API</strong> Collection의 API 목록에서 <strong>compartments</strong> 하위에 있는 <strong>CreateCompartment</strong>를 선택합니다.</p>
+</li>
+<li>
+<p>요청 메시지를 입력합니다. compartmentId는 속할 상위 Compartment로 환경변수 {{compartment_ocid}}에서 값을 가져오며, compartment_ocid는 OCI Credentials에서 tenancy_ocid로 기본 설정되어 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;TestCompartment_1&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;compartmentId&#34;</span><span class="p">:</span> <span class="s2">&#34;{{compartment_ocid}}&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;ex sit veniam&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;definedTags&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;freeformTags&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Send</strong>를 클릭하여 호출합니다. 아래와 같이 생성된 결과 응답을 받을 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240724105650299.png" alt='image-20240724105650299' onerror="this.onerror=null;this.src='images\/image-20240724105650299.png';" />
+</p>
+</li>
+<li>
+<p>메시지를 변경하여, 두 번째 Compartment를 생성요청합니다. <em>하지만, 첫 번째 Compartment에 결과가 응답되는 것을 볼 수 있습니다.</em></p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240724110107134.png" alt='image-20240724110107134' onerror="this.onerror=null;this.src='images\/image-20240724110107134.png';" />
+</p>
+</li>
+<li>
+<p>Headers 탭에서 opc-retry-token이 체크되어 있는지 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240724111201788.png" alt='image-20240724111201788' onerror="this.onerror=null;this.src='images\/image-20240724111201788.png';" />
+</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/API/Concepts/usingapi.htm#Retry">Retry Token</a>
+<ul>
+<li>opc-retry-token 체크된 상태에서 생성 요청시 첫 생성은 성공하고, 이후 요청은 Body 메시지를 변경하더라도, opc-retry-token이 동일하여, 서버에서 첫번째 요청의 재시도로 인지하여, 이전 요청은 이미 완료했다고, 이전 요청에 대한 응답메시지를 받게 됩니다. 또는 경우에 따라서 유효하지 않다고, 오류 메시지를 수신하는 경우도 있습니다.</li>
+<li>opc-retry-token 사용이 필요한 경우, 재시도 토큰값으로 동일 요청에 대한 재시도인 경우에만 같은 값을 가지며, 다른 요청인 경우에는 다른 값으로 지정하여 요청합니다. opc-retry-token는 24시간후에 만료됩니다.</li>
+<li>REST API의 안전한 재시도 요청에 대한 참고 문서 - <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>opc-retry-token</strong>을 체크해제하고, 두 번째 Compartment를 생성요청하면, 정상 처리되는 것을 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240724111401196.png" alt='image-20240724111401196' onerror="this.onerror=null;this.src='images\/image-20240724111401196.png';" />
+</p>
+</li>
+<li>
+<p>포크한 OCI REST APIs Collection의 다른 API들도 동일한 Headers에 opc-retry-token가 기본 체크되어 있으니, 이점 유의합니다.</p>
+</li>
+</ol>
 <br>
 <br>
 <div class="panel panel-caution">
@@ -309,7 +408,7 @@
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 18 Jul 2024<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/2/4/" title="14.2.4 Postman - OCI REST API 호출하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.2.4 Postman - OCI REST API 호출하기</a>
+ <div class="edit-meta">Last updated on 24 Jul 2024<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/2/2/" title="14.2.2 Bash 샘플 클라이언트"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.2.2 Bash 샘플 클라이언트</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter14/3/" title="14.3 Terraform">Next - 14.3 Terraform <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
@@ -1029,9 +1128,7 @@
 <ul class="sub-menu">
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 OCI Request Signature Version 1</a></li>
 <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Bash 샘플 클라이언트</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/3/">14.2.3 Insomnia - OCI REST API 호출하기</a></li>
-<li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/4/">14.2.4 Postman - OCI REST API 호출하기</a></li>
-<li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 Postman - OCI REST APIs 워크스페이스 사용하기</a></li>
+<li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 Postman - OCI REST APIs 호출하기</a></li>
 </ul>
   
 </li>

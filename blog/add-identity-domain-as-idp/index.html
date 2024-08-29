@@ -31,21 +31,22 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기">
-  <meta property="og:description" content="다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기 아래 내용은 2개의 OCI Cloud Account간에 하나가 다른 Cloud Account의 Identity Domai">
+  <meta property="og:description" content="다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기 다른 Identity Domain을 인증서버 등록할 수 있습니다. 여기서는 명확한 확인을 위해 2개의 OCI">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="blog">
-    <meta property="article:published_time" content="2024-05-22T00:00:01+00:00">
-    <meta property="article:modified_time" content="2024-05-22T00:00:01+00:00">
+    <meta property="article:published_time" content="2024-08-29T00:00:01+00:00">
+    <meta property="article:modified_time" content="2024-08-29T00:00:01+00:00">
     <meta property="article:tag" content="Sso">
     <meta property="article:tag" content="Identity Domain">
+    <meta property="article:tag" content="Jit Provisioning">
 
 </head>
 <body>
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">&nbsp;Version 2024.07.24</span>
+ <span class="version">&nbsp;Version 2024.08.29</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -63,8 +64,8 @@
 </div>
 <div class="content-container">
 <main><h2 id="다른-cloud-account의-identity-domain를-인증서버-idp로-추가하기">다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</h2>
-<p>아래 내용은 2개의 OCI Cloud Account간에 하나가 다른 Cloud Account의 Identity Domain을 인증서버로 등록해서 사용하는 방법입니다. 기본 생성된 Identity Domain은 동일한 구조로 연동이 간편합니다. 여기서는 Default Domain을 기준으로 합니다.</p>
-<h6 id="service-provider-역할-cloud-account에서-설정---실제-유저가-사용할-환경">Service Provider 역할 Cloud Account에서 설정 - 실제 유저가 사용할 환경</h6>
+<p>다른 Identity Domain을 인증서버 등록할 수 있습니다. 여기서는 명확한 확인을 위해 2개의 OCI Cloud Account간에 하나가 다른 Cloud Account의 Identity Domain을 인증서버로 등록해서 사용하는 방법을 확인해 봅니다. 기본 생성된 Identity Domain은 동일한 구조로 연동이 간편합니다. 여기서는 Default Domain을 기준으로 합니다.</p>
+<h6 id="service-provider-역할-두번째-cloud-account에서-설정---실제-유저가-사용할-환경">Service Provider 역할 두번째 Cloud Account에서 설정 - 실제 유저가 사용할 환경</h6>
 <p>Identity Provider에게 제공할 정보를 먼저 확인합니다.</p>
 <ol>
 <li>
@@ -113,7 +114,7 @@
 </p>
 </li>
 </ol>
-<h6 id="idpidentity-provider-역할-cloud-account에서-작업---인증서버로-사용할-환경">IdP(Identity Provider) 역할 Cloud Account에서 작업 - 인증서버로 사용할 환경</h6>
+<h6 id="idpidentity-provider-역할-첫번째-cloud-account에서-작업---인증서버로-사용할-환경">IdP(Identity Provider) 역할 첫번째 Cloud Account에서 작업 - 인증서버로 사용할 환경</h6>
 <ol>
 <li>
 <p>OCI 콘솔에 로그인합니다</p>
@@ -242,7 +243,7 @@
 </p>
 </li>
 </ol>
-<h6 id="service-provider-역할-cloud-account에서-설정---실제-유저가-사용할-환경-1">Service Provider 역할 Cloud Account에서 설정 - 실제 유저가 사용할 환경</h6>
+<h6 id="service-provider-역할-cloud-account에서-설정---실제-유저가-사용할-환경">Service Provider 역할 Cloud Account에서 설정 - 실제 유저가 사용할 환경</h6>
 <ol>
 <li>
 <p><strong>Default Domain</strong> 클릭</p>
@@ -372,7 +373,7 @@
 </ul>
 </li>
 </ol>
-<h6 id="idpidentity-provider-역할-cloud-account에서-작업---인증서버로-사용할-환경-1">IdP(Identity Provider) 역할 Cloud Account에서 작업 - 인증서버로 사용할 환경</h6>
+<h6 id="idpidentity-provider-역할-첫번째-cloud-account에서-작업---인증서버로-사용할-환경-1">IdP(Identity Provider) 역할 첫번째 Cloud Account에서 작업 - 인증서버로 사용할 환경</h6>
 <p>Service Provider에서 요청해서 IdP로 인증할 때 허용할 사용자 또는 그룹을 등록하는 과정입니다.</p>
 <ol>
 <li>
@@ -401,14 +402,14 @@
 </p>
 </li>
 </ol>
-<h6 id="service-provider-역할-cloud-account에서-설정---실제-유저가-사용할-환경-2">Service Provider 역할 Cloud Account에서 설정 - 실제 유저가 사용할 환경</h6>
-<p>Service Provider 쪽에도 같은 Username으로 유저가 있어야 이후 테스트에서 사인인이 성공합니다. 없는 경우 유저를 먼저 생성합니다.</p>
+<h6 id="service-provider-역할-cloud-account에서-설정---실제-유저가-사용할-환경-1">Service Provider 역할 Cloud Account에서 설정 - 실제 유저가 사용할 환경</h6>
+<p>Service Provider 쪽에도 같은 Username으로 유저가 있어야 이후 테스트에서 사인인이 성공합니다. <em><a href="mailto:kildong@example.com">kildong@example.com</a> 유저가 없는 경우 유저를 먼저 생성합니다.</em></p>
 <ol>
 <li>
 <p>테스트 로그인 항목에서 <strong>Test login</strong>을 다시 클릭합니다.</p>
 </li>
 <li>
-<p>IDP로 설정한 Cloud Account 로그인 화면이 뜨면 다시 사인인합니다.</p>
+<p>IDP로 설정한 Cloud Account 로그인 화면이 뜨면 추가한 <a href="mailto:kildong@example.com">kildong@example.com</a> 로 다시 사인인합니다.</p>
 </li>
 <li>
 <p>로그인이 성공하면 <strong>&ldquo;Your connection is successful.&rdquo;</strong> 문구가 뜹니다.</p>
@@ -478,7 +479,7 @@
 <h6 id="사인인-테스트">사인인 테스트</h6>
 <ol>
 <li>
-<p>Service Provider의 Cloud Account의 OCI 콘솔 접속화면으로 이동합니다.</p>
+<p>Service Provider인 두번째 Cloud Account의 OCI 콘솔 접속화면으로 이동합니다.</p>
 </li>
 <li>
 <p>사인인 화면에서 유저/패스워드 방식 말고 아래에 등록한 IdP를 통한 사인인을 위한 버튼이 추가된 것이 보입니다. 해당 버튼을 클릭합니다.</p>
@@ -507,7 +508,7 @@
 </p>
 </li>
 <li>
-<p>IdP로 사인인이 성공하면, 실제로는 Service Provider 쪽 Cloud Account로 접속됩니다.</p>
+<p>IdP로 사인인이 성공하고 MFA를 등록하면, 실제로는 Service Provider 쪽 Cloud Account로 접속됩니다.</p>
 <p>
 
 
@@ -521,9 +522,287 @@
 </li>
 </ol>
 <h6 id="유저-프로비저닝">유저 프로비저닝</h6>
-<p>Service Provider로 사인인할때 IdP를 통해 인증합니다. 즉 IdP에 등록된 유저의 패스워드를 사용하는 것입니다. 사인인할 유저는 Service Provider와 IdP 양쪽에 모두 있어야 합니다.</p>
-<p>IdP로 등록된 서버는 일반적으로 사내 유저 통합 인증 서버로, 신규 입사자에 대해 IdP에 최초 유저를 만들 것입니다. 해당 유저가 Service Provider 시스템에 권한을 부여하는 경우, Service Provider 시스템에도 유저가 있어야 합니다. Service Provider 시스템에 실제 유저가 없는 경우에, SSO를 구성했다고 해도, 유저가 없기 때문에 사용할 수 없습니다. 일반적으로 사내 Identity Management 시스템에 의해 IdP에 유저 정보 변경시 Service Provider로 프로비저닝 및 동기화합니다.</p>
-<p><em>위에서 설정한 것은 Service Provider에 사용자 정보를 프로비저닝하는 별도 기능, 솔루션이 없는 상태이기 때문에, Service Provider 쪽에도 매뉴얼한 유저 등록이 필요합니다.</em></p>
+<p>Service Provider에 사인인할때 IdP를 통해 인증합니다. 즉 Service Provider의 유저에 대한 인증절차만 IdP를 이용하는 것입니다. 이때 사인인할 유저는 Service Provider와 IdP 양쪽에 모두 있어야 합니다.</p>
+<p>IdP로 등록된 서버는 일반적으로 사내 유저 통합 인증 서버로, 신규 입사자에 대해 IdP에 최초 유저를 만들 것입니다. 해당 유저가 Service Provider 시스템에 권한을 부여하는 경우, Service Provider 시스템에도 유저가 있어야 합니다. 일반적으로 사내 Identity Management 시스템을 사용하여, Service Provider에 대한 사용 권한 할당시 해당 시스템에 유저를 프로비저닝하고, 이후 IdP에 유저 정보 변경시 Service Provider로 동기화합니다.</p>
+<p><em>앞선 예시에서는 Service Provider에 사용자 정보를 수작업으로 등록했습니다. 여기서는 Identity Domain에서 제공하는 Just In Time Provisioning 기능을 사용하여, 유저 프로비저닝하는 방법을 알아봅니다.</em></p>
+<p><strong>Identity Provider 설정 변경</strong></p>
+<p>Identity Domain에서 새 IAM User 생성시 Last name, Username, Email은 필수항목입니다. Identity Provider에서 Service Provider에서 유저정보 전달시 앞서 설정한 Username외에 다른 항목도 전달하도록 설정을 변경합니다.</p>
+<ol>
+<li>
+<p>OCI 콘솔에 로그인합니다</p>
+</li>
+<li>
+<p>좌측 상단 내비게이션 메뉴에서 <strong>Identity &amp; Security</strong> &gt; <strong>Identity</strong> &gt; <strong>Domains</strong>를 클릭합니다.</p>
+</li>
+<li>
+<p>사용할 <strong>Default Domain</strong>을 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Integrated applications</strong>를 클릭합니다.</p>
+</li>
+<li>
+<p>앞서 등록한 애플리케이션을 클릭합니다. 예,  ServiceProvider-<em>{AccountName}</em>-default-domain</p>
+</li>
+<li>
+<p><strong>Edit SSO configuration</strong>을 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829104537424.png" alt='image-20240829104537424' onerror="this.onerror=null;this.src='images\/image-20240829104537424.png';" />
+</p>
+</li>
+<li>
+<p>설정화면 제일 아래 Attribute configuration에 다음 유저 속성을 추가합니다.</p>
+<ul>
+<li>전달할 유저 정보 속성(Type value)를 Name에 입력한 속성명으로 해서 Service Provider에 추가로 전달하도록 설정하는 과정입니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829104613125.png" alt='image-20240829104613125' onerror="this.onerror=null;this.src='images\/image-20240829104613125.png';" />
+</p>
+</li>
+<li>
+<p>변경사항을 저장합니다.</p>
+</li>
+<li>
+<p>변경사항 전달을 위해 <strong>SSO configuration</strong>에서 <strong>Download identity provider metadata</strong>를 클릭하여 메타데이터(<strong>IDCSMetadata (1).xml</strong>)를 다운로드 받습니다.</p>
+</li>
+<li>
+<p>테스트를 위해 <strong>Default Domain</strong>에서 다음 유저 그룹 2개를 생성합니다.</p>
+<ul>
+<li>sso-users-for-child-a</li>
+<li>group-a</li>
+</ul>
+</li>
+<li>
+<p>다시 등록한 <strong>Integrated applications</strong>으로 이동합니다.</p>
+</li>
+<li>
+<p><strong>Resources</strong> &gt; <strong>Groups</strong>에서 방금 생성한 <strong>sso-users-for-child-a</strong>을 추가합니다. 이제 해당 그룹에 속한 유저를 Service Provider인 Cloud Account에서 사인인도 하고, 유저정보로 프로비저닝 되도록 설정할 것입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829105658963.png" alt='image-20240829105658963' onerror="this.onerror=null;this.src='images\/image-20240829105658963.png';" />
+</p>
+</li>
+</ol>
+<p><strong>Service Provider에서 Just In Time Provisioning 설정 변경</strong></p>
+<ol>
+<li>
+<p>OCI 콘솔에 로그아웃하고, Service Provider 역할 Cloud Account에 로그인합니다.</p>
+</li>
+<li>
+<p><strong>Default Domain</strong> 클릭</p>
+</li>
+<li>
+<p>테스트를 위해 <strong>Default Domain</strong>에서 다음 유저 그룹 2개를 생성합니다.</p>
+<ul>
+<li>sso-users</li>
+<li>group-a</li>
+</ul>
+</li>
+<li>
+<p><strong>Security</strong> &gt; <strong>Identity providers</strong> 클릭</p>
+</li>
+<li>
+<p>등록한 IdP 클릭</p>
+</li>
+<li>
+<p>변경된 IdP의 메타데이터로 업데이트를 위해 Edit IdP를 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829110410877.png" alt='image-20240829110410877' onerror="this.onerror=null;this.src='images\/image-20240829110410877.png';" />
+</p>
+</li>
+<li>
+<p>기존 Metadata를 삭제하고, 새로 다운받은 메타데이터 파일을 업로드하고 저장합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829110637900.png" alt='image-20240829110637900' onerror="this.onerror=null;this.src='images\/image-20240829110637900.png';" />
+</p>
+</li>
+<li>
+<p>IdP 상세화면에서 <strong>Configure JIT</strong>를 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Enable Just-In-Time (JIT) provisioning</strong>을 클릭합니다.</p>
+</li>
+<li>
+<p>다음 옵션을 체크합니다. 여기서는 둘다 체크하겠습니다.</p>
+<ul>
+<li><strong>Create a new identity domain user</strong>: 체크하면, IdP를 통해 로그인한 유저가 사용할 Cloud Account에 없는 경우, 새로 생성합니다.</li>
+<li><strong>Update the existing identity domain user</strong>: 체크하면, IdP를 통해 로그인한 유저가 사용할 Cloud Account에 있는 경우, IdP에서 매핑되어 온 유저 정보로 변경합니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829112438201.png" alt='image-20240829112438201' onerror="this.onerror=null;this.src='images\/image-20240829112438201.png';" />
+</p>
+</li>
+<li>
+<p>유저 속성 매핑</p>
+<ul>
+<li>userName외에 유저 생성시 필수항목인 familyName, primaryEmailAdress에 앞서 IdP에서 입력한 유저 속성 이름으로 매핑합니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829112544597.png" alt='image-20240829112544597' onerror="this.onerror=null;this.src='images\/image-20240829112544597.png';" />
+</p>
+</li>
+<li>
+<p>그룹 매핑</p>
+<ul>
+<li><strong>Group membership attribute name</strong>: 앞서 IdP에서 입력한 Group Membership에 대한 유저 속성으로 지정한 이름으로 매핑합니다.</li>
+<li><strong>group membership mappings</strong>: 그룹 매핑을 설정합니다. 수신한 그룹명을 현재 Cloud Account의 특정그룹으로 명시적으로 매핑하거나, 수신된 그룹명과 같은 이름으로 매핑되게 설정할 수 있습니다. 여기서는 같은 이름을 자동으로 매핑되게 설정합니다.</li>
+<li><strong>Assign domain group memberships</strong>: 수신된 그룹정보외에, JIT 새로 생성되는 유저에게 할당할 추가 그룹을 지정합니다.</li>
+<li><strong>Assignment rules</strong>: 그룹 매핑 실패시, 업데이트시 현재 할당된 그룹을 대체할지, 합칠지를 설정합니다. 여기서는 기존 소속 그룹 대체, 매핑 실패 무시를 선택하였습니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829113403012.png" alt='image-20240829113403012' onerror="this.onerror=null;this.src='images\/image-20240829113403012.png';" />
+</p>
+</li>
+<li>
+<p>설정사항을 저장합니다.</p>
+</li>
+</ol>
+<p><strong>사인인 테스트</strong></p>
+<ol>
+<li>
+<p>Identity Provider인 첫번째 Cloud Account의 OCI 콘솔 접속화면으로 이동합니다.</p>
+</li>
+<li>
+<p>테스트를 위해 양쪽 Cloud Account에 기존에 없는 새로운 유저를 다음과 같이 생성합니다. 패스워드 초기화 등 로그인할 수 있도록 준비합니다.</p>
+<ul>
+<li>Username: <a href="mailto:younghee@example.com">younghee@example.com</a></li>
+<li>Last name: Kim</li>
+<li>Groups: sso-users-for-child-a, group-a
+<ul>
+<li>없는 경우, 그룹도 만듭니다.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>로그아웃하고, Service Provider인 두번째 Cloud Account의 OCI 콘솔 접속화면으로 이동합니다.</p>
+</li>
+<li>
+<p>사인인 화면에서 유저/패스워드 방식 말고 아래에 등록한 IdP를 통한 사인인을 위한 버튼이 추가된 것이 보입니다. 해당 버튼을 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240522103239096.png" alt='image-20240522103239096' onerror="this.onerror=null;this.src='images\/image-20240522103239096.png';" />
+</p>
+</li>
+<li>
+<p>IdP로 등록한 Cloud Account의 사인인 화면이 뜹니다. 사인인 합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240522095335506.png" alt='image-20240522095335506' onerror="this.onerror=null;this.src='images\/image-20240522095335506.png';" />
+</p>
+</li>
+<li>
+<p>새로 추가한 유저 <a href="mailto:younghee@example.com">younghee@example.com</a>로 로그인합니다.</p>
+</li>
+<li>
+<p>IdP로 사인인이 성공하고 MFA를 등록하면, 실제로는 Service Provider 쪽 Cloud Account로 접속됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829123052646.png" alt='image-20240829123052646' onerror="this.onerror=null;this.src='images\/image-20240829123052646.png';" />
+</p>
+</li>
+<li>
+<p>My profile을 클릭하여 유저정보를 확인합니다.</p>
+</li>
+<li>
+<p>IdP의 Last name, Email 유저정보가 잘 전달되어 유저가 생성된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829123346653.png" alt='image-20240829123346653' onerror="this.onerror=null;this.src='images\/image-20240829123346653.png';" />
+</p>
+</li>
+<li>
+<p>그룹 매핑에 설정한 정보를 통해 그룹 할당도 잘 된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20240829123409065.png" alt='image-20240829123409065' onerror="this.onerror=null;this.src='images\/image-20240829123409065.png';" />
+</p>
+</li>
+</ol>
 <h6 id="참고">참고</h6>
 <ul>
 <li><a href="https://learnoci.cloud/how-to-add-an-oci-identity-domain-as-saml-idp-in-another-oci-identity-domain-db9b9466f842">How to add an OCI Identity Domain as SAML IdP in another OCI Identity Domain</a></li>

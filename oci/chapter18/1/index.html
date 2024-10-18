@@ -46,7 +46,7 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">&nbsp;Version 2024.10.15</span>
+ <span class="version">&nbsp;Version 2024.10.18</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -68,7 +68,7 @@
 <p>OCI Logging 서비스를 사용하여, 관리 및 검색할 수 있는 로그는 다음과 같습니다.</p>
 <ul>
 <li>
-<p><strong>감사 로그(Audit logs)</strong> : OCI Audit 서비스에서 생성된 이벤트와 관련된 로그입니다. OCI 문서에 따르면, OCI Audit 서비스는 OCI 공개 API 엔드포인트에 대한 호출을 로그 이벤트로 기록합니다. 현재 모든 OCI 서비스는 Audit 로깅을 지원합니다. Object 스토리지로 예를 들면, Bucket 관련된 이벤트를 모두 Audit 로그로 기록하지만, Object에 대한 API 호출은 기록하지 않습니다. 각 OCI에 따라 약간은 차이는 있어 보입니다. OCI 콘솔, CLI, SDK, OCI 서비스를 포함하여, 사용자 클라이언트의 API 요청을 포함하여, Audit 로그 이벤트가 기록됩니다.</p>
+<p><strong>감사 로그(Audit logs)</strong> : OCI Audit 서비스에서 생성된 이벤트와 관련된 로그입니다. OCI 문서에 따르면, OCI Audit 서비스는 OCI 공개 API 엔드포인트에 대한 호출을 로그 이벤트로 기록합니다. 현재 모든 OCI 서비스는 Audit 로깅을 지원합니다. Object 스토리지로 예를 들면, Bucket 관련된 이벤트를 모두 Audit 로그로 기록하지만, Object에 대한 API 호출은 기록하지 않습니다. 각 OCI 서비스에 따라 로깅하는 영역의 약간은 차이는 있어 보입니다. OCI 콘솔, CLI, SDK, OCI 서비스를 포함하여, 사용자 클라이언트의 API 요청을 포함하여, Audit 로그 이벤트가 기록됩니다.</p>
 <ul>
 <li>
 <p><a href="https://docs.oracle.com/en-us/iaas/Content/Audit/Tasks/settingretentionperiod.htm">Audit Log Retention Period</a> 문서를 기준으로 Audit 로그는 365일 동안 보존됩니다. OCI 콘솔 테넌시 정보에서도 확인할 수 있습니다.</p>
@@ -321,7 +321,7 @@
 <p>아카이브가 설정되었습니다. Active, Archive 보관 기간은 이후에도 아카이브 세팅 변경을 통해 수정할 수 있습니다.</p>
 </li>
 <li>
-<p>일단 아카이브되면, 보관 기간 설정외에 쿼리를 통한 특정 로그에 대한 삭제는 되지 않습니다. 필요하면, 아카이브되기 전에 Active 상테에서 퍼지되도록 Purge Policies를 설정합니다.</p>
+<p>일단 아카이브되면, 보관 기간 설정외에 쿼리를 통한 특정 로그에 대한 삭제는 되지 않습니다. 필요하면, 아카이브되기 전에 Active 상태에서 퍼지되도록 Purge Policies를 설정합니다.</p>
 <p>
 
 
@@ -339,7 +339,7 @@
 <p><a href="https://www.ateam-oracle.com/post/oci-logging-analytics-best-practices-series-cost-optimization">참고 블로그</a>에서는 &ldquo;Archive process runs very 24 hours, not depending on the time when the archive was enabled&rdquo; 라고 실행주기를 설명하고 있습니다. 활성화 시점에 상관없이 아카이브 프로세스는 매 24시간 마다 어느 시점에 실행된다고 합니다.</p>
 <ul>
 <li>
-<p>테스트에서는 활성 후 아래와 같이 보이나, 대기 큐에 있으며, 실행될 예정으로 판단됩니다.</p>
+<p>테스트에서는 활성 후 아래와 같이 보입니다. 실행중이라기 보다는 대기 큐에 있으며, 실행될 예정으로 판단됩니다.</p>
 <p>
 
 
@@ -352,7 +352,7 @@
 </p>
 </li>
 <li>
-<p>테스트시 아래와 같이 몇 시간 이후에 종료된 것을 볼 수 있습니다.</p>
+<p>아래와 같이 몇 시간 이후에 종료된 것을 볼 수 있습니다.</p>
 <p>
 
 
@@ -427,7 +427,7 @@
 <ul>
 <li>유저가 조회를 원하는 시작, 끝 날짜를 입력하고, Estimated Recalled Log Size를 클릭합니다.</li>
 <li>아래 Data set recommended for analysis에서 확장된 시작날짜와 종료날짜가 자동으로 선택되어 추천됩니다. 유저가 지정한 날짜의 로그가 있는 Bucket을 기준으로 시작날짜와 종료날짜를 확대한 결과입니다. Bucket 단위로 비용이 발생하기 때문에, 확대된 날짜로 리콜해도 상관은 없을 것 같습니다.</li>
-<li>무시하고 유저가 지정한 날짜 기준으로 하는 경우, 해당 리콜을 릴리즈하기 전까지는 동일 Bucket내 포함된 다른 날짜에 대해 리콜이 불가하니 유의합니다.</li>
+<li>무시하고 유저가 지정한 날짜 기준으로 하는 경우, 해당 리콜을 릴리즈하기 전까지는 동일 Bucket내 포함된 리콜하지 않는 나머지 날짜에 대해 추가 리콜이 불가하니 유의합니다.</li>
 </ul>
 <p>
 
@@ -480,7 +480,7 @@
 </p>
 </li>
 <li>
-<p>로그 분석이 모두 끝나면, 비용 절감을 위해 리콜된 로그를 릴리즈하여, 아카이브 상태로 다시 변경합니다. 현재는 리콜된 부분이 포함되어 Active Usgae가 다시 늘어난 상태입니다. 릴리즈를 위해 <strong>Storage</strong> &gt; <strong>Active Arhival Recalls</strong> 화면으로 돌아갑니다. 리콜 요청건이 보입니다. 해당 리콜의 오른쪽 액션 메뉴에서 <strong>Release</strong>를 클릭합니다.</p>
+<p>로그 분석이 모두 끝나면, 비용 절감을 위해 리콜된 로그를 릴리즈하여, 아카이브 상태로 되돌립니다. 현재는 리콜된 부분이 포함되어 Active Usgae가 다시 늘어난 상태입니다. 릴리즈를 위해 <strong>Storage</strong> &gt; <strong>Active Arhival Recalls</strong> 화면으로 돌아갑니다. 리콜 요청건이 보입니다. 해당 리콜의 오른쪽 액션 메뉴에서 <strong>Release</strong>를 클릭합니다.</p>
 <p>
 
 

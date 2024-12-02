@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>1.2.2.2.6.2 컨테이너에서 클라이언트 IP 얻기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/nlb/2.nginx-ingress-preserve-client-ip/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/nlb/2.nginx-ingress-preserve-client-ip/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="1.2.2.2.6.2 컨테이너에서 클라이언트 IP 얻기">
-  <meta property="og:description" content="1.2.2.2.6.2 OCI Network Load Balancer 기반 NGINX Ingress Controller에서 클라이언트 IP 얻기 Nginx Ingress Controller를 사용할 때, Pod에 있는 애플리케이션에서 모니터링 등을 위해 실">
+  <meta property="og:description" content="1.2.2.2.6.2 OCI Network Load Balancer 기반 NGINX Ingress Controller에서 클라이언트 IP 얻기 Nginx Ingress Controller를 사용할 때, Pod에 있는 애플리케이션에서 모니터링 등을 위해 실 Client IP를 확인 할 필요가 있습니다. 하지만, 클라이언트의 요청은 Nginx Ingress Controller가 사용하는 OCI Network Load Balancer를 거쳐 오는 경우에도 실제 Client IP를 얻기 위한 방법을 알아봅니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oracle-cloudnative">
@@ -262,30 +262,30 @@
 <li>
 <p>추가할 Egress Rule</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Stateless</th>
-<th style="text-align:left">Destination</th>
-<th style="text-align:left">IP Protocol</th>
-<th style="text-align:left">Source Port Range</th>
-<th style="text-align:left">Destination Port Range</th>
-<th style="text-align:left">Type and Code</th>
-<th style="text-align:left">Allows</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">No</td>
-<td style="text-align:left">10.0.10.0/24</td>
-<td style="text-align:left">TCP</td>
-<td style="text-align:left">All</td>
-<td style="text-align:left">30000-32767</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">TCP traffic for ports: 30000-32767</td>
-<td style="text-align:left"></td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Stateless</th>
+          <th style="text-align: left">Destination</th>
+          <th style="text-align: left">IP Protocol</th>
+          <th style="text-align: left">Source Port Range</th>
+          <th style="text-align: left">Destination Port Range</th>
+          <th style="text-align: left">Type and Code</th>
+          <th style="text-align: left">Allows</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">No</td>
+          <td style="text-align: left">10.0.10.0/24</td>
+          <td style="text-align: left">TCP</td>
+          <td style="text-align: left">All</td>
+          <td style="text-align: left">30000-32767</td>
+          <td style="text-align: left"></td>
+          <td style="text-align: left">TCP traffic for ports: 30000-32767</td>
+          <td style="text-align: left"></td>
+      </tr>
+  </tbody>
 </table>
 </li>
 </ul>
@@ -299,30 +299,30 @@
 <li>
 <p>추가할 Ingress Rule</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Stateless</th>
-<th style="text-align:left">Source</th>
-<th style="text-align:left">IP Protocol</th>
-<th style="text-align:left">Source Port Range</th>
-<th style="text-align:left">Destination Port Range</th>
-<th style="text-align:left">Type and Code</th>
-<th style="text-align:left">Allows</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">No</td>
-<td style="text-align:left">0.0.0.0/0</td>
-<td style="text-align:left">TCP</td>
-<td style="text-align:left">All</td>
-<td style="text-align:left">30000-32767</td>
-<td style="text-align:left"></td>
-<td style="text-align:left">TCP traffic for ports: 30000-32767</td>
-<td style="text-align:left"></td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Stateless</th>
+          <th style="text-align: left">Source</th>
+          <th style="text-align: left">IP Protocol</th>
+          <th style="text-align: left">Source Port Range</th>
+          <th style="text-align: left">Destination Port Range</th>
+          <th style="text-align: left">Type and Code</th>
+          <th style="text-align: left">Allows</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">No</td>
+          <td style="text-align: left">0.0.0.0/0</td>
+          <td style="text-align: left">TCP</td>
+          <td style="text-align: left">All</td>
+          <td style="text-align: left">30000-32767</td>
+          <td style="text-align: left"></td>
+          <td style="text-align: left">TCP traffic for ports: 30000-32767</td>
+          <td style="text-align: left"></td>
+      </tr>
+  </tbody>
 </table>
 </li>
 </ul>

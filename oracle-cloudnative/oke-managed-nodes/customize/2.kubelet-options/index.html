@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>1.10.2 cloud-init으로 kubelet 옵션 변경하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/2.kubelet-options/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/2.kubelet-options/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="1.10.2 cloud-init으로 kubelet 옵션 변경하기">
-  <meta property="og:description" content="1.10.2 cloud-init으로 kubelet 옵션 변경하기 Worker Node 생성시 커스텀 cloud-init 스크립트를 실행할 수 있습니다. OKE에서 수행해야 하는 디폴트 스크립트에 추가하여, Worker Node 생">
+  <meta property="og:description" content="1.10.2 cloud-init으로 kubelet 옵션 변경하기 Worker Node 생성시 커스텀 cloud-init 스크립트를 실행할 수 있습니다. OKE에서 수행해야 하는 디폴트 스크립트에 추가하여, Worker Node 생성시 수행하고 싶은 스크립트을 입력하면 됩니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oracle-cloudnative">
@@ -80,16 +80,16 @@
 <li>이중 예시로 다음 옵션을 변경해 보겠습니다.</li>
 </ul>
 <table>
-<thead>
-<tr>
-<th>-v, &ndash;v Level</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Number for the log level verbosity</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>-v, &ndash;v Level</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Number for the log level verbosity</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 <li>
@@ -111,16 +111,16 @@
 <li>예시,</li>
 </ul>
 <table>
-<thead>
-<tr>
-<th>&ndash;serialize-image-pulls   Default: true</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Pull images one at a time. We recommend <em>not</em> changing the default value on nodes that run docker daemon with version &lt; 1.9 or an <code>aufs</code> storage backend. Issue #10959 has more details. (DEPRECATED: This parameter should be set via the config file specified by the Kubelet&rsquo;s <code>--config</code> flag. See <a href="https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/">kubelet-config-file</a> for more information.)</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>&ndash;serialize-image-pulls   Default: true</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Pull images one at a time. We recommend <em>not</em> changing the default value on nodes that run docker daemon with version &lt; 1.9 or an <code>aufs</code> storage backend. Issue #10959 has more details. (DEPRECATED: This parameter should be set via the config file specified by the Kubelet&rsquo;s <code>--config</code> flag. See <a href="https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/">kubelet-config-file</a> for more information.)</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 <li>
@@ -164,26 +164,26 @@
 <li>예시,</li>
 </ul>
 <table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>cpuManagerPolicy</code> <code>string</code></td>
-<td>cpuManagerPolicy is the name of the policy to use. Requires the CPUManager feature gate to be enabled. Default: &ldquo;none&rdquo;</td>
-</tr>
-<tr>
-<td><code>kubeReserved</code> <code>map[string]string</code></td>
-<td>kubeReserved is a set of ResourceName=ResourceQuantity (e.g. cpu=200m,memory=150G) pairs that describe resources reserved for kubernetes system components. Currently cpu, memory and local storage for root file system are supported. See <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/</a> for more details. Default: nil</td>
-</tr>
-<tr>
-<td><code>systemReserved</code> <code>map[string]string</code></td>
-<td>systemReserved is a set of ResourceName=ResourceQuantity (e.g. cpu=200m,memory=150G) pairs that describe resources reserved for non-kubernetes components. Currently only cpu and memory are supported. See <a href="http://kubernetes.io/docs/user-guide/compute-resources">http://kubernetes.io/docs/user-guide/compute-resources</a> for more detail. Default: nil</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Field</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>cpuManagerPolicy</code> <code>string</code></td>
+          <td>cpuManagerPolicy is the name of the policy to use. Requires the CPUManager feature gate to be enabled. Default: &ldquo;none&rdquo;</td>
+      </tr>
+      <tr>
+          <td><code>kubeReserved</code> <code>map[string]string</code></td>
+          <td>kubeReserved is a set of ResourceName=ResourceQuantity (e.g. cpu=200m,memory=150G) pairs that describe resources reserved for kubernetes system components. Currently cpu, memory and local storage for root file system are supported. See <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/</a> for more details. Default: nil</td>
+      </tr>
+      <tr>
+          <td><code>systemReserved</code> <code>map[string]string</code></td>
+          <td>systemReserved is a set of ResourceName=ResourceQuantity (e.g. cpu=200m,memory=150G) pairs that describe resources reserved for non-kubernetes components. Currently only cpu and memory are supported. See <a href="http://kubernetes.io/docs/user-guide/compute-resources">http://kubernetes.io/docs/user-guide/compute-resources</a> for more detail. Default: nil</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 <li>

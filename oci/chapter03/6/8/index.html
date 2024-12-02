@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.6.8 Ultra High Performance 레벨 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter03/6/8/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter03/6/8/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="3.6.8 Ultra High Performance 레벨 사용하기">
-  <meta property="og:description" content="3.6.8 Ultra High Performance 레벨 사용하기 3.6.1 Block Volume 생성하기 설명한 것 처럼 Block Volume을 생성할 때 볼륨 성능(IOPS/GB)을 조절할 수 있습니다. 이 중에서 제일 높은 볼륨 성능">
+  <meta property="og:description" content="3.6.8 Ultra High Performance 레벨 사용하기 3.6.1 Block Volume 생성하기 설명한 것 처럼 Block Volume을 생성할 때 볼륨 성능(IOPS/GB)을 조절할 수 있습니다. 이 중에서 제일 높은 볼륨 성능을 사용하기 위해서는 추가적인 설정이 필요합니다. 여기서는 필요한 설정과 실제 성능을 확인해 보겠습니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
@@ -79,98 +79,98 @@
 <ul>
 <li><a href="https://docs.oracle.com/en-us/iaas/Content/Block/Concepts/blockvolumeultrahighperformance.htm#ultrahighperfvpusperfcharacteristics">Performance Characteristics</a> 기준 VPU당 성능은 아래와 같습니다.
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Volume Performance Units (VPUs)</th>
-<th style="text-align:left">IOPS per GB</th>
-<th style="text-align:left">Max IOPS per Volume</th>
-<th style="text-align:left">Size for Max IOPS (GB)</th>
-<th style="text-align:left">KBPS per GB</th>
-<th style="text-align:left">Max MBPS per Volume</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">30</td>
-<td style="text-align:left">90</td>
-<td style="text-align:left">75,000</td>
-<td style="text-align:left">833</td>
-<td style="text-align:left">720</td>
-<td style="text-align:left">880</td>
-</tr>
-<tr>
-<td style="text-align:left">40</td>
-<td style="text-align:left">105</td>
-<td style="text-align:left">100,000</td>
-<td style="text-align:left">952</td>
-<td style="text-align:left">840</td>
-<td style="text-align:left">1,080</td>
-</tr>
-<tr>
-<td style="text-align:left">50</td>
-<td style="text-align:left">120</td>
-<td style="text-align:left">125,000</td>
-<td style="text-align:left">1,042</td>
-<td style="text-align:left">960</td>
-<td style="text-align:left">1,280</td>
-</tr>
-<tr>
-<td style="text-align:left">60</td>
-<td style="text-align:left">135</td>
-<td style="text-align:left">150,000</td>
-<td style="text-align:left">1,111</td>
-<td style="text-align:left">1,080</td>
-<td style="text-align:left">1,480</td>
-</tr>
-<tr>
-<td style="text-align:left">70</td>
-<td style="text-align:left">150</td>
-<td style="text-align:left">175,000</td>
-<td style="text-align:left">1,167</td>
-<td style="text-align:left">1,200</td>
-<td style="text-align:left">1,680</td>
-</tr>
-<tr>
-<td style="text-align:left">80</td>
-<td style="text-align:left">165</td>
-<td style="text-align:left">200,000</td>
-<td style="text-align:left">1,212</td>
-<td style="text-align:left">1,320</td>
-<td style="text-align:left">1,880</td>
-</tr>
-<tr>
-<td style="text-align:left">90</td>
-<td style="text-align:left">180</td>
-<td style="text-align:left">225,000</td>
-<td style="text-align:left">1,250</td>
-<td style="text-align:left">1,440</td>
-<td style="text-align:left">2,080</td>
-</tr>
-<tr>
-<td style="text-align:left">100</td>
-<td style="text-align:left">195</td>
-<td style="text-align:left">250,000</td>
-<td style="text-align:left">1,282</td>
-<td style="text-align:left">1,560</td>
-<td style="text-align:left">2,280</td>
-</tr>
-<tr>
-<td style="text-align:left">110</td>
-<td style="text-align:left">210</td>
-<td style="text-align:left">275,000</td>
-<td style="text-align:left">1,310</td>
-<td style="text-align:left">1,680</td>
-<td style="text-align:left">2,480</td>
-</tr>
-<tr>
-<td style="text-align:left">120</td>
-<td style="text-align:left">225</td>
-<td style="text-align:left">300,000</td>
-<td style="text-align:left">1,333</td>
-<td style="text-align:left">1,800</td>
-<td style="text-align:left">2,680</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Volume Performance Units (VPUs)</th>
+          <th style="text-align: left">IOPS per GB</th>
+          <th style="text-align: left">Max IOPS per Volume</th>
+          <th style="text-align: left">Size for Max IOPS (GB)</th>
+          <th style="text-align: left">KBPS per GB</th>
+          <th style="text-align: left">Max MBPS per Volume</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">30</td>
+          <td style="text-align: left">90</td>
+          <td style="text-align: left">75,000</td>
+          <td style="text-align: left">833</td>
+          <td style="text-align: left">720</td>
+          <td style="text-align: left">880</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">40</td>
+          <td style="text-align: left">105</td>
+          <td style="text-align: left">100,000</td>
+          <td style="text-align: left">952</td>
+          <td style="text-align: left">840</td>
+          <td style="text-align: left">1,080</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">50</td>
+          <td style="text-align: left">120</td>
+          <td style="text-align: left">125,000</td>
+          <td style="text-align: left">1,042</td>
+          <td style="text-align: left">960</td>
+          <td style="text-align: left">1,280</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">60</td>
+          <td style="text-align: left">135</td>
+          <td style="text-align: left">150,000</td>
+          <td style="text-align: left">1,111</td>
+          <td style="text-align: left">1,080</td>
+          <td style="text-align: left">1,480</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">70</td>
+          <td style="text-align: left">150</td>
+          <td style="text-align: left">175,000</td>
+          <td style="text-align: left">1,167</td>
+          <td style="text-align: left">1,200</td>
+          <td style="text-align: left">1,680</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">80</td>
+          <td style="text-align: left">165</td>
+          <td style="text-align: left">200,000</td>
+          <td style="text-align: left">1,212</td>
+          <td style="text-align: left">1,320</td>
+          <td style="text-align: left">1,880</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">90</td>
+          <td style="text-align: left">180</td>
+          <td style="text-align: left">225,000</td>
+          <td style="text-align: left">1,250</td>
+          <td style="text-align: left">1,440</td>
+          <td style="text-align: left">2,080</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">100</td>
+          <td style="text-align: left">195</td>
+          <td style="text-align: left">250,000</td>
+          <td style="text-align: left">1,282</td>
+          <td style="text-align: left">1,560</td>
+          <td style="text-align: left">2,280</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">110</td>
+          <td style="text-align: left">210</td>
+          <td style="text-align: left">275,000</td>
+          <td style="text-align: left">1,310</td>
+          <td style="text-align: left">1,680</td>
+          <td style="text-align: left">2,480</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">120</td>
+          <td style="text-align: left">225</td>
+          <td style="text-align: left">300,000</td>
+          <td style="text-align: left">1,333</td>
+          <td style="text-align: left">1,800</td>
+          <td style="text-align: left">2,680</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 </ul>
@@ -190,22 +190,22 @@
 <li>전체 지원 Shape 중 일부입니다. 많이 사용하는 아래 2가지를 보면, 16 OCPU 이상에서만 Ultra High Performance을 지원합니다.</li>
 </ul>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Shape</th>
-<th style="text-align:left">Supports Ultra High Performance (UHP)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">VM.Standard.E5.Flex</td>
-<td style="text-align:left">Yes (≥16 OCPUs)No (&lt;16 OCPUs)</td>
-</tr>
-<tr>
-<td style="text-align:left">VM.Standard.E4.Flex</td>
-<td style="text-align:left">Yes (≥16 OCPUs)No (&lt;16 OCPUs)</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Shape</th>
+          <th style="text-align: left">Supports Ultra High Performance (UHP)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">VM.Standard.E5.Flex</td>
+          <td style="text-align: left">Yes (≥16 OCPUs)No (&lt;16 OCPUs)</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">VM.Standard.E4.Flex</td>
+          <td style="text-align: left">Yes (≥16 OCPUs)No (&lt;16 OCPUs)</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 <li>

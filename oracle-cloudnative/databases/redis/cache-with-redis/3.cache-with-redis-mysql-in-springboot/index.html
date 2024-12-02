@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>4.1.1.3 Spring Boot에서 OCI Cache with Redis &#43; MySQL 쓰기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/3.cache-with-redis-mysql-in-springboot/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/3.cache-with-redis-mysql-in-springboot/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="4.1.1.3 Spring Boot에서 OCI Cache with Redis &#43; MySQL 쓰기">
-  <meta property="og:description" content="4.1.1.3 Spring Boot에서 OCI Cache with Redis &#43; MySQL 쓰기 사전 준비: 테스트용 MySQL 서버 준비 OCI에서는 MySQL 데이터베이스 서비스를 제공하고 있습니다. 여기서는 간단한 테스트이므로,">
+  <meta property="og:description" content="4.1.1.3 Spring Boot에서 OCI Cache with Redis &#43; MySQL 쓰기 사전 준비: 테스트용 MySQL 서버 준비 OCI에서는 MySQL 데이터베이스 서비스를 제공하고 있습니다. 여기서는 간단한 테스트이므로, 간단히 컨테이너 이미지를 실행할 수 있는 OCI Container Instance를 통해 MySQL 서버를 만들도록 하겠습니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oracle-cloudnative">
@@ -104,30 +104,30 @@
 <li>
 <p><strong>Environmental variables</strong>: 사용하는 MySQL 컨테이너 이미지에서 제공하는 환경변수 값 중에서 데이터베이스 설치하기 위해 필요한 아래변수들을 추가합니다.</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Key</th>
-<th style="text-align:left">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">MYSQL_DATABASE</td>
-<td style="text-align:left">db_example</td>
-</tr>
-<tr>
-<td style="text-align:left">MYSQL_ROOT_PASSWORD</td>
-<td style="text-align:left">ThePassword</td>
-</tr>
-<tr>
-<td style="text-align:left">MYSQL_USER</td>
-<td style="text-align:left">springuser</td>
-</tr>
-<tr>
-<td style="text-align:left">MYSQL_PASSWORD</td>
-<td style="text-align:left">ThePassword</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Key</th>
+          <th style="text-align: left">Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">MYSQL_DATABASE</td>
+          <td style="text-align: left">db_example</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">MYSQL_ROOT_PASSWORD</td>
+          <td style="text-align: left">ThePassword</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">MYSQL_USER</td>
+          <td style="text-align: left">springuser</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">MYSQL_PASSWORD</td>
+          <td style="text-align: left">ThePassword</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 <li>
@@ -155,26 +155,26 @@
 <li>
 <p>Container Instance가 사용하는 Subnet의 Security List에, 인터넷에서 3306 포트로 접근할 수 Ingress에 미리 등록해야 합니다.</p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Stateless</th>
-<th style="text-align:left">Source</th>
-<th style="text-align:left">IP Protocol</th>
-<th style="text-align:left">Source Port Range</th>
-<th style="text-align:left">Destination Port Range</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">No</td>
-<td style="text-align:left">0.0.0.0/0</td>
-<td style="text-align:left"><strong>TCP</strong></td>
-<td style="text-align:left">All</td>
-<td style="text-align:left">3306</td>
-<td style="text-align:left">MySQL</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Stateless</th>
+          <th style="text-align: left">Source</th>
+          <th style="text-align: left">IP Protocol</th>
+          <th style="text-align: left">Source Port Range</th>
+          <th style="text-align: left">Destination Port Range</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">No</td>
+          <td style="text-align: left">0.0.0.0/0</td>
+          <td style="text-align: left"><strong>TCP</strong></td>
+          <td style="text-align: left">All</td>
+          <td style="text-align: left">3306</td>
+          <td style="text-align: left">MySQL</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 <li>

@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>5. 방화벽 구성을 위해 Security Rules 적용하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter05/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,8 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter05/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="5. 방화벽 구성을 위해 Security Rules 적용하기">
-  <meta property="og:description" content="5. 방화벽 구성을 위해 Security Rules 적용하기 네트워킹 서비스는 네트워크 패킷 레벨에서 트래픽을 제어하기 위해 Security Rule을 사용하는 2가지 가상 방화벽을 제공합니다. Security Lists:">
+  <meta property="og:description" content="5. 방화벽 구성을 위해 Security Rules 적용하기 네트워킹 서비스는 네트워크 패킷 레벨에서 트래픽을 제어하기 위해 Security Rule을 사용하는 2가지 가상 방화벽을 제공합니다.
+Security Lists: 네트워킹 서비스에서 처음부터 제공하던 가상 방화벽 Network security groups(NSGs): 조금 다른 형태의 애플리케이션 컴포넌트를 위해 추가적으로 디자인된 가상 방화벽으로 지원하는 OCI 서비스가 한정되어 있습니다. Network Security Groups 지원 서비스 목록 Security Lists와 Network Security Groups의 차이">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="website">
 
@@ -71,28 +72,28 @@
 </ul>
 <p><strong>Security Lists와 Network Security Groups의 차이</strong></p>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Security tool</th>
-<th style="text-align:left">적용대상</th>
-<th style="text-align:left">적용 방법</th>
-<th style="text-align:left">제약사항</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">Security lists</td>
-<td style="text-align:left">해당 Security List를 사용하는 서브넷에 있는 모든 VNIC 적용됨</td>
-<td style="text-align:left">서브넷에서 사용할 Security List를 추가</td>
-<td style="text-align:left">서브넷당 최대 5개의 Security List</td>
-</tr>
-<tr>
-<td style="text-align:left">Network Security Groups</td>
-<td style="text-align:left">같은 VCN내에 선택한 VNIC에만 적용됨</td>
-<td style="text-align:left">Security Group에 VNIC을 추가</td>
-<td style="text-align:left">VNIC당 최대 5개의 Network Security Group</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Security tool</th>
+          <th style="text-align: left">적용대상</th>
+          <th style="text-align: left">적용 방법</th>
+          <th style="text-align: left">제약사항</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Security lists</td>
+          <td style="text-align: left">해당 Security List를 사용하는 서브넷에 있는 모든 VNIC 적용됨</td>
+          <td style="text-align: left">서브넷에서 사용할 Security List를 추가</td>
+          <td style="text-align: left">서브넷당 최대 5개의 Security List</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Network Security Groups</td>
+          <td style="text-align: left">같은 VCN내에 선택한 VNIC에만 적용됨</td>
+          <td style="text-align: left">Security Group에 VNIC을 추가</td>
+          <td style="text-align: left">VNIC당 최대 5개의 Network Security Group</td>
+      </tr>
+  </tbody>
 </table>
 <ul>
 <li>두 가지를 혼용해서 사용할 수 있습니다. Network Security Group는 개별 VNIC 단위로 적용할 수 있어, 대상 Subnet상에 속한 모든 인스턴스이 꼭 필요한 대상에만 방화벽을 개방할 수 있게 합니다.</li>

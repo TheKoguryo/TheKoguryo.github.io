@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>3.2 가상 네트워크 환경을 위한 VCN 만들기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter03/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter03/2/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="3.2 가상 네트워크 환경을 위한 VCN 만들기">
-  <meta property="og:description" content="3.2 가상 네트워크 환경을 위한 VCN 만들기 Virtual Cloud Network(VCN) 이란 Virtual Cloud Network(VCN)은 가상 네트워크 환경을 제공합니다. 사용자의 요구에 맞게 VCN 및 관련 자원을 구성하">
+  <meta property="og:description" content="3.2 가상 네트워크 환경을 위한 VCN 만들기 Virtual Cloud Network(VCN) 이란 Virtual Cloud Network(VCN)은 가상 네트워크 환경을 제공합니다. 사용자의 요구에 맞게 VCN 및 관련 자원을 구성하여 여러 가지 형태의 가상 네트워크 환경을 구성할 수 있습니다. Subnet은 VCN의 하위 요소로 단일 Availability Domain 단위로 만들어집니다. Subnet은 Route Table에 따라 트래픽은 대상 경로로 이동하며, 또한 Subnet은 Security List로 들어오고 나가는 트래픽을 제어할 수 있습니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
@@ -101,38 +101,38 @@ VCN을 만들 때 두 가지 방법을 제공합니다. VCN만 만들기, VCN Wi
 <li>
 <p>새 VCN의 이름(예, oci-hol-vcn)하고 사용할 Compartment를 선택합니다. 나머지는 기본값을 사용합니다.</p>
 <table>
-<thead>
-<tr>
-<th>Field</th>
-<th style="text-align:center">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>VCN Name</td>
-<td style="text-align:center">oci-hol-vcn</td>
-</tr>
-<tr>
-<td>Compartment</td>
-<td style="text-align:center">만든 Compartment 선택, 예, oci-hol-xx</td>
-</tr>
-<tr>
-<td>VCN CIDR Block</td>
-<td style="text-align:center">10.0.0.0/16</td>
-</tr>
-<tr>
-<td>Use DNS Hostnames In This VCN</td>
-<td style="text-align:center">Checked</td>
-</tr>
-<tr>
-<td>Public Subnet CIDR Block</td>
-<td style="text-align:center">10.0.0.0/24</td>
-</tr>
-<tr>
-<td>Private Subnet CIDR Block</td>
-<td style="text-align:center">10.0.1.0/24</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Field</th>
+          <th style="text-align: center">Value</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>VCN Name</td>
+          <td style="text-align: center">oci-hol-vcn</td>
+      </tr>
+      <tr>
+          <td>Compartment</td>
+          <td style="text-align: center">만든 Compartment 선택, 예, oci-hol-xx</td>
+      </tr>
+      <tr>
+          <td>VCN CIDR Block</td>
+          <td style="text-align: center">10.0.0.0/16</td>
+      </tr>
+      <tr>
+          <td>Use DNS Hostnames In This VCN</td>
+          <td style="text-align: center">Checked</td>
+      </tr>
+      <tr>
+          <td>Public Subnet CIDR Block</td>
+          <td style="text-align: center">10.0.0.0/24</td>
+      </tr>
+      <tr>
+          <td>Private Subnet CIDR Block</td>
+          <td style="text-align: center">10.0.1.0/24</td>
+      </tr>
+  </tbody>
 </table>
 <p>
 
@@ -186,40 +186,40 @@ VCN을 만들 때 두 가지 방법을 제공합니다. VCN만 만들기, VCN Wi
 <li>예시</li>
 </ul>
 <table>
-<thead>
-<tr>
-<th>Field</th>
-<th style="text-align:center">Value</th>
-<th style="text-align:center">Comment</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Subnet CIDR</td>
-<td style="text-align:center">10.0.0.0/24</td>
-<td style="text-align:center"></td>
-</tr>
-<tr>
-<td>The first IP address</td>
-<td style="text-align:center">10.0.0.0</td>
-<td style="text-align:center">네트워크 주소</td>
-</tr>
-<tr>
-<td>The last IP address</td>
-<td style="text-align:center">10.0.0.255</td>
-<td style="text-align:center">브로드캐스트 주소</td>
-</tr>
-<tr>
-<td>The first host address</td>
-<td style="text-align:center">10.0.0.1</td>
-<td style="text-align:center">서브넷 디폴트 게이트웨이 주소</td>
-</tr>
-<tr>
-<td>The remaining addresses</td>
-<td style="text-align:center">10.0.0.2 to 10.0.0.254</td>
-<td style="text-align:center">유저 사용 가능 주소</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>Field</th>
+          <th style="text-align: center">Value</th>
+          <th style="text-align: center">Comment</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Subnet CIDR</td>
+          <td style="text-align: center">10.0.0.0/24</td>
+          <td style="text-align: center"></td>
+      </tr>
+      <tr>
+          <td>The first IP address</td>
+          <td style="text-align: center">10.0.0.0</td>
+          <td style="text-align: center">네트워크 주소</td>
+      </tr>
+      <tr>
+          <td>The last IP address</td>
+          <td style="text-align: center">10.0.0.255</td>
+          <td style="text-align: center">브로드캐스트 주소</td>
+      </tr>
+      <tr>
+          <td>The first host address</td>
+          <td style="text-align: center">10.0.0.1</td>
+          <td style="text-align: center">서브넷 디폴트 게이트웨이 주소</td>
+      </tr>
+      <tr>
+          <td>The remaining addresses</td>
+          <td style="text-align: center">10.0.0.2 to 10.0.0.254</td>
+          <td style="text-align: center">유저 사용 가능 주소</td>
+      </tr>
+  </tbody>
 </table>
 <ul>
 <li>참고 문서 - <a href="https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm#Reserved__reserved_subnet">Three IP Addresses in Each Subnet</a></li>

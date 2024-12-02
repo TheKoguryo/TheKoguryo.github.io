@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>18.1 OCI Logging Analytics로 로그 관리시 비용 최적화 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter18/1/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,8 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter18/1/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="18.1 OCI Logging Analytics로 로그 관리시 비용 최적화">
-  <meta property="og:description" content="18.1 OCI Logging Analytics로 로그 관리시 비용 최적화 OCI에서 발생하는 로그 알아보기 OCI Logging 서비스를 사용하여, 관리 및 검색할 수 있는 로그는 다음과 같습니다. 감">
+  <meta property="og:description" content="18.1 OCI Logging Analytics로 로그 관리시 비용 최적화 OCI에서 발생하는 로그 알아보기 OCI Logging 서비스를 사용하여, 관리 및 검색할 수 있는 로그는 다음과 같습니다.
+감사 로그(Audit logs) : OCI Audit 서비스에서 생성된 이벤트와 관련된 로그입니다. OCI 문서에 따르면, OCI Audit 서비스는 OCI 공개 API 엔드포인트에 대한 호출을 로그 이벤트로 기록합니다. 현재 모든 OCI 서비스는 Audit 로깅을 지원합니다. Object 스토리지로 예를 들면, Bucket 관련된 이벤트를 모두 Audit 로그로 기록하지만, Object에 대한 API 호출은 기록하지 않습니다. 각 OCI 서비스에 따라 로깅하는 영역의 약간은 차이는 있어 보입니다. OCI 콘솔, CLI, SDK, OCI 서비스를 포함하여, 사용자 클라이언트의 API 요청을 포함하여, Audit 로그 이벤트가 기록됩니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
@@ -121,25 +122,25 @@
 <li>참조 - <a href="https://www.oracle.com/manageability/pricing/#logging">https://www.oracle.com/manageability/pricing/#logging</a></li>
 </ul>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">OCI Logging</th>
-<th style="text-align:left">단위 가격</th>
-<th style="text-align:left">단위</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">첫 10GB의 로그 스토리지/월</td>
-<td style="text-align:left">무료</td>
-<td style="text-align:left">GB 로그 스토리지/월</td>
-</tr>
-<tr>
-<td style="text-align:left">10GB 이상의 로그 스토리지/월</td>
-<td style="text-align:left">$0.05</td>
-<td style="text-align:left">GB 로그 스토리지/월</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">OCI Logging</th>
+          <th style="text-align: left">단위 가격</th>
+          <th style="text-align: left">단위</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">첫 10GB의 로그 스토리지/월</td>
+          <td style="text-align: left">무료</td>
+          <td style="text-align: left">GB 로그 스토리지/월</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">10GB 이상의 로그 스토리지/월</td>
+          <td style="text-align: left">$0.05</td>
+          <td style="text-align: left">GB 로그 스토리지/월</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 </ul>
@@ -176,46 +177,46 @@
 <li>참조 - <a href="https://www.oracle.com/manageability/pricing/#logging-analytics">https://www.oracle.com/manageability/pricing/#logging-analytics</a></li>
 </ul>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">OCI Logging Analytics</th>
-<th style="text-align:left">단위 가격</th>
-<th style="text-align:left">단위</th>
-<th>(기준 가격으로 단순 계산) 가격/GB/월</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">첫 10GB 로그 스토리지</td>
-<td style="text-align:left">무료</td>
-<td style="text-align:left"></td>
-<td></td>
-</tr>
-<tr>
-<td style="text-align:left">활성(Active) 스토리지 - 로깅 분석 스토리지/월<br />(첫 35개 로깅 분석 스토리지 유닛/월)</td>
-<td style="text-align:left">$372.00</td>
-<td style="text-align:left">로깅 분석 스토리지 유닛/월</td>
-<td>$1.2400</td>
-</tr>
-<tr>
-<td style="text-align:left">활성(Active) 스토리지 - 로깅 분석 스토리지/월<br />(35개 초과, 103개 미만 로깅 분석 스토리지 유닛/월)</td>
-<td style="text-align:left">$260.40</td>
-<td style="text-align:left">로깅 분석 스토리지 유닛/월</td>
-<td>$0.8680</td>
-</tr>
-<tr>
-<td style="text-align:left">활성(Active) 스토리지 - 로깅 분석 스토리지/월<br />(103개 초과 로깅 분석 스토리지 유닛/월)</td>
-<td style="text-align:left">$223.20</td>
-<td style="text-align:left">로깅 분석 스토리지 유닛/월</td>
-<td>$0.7440</td>
-</tr>
-<tr>
-<td style="text-align:left">아카이브(Archive) 스토리지 - 시간당 로깅 분석 스토리지 유닛</td>
-<td style="text-align:left">$0.02</td>
-<td style="text-align:left">시간당 로깅 분석 스토리지 유닛</td>
-<td>$0.0496 (31일 기준)</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">OCI Logging Analytics</th>
+          <th style="text-align: left">단위 가격</th>
+          <th style="text-align: left">단위</th>
+          <th>(기준 가격으로 단순 계산) 가격/GB/월</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">첫 10GB 로그 스토리지</td>
+          <td style="text-align: left">무료</td>
+          <td style="text-align: left"></td>
+          <td></td>
+      </tr>
+      <tr>
+          <td style="text-align: left">활성(Active) 스토리지 - 로깅 분석 스토리지/월<br />(첫 35개 로깅 분석 스토리지 유닛/월)</td>
+          <td style="text-align: left">$372.00</td>
+          <td style="text-align: left">로깅 분석 스토리지 유닛/월</td>
+          <td>$1.2400</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">활성(Active) 스토리지 - 로깅 분석 스토리지/월<br />(35개 초과, 103개 미만 로깅 분석 스토리지 유닛/월)</td>
+          <td style="text-align: left">$260.40</td>
+          <td style="text-align: left">로깅 분석 스토리지 유닛/월</td>
+          <td>$0.8680</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">활성(Active) 스토리지 - 로깅 분석 스토리지/월<br />(103개 초과 로깅 분석 스토리지 유닛/월)</td>
+          <td style="text-align: left">$223.20</td>
+          <td style="text-align: left">로깅 분석 스토리지 유닛/월</td>
+          <td>$0.7440</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">아카이브(Archive) 스토리지 - 시간당 로깅 분석 스토리지 유닛</td>
+          <td style="text-align: left">$0.02</td>
+          <td style="text-align: left">시간당 로깅 분석 스토리지 유닛</td>
+          <td>$0.0496 (31일 기준)</td>
+      </tr>
+  </tbody>
 </table>
 <ul>
 <li>Storage Unit(로깅 분석 스토리지 유닛)은 300GB로 정의</li>

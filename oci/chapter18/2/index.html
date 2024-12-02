@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>18.2  Object Storage Archive 사용하여 로그 관리 비용 줄이기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter18/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter18/2/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="18.2  Object Storage Archive 사용하여 로그 관리 비용 줄이기">
-  <meta property="og:description" content="18.2 Object Storage Archive 사용하여 비용 줄이기 앞서 Logging Analytics 서비스에서 제공하는 아카이브 기능을 사용하여, 비용을 줄이는 방법을 설명하였습니다. 해당 기능을 사용하지 않고, 비용을">
+  <meta property="og:description" content="18.2 Object Storage Archive 사용하여 비용 줄이기 앞서 Logging Analytics 서비스에서 제공하는 아카이브 기능을 사용하여, 비용을 줄이는 방법을 설명하였습니다. 해당 기능을 사용하지 않고, 비용을 줄이기 위해 Object Storage의 아카이브 기능을 사용하는 방법에 대해 알아봅니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
@@ -76,38 +76,38 @@
 <li>아카이브를 포함한 각 서비스에서 제일 저렴한 가격 구간대에 진입한 시점의 가격 비교</li>
 </ul>
 <table>
-<thead>
-<tr>
-<th>서비스명</th>
-<th style="text-align:left">품목명</th>
-<th style="text-align:left">단위 가격</th>
-<th style="text-align:left">단위</th>
-<th>환산 가격/GB/월(31일 기준)</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>OCI Logging</td>
-<td style="text-align:left">10GB 이상의 로그 스토리지/월</td>
-<td style="text-align:left">$0.05</td>
-<td style="text-align:left">GB 로그 스토리지/월</td>
-<td>$0.05</td>
-</tr>
-<tr>
-<td>OCI Logging Analytics</td>
-<td style="text-align:left">아카이브(Archive) 스토리지 - 시간당 로깅 분석 스토리지 유닛</td>
-<td style="text-align:left">$0.02</td>
-<td style="text-align:left">시간당 로깅 분석 스토리지 유닛</td>
-<td>$0.0496</td>
-</tr>
-<tr>
-<td>OCI Object Storage</td>
-<td style="text-align:left">Archive Storage</td>
-<td style="text-align:left">$0.0026</td>
-<td style="text-align:left">GB 로그 스토리지/월</td>
-<td>$0.0026</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th>서비스명</th>
+          <th style="text-align: left">품목명</th>
+          <th style="text-align: left">단위 가격</th>
+          <th style="text-align: left">단위</th>
+          <th>환산 가격/GB/월(31일 기준)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>OCI Logging</td>
+          <td style="text-align: left">10GB 이상의 로그 스토리지/월</td>
+          <td style="text-align: left">$0.05</td>
+          <td style="text-align: left">GB 로그 스토리지/월</td>
+          <td>$0.05</td>
+      </tr>
+      <tr>
+          <td>OCI Logging Analytics</td>
+          <td style="text-align: left">아카이브(Archive) 스토리지 - 시간당 로깅 분석 스토리지 유닛</td>
+          <td style="text-align: left">$0.02</td>
+          <td style="text-align: left">시간당 로깅 분석 스토리지 유닛</td>
+          <td>$0.0496</td>
+      </tr>
+      <tr>
+          <td>OCI Object Storage</td>
+          <td style="text-align: left">Archive Storage</td>
+          <td style="text-align: left">$0.0026</td>
+          <td style="text-align: left">GB 로그 스토리지/월</td>
+          <td>$0.0026</td>
+      </tr>
+  </tbody>
 </table>
 <ul>
 <li>Storage Unit(로깅 분석 스토리지 유닛)은 300GB로 정의</li>

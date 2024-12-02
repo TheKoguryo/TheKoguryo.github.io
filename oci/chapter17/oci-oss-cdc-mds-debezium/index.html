@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>17.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.126.3">
+<meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter17/oci-oss-cdc-mds-debezium/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -31,7 +31,8 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter17/oci-oss-cdc-mds-debezium/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="17.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기">
-  <meta property="og:description" content="17.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기 OCI Streaming - Kafka Connect, Debezium로 MySQL CDC 구성하기을 먼저 본 것을 전제로 합니다. 이전 문서에서 deb">
+  <meta property="og:description" content="17.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기 OCI Streaming - Kafka Connect, Debezium로 MySQL CDC 구성하기을 먼저 본 것을 전제로 합니다.
+이전 문서에서 debezium에서 제공하는 컨테이너 이미지를 사용하여, Source MySQL -&gt; Debezium Connector -&gt; OCI Streaming -&gt; JDBC Connector -&gt; Target MySQL 구성하고, CDC를 테스트하였습니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
@@ -75,34 +76,34 @@
 <ul>
 <li>Debezium 2.6 릴리즈 문서에서 테스트된 버전이라는 MySQL <em>8.0.x</em>, <em>8.2</em> 을 사용합니다. OCI MySQL Database Service로 생성시 해당 버전으로 선택합니다.
 <table>
-<thead>
-<tr>
-<th></th>
-<th>2.7 - development</th>
-<th>2.6 - latest stable</th>
-<th>2.5</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Java</td>
-<td>11+</td>
-<td>11+</td>
-<td>11+</td>
-</tr>
-<tr>
-<td>Kafka Connect</td>
-<td>2.x, 3.x</td>
-<td>2.x, 3.x</td>
-<td>2.x, 3.x</td>
-</tr>
-<tr>
-<td>MySQL</td>
-<td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.3.0</td>
-<td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.0.33</td>
-<td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.0.33</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th></th>
+          <th>2.7 - development</th>
+          <th>2.6 - latest stable</th>
+          <th>2.5</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Java</td>
+          <td>11+</td>
+          <td>11+</td>
+          <td>11+</td>
+      </tr>
+      <tr>
+          <td>Kafka Connect</td>
+          <td>2.x, 3.x</td>
+          <td>2.x, 3.x</td>
+          <td>2.x, 3.x</td>
+      </tr>
+      <tr>
+          <td>MySQL</td>
+          <td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.3.0</td>
+          <td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.0.33</td>
+          <td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.0.33</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 </ul>
@@ -291,18 +292,18 @@
 <li><a href="https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-creating-user">https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-creating-user</a></li>
 </ul>
 <table>
-<thead>
-<tr>
-<th style="text-align:left">Keyword</th>
-<th style="text-align:left">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><code>RELOAD</code></td>
-<td style="text-align:left">Enables the connector the use of the <code>FLUSH</code> statement to clear or reload internal caches, flush tables, or acquire locks. This is used only when performing a snapshot.</td>
-</tr>
-</tbody>
+  <thead>
+      <tr>
+          <th style="text-align: left">Keyword</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><code>RELOAD</code></td>
+          <td style="text-align: left">Enables the connector the use of the <code>FLUSH</code> statement to clear or reload internal caches, flush tables, or acquire locks. This is used only when performing a snapshot.</td>
+      </tr>
+  </tbody>
 </table>
 </li>
 </ul>

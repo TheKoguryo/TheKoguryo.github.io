@@ -32,12 +32,12 @@
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="Rancher Desktop 설정하기">
   <meta property="og:description" content="Rancher Desktop 설정하기 Docker Desktop 라이선스 이슈로 다른 대체툴을 설치하는 경우가 있습니다. 여기서는 Rancher Desktop 사용하는 경우입니다.
-#맥에서 사용하는 Rancher Desktop에 HTTP Proxy 설정하기 사내망에서 Container Registry 접속을 위해 HTTP Proxy 설정이 필요한 경우">
+#Mac에서 사용하는 Rancher Desktop에 HTTP Proxy 설정하기 사내망에서 Container Registry 접속을 위해 HTTP Proxy 설정이 필요한 경우">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oracle-cloudnative">
-    <meta property="article:published_time" content="2024-11-15T00:00:00+00:00">
-    <meta property="article:modified_time" content="2024-11-15T00:00:00+00:00">
+    <meta property="article:published_time" content="2025-07-03T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-07-03T00:00:00+00:00">
     <meta property="article:tag" content="Rancher Desktop">
     <meta property="article:tag" content="Proxyserver">
 
@@ -65,30 +65,30 @@
 <div class="content-container">
 <main><h2 id="rancher-desktop-설정하기">Rancher Desktop 설정하기</h2>
 <p>Docker Desktop 라이선스 이슈로 다른 대체툴을 설치하는 경우가 있습니다. 여기서는 Rancher Desktop 사용하는 경우입니다.</p>
-<h6 id="맥에서-사용하는-rancher-desktop에-http-proxy-설정하기">#맥에서 사용하는 Rancher Desktop에 HTTP Proxy 설정하기</h6>
+<h6 id="mac에서-사용하는-rancher-desktop에-http-proxy-설정하기">#Mac에서 사용하는 Rancher Desktop에 HTTP Proxy 설정하기</h6>
 <ul>
 <li>
 <p>사내망에서 Container Registry 접속을 위해 HTTP Proxy 설정이 필요한 경우</p>
 <ul>
 <li>
-<p>아래 명령어를 순서대로 실행한 후 PROXY 설정을 추가합니다.</p>
+<p>Rancher Desktop Version: 1.19.3 기준, 아래 명령어를 순서대로 실행한 후 PROXY 설정을 추가합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">rdctl shell
 </span></span><span class="line"><span class="cl">sudo su -
-</span></span><span class="line"><span class="cl">vi /etc/conf.d/docker
+</span></span><span class="line"><span class="cl">vi /etc/init.d/docker
 </span></span></code></pre></div><ul>
 <li>
 <p>예시</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kildong@kildong-mac  ~  rdctl shell
 </span></span><span class="line"><span class="cl">lima-rancher-desktop:/Users/kildong$ sudo su -
-</span></span><span class="line"><span class="cl">lima-rancher-desktop:~# vi /etc/conf.d/docker
+</span></span><span class="line"><span class="cl">lima-rancher-desktop:~# vi /etc/init.d/docker
 </span></span></code></pre></div></li>
 </ul>
 </li>
 <li>
 <p>/etc/conf.d/docker 파일 제일 아래에 다음을 사용할 PROXY 서버로 변경하여 추가합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">NO_PROXY=&#34;localhost,127.0.0.1&#34;
-</span></span><span class="line"><span class="cl">HTTPS_PROXY=&#34;http://HOST:PORT&#34;
-</span></span><span class="line"><span class="cl">HTTP_PROXY=&#34;http://HOST:PORT&#34;
+</span></span><span class="line"><span class="cl">HTTP_PROXY=&#34;http://www-proxy.xxx.com:80&#34;
+</span></span><span class="line"><span class="cl">HTTPS_PROXY=&#34;http://www-proxy.xxx.com:80&#34;
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">export HTTP_PROXY
 </span></span><span class="line"><span class="cl">export HTTPS_PROXY
@@ -96,6 +96,12 @@
 </span></span></code></pre></div></li>
 <li>
 <p>Rancher Desktop 종료후 재시작하고, docker pull 하면 이미지를 잘 가져오는 것을 확인할 수 있습니다.</p>
+</li>
+<li>
+<p>참고 -  <code>/etc/conf.d/docker</code>을 변경하던 방식은 Rancher Desktop Version: 1.19.3에서는 Rancher Desktop을 재시작하면, <code>/etc/conf.d/docker</code>가 초기화되어 이제는 동작하지 않음</p>
+<ul>
+<li><a href="https://github.com/rancher-sandbox/rancher-desktop/issues/2259">https://github.com/rancher-sandbox/rancher-desktop/issues/2259</a></li>
+</ul>
 </li>
 </ul>
 </li>
@@ -108,7 +114,7 @@
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 15 Nov 2024<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/troubleshooting/comartment/" title="Compartment 문제해결"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Compartment 문제해결</a>
+ <div class="edit-meta">Last updated on 3 Jul 2025<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/troubleshooting/comartment/" title="Compartment 문제해결"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Compartment 문제해결</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/blog/" title="그외 참고사항">Next - 그외 참고사항 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>

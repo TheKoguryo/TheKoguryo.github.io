@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Console 접근을 위한 방화벽에 등록할 주소 찾기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.139.3">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci/troubleshooting/access-console/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/troubleshooting/access-console/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="Console 접근을 위한 방화벽에 등록할 주소 찾기">
+  <meta property="og:description" content="Console 접근을 위한 방화벽에 등록할 주소 찾기 OCI Documentation 기준으로 아래 주소에 대한 등록이 필요합니다.
+방화벽, Proxy Server 등으로 외부 인터넷 접근을 통제하는 곳에서 Console 접근을 위해 아래 주소를 등록요청합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="oci">
+    <meta property="article:published_time" content="2023-12-15T00:00:00+00:00">
+    <meta property="article:modified_time" content="2023-12-15T00:00:00+00:00">
+    <meta property="article:tag" content="Console">
+    <meta property="article:tag" content="Firewall">
+    <meta property="article:tag" content="Proxyserver">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2025-07-08</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="console-접근을-위한-방화벽에-등록할-주소-찾기">Console 접근을 위한 방화벽에 등록할 주소 찾기</h2>
+<ul>
+<li>
+<p>OCI Documentation 기준으로 아래 주소에 대한 등록이 필요합니다.</p>
+<ul>
+<li>
+<p>방화벽, Proxy Server 등으로 외부 인터넷 접근을 통제하는 곳에서 Console 접근을 위해 아래 주소를 등록요청합니다.</p>
+</li>
+<li>
+<p>OCI Documentation - <a href="https://docs.oracle.com/en-us/iaas/Content/GSG/Concepts/console_topic-Allowlist.htm">Allowing Access to the Console from Your Network</a></p>
+</li>
+<li>
+<p>OCI Console과 통신은 HTTP (80), HTTPS (443) 사용</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">*.oracle.com
+</span></span><span class="line"><span class="cl">*.oraclecloud.com
+</span></span><span class="line"><span class="cl">*.oracleinfinity.io
+</span></span><span class="line"><span class="cl">oracle.112.2o7.net
+</span></span><span class="line"><span class="cl">consent.trustarc.com (Console cookie preferences)
+</span></span></code></pre></div></li>
+</ul>
+<h6 id="문서-내용외-추가로-등록이-필요한-주소가-있는-지-검증">문서 내용외 추가로 등록이 필요한 주소가 있는 지 검증</h6>
+<p><strong>Squid Proxy Server 설치하기</strong></p>
+<ol>
+<li>
+<p>Compute VM을 생성합니다.</p>
+</li>
+<li>
+<p>Squid Proxy Server를 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo yum install -y squid
+</span></span></code></pre></div></li>
+<li>
+<p>squid.conf 파일 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo vi /etc/squid/squid.conf
+</span></span></code></pre></div><ul>
+<li>
+<p>설치후 기본값</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215094732145.png" alt='image-20231215094732145' onerror="this.onerror=null;this.src='images\/image-20231215094732145.png';" />
+</p>
+</li>
+<li>
+<p>아래와 같이 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># Example rule allowing access from your local networks.
+</span></span><span class="line"><span class="cl"># Adapt localnet in the ACL section to list your (internal) IP networks
+</span></span><span class="line"><span class="cl"># from where browsing should be allowed
+</span></span><span class="line"><span class="cl">#http_access allow localnet
+</span></span><span class="line"><span class="cl">http_access allow localhost
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># And finally deny all other access to this proxy
+</span></span><span class="line"><span class="cl">http_access deny all
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Squid가 사용하는 포트를 방화벽에서 개방합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=3128/tcp
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
+<li>
+<p>Security List에서도 Ingress에 해당 포트를 등록합니다.</p>
+</li>
+<li>
+<p>서버 시작 및 활성화</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo systemctl start squid
+</span></span><span class="line"><span class="cl">sudo systemctl enable squid
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>테스트 클라이언트(Windows) 설정</strong></p>
+<ol>
+<li>
+<p>Window Server로 Compute VM을 생성합니다.</p>
+</li>
+<li>
+<p>현재는 모든 웹이 접속이 가능한 상태입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215101317926.png" alt='image-20231215101317926' onerror="this.onerror=null;this.src='images\/image-20231215101317926.png';" />
+</p>
+</li>
+<li>
+<p><strong>Setting &gt; Network &amp; Internet &gt; Proxy</strong> 으로 이동하여 설정합니다.</p>
+<ul>
+<li>Automatically detect settings: Off</li>
+<li>Use a proxy server: On</li>
+<li>Address: Squid Proxy Server의 IP</li>
+<li>Port: Squid 기본 포트 3128</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215100419208.png" alt='image-20231215100419208' onerror="this.onerror=null;this.src='images\/image-20231215100419208.png';" />
+</p>
+</li>
+<li>
+<p>다시 브라우저로 접속해 보면 Proxy Server에 의해 막혀서 접속이 되지 않습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215101528842.png" alt='image-20231215101528842' onerror="this.onerror=null;this.src='images\/image-20231215101528842.png';" />
+</p>
+</li>
+</ol>
+<p><strong>Squid Proxy Server에 Console 접속을 위한 주소 등록 및 테스트</strong></p>
+<ol>
+<li>
+<p>squid.conf 파일 설정 (/etc/squid/squid.conf)</p>
+<ul>
+<li>문서 상의 나와있던 주소를 추가해줍니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">#http_access allow localnet
+</span></span><span class="line"><span class="cl">http_access allow localhost
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># For OCI Console
+</span></span><span class="line"><span class="cl">acl oci_console_acl dstdomain .oracle.com .oraclecloud.com .oracleinfinity.io oracle.112.2o7.net
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">http_access allow oci_console_acl
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># And finally deny all other access to this proxy
+</span></span><span class="line"><span class="cl">http_access deny all
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Squid 재시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo systemctl restart squid
+</span></span></code></pre></div></li>
+<li>
+<p>테스트 클라이언트 상의 브라우저에서 OCI Console에 다시 접속해 봅니다. 잘 접속되는 것을 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215103515781.png" alt='image-20231215103515781' onerror="this.onerror=null;this.src='images\/image-20231215103515781.png';" />
+</p>
+</li>
+<li>
+<p>Console에서 사용할 서비스들을 조회해 봅니다.</p>
+</li>
+<li>
+<p>그중 OCIR의 경우 아래와 같이 Repository가 조회되지 않고, <code>Cannot read properties of undefiend (reading 'toString')</code> 의 오류가 발생합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215140931849.png" alt='image-20231215140931849' onerror="this.onerror=null;this.src='images\/image-20231215140931849.png';" />
+</p>
+</li>
+<li>
+<p>브라우저의 Developer Tools을 실행합니다. 아래 툴 중에서 네트워크 탭을 열어 오류 내역을 보면, <a href="https://icn.ocir.io">https://icn.ocir.io</a> 에 접속시 오류가 발생하는 것을 알 수 있습니다.</p>
+</li>
+<li>
+<p>방화벽 등록을 위해 squid.conf 파일에 <code>.ocir.io</code>를 추가합니다. (/etc/squid/squid.conf)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">#http_access allow localnet
+</span></span><span class="line"><span class="cl">http_access allow localhost
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># For OCI Console
+</span></span><span class="line"><span class="cl">acl oci_console_acl dstdomain .oracle.com .oraclecloud.com .oracleinfinity.io oracle.112.2o7.net
+</span></span><span class="line"><span class="cl">acl oci_console_additional_acl dstdomain .ocir.io
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">http_access allow oci_console_acl
+</span></span><span class="line"><span class="cl">http_access allow oci_console_additional_acl
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># And finally deny all other access to this proxy
+</span></span><span class="line"><span class="cl">http_access deny all
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Squid 재시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo systemctl restart squid
+</span></span></code></pre></div></li>
+<li>
+<p>테스트 클라이언트에서 다시 OCI Console에서 OCIR 화면으로 이동합니다. 이제 아래와 같이 잘 보이는 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20231215141957132.png" alt='image-20231215141957132' onerror="this.onerror=null;this.src='images\/image-20231215141957132.png';" />
+</p>
+</li>
+<li>
+<p>이처럼 방화벽 등록에 필요한 주소가 혹시 추가적으로 필요할 수 있으니, 필요시 위와 같은 방법으로 사전 확인할 수 있습니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <div class="edit-meta">Last updated on 15 Dec 2023<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/troubleshooting/bastion-service/" title="Bastion Service 문제해결"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Bastion Service 문제해결</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci/troubleshooting/comartment/" title="Compartment 문제해결">Next - Compartment 문제해결 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/">
+                OCI(Oracle Cloud Infrastructure)
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter01/">
+                1. OCI 기본개념
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter02/">
+                2. OCI 서비스 시작하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/">
+                3. OCI Compute VM 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/5/">
+                3.5 Linux 인스턴스 접속하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/4/">3.5.4 Oracle Linux 8 on OCI에 VNC 서버 설정하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/6/">
+                3.6 하드 드라이브 같은 Block Volume
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/4/">3.6.4 Block Volume 포맷하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/8/">3.6.8 Ultra High Performance 레벨 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/7/">
+                3.7 Block Volume 백업 활용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/8/">
+                3.8 Boot Volume 백업 활용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/9/">
+                3.9 비용 절감하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/9/1.burstable-instances/">3.9.1 Burstable Instances 사용하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter04/">
+                4. 고정 IP 할당을 위한 Reserved Public IP
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter05/">
+                5. 방화벽 구성을 위해 Security Rules 적용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Network Security Group 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/5/">5.5 Apache HTTP Server 접속 테스트</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter06/">
+                6. 사용자 권한 설정을 위해 IAM 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter07/">
+                7. Object Storage 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter08/">
+                8. 네트워크 파일 시스템인 File Storage 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 스냅샷</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter09/">
+                9. Machine Image
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter10/">
+                10. 고가용성을 위한 Load Balancer 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/4/">10.4 Load Balancer를 위한 Subnet 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/5/">10.5 Load Balancer 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/6/">10.6 Load Balancer 연결 확인</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter11/">
+                11. Domain Name System (DNS)
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/2/">11.2 GoDadday의 서브 도메인을 OCI DNS 서비스에 delegation 하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter12/">
+                12. OCI 자원 모니터링을 위한 Monitoring
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter12/3/">
+                12.3 OCI Grafana Plugin
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter13/">
+                13. Metric에 기반한 Autoscaling
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/">
+                14. Developer Tools 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/1/">
+                14.1 OCI CLI
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/1/1/">
+                14.1.1 OCI CLI 설치하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Token 기반 인증 Config File 설정</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Key 기반 인증 Config File 설정</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
+                14.1.2 Object Storage를 CLI로 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/2/">
+                14.2 REST API
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 OCI Request Signature Version 1</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Bash 샘플 클라이언트</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/4/">14.2.4 Postman - OCI REST API 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 Postman - OCI REST APIs 호출하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/3/">
+                14.3 Terraform
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 Terraform 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Terraform Configurations 작성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Terraform OCI Provider 연결정보 구하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Terraform Configuration 실행하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/5/">14.3.5 다중 환경을 위한 workspace 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/6/">14.3.6 예시, list, count를 이용한 유저 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/7/">14.3.7 OCI Terraform 사용 예제</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/8/"></a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter15/">
+                15. Resource Manager 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter16/">
+                16. 인증서 관리를 위한 OCI Certificate 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 Load Balancer의 인증서를 OCI Certificate로 관리하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OCI Certificate에 외부 인증서 임포트하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter17/">
+                17. Kafka 호환 OCI Streaming 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/oci-oss-cdc-postgresql-debezium/">17.1 Kafka Connect, Debezium로 PostgreSQL CDC 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/oci-oss-cdc-mysql-debezium/">17.2 Kafka Connect, Debezium로 MySQL CDC 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/oci-oss-cdc-mds-debezium/">17.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter18/">
+                18. OCI 로그 관리하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter18/1/">18.1 OCI Logging Analytics로 로그 관리시 비용 최적화</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter18/2/">18.2  Object Storage Archive 사용하여 로그 관리 비용 줄이기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/troubleshooting/">
+                19. 문제해결
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/cloud-shell/">Cloud Shell 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/load-balancer/">Load Balancer 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/bastion-service/">Bastion Service 문제해결</a></li>
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/oci/troubleshooting/access-console/">Console 접근을 위한 방화벽에 등록할 주소 찾기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/comartment/">Compartment 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/rancher-desktop/">Rancher Desktop 설정하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>9.1 Velero로 백업, 복구하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.139.3">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/migration/1.velero/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/migration/1.velero/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="9.1 Velero로 백업, 복구하기">
+  <meta property="og:description" content="9.1 Velero로 백업, 복구하기 Velero는 쿠버네티스 자원과 영구볼륨을 백업하고 복구하는 도구입니다. 백업본은 Object Storage에 저장합니다. Supported providers 에서 보듯 많은 서비스 제공자에 대해 지원하며, Oracle Cloud의 경우는 S3 호환 Object Storage 제공자로 Velero plugin for AWS을 사용하여, OCI Object Storage로 백업할 수 있습니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="oracle-cloudnative">
+    <meta property="article:published_time" content="2025-04-11T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-04-11T00:00:00+00:00">
+    <meta property="article:tag" content="Oke">
+    <meta property="article:tag" content="Velero">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2025-07-08</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h4 id="91-velero로-백업-복구하기">9.1 Velero로 백업, 복구하기</h4>
+<p><a href="https://velero.io/docs/v1.15/">Velero</a>는 쿠버네티스 자원과 영구볼륨을 백업하고 복구하는 도구입니다. 백업본은 Object Storage에 저장합니다. <a href="https://velero.io/docs/v1.15/supported-providers">Supported providers</a> 에서 보듯 많은 서비스 제공자에 대해 지원하며, Oracle Cloud의 경우는 S3 호환 Object Storage 제공자로 <a href="https://github.com/vmware-tanzu/velero-plugin-for-aws">Velero plugin for AWS</a>을 사용하여, OCI Object Storage로 백업할 수 있습니다.</p>
+<p>여기서는 OKE 소스 클러스터를 OCI Object Storage에 백업하고, 타켓 클러스터로 복구해 봅니다.</p>
+<h6 id="oci-object-storage-준비">OCI Object Storage 준비</h6>
+<p><strong>Customer Secret Key 만들기</strong></p>
+<p>Velero 백업본을 저장할 공간이 필요하며, OCI Object Storage는 S3 호환 Object Storage로써 사용할 수 있습니다.</p>
+<ul>
+<li><a href="https://velero.io/docs/v1.15/supported-providers/">S3-Compatible object store providers</a></li>
+</ul>
+<p>S3 호환 Object Storage로써 접근하기 위해 Secret Key를 생성합니다.</p>
+<ol>
+<li>
+<p>OCI 콘솔에 로그인합니다.</p>
+</li>
+<li>
+<p>사용할 IAM 유저 프로필에서 <strong>Resources</strong> &gt; <strong>Customer secret keys</strong> 로 이동합니다.</p>
+</li>
+<li>
+<p>secret key를 생성합니다. 생성된 Secret Key를 복사해 둡니다.</p>
+</li>
+<li>
+<p>이후 목록에 보이는 Access key로 복사해 둡니다.</p>
+</li>
+<li>
+<p>생성된 Customer Secret Key로 <code>velero-credentials-for-oci</code> 파일을 다음과 같이 생성합니다. 순서대로 복사해둔 Access key, Secret Key 사용</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ vi velero-credentials-for-oci
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[default]
+</span></span><span class="line"><span class="cl">aws_access_key_id=bae031188893d1eb83719648790ac850b76c9441
+</span></span><span class="line"><span class="cl">aws_secret_access_key=MmY9heKrWiNVCSZQ2Mf5XTJ6Ys93Bw2d2D6NMSTXZlk=
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>OCI Object Storage Bucket 만들기</strong></p>
+<p>Amazon S3 compatibility API를 사용하는 방식으로 Tenancy 설정에서 지정한 Compartment에 Bucktet을 생성해야 합니다.</p>
+<ol>
+<li>
+<p>OCI 콘솔에 로그인합니다.</p>
+</li>
+<li>
+<p>사용할 IAM 유저 프로필에서 <strong>Tenancy</strong>로 이동합니다.</p>
+</li>
+<li>
+<p>Object storage settings 아래 <strong>Amazon S3 compatibility API designated compartment</strong> 값을 확인합니다.</p>
+<p>(변경 영향도가 없다면, Home Region에서 Edit object storage settings를 클릭하여 Comparment를 변경할 수 있습니다)</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250411173918090.png" alt='image-20250411173918090' onerror="this.onerror=null;this.src='images\/image-20250411173918090.png';" />
+</p>
+</li>
+<li>
+<p>여기서 Object storage namespace로 확인하여 기록해 둡니다. 예, demo01</p>
+</li>
+<li>
+<p><strong>Amazon S3 compatibility API designated compartment</strong> 에 지정한 compartment(예, root)에 Object Storage Bucket를 생성합니다.</p>
+<ul>
+<li>해당 IAM 유저는 해당 위치의 Object Storage Bucket에 Read/Write 권한이 필요합니다.</li>
+<li>이름: 예, oci-bucket-velero-20250414</li>
+</ul>
+</li>
+</ol>
+<h6 id="velero-다운로드">Velero 다운로드</h6>
+<ol>
+<li>
+<p>OKE 클러스터에 접근 가능한 작업환경에서 Velero CLI와 클러스터에 설치할 파일을 다운로드 받습니다. 여기서는 리눅스 환경기준입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">wget https://github.com/vmware-tanzu/velero/releases/download/v1.15.2/velero-v1.15.2-linux-amd64.tar.gz
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">tar -xvf velero-v1.15.2-linux-amd64.tar.gz
+</span></span></code></pre></div></li>
+<li>
+<p>$PATH(예, /usr/local/bin)에 등록된 실행가능 위치에 이동시킵니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mv velero-v1.15.2-linux-amd64/velero ~/.local/bin/
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oke-소스-클러스터에-velero-설치하기">OKE 소스 클러스터에 Velero 설치하기</h6>
+<p>백업 또는 복구할 대상 클러스터에 Velero 서버 모듈을 설치해야 합니다.</p>
+<ol>
+<li>
+<p>현재 kubectl로 OKE 소스 클러스터에 연결된 상태임을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl config get-clusters 
+</span></span></code></pre></div></li>
+<li>
+<p>다음 명령 형식으로 설치합니다. velero-plugin-for-aws은 1.8.2 버전을 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">velero install \
+</span></span><span class="line"><span class="cl">    --provider [provider name] \
+</span></span><span class="line"><span class="cl">    --bucket [bucket name] \
+</span></span><span class="line"><span class="cl">    --use-volume-snapshots=false \
+</span></span><span class="line"><span class="cl">    --secret-file [secret file location] \
+</span></span><span class="line"><span class="cl">    --backup-location-config region=[region],s3ForcePathStyle=&#34;true&#34;,s3Url=https://{object-storage-namespace}.compat.objectstorage.{region}.oraclecloud.com \
+</span></span><span class="line"><span class="cl">    --use-node-agent
+</span></span></code></pre></div><ul>
+<li>
+<p>예</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">NAMESPACE=&lt;OBJECT_STORAGE_NAMESPACE&gt;
+</span></span><span class="line"><span class="cl">velero install \
+</span></span><span class="line"><span class="cl">    --provider aws \
+</span></span><span class="line"><span class="cl">    --bucket oci-bucket-velero-20250414 \
+</span></span><span class="line"><span class="cl">    --use-volume-snapshots=false \
+</span></span><span class="line"><span class="cl">    --secret-file ./velero-credentials-for-oci \
+</span></span><span class="line"><span class="cl">    --plugins velero/velero-plugin-for-aws:v1.8.2 \
+</span></span><span class="line"><span class="cl">    --backup-location-config region=ap-chuncheon-1,s3ForcePathStyle=&#34;true&#34;,s3Url=https://${NAMESPACE}.compat.objectstorage.ap-chuncheon-1.oraclecloud.com \
+</span></span><span class="line"><span class="cl">    --use-node-agent
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>설치 결과를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get deployment -n velero
+</span></span><span class="line"><span class="cl">NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+</span></span><span class="line"><span class="cl">velero   1/1     1            1           4m13s
+</span></span><span class="line"><span class="cl">$ kubectl logs deployment/velero -n velero
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">time=&#34;2025-04-11T09:15:17Z&#34; level=info msg=&#34;Validating BackupStorageLocation&#34; backup-storage-location=velero/default controller=backup-storage-location logSource=&#34;pkg/controller/backup_storage_location_controller.go:142&#34;
+</span></span><span class="line"><span class="cl">time=&#34;2025-04-11T09:15:17Z&#34; level=info msg=&#34;BackupStorageLocations is valid, marking as available&#34; backup-storage-location=velero/default controller=backup-storage-location logSource=&#34;pkg/controller/backup_storage_location_controller.go:127&#34;
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="테스트-애플리케이션-배포하기">테스트 애플리케이션 배포하기</h6>
+<ol>
+<li>
+<p>아래와 같이 PV 요청 yaml을 사용하여 요청합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># csi-bvs-pvc.yaml </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">PersistentVolumeClaim</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">csi-bvs-pvc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">storageClassName</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;oci-bv&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">accessModes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="l">ReadWriteOnce</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">resources</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">requests</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">storage</span><span class="p">:</span><span class="w"> </span><span class="l">50Gi</span><span class="w"> </span><span class="c"># Block Volume 최소 사이즈</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>테스트 앱 배포</p>
+<ul>
+<li>요청한 Persistent Volume을 컨테이너 상에 마운트한 테스트 앱</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># nginx-deployment-bvs-pvc.yaml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">nginx-bvs-pvc</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">nginx</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">nginx:latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/usr/share/nginx/html</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">persistentVolumeClaim</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">claimName</span><span class="p">:</span><span class="w"> </span><span class="l">csi-bvs-pvc</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>앱을 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl apply -f csi-bvs-pvc.yaml 
+</span></span><span class="line"><span class="cl">persistentvolumeclaim/csi-bvs-pvc created
+</span></span><span class="line"><span class="cl">$ kubectl apply -f nginx-deployment-bvs-pvc.yaml
+</span></span><span class="line"><span class="cl">deployment.apps/nginx-bvs-pvc created
+</span></span><span class="line"><span class="cl">$ kubectl get pv
+</span></span><span class="line"><span class="cl">NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                 STORAGECLASS   REASON   AGE
+</span></span><span class="line"><span class="cl">csi-5e3c2028-7f28-41f0-9b1d-3c33f5230f09   50Gi       RWO            Delete           Bound    default/csi-bvs-pvc   oci-bv                  45s
+</span></span><span class="line"><span class="cl">$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                                READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">nginx-bvs-pvc-55f96c44bd-cw84h      1/1     Running   0          75s
+</span></span></code></pre></div></li>
+<li>
+<p>아래와 같이 컨테이너 내부로 들어가 마운트 된 Persistent Volume내에 파일을 씁니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl exec deploy/nginx-bvs-pvc -- bash -c &#34;echo &#39;Hello PV&#39; &gt;&gt; \
+</span></span><span class="line"><span class="cl"> /usr/share/nginx/html/hello_world.txt; cat /usr/share/nginx/html/hello_world.txt;&#34;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl exec deploy/nginx-bvs-pvc -- bash -c &#34;echo &#39;Hello PV&#39; &gt;&gt; \
+</span></span><span class="line"><span class="cl">&gt;  /usr/share/nginx/html/hello_world.txt; cat /usr/share/nginx/html/hello_world.txt;&#34;
+</span></span><span class="line"><span class="cl">Hello PV
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="클러스터-백업하기">클러스터 백업하기</h6>
+<ol>
+<li>
+<p>Velero로 백업하고 결과를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">velero backup create oke-source-cluster --include-namespaces default --default-volumes-to-fs-backup
+</span></span><span class="line"><span class="cl">velero backup describe oke-source-cluster --details
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ velero backup create oke-source-cluster --include-namespaces default --default-volumes-to-fs-backup
+</span></span><span class="line"><span class="cl">Backup request &#34;oke-source-cluster&#34; submitted successfully.
+</span></span><span class="line"><span class="cl">Run `velero backup describe oke-source-cluster` or `velero backup logs oke-source-cluster` for more details.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ velero backup describe oke-source-cluster --details
+</span></span><span class="line"><span class="cl">..
+</span></span><span class="line"><span class="cl">Phase:  Completed
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Backup Volumes:
+</span></span><span class="line"><span class="cl">  Velero-Native Snapshots: &lt;none included&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  CSI Snapshots: &lt;none included&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  Pod Volume Backups - kopia:
+</span></span><span class="line"><span class="cl">    Completed:
+</span></span><span class="line"><span class="cl">      default/nginx-bvs-pvc-55f96c44bd-cw84h: data
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>백업이 완료되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ velero get backup
+</span></span><span class="line"><span class="cl">NAME                 STATUS      ERRORS   WARNINGS   CREATED                         EXPIRES   STORAGE LOCATION   SELECTOR
+</span></span><span class="line"><span class="cl">oke-source-cluster   Completed   0        0          2025-04-11 10:17:49 +0000 UTC   29d       default            &lt;none&gt;
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oke-타켓-클러스터에-velero-설치하기">OKE 타켓 클러스터에 Velero 설치하기</h6>
+<p>복구할 대상 클러스터에 Velero 서버 모듈을 설치해야 합니다.</p>
+<ol>
+<li>
+<p>현재 kubectl로 OKE 타켓 클러스터에 연결된 상태임을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl config get-clusters 
+</span></span></code></pre></div></li>
+<li>
+<p>소스 클러스터와 동일한 과정으로 설치합니다.</p>
+</li>
+</ol>
+<h6 id="클러스터-복구하기">클러스터 복구하기</h6>
+<ol>
+<li>
+<p>복구합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">velero restore create --from-backup oke-source-cluster
+</span></span></code></pre></div></li>
+<li>
+<p>복구 진행상태를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">velero restore describe oke-source-cluster-20250411102800
+</span></span></code></pre></div></li>
+<li>
+<p>확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl exec deploy/nginx-bvs-pvc -- bash -c &#34;cat /usr/share/nginx/html/hello_world.txt;&#34;
+</span></span><span class="line"><span class="cl">Hello PV
+</span></span></code></pre></div></li>
+</ol>
+<h5 id="참고">참고</h5>
+<ul>
+<li>Velero Documentation &gt; <a href="https://velero.io/docs/v1.15/contributions/oracle-config/">Use Oracle Cloud as a Backup Storage Provider for Velero</a></li>
+<li><a href="https://docs.oracle.com/en/learn/aks-eks-to-oke-migration-velero/">Migrate your Azure Kubernetes Service Cluster or Amazon EKS Cluster to Container Engine for Kubernetes using Velero</a></li>
+<li><a href="https://github.com/vmware-tanzu/velero/issues/8013">velero-plugin-for-aws:v1.9.1 Brakes S3 compatible external storage location - oracle cloud issue #8013</a>
+<ul>
+<li>velero-v1.15.2 &amp; velero-plugin-for-aws:v1.11.1 테스트시 동일 오류 발생</li>
+<li>velero-v1.15.2 &amp; velero-plugin-for-aws:v1.8.2 테스트시 오류 없이 성공</li>
+</ul>
+</li>
+</ul>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <div class="edit-meta">Last updated on 11 Apr 2025<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/migration/" title="9. 마이그레이션"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 9. 마이그레이션</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/migration/2.eks-to-oke-os/" title="9.2 Amazon EKS에서 OKE로 마이그레이션하기">Next - 9.2 Amazon EKS에서 OKE로 마이그레이션하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+                Oracle Cloud Native
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/">
+                1. OKE Managed Nodes 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/">
+                1.1 OKE Managed Nodes 생성 및 연결
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/1.oke-managed-nodes/">1.1.1 OKE, OKE Managed Nodes 소개</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/2.create-oke-cluster-in-quick-mode/">1.1.2 OKE 클러스터 만들기 - Quick Create 모드</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/3.access-cluster/">
+                1.1.3 OKE 클러스터 연결하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/3.access-cluster/1.cloudshell-access/">1.1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/3.access-cluster/2.local-access/">1.1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/">
+                1.2 OKE Managed Nodes 기본 사용법
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/">
+                1.2.1 Load Balancer
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/1.default-load-balancer/">1.2.1.1 OCI Load Balancer로 서비스하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/2.load-balancer-annotation/">1.2.1.2 OCI Load Balancer 상세 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/3.network-load-balancer-annotation/">1.2.1.3 OCI Network Load Balancer 상세 설정하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/">
+                1.2.2 Ingress
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/">
+                1.2.2.1 OCI Native Ingress Controller
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/1.install-oci-ingress-controller/">1.2.2.1.1 OCI Native Ingress Controller 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/2.ingress-path/">1.2.2.1.2 PATH 기반 라우팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/3.ingress-host/">1.2.2.1.3 HOST 기반 라우팅</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/">
+                1.2.2.2 OSS NGINX Ingress Controller
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/1.install-nginx-ingress-controller/">1.2.2.2.1 NGINX Ingress Controller 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/2.nginx-ingress-path/">1.2.2.2.2 PATH 기반 라우팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/3.nginx-ingress-host/">1.2.2.2.3 HOST 기반 라우팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/4.nginx-ingress-preserve-client-ip-lb/">1.2.2.2.4 컨테이너에서 클라이언트 IP 얻기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/5.nginx-ingress-tls-termination-lb/">1.2.2.2.5 TLS termination - OCI LB 레벨</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/6.nginx-ingress-tls-termination-spec-tls-secret/">1.2.2.2.6 TLS Termination - Ingress 레벨</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/">
+                1.2.3 Storage
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/block-volume/1.block-volume/">1.2.3.1 Block Volume 사용하기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/file-storage-service/">
+                1.2.3.2 File Storage Service 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/file-storage-service/1.file-storage/">1.2.3.2.1 File Storage 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/file-storage-service/2.file-storage-dynamic-provisioning/">1.2.3.2.2 File Storage 사용하기 - Dynamic Provisioning</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/3.volume-snapshot/">1.2.3.3 Kubernetes Volume Snapshot 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/4.volume-clone/">1.2.3.4 Kubernetes Volume Clone 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/management/">
+                1.2.4 Management
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/management/1.supported-version-and-upgrade/">1.2.4.1 Kubernetes 버전 업그레이드</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/nodepool/">
+                1.2.5 Node Pool
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/nodepool/1.arm-node-pool/">1.2.5.1 Ampere (Arm) Node Pool 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/nodepool/2.preemptible-capacity/">1.2.5.2 Preemptible Capacity Node Pool 추가하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/">
+                1.3 Autoscaling
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/1.metric-server/">1.3.1 Metrics Server 설치</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/2.hpa/">1.3.2 Horizontal Pod Autoscaler</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/3.cluster-autoscaler/">1.3.3 Cluster Autoscaler</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/4.cluster-autoscaler-addon/">1.3.4 Cluster Autoscaler (Cluster Add-on)</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/">
+                1.4 Container Registry
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/">
+                1.4.1 OCIR(Oracle Cloud Infrastructure Registry)
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/1.deploy-ocir-image/">1.4.1.1 OCIR 이미지 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/2.scan-image/">1.4.1.2 컨테이너 이미지 스캔</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/3.helm-chart/">1.4.1.3 Helm Chart Repository로 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/nexus/1.nexus-repository/">1.4.2 Image Registry로 Nexus Repository 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/">
+                1.5 Observability
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/control-plane-logs/">
+                1.5.1 Control Plane Logs
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/control-plane-logs/1.oci-logging/">1.5.1.1 OCI Logging을 사용한 Control Plane 로그 모니터링</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/">
+                1.5.2 Application Logs &amp; Monitoring
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/1.oci-logging/">1.5.2.1 OCI Logging을 사용한 애플리케이션 로그 모니터링</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/logging-analytics/">
+                1.5.2.2 OCI Logging Analytics로 모니터링하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/logging-analytics/1.logging-analytics/">1.5.2.2.1 Logging Analytics로 모니터링 하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/logging-analytics/2.management-agent-manual/">1.5.2.2.2 Management Agent를 사용한 모니터링</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/">
+                1.5.2.3 OpenSearch 기반 OCI Search 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/1.configure-oci-opensearch/">1.5.2.3.1 OpenSearch 사용 환경 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/2.fluentd-to-oci-opensearch/">1.5.2.3.2 FluentD로 OKE 로그 전송하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/3.fluentbit-to-oci-opensearch/">1.5.3.3.3 FluentBit로 OKE 로그 전송하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/open-source/">
+                1.5.2.4 Open Source기반 Observability 툴 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/open-source/elasticsearch/1.install-efk/">1.5.2.4.1 EFK(Elasticsearch, Fluentd, kibana)</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/open-source/prometheusgrafana/1.install-prometheus-grafana/">1.5.2.4.2 Prometheus&amp;Grafana로 모니터링 하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/security/">
+                1.6 Security
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/security/1.secret-store/">1.6.1 Secret Store로 OCI Vault 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/">
+                1.7 CI/CD(Continuous Integration &amp; Delivery)
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/">
+                1.7.1 OCI DevOps 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/1.deploy-app-on-oke-using-devops/">1.7.1.1 Spring Boot 앱 배포 자동화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/2.bluegreen-stragtegy/">1.7.1.2 Blue/Green 배포 전략으로 배포하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/3.canary-stragtegy/">1.7.1.3 Canary 배포 전략으로 배포하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/4.deploy-app-with-helm-chart/">1.7.1.4 Helm Chart로 배포 자동화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/5.detect-vulnerabilities-from-build-pipeline/">1.7.1.5 빌드시 패키지 취약점 검사하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/">
+                1.8 Service Mesh
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/istio/">
+                1.8.1 OSS Istio
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/istio/1.sampleapp-without-istio/">1.8.1.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/istio/2.sampleapp-with-istio/">1.8.1.2 마이크로서비스 앱에 Istio 적용하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/">
+                1.9 OKE Enhanced Cluster
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/1.create-enhanced-cluster/">1.9.1 OKE Enhanced Cluster 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/2.workload-identity/">1.9.2 Workload Identity 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/3.node-cycling/">1.9.3 Node Cycling로 Worker Nodes 업데이트 하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/">
+                1.10 커스터마이징
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/1.resize-worker-node/">1.10.1 Worker Node 디스크 사이즈 늘리기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/2.kubelet-options/">1.10.2 cloud-init으로 kubelet 옵션 변경하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/3.custom-node-image/">1.10.3 Worker Node 생성시 Custom Image 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/4.custom-scheduler/">1.10.4 Custom Scheduler 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/others/">
+                1.11 Other Tips
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/others/oke-cluster-on-arm/">1.11.1 Arm 기반으로 OKE 사용시 유의할 점</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/">
+                2. OKE Virtual Nodes 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/1.oke-virtual-nodes/">2.1 OKE Virtual Nodes 소개</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/2.create-oke-cluster-virtual-nodes/">2.2 OKE 클러스터 만들기 - Virtual Nodes</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/3.deploy-app-on-virtual-nodes/">2.3 Virtual Nodes 앱 배포 및 비용 예시</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/">
+                3. OKE Self-Managed Nodes 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/1.oke-self-managed-nodes/">3.1 OKE Self-Managed Nodes 소개</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/2.create-oke-cluster-self-managed-nodes/">3.2 OKE 클러스터 만들기 - Self-Managed Nodes</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/">
+                4. Database 서비스 / Database on Kubernetes
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/">
+                4.1 Redis
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/">
+                4.1.1 OCI Cache with Redis
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/1.cache-with-redis/">4.1.1.1 OCI Cache with Redis 클러스터 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/2.cache-with-redis-in-springboot/">4.1.1.2 Spring Boot에서 OCI Cache with Redis 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/3.cache-with-redis-mysql-in-springboot/">4.1.1.3 Spring Boot에서 OCI Cache with Redis &#43; MySQL 쓰기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/">
+                4.2 Oracle Database
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/1.adb-free/">4.2.1 Oracle Autonomous Database Free Container Image</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/2.oracle-database-operator/">4.2.2 Oracle Database Operator for Kubernetes</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/3.oracle-database-23ai-free/">4.2.3 Oracle Database 23ai Free Container Image</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oci-services/1.oci-service-operator-1.1.8/">4.3 OKE에서 OCI 자원관리를 위한 Service Operator</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/other-k8s-tools/">
+                5. 추가적인 쿠버네티스 도구들
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/other-k8s-tools/agones/">5.1 게임서비스를 위한 Agones 테스트</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/">
+                6. Container Instances
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/1.use-container-instances/">6.1 Container Instances로 컨테이너 배포하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/2.create-container-instances-by-cli/">6.2 CLI로 Container Instance 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/3.image-pull-secrets/">6.3 Private Registry를 위한 image pull secret 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class="">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/functions/">
+                7. OCI Functions
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/">
+                8. 애플리케이션 개발하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.use-graal-vm/">8.1 GraalVM 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.develop-spring-boot-app/">8.2 GraalVM 사용하여 Spring Boot 3 애플리케이션 개발하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/3.install-graal-vm-for-jdk/">8.3 로컬 환경에 GraalVM for JDK 설치하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/migration/">
+                9. 마이그레이션
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/migration/1.velero/">9.1 Velero로 백업, 복구하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/migration/2.eks-to-oke-os/">9.2 Amazon EKS에서 OKE로 마이그레이션하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/migration/3.aks-to-oke-os/">9.3 Azure AKS에서 OKE로 마이그레이션하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

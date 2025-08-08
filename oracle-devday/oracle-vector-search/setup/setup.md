@@ -195,23 +195,8 @@
         sudo yum install python3-pip -y
         python -m ensurepip
         pip install --upgrade pip
-        #pip install ipykernel jupyter
-        #python -m ipykernel install --user --name=python_global --display-name="Python (Global)"
         </copy>
         ```
-
-        ```bash
-        <copy>
-        #python3.11 -m venv devday-env
-        #source devday-env/bin/activate
-        #pip install --upgrade pip
-        #pip install bs4
-        #pip install langchain_community
-        #pip install langchain-ollama
-        #pip install oracledb
-        #pip install ipykernel
-        </copy>
-        ```        
 
     * Windows
 

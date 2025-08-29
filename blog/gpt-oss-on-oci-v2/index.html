@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.139.3">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기">
+  <meta property="og:description" content="OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기 OpenAI가 8월 5일에 오픈 웨이트 추론 모델 2가지를 출시 하였습니다. 두 모델을 아래와 같이 설명하고 있습니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-08-29T00:00:01+00:00">
+    <meta property="article:modified_time" content="2025-08-29T00:00:01+00:00">
+    <meta property="article:tag" content="Compute">
+    <meta property="article:tag" content="Gpt-Oss">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2025-08-29</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="openai-gpt-oss를-gpu기반-oci-compute-vm-oracle-23ai로-구성하기">OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</h2>
+<p>OpenAI가 8월 5일에 <a href="https://openai.com/ko-KR/index/introducing-gpt-oss/">오픈 웨이트 추론 모델 2가지를 출시</a> 하였습니다. 두 모델을 아래와 같이 설명하고 있습니다.</p>
+<ul>
+<li><strong>gpt-oss-120b</strong>: 핵심 추론 벤치마크에서 OpenAI o4-mini와 거의 동등한 결과를 달성한 동시에 단일 <strong>80GB GPU</strong>에서 효율적으로 작동</li>
+<li><strong>gpt-oss-20b</strong>: 일반 벤치마크에서 OpenAI o3‑mini와 비슷한 결과를 제공하며, 단 <strong>16GB 메모리</strong>의 에지 디바이스에서 실행할 수 있음</li>
+</ul>
+<p>VRAM 80GB, 16GB는 맥북 Apple Silicon 기준으로도 아주 고급사양에서 구동이 가능합니다. 가지고 있는 M1 Pro 16GB에 구동해 본 결과, hello에 대한 응답도 한참이 걸립니다. 사용하지 못할 수준입니다.</p>
+<p>6GB GPU (VRAM)에 해당하는 OCI Shape을 보면, 비용을 고려하면 VM.GPU.A10.1, VM.GPU2.1, VM.GPU3.1이 해당합니다. 다만, 아래 문서에서 GPU shapes 항목을 보면, VM.GPU.A10 시리즈만, 인스턴스를 중지하면, 비용이 발생하지 않아, 테스트를 위해 VM.GPU.A10.1을 사용하려고 합니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/resource-billing-stopped-instances.htm">Resource Billing for Stopped Instances</a></li>
+</ul>
+<h6 id="환경-준비">환경 준비</h6>
+<ol>
+<li>private subnet과 public subnet이 있는 VCN을 준비합니다.</li>
+<li>public subnet에 Compute VM을 생성합니다.
+<ul>
+<li>이름: <code>openwebui</code></li>
+<li>OS: Oracle Linux 9</li>
+<li>Shape: VM.Standard.E4.Flex, 1 OCPU, 16 GB</li>
+</ul>
+</li>
+<li>private subnet에 Compute VM을 생성합니다.
+<ul>
+<li>이름: <code>gpt-oss</code></li>
+<li>Shape: <code>VM.GPU.A10.1</code>
+<ul>
+<li>최하단 <em>Oracle and Nvidia Terms of Use</em> 체크할 것</li>
+</ul>
+</li>
+<li>OS: Oracle Linux 9, Gen2-GPU-최신 빌드 이미지</li>
+<li>Boot volume: 100GB</li>
+</ul>
+</li>
+</ol>
+<h6 id="gpt-oss-vm-구성">gpt-oss VM 구성</h6>
+<ol>
+<li>
+<p>SSH로  접속하여  <code>nvidia-smi</code> 를 실행하여, NVIDIA 드라이버가 설치되어 있는지 확인합니다.</p>
+</li>
+<li>
+<p>Ollama를 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -fsSL https://ollama.com/install.sh | sh
+</span></span></code></pre></div></li>
+<li>
+<p>모델을 다운받고 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ollama run gpt-oss:20b
+</span></span></code></pre></div></li>
+<li>
+<p>리모트에서 연결할 수 있도록 추가 작업을 합니다.</p>
+<ol>
+<li>
+<p>다음 파일을 엽니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo vi /etc/systemd/system/ollama.service
+</span></span></code></pre></div></li>
+<li>
+<p>다음 한 줄을 추가합니다. 이미 Environment이 있으면, 그 다음에 한 줄 더 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Environment=&#34;OLLAMA_HOST=0.0.0.0&#34;
+</span></span></code></pre></div></li>
+<li>
+<p>재시작합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo systemctl daemon-reload
+</span></span><span class="line"><span class="cl">sudo systemctl restart ollama
+</span></span></code></pre></div></li>
+<li>
+<p>0.0.0.0:11434 또는 :::11434로 수신하고 있는 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">netstat -an | grep 11434
+</span></span></code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>OS 방화벽을 개방합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># OS 방화벽에서 Ollama용 포트, 11434 포트 개방
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=11434/tcp
+</span></span><span class="line"><span class="cl"># 방화벽 변경정보 다시 반영
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
+<li>
+<p>인터넷 연결을 끊으려면, 속한 서브넷의 라우팅룰에서 NAT Gateway를 제외합니다.</p>
+</li>
+<li>
+<p>속한 서브넷의 보안 규칙에서 Ingress Rule에 11434 포트를 추가합니다.</p>
+</li>
+<li>
+<p>이후 사용할 Embedding 모델을 다운로드 받습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ollama pull paraphrase-multilingual:latest
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="open-webui-vm-구성">Open WebUI VM 구성</h6>
+<p><strong>Oracle Database 23ai 준비 - Free Container Image 기준</strong></p>
+<ol>
+<li>
+<p>Oracle Database 23ai Free 컨테이너 이미지 다운로드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker pull container-registry.oracle.com/database/free:latest
+</span></span></code></pre></div></li>
+<li>
+<p>Oracle Database 23ai Free 컨테이너 시작</p>
+<ul>
+<li>
+<p>Linux</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker run -d \
+</span></span><span class="line"><span class="cl">--name oracle-free-23ai \
+</span></span><span class="line"><span class="cl">-p 1521:1521 \
+</span></span><span class="line"><span class="cl">-e ENABLE_ARCHIVELOG=false \
+</span></span><span class="line"><span class="cl">-e ENABLE_FORCE_LOGGING=false \
+</span></span><span class="line"><span class="cl">-e ORACLE_PWD=Welcome123456 \
+</span></span><span class="line"><span class="cl">container-registry.oracle.com/database/free:latest
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 로그에서 기동 완료 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ docker logs -f oracle-free-23ai
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Version 23.9.0.25.07
+</span></span><span class="line"><span class="cl">The Oracle base remains unchanged with value /opt/oracle
+</span></span><span class="line"><span class="cl">#########################
+</span></span><span class="line"><span class="cl">DATABASE IS READY TO USE!
+</span></span><span class="line"><span class="cl">#########################
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>sys 유저로 컨테이너내 sqlplus로 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker exec -it oracle-free-23ai sqlplus sys/Welcome123456@FREEPDB1 as sysdba
+</span></span></code></pre></div></li>
+<li>
+<p>vector 유저 생성 및 권한 부여</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">CREATE USER demouser IDENTIFIED BY Welcome123456 DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+</span></span><span class="line"><span class="cl">GRANT CONNECT, RESOURCE TO demouser;
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>uv로 설치하는 경우</strong></p>
+<ol>
+<li>
+<p>uv 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -LsSf https://astral.sh/uv/install.sh | sh
+</span></span></code></pre></div></li>
+<li>
+<p>Oracle 23ai 사용을 위한 환경 변수를 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export VECTOR_DB=oracle23ai
+</span></span><span class="line"><span class="cl">export ORACLE_DB_USER=demouser
+</span></span><span class="line"><span class="cl">export ORACLE_DB_PASSWORD=Welcome123456
+</span></span><span class="line"><span class="cl">export ORACLE_DB_DSN=localhost:1521/FREEPDB1
+</span></span><span class="line"><span class="cl"># paraphrase-multilingual:latest의 dimension에 맞춰 설정
+</span></span><span class="line"><span class="cl">export ORACLE_VECTOR_LENGTH=384
+</span></span></code></pre></div></li>
+<li>
+<p>Ollama Model을 사용하기 위한 환경 변수를 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export OLLAMA_BASE_URL=http://10.0.1.136:11434
+</span></span><span class="line"><span class="cl">export RAG_EMBEDDING_ENGINE=ollama
+</span></span><span class="line"><span class="cl">export RAG_EMBEDDING_MODEL=paraphrase-multilingual:latest
+</span></span></code></pre></div></li>
+<li>
+<p>추가로 필요한 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export DEFAULT_MODELS=gpt-oss:20b
+</span></span></code></pre></div></li>
+<li>
+<p>기본 포트는 8080입니다. 변경하려면, 먼저 OS 방화벽을 개방합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=3000/tcp
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
+<li>
+<p>속한 서브넷의 보안 규칙에서 Ingress Rule에 3000 포트를 추가합니다.</p>
+</li>
+<li>
+<p>Open WebUI를 시작합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DATA_DIR=~/.open-webui uvx --python 3.11 open-webui@latest serve --port 3000
+</span></span></code></pre></div></li>
+<li>
+<p>웹브라우저에서 서버로 접속합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">http://{openwebui-VM-Public-IP}:3000
+</span></span></code></pre></div></li>
+<li>
+<p>첫 접속시 화면을 따라 Admin 유저를 생성합니다.</p>
+</li>
+<li>
+<p>Ollama와 연결이 잘 되었다면, 기본 모델로 gpt-oss:20b가 선택된 상태로 보입니다.</p>
+</li>
+<li>
+<p>첫 질문을 하면 아래와 같이 잘 답변합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829120928664.png" alt='image-20250829120928664' onerror="this.onerror=null;this.src='images\/image-20250829120928664.png';" />
+</p>
+</li>
+<li>
+<p>파일 업로드합니다. 테스트로 근로기준법 PDF 파일을 업로드하였습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829121221951.png" alt='image-20250829121221951' onerror="this.onerror=null;this.src='images\/image-20250829121221951.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829121256684.png" alt='image-20250829121256684' onerror="this.onerror=null;this.src='images\/image-20250829121256684.png';" />
+</p>
+</li>
+<li>
+<p>Oracle 23ai를 Vector Database로 하여 파일이 업로드 된 것을 로그로 확인할 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829121533516.png" alt='image-20250829121533516' onerror="this.onerror=null;this.src='images\/image-20250829121533516.png';" />
+</p>
+</li>
+<li>
+<p>평균 임금에 대해 질문하면, 업로드된 PDF가 임베딩되어 있는 Oracle 23ai 조회결과를 이용해 답변하는 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829121913526.png" alt='image-20250829121913526' onerror="this.onerror=null;this.src='images\/image-20250829121913526.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829121946658.png" alt='image-20250829121946658' onerror="this.onerror=null;this.src='images\/image-20250829121946658.png';" />
+</p>
+</li>
+<li>
+<p>실제 DB 유저로 접속해 보면, 관련 테이블과 IVF 인덱스가 생성된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20250829123313141.png" alt='image-20250829123313141' onerror="this.onerror=null;this.src='images\/image-20250829123313141.png';" />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

@@ -32,13 +32,14 @@
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="12.3.1 Compute VM에 Grafana 설치">
   <meta property="og:description" content="12.3.1 Compute VM에 Grafana 설치 Compute Instance 만들기 Compute Instance 생성 화면으로 이동합니다.
-이미지 소스를 Oracle Linux 목록에 있는 Oracle Linux Cloud Developer Image 이미지로 선택합니다.
-Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있습니다.">
+Compute 인스턴스를 생성합니다.
+예, OS Image: Oracle Linux 9 생성된 Compute 인스턴스의 OCID를 복사해 둡니다.
+그라파나가 설치된 Compute Instance에 권한 설정하기 Compute 인스턴스에 설치된 그라파나 OCI 플러그인이 OCI API를 통해 OCI 메트릭 정보 등을 가져오기 위해서는 관련 권한이 필요합니다. Compute 인스턴스에게 주는 권한은 Instance Principal을 설정해야 합니다. 그 절차는 Compute 인스턴스를 Dynamic Group으로 지정하고, 해당 Group에 권한을 주는 방식입니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
-    <meta property="article:published_time" content="2022-01-17T00:00:00+00:00">
-    <meta property="article:modified_time" content="2022-01-17T00:00:00+00:00">
+    <meta property="article:published_time" content="2025-09-24T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-24T00:00:00+00:00">
     <meta property="article:tag" content="Monitoring">
     <meta property="article:tag" content="Grafana">
 
@@ -73,33 +74,17 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 <p>Compute Instance 생성 화면으로 이동합니다.</p>
 </li>
 <li>
-<p>이미지 소스를 <strong>Oracle Linux</strong> 목록에 있는 <strong>Oracle Linux Cloud Developer Image</strong> 이미지로 선택합니다.</p>
-<p>Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있습니다.</p>
-<ul>
-<li>
-<p><a href="https://docs.oracle.com/en-us/iaas/oracle-linux/developer/index.htm">https://docs.oracle.com/en-us/iaas/oracle-linux/developer/index.htm</a></p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230509165843428.png" alt='image-20230509165843428' onerror="this.onerror=null;this.src='images\/image-20230509165843428.png';" />
-</p>
-</li>
-</ul>
-</li>
-<li>
 <p>Compute 인스턴스를 생성합니다.</p>
+<ul>
+<li>예, OS Image: Oracle Linux 9</li>
+</ul>
 </li>
 <li>
 <p>생성된 Compute 인스턴스의 OCID를 복사해 둡니다.</p>
 </li>
 </ol>
 <h4 id="그라파나가-설치된-compute-instance에-권한-설정하기">그라파나가 설치된 Compute Instance에 권한 설정하기</h4>
-<p>Compute 인스턴스에 설치된 그라파나 OCI 플러그인 OCI API를 통해 메트릭 정보 등을 가져오기 위해서는 관련 권한이 필요합니다. Compute 인스턴스에게 주는 권한은 Instance Principal을 설정해야 합니다. 그 절차는 Compute 인스턴스를 Dynamic Group으로 지정하고, 해당 Group에 권한을 주는 방식입니다.</p>
+<p>Compute 인스턴스에 설치된 그라파나 OCI 플러그인이 OCI API를 통해 OCI 메트릭 정보 등을 가져오기 위해서는 관련 권한이 필요합니다. Compute 인스턴스에게 주는 권한은 Instance Principal을 설정해야 합니다. 그 절차는 Compute 인스턴스를 Dynamic Group으로 지정하고, 해당 Group에 권한을 주는 방식입니다.</p>
 <h5 id="dynamic-group-설정">Dynamic Group 설정</h5>
 <ol>
 <li>
@@ -110,6 +95,9 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 </li>
 <li>
 <p><strong>Create Dynamic Group</strong>을 클릭합니다.</p>
+<ul>
+<li>Name: 예) grafana-instance-dynamic-group</li>
+</ul>
 </li>
 <li>
 <p>룰 작성 부분 오른쪽 <strong>Rule builder</strong>를 클릭하여 툴을 통해 룰을 추가합니다.</p>
@@ -127,28 +115,13 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 
 
 
-<img class="img-fluid1" src="../images/image-20230509170845648.png" alt='image-20230509170845648' onerror="this.onerror=null;this.src='images\/image-20230509170845648.png';" />
+<img class="img-fluid1" src="../images/image-20250915121439027.png" alt='image-20250915121439027' onerror="this.onerror=null;this.src='images\/image-20250915121439027.png';" />
 </p>
 </li>
 </ul>
 </li>
 <li>
 <p>Dynamic Group을 생성합니다.</p>
-<ul>
-<li>
-<p>Name: 예) grafana-instance-dynamic-group</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230509171631524.png" alt='image-20230509171631524' onerror="this.onerror=null;this.src='images\/image-20230509171631524.png';" />
-</p>
-</li>
-</ul>
 </li>
 </ol>
 <h5 id="policy-설정">Policy 설정</h5>
@@ -158,24 +131,18 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 </li>
 <li>
 <p><strong>Create Policy</strong>을 클릭합니다.</p>
+<ul>
+<li>Name: 예, grafana-instance-policy</li>
+</ul>
 </li>
 <li>
 <p>다음 두 권한을 가지는 Policy를 생성합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">allow dynamic-group grafana-instance-dynamic-group to <span class="nb">read</span> metrics in tenancy
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">allow dynamic-group grafana-instance-dynamic-group to inspect tenancies in tenancy
+</span></span><span class="line"><span class="cl">allow dynamic-group grafana-instance-dynamic-group to <span class="nb">read</span> metrics in tenancy
 </span></span><span class="line"><span class="cl">allow dynamic-group grafana-instance-dynamic-group to <span class="nb">read</span> compartments in tenancy
 </span></span></code></pre></div></li>
 <li>
-<p>Policy 생성화면</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230509172041674.png" alt='image-20230509172041674' onerror="this.onerror=null;this.src='images\/image-20230509172041674.png';" />
-</p>
+<p>Policy를 생성합니다.</p>
 </li>
 </ol>
 <h5 id="oci-cli-접속-확인">OCI CLI 접속 확인</h5>
@@ -184,7 +151,13 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 <p>SSH로 앞서 생성한 Compute 인스턴스로 접속합니다.</p>
 </li>
 <li>
-<p>다음명령으로 Instance Principal 방식으로 접속합니다. OCI CLI config 파일을 설정하지 않았는데 접속되는 것을 확인 할 수 있습니다.</p>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm#InstallingCLI__oraclelinux9">OCI CLI</a>를 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Oracle Linux 9</span>
+</span></span><span class="line"><span class="cl">sudo dnf -y install oraclelinux-developer-release-el9
+</span></span><span class="line"><span class="cl">sudo dnf install python39-oci-cli
+</span></span></code></pre></div></li>
+<li>
+<p>Instance Principal 방식으로 접속이 되는 지 확인합니다. OCI CLI config 파일을 설정하지 않았는데 접속되는 것을 확인 할 수 있습니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">oci os ns get --auth instance_principal
 </span></span></code></pre></div><ul>
 <li>
@@ -197,23 +170,36 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 </ul>
 </li>
 </ol>
-<h4 id="grafana-설치">Grafana 설치</h4>
+<h4 id="grafana--oci-metrics-plugin-for-grafana-설치">Grafana + OCI Metrics plugin for Grafana 설치</h4>
 <ol>
 <li>
-<p>Compute 인스턴스에 접속하여 다음 명령들을 순서대로 실행하여 Grafana를 설치합니다.</p>
+<p>oci-grafana-metrics의 Grafana 지원버전을 확인합니다.</p>
 <ul>
-<li>참고: <a href="https://grafana.com/grafana/download?edition=oss">https://grafana.com/grafana/download?edition=oss</a></li>
-<li>2022년 1월 기준 8.3.3, 8.2.7이 설치후 접속 오류가 발생하여 8.1.8을 설치하여 진행하였습니다.</li>
+<li>작성일 기준 v6.0.0 부터 Grafana 11 지원</li>
+<li>참고: <a href="https://github.com/oracle/oci-grafana-metrics/releases">https://github.com/oracle/oci-grafana-metrics/releases</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">wget https://dl.grafana.com/oss/release/grafana-9.5.1-1.x86_64.rpm
-</span></span><span class="line"><span class="cl">sudo yum install -y grafana-9.5.1-1.x86_64.rpm
+</li>
+<li>
+<p>Compute 인스턴스에 접속하여 다음 명령들을 순서대로 실행하여 Grafana 11 버전을 설치합니다.</p>
+<ul>
+<li>참고: <a href="https://grafana.com/grafana/download/11.6.6?edition=oss">https://grafana.com/grafana/download/11.6.6?edition=oss</a></li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo yum install -y https://dl.grafana.com/grafana/release/11.6.6/grafana_11.6.6_17870560488_linux_amd64.rpm
 </span></span><span class="line"><span class="cl">sudo systemctl daemon-reload
 </span></span><span class="line"><span class="cl">sudo systemctl start grafana-server
 </span></span><span class="line"><span class="cl">sudo systemctl status grafana-server
 </span></span></code></pre></div></li>
 <li>
+<p>Grafana 재시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo systemctl restart grafana-server
+</span></span></code></pre></div></li>
+<li>
 <p>OCI Metrics Plugin for Grafana 설치</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo grafana-cli plugins install oci-metrics-datasource
+<ul>
+<li>작성일 기준 최신 버전의 멀티 리전 조회 이슈가 있어, <strong>6.0.3</strong> 버전을 설치합니다.</li>
+<li><a href="https://github.com/oracle/oci-grafana-metrics/issues/328">https://github.com/oracle/oci-grafana-metrics/issues/328</a></li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo grafana-cli plugins install oci-metrics-datasource 6.0.3
 </span></span></code></pre></div></li>
 <li>
 <p>Grafana 포트 개방</p>
@@ -222,7 +208,6 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 <p>OS 레벨에서 포트를 개방합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port<span class="o">=</span>3000/tcp
 </span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
-</span></span><span class="line"><span class="cl">sudo systemctl restart grafana-server
 </span></span></code></pre></div></li>
 <li>
 <p>Grafana가 설치된 Compute 인스턴스가 속한 Security List의 Ingress에 3000번 포트를 개방합니다.</p>
@@ -234,7 +219,7 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 
 
 
-<img class="img-fluid1" src="../images/image-20230509174242712.png" alt='image-20230509174242712' onerror="this.onerror=null;this.src='images\/image-20230509174242712.png';" />
+<img class="img-fluid1" src="../images/image-20250915124118114.png" alt='image-20250915124118114' onerror="this.onerror=null;this.src='images\/image-20250915124118114.png';" />
 </p>
 </li>
 </ul>
@@ -250,7 +235,7 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
 
 
 
-<img class="img-fluid1" src="../images/image-20230509174032328.png" alt='image-20230509174032328' onerror="this.onerror=null;this.src='images\/image-20230509174032328.png';" />
+<img class="img-fluid1" src="../images/image-20250924104018539.png" alt='image-20250924104018539' onerror="this.onerror=null;this.src='images\/image-20250924104018539.png';" />
 </p>
 </li>
 </ol>
@@ -269,7 +254,7 @@ Oracle Cloud Developer Image는 OCI CLI 등 개발툴이 이미 설치되어 있
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 17 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter12/3/" title="12.3 OCI Grafana Plugin"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 12.3 OCI Grafana Plugin</a>
+ <div class="edit-meta">Last updated on 24 Sep 2025<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter12/3/" title="12.3 OCI Grafana Plugin"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 12.3 OCI Grafana Plugin</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter12/3/2/" title="12.3.2 Grafana 구성">Next - 12.3.2 Grafana 구성 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>

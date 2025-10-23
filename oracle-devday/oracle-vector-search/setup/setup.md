@@ -7,7 +7,8 @@
 *Lab 1: 환경 준비 - Base 이미지 기반으로 진행하는 경우 건너 뜁니다.* 
 
 실습에 필요한 도구 목록:
-* Docker CLI (OS에 따라 Docker Desktop 또는 Rancher Destop 설치)
+
+* Docker CLI (OS에 따라 Docker Desktop 또는 Rancher Desktop 설치)
 * Ollama
 * Python
 * Git
@@ -26,7 +27,7 @@
     - [Docker Engine](https://docs.docker.com/engine/install/)
 
     - 설치 예시
-    
+
         * Linux - Oracle Linux 8,9
 
             ```bash
@@ -44,7 +45,7 @@
             </copy>
             ```
 
-            ```
+            ```bash
             # Visual Studio Code - Remote SSH를 사용하고 있다면, 새 docker 그룹의 반영을 위해 vscode-server 재시작합니다.
             # https://github.com/microsoft/vscode-remote-release/issues/5813
             <copy> 
@@ -52,7 +53,7 @@
             </copy> 
             ```
 
-3. 컨테이너가 잘 기동하는 지 확인합니다.
+2. 컨테이너가 잘 기동하는 지 확인합니다.
 
     ```bash
     <copy>
@@ -60,11 +61,13 @@
     </copy>
     ```
 
-4. Oracle Database 23ai Free 컨테이너 이미지 다운로드
+3. Oracle AI Database 26ai Free 컨테이너 이미지 다운로드
+
+    - [Oracle Database Free](https://container-registry.oracle.com/ords/f?p=113:4:5584340787588:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:1863,1863,Oracle%20Database%20Free,Oracle%20Database%20Free,1,0&cs=33ik6GYF_z4Zq66Qe9NBkb8UT7E51RmD_gBF8B8Lsf2mjLMJme3LDj458VtCPQZTZ9LPaDwUIJgne4yHnVkvUBA)
 
     ```bash
     <copy>      
-    docker pull container-registry.oracle.com/database/free:latest
+    docker pull container-registry.oracle.com/database/free:23.26.0.0
     </copy>    
     ```
 
@@ -109,7 +112,7 @@
 
     - Linux 기준
 
-        ```
+        ```bash
         <copy>
         curl -v http://localhost:11434/api/embeddings \
           -H "Content-Type: application/json" \
@@ -117,7 +120,7 @@
         </copy>
         ```
 
-        ```
+        ```bash
         <copy>
         curl -v http://localhost:11434/api/generate \
           -H "Content-Type: application/json" \
@@ -139,37 +142,40 @@
         </copy>
         ```
 
-
 4. Linux 기준 다음을 추가 작업합니다.
 
     - 다음 파일을 엽니다.
-    ```bash
-    <copy>      
-    sudo vi /etc/systemd/system/ollama.service
-    </copy>      
-    ```
-    
-    - 다음 한 줄을 추가합니다. 이미 Environment이 있으면, 그 다음에 한 줄 더 추가합니다.
-    ```bash
-    <copy>      
-    Environment="OLLAMA_HOST=0.0.0.0"
-    </copy>    
-    ```
-    
-    - 재시작합니다.
-    ```bash
-    <copy>      
-    sudo systemctl daemon-reload
-    sudo systemctl restart ollama
-    </copy>
+
+        ```bash
+        <copy>      
+        sudo vi /etc/systemd/system/ollama.service
+        </copy>      
     ```
 
+    - 다음 한 줄을 추가합니다. 이미 Environment이 있으면, 그 다음에 한 줄 더 추가합니다.
+
+        ```bash
+        <copy>      
+        Environment="OLLAMA_HOST=0.0.0.0"
+        </copy>    
+        ```
+
+    - 재시작합니다.
+
+        ```bash
+        <copy>      
+        sudo systemctl daemon-reload
+        sudo systemctl restart ollama
+        </copy>
+        ```
+
     - 0.0.0.0:11434 또는 :::11434로 수신하고 있는 확인합니다.
-    ```bash
-    <copy>       
-    netstat -an | grep 11434
-    </copy>   
-    ```
+
+        ```bash
+        <copy>       
+        netstat -an | grep 11434
+        </copy>   
+        ```
 
 ## Task 3: Python
 
@@ -180,28 +186,36 @@
         ```bash
         <copy>
         sudo yum install -y python3.11
-        
-        sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 2
         </copy>
         ```
 
         ```bash
-        $ <copy>python --version</copy>
+        $ <copy>python3.11 --version</copy>
         Python 3.11.11
         ```
 
         ```bash
         <copy>
-        sudo yum install python3-pip -y
-        python -m ensurepip
-        pip install --upgrade pip
+        sudo yum install python3.11-pip -y
+        python3.11 -m ensurepip
+        pip3.11 install --upgrade pip
+        </copy>
+        ```
+
+        ```bash
+        <copy>
+        cat <<EOF >> ~/.bash_profile
+        alias pip='pip3.11'
+        alias python='python3.11'
+        EOF
+
+        source ~/.bash_profile
         </copy>
         ```
 
     * Windows
 
         1. https://www.python.org/downloads/ 에서 다운로드 받아 설치합니다.
-
 
 ## Task 4: Git
 
@@ -227,9 +241,5 @@
 
 ## Acknowledgements
 
-* **Author** - DongHee Lee, Principle Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, August 4, 2025
-
-
-
-http://practical.kr/?p=809
+* **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
+* **Last Updated By/Date** - DongHee Lee, October 22, 2025

@@ -1,10 +1,10 @@
-# Vector Store로서의 Oracle Database 23ai
+# Vector Store로서의 Oracle Database 26ai
 
 ## Introduction
 
-RAG 구성의 핵심 요소인 Vector Store로 Oracle Database 23ai의 Vector Search 기능을 알아보고 실습하는 과정입니다.
-Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스를 이용하는 등 개발환경을 구성할 수 있습니다.
-여기서는 개인 PC에서 쉽게 개발 환경을 구성하여 사용할 수 있도록 Oracle Database 23ai 무료 컨테이너 이미지를 활용하여 진행합니다.
+RAG 구성의 핵심 요소인 Vector Store로 Oracle AI Database 26ai의 Vector Search 기능을 알아보고 실습하는 과정입니다.
+Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비스를 이용하는 등 개발환경을 구성할 수 있습니다.
+여기서는 개인 PC에서 쉽게 개발 환경을 구성하여 사용할 수 있도록 Oracle AI Database 26ai 무료 컨테이너 이미지를 활용하여 진행합니다.
 
 필요한 환경 구성작업을 먼저 진행합니다. 데이터베이스에서 이루어 지는 주요 실습은 함께 제공하는 Oracle SQL Notebook 파일을 통해 진행합니다. 
 
@@ -13,39 +13,42 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 ### Objectives
 
 이 실습에서는 다음을 수행합니다:
-* Oracle Database 23ai가 Vector Store로서 제공하는 주요 기능 소개
+
+* Oracle AI Database 26ai가 Vector Store로서 제공하는 주요 기능 소개
 * Free Container Image와 SQL Developer for VS Code를 활용한 로컬 개발 환경 구성
 
 ### 사전 준비 사항
 
-*Lab1을 반드시 완료할 것*
+* *Lab1을 반드시 완료할 것*
 
-## Task 1: Oracle Database 23ai 준비
+## Task 1: Oracle AI Database 26ai 준비
 
 1. 준비된 환경의 터미널 또는 명령창에서 진행합니다.
 
-2. Oracle Database 23ai Free 컨테이너 이미지 다운로드
+2. Oracle AI Database 26ai Free 컨테이너 이미지 다운로드
 
-    ```bash
-    <copy>
-    docker pull container-registry.oracle.com/database/free:latest
-    </copy>
-    ```
+    - [Oracle Database Free](https://container-registry.oracle.com/ords/f?p=113:4:5584340787588:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:1863,1863,Oracle%20Database%20Free,Oracle%20Database%20Free,1,0&cs=33ik6GYF_z4Zq66Qe9NBkb8UT7E51RmD_gBF8B8Lsf2mjLMJme3LDj458VtCPQZTZ9LPaDwUIJgne4yHnVkvUBA)
 
-4. Oracle Database 23ai Free 컨테이너 시작
+        ```bash
+        <copy>      
+        docker pull container-registry.oracle.com/database/free:23.26.0.0
+        </copy>    
+        ```
+
+3. Oracle AI Database 26ai Free 컨테이너 시작
 
     - Linux
 
         ```bash
         <copy>    
         docker run -d \
-        --name oracle-free-23ai \
+        --name oracle-free-26ai \
         --add-host=host.docker.internal:host-gateway \
         -p 1521:1521 \
         -e ENABLE_ARCHIVELOG=false \
         -e ENABLE_FORCE_LOGGING=false \
         -e ORACLE_PWD=OracleIsAwesome \
-        container-registry.oracle.com/database/free:latest
+        container-registry.oracle.com/database/free:23.26.0.0
         </copy>
         ```
 
@@ -54,21 +57,21 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
         ```bash
         <copy>
         docker run -d \
-        --name oracle-free-23ai \
+        --name oracle-free-26ai \
         -p 1521:1521 \
         -e ENABLE_ARCHIVELOG=false \
         -e ENABLE_FORCE_LOGGING=false \
         -e ORACLE_PWD=OracleIsAwesome \
-        container-registry.oracle.com/database/free:latest
+        container-registry.oracle.com/database/free:23.26.0.0
         </copy>    
         ```
 
-5. 컨테이너 로그에서 기동 완료 확인
+4. 컨테이너 로그에서 기동 완료 확인
 
     ```bash
-    $ <copy>docker logs -f oracle-free-23ai</copy>
+    $ <copy>docker logs -f oracle-free-26ai</copy>
     ...
-    Version 23.8.0.25.04
+    Version 23.26.0.0.0
     The Oracle base remains unchanged with value /opt/oracle
     #########################
     DATABASE IS READY TO USE!
@@ -82,7 +85,7 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 
     ```bash
     <copy>
-    docker exec -it oracle-free-23ai sqlplus sys/OracleIsAwesome@FREEPDB1 as sysdba
+    docker exec -it oracle-free-26ai sqlplus sys/OracleIsAwesome@FREEPDB1 as sysdba
     </copy>
     ```
 
@@ -116,11 +119,11 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
     ```bash
     <copy>
     BEGIN
-      DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
-        host => '*',
-        ace => xs$ace_type(privilege_list => xs$name_list('connect'),
-                           principal_name => 'vector',
-                           principal_type => xs_acl.ptype_db));
+       DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
+             host => '*',
+             ace =>  xs$ace_type( privilege_list => xs$name_list('http'),
+                                  principal_name => 'VECTOR',
+                                  principal_type => xs_acl.ptype_db));
     END;
     /
     </copy>
@@ -141,15 +144,14 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 6. 외부 호출이 되는지 확인합니다.
 
     ```sql
-    SQL> <copy>select utl_http.request('http://www.oracle.com') from dual;</copy>
+    SQL> <copy>SELECT UTL_HTTP.REQUEST(url => 'https://www.oracle.com/') FROM dual;</copy>
     ```
 
 7. Ollama API 호출이 되는지 확인합니다. 오류없이 호출되는지만 확인합니다.
 
     ```sql
-    SQL> <copy>select utl_http.request('http://host.docker.internal:11434/api/ps') from dual;</copy>
+    SQL> <copy>SELECT UTL_HTTP.REQUEST(url => 'http://host.docker.internal:11434/api/ps') FROM dual;</copy>
     ```
-
 
 ## Task 3: Visual Studio Code - DB Connection 만들기
 
@@ -161,7 +163,7 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 
 3. **Create Connection**을 클릭하여 새 Connection을 추가합니다.
 
-    - Connection Name: `Oracle 23ai Free Container - PDB - sys`
+    - Connection Name: `Oracle 26ai Free Container - PDB - sys`
     - Role: `SYSDBA`
     - Username: `sys`
     - Password: `OracleIsAwesome`
@@ -177,7 +179,7 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 
 6. 만든 connection을 우클릭하고 **Clone**을 클릭하여, vector 유저를 위한 connection도 생성합니다.
 
-    - *Connection Name*: `Oracle 23ai Free Container - PDB - vector`
+    - *Connection Name*: `Oracle 26ai Free Container - PDB - vector`
     - *Role*: `Default`
     - *Username*: `vector`
     - *Password*: `vector`
@@ -193,7 +195,7 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 
     ![Connection](./images/sql-developer-connection.png)
 
-## Task 4: Oracle Database 23ai Vector Search 주요 기능 알아보기
+## Task 4: Oracle AI Database 26ai Vector Search 주요 기능 알아보기
 
 1. 터미널 또는 명령창에서 다음을 수행하여, 실습 코드를 다운로드 받습니다.
 
@@ -219,9 +221,9 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 
     - 경고 창이 뜨는 신뢰한다고 *체크*후 *Yes, I trust the authors*를 선택합니다.
 
-4. notebooks 폴더 밑에 SQL Notebook(23ai-vector-search-lab.sqlnb) 파일을 엽니다.
+4. notebooks 폴더 밑에 SQL Notebook(26ai-vector-search-lab.sqlnb) 파일을 엽니다.
 
-    ![SQL Notebook](./images/23ai-vector-search-lab.sqlnb.png)
+    ![SQL Notebook](./images/26ai-vector-search-lab.sqlnb.png)
 
 5. 이제 오른쪽에 열린 *SQL Notebook을 따라 순서대로 진행하면 됩니다.*
 
@@ -231,8 +233,7 @@ Oracle Database 23ai을 직접 설치하거나, OCI에서 제공하는 서비스
 
     ![](./images/execute-cell.png)
 
-
 ## Acknowledgements
 
-* **Author** - DongHee Lee, Principle Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, August 5, 2025
+* **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
+* **Last Updated By/Date** - DongHee Lee, October 22, 2025

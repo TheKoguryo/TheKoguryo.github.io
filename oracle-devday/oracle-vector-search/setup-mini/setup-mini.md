@@ -115,5 +115,5 @@
 
 ## Acknowledgements
 
-* **Author** - DongHee Lee, Principle Cloud Engineer, Oracle Korea
+* **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
 * **Last Updated By/Date** - DongHee Lee, August 5, 2025

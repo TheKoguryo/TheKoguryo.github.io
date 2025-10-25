@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Windows Server 2025에서 opc 유저 패스워드 초기화하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.139.3">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/reset-password-in-windows/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/reset-password-in-windows/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="Windows Server 2025에서 opc 유저 패스워드 초기화하기">
+  <meta property="og:description" content="Windows Server에서 opc 유저 패스워드 초기화하기 OCI에서 Windows Server를 사용 중에 opc 유저 패스워드를 잊어 초기화가 필요한 경우, 다음 문서를 참고하여 초기화합니다. Windows Server 인스턴스를 생성한 이후, opc 유저를 기본으로 사용하는 합니다. Administrator를 여전히 한번도 사용하지 않은 경우, Administrator 패스워드를 초기화하고 다시 opc 유저 패스워드를 초기화하는 방법입니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2025-10-25T00:00:01+00:00">
+    <meta property="article:modified_time" content="2025-10-25T00:00:01+00:00">
+    <meta property="article:tag" content="Windows">
+    <meta property="article:tag" content="Password Reset">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2025-09-17</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="windows-server에서-opc-유저-패스워드-초기화하기">Windows Server에서 opc 유저 패스워드 초기화하기</h2>
+<p>OCI에서 Windows Server를 사용 중에 opc 유저 패스워드를 잊어 초기화가 필요한 경우, 다음 문서를 참고하여 초기화합니다. Windows Server 인스턴스를 생성한 이후, opc 유저를 기본으로 사용하는 합니다. Administrator를 여전히 한번도 사용하지 않은 경우, Administrator 패스워드를 초기화하고 다시 opc 유저 패스워드를 초기화하는 방법입니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/Compute/References/serialconsole.htm">Resetting the opc User Password with Windows Recovery Console</a></li>
+</ul>
+<h6 id="windows-server-2025-standard">Windows Server 2025 Standard</h6>
+<p>아래와 같은 Window Server를 사용하고 있는 상태에서 opc 유저 패스워드를 잊고 있는 상황을 가정합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251025225007169.png" alt='image-20251025225007169' onerror="this.onerror=null;this.src='images\/image-20251025225007169.png';" />
+</p>
+<h6 id="console-connection-연결하기">Console connection 연결하기</h6>
+<ol>
+<li>
+<p>OCI Console에 로그인합니다.</p>
+</li>
+<li>
+<p>Compute 인스턴스 상세정보에서 <strong>OS Management</strong> 탭으로 이동합니다.</p>
+</li>
+<li>
+<p><strong>Console connection</strong>에서 <strong>Create local connection</strong>을 클릭합니다.</p>
+</li>
+<li>
+<p>SSH 키 쌍을 새로 생성하여 다운로드하거나, 이미 있는 경우, Public Key를 업로드 합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251025231200995.png" alt='image-20251025231200995' onerror="this.onerror=null;this.src='images\/image-20251025231200995.png';" />
+</p>
+</li>
+<li>
+<p><strong>Copy VNC connection for Linux/Mac</strong>을 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251025230239827.png" alt='image-20251025230239827' onerror="this.onerror=null;this.src='images\/image-20251025230239827.png';" />
+</p>
+</li>
+<li>
+<p>복사한 명령을 실행합니다. 이때 private key가 디폴트 위치(<code>~/.ssh/id_rsa</code>)가 아닌 경우, <code>-i</code> 옵션으로 2군데에서 Private Key 위치를 지정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ssh -i ~/.ssh/ssh-key-2025-10-25.key -o ProxyCommand=&#39;ssh -i ~/.ssh/ssh-key-2025-10-25.key -W %h:%p -p 443 ocid1.instanceconsoleconnection.oc1.ap-chuncheon-1.an4..6q@instance-console.ap-chuncheon-1.oci.oraclecloud.com&#39; -N -L localhost:5900:ocid1.instance.oc1.ap-chuncheon-1.an4..zq:5900 ocid1.instance.oc1.ap-chuncheon-1.an4..zq
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">=================================================
+</span></span><span class="line"><span class="cl">IMPORTANT: Use a console connection to troubleshoot a malfunctioning instance. For normal operations, you should connect to the instance using a Secure Shell (SSH) or Remote Desktop connection. For steps, see https://docs.cloud.oracle.com/iaas/Content/Compute/Tasks/accessinginstance.htm
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">For more information about troubleshooting your instance using a console connection, see the documentation: https://docs.cloud.oracle.com/en-us/iaas/Content/Compute/References/serialconsole.htm#four
+</span></span><span class="line"><span class="cl">=================================================
+</span></span></code></pre></div></li>
+<li>
+<p>위 명령을 실행한 상태에서 VNC Viewer로 <code>localhost:5900</code> 으로 접속합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251025233852735.png" alt='image-20251025233852735' onerror="this.onerror=null;this.src='images\/image-20251025233852735.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251025235434934.png" alt='image-20251025235434934' onerror="this.onerror=null;this.src='images\/image-20251025235434934.png';" />
+</p>
+</li>
+<li>
+<p>VNC Viewer로 연결한 상태에서, OCI Console로 이동하여, 해당 Compute 인스턴스를 <strong>Reboot</strong>합니다.</p>
+</li>
+<li>
+<p>VNC Viewer 화면으로 돌아가, 리부팅이 시작되어 검은 화면이 뜨면, Boot Manager가 뜰때까지 키보드에서 <strong>Delete 키</strong>를 꾹 누르고 있습니다.</p>
+</li>
+<li>
+<p>그러면 아래와 같이 Boot Manager 화면이 보입니다. 고급 옵션을 실행하기 위해 Mac 기준 <code>fn</code> 키 + <code>F8</code>을 클릭하여, 팝업이 뜨면 <code>Send F8</code>을 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251026004725052.png" alt='image-20251026004725052' onerror="this.onerror=null;this.src='images\/image-20251026004725052.png';" />
+</p>
+</li>
+<li>
+<p>고급 옵션에서 <strong>Safe Mode</strong>로 이동합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251026005121328.png" alt='image-20251026005121328' onerror="this.onerror=null;this.src='images\/image-20251026005121328.png';" />
+</p>
+</li>
+<li>
+<p><code>Ctrl</code> + <code>Alt</code> + <code>Del</code>키를 누릅니다.</p>
+</li>
+<li>
+<p>Administrator를 한번도 사용하지 않았다면, 패스워드를 변경하라는 문구가 뜹니다. 패스워드를 설정하고 로그인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251026005226079.png" alt='image-20251026005226079' onerror="this.onerror=null;this.src='images\/image-20251026005226079.png';" />
+</p>
+</li>
+<li>
+<p>Administrator로 로그인한 상태에서 윈도우 시작 메뉴를 우클릭하여, <strong>Compute Management</strong>를 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Local Users and Groups</strong> 아래 <strong>Users</strong>에서 opc 유저를 우클릭하여 <strong>Set Password</strong>를 클릭합니다.</p>
+</li>
+<li>
+<p>팝업이 뜨면, 새 패스워드를 입력하여 초기화합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20251026005917834.png" alt='image-20251026005917834' onerror="this.onerror=null;this.src='images\/image-20251026005917834.png';" />
+</p>
+</li>
+<li>
+<p>이제 서버를 재부팅하고, opc로 변경한 새 패스워드로 로그인합니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

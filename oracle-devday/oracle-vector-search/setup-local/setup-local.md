@@ -30,32 +30,36 @@
 
         * Linux - Oracle Linux 8,9
 
-            ```bash
-            <copy>    
-            sudo yum install -y yum-utils
-            sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-            
-            sudo yum install -y docker-ce docker-ce-cli containerd.io
-            
-            sudo systemctl start docker
-            sudo systemctl enable docker
-            
-            sudo usermod -aG docker $USER
-            newgrp docker
-            </copy>
-            ```
+            1. Docker를 설치합니다.
 
-            ```bash
-            # Visual Studio Code - Remote SSH를 사용하고 있다면, 새 docker 그룹의 반영을 위해 vscode-server 재시작합니다.
-            # https://github.com/microsoft/vscode-remote-release/issues/5813
-            <copy> 
-            ps uxa | grep .vscode-server | awk '{print $2}' | xargs kill -9
-            </copy> 
-            ```
+                ```shell
+                <copy>
+                sudo yum install -y yum-utils
+                sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+                
+                sudo yum install -y docker-ce docker-ce-cli containerd.io
+                
+                sudo systemctl start docker
+                sudo systemctl enable docker
+                
+                sudo usermod -aG docker $USER
+                newgrp docker
+                </copy>
+                ```
+
+            2. Visual Studio Code - Remote SSH를 이미 사용하고 있다면 다음을 실행합니다.
+
+                ```shell
+                # Visual Studio Code - Remote SSH를 사용하고 있다면, 새 docker 그룹의 반영을 위해 vscode-server 재시작합니다.
+                # https://github.com/microsoft/vscode-remote-release/issues/5813
+                <copy>
+                ps uxa | grep .vscode-server | awk '{print $2}' | xargs kill -9
+                </copy>
+                ```
 
 2. 컨테이너가 잘 기동하는 지 확인합니다.
 
-    ```bash
+    ```shell
     <copy>
     docker run hello-world
     </copy>
@@ -65,23 +69,23 @@
 
     - [Oracle Database Free](https://container-registry.oracle.com/ords/f?p=113:4:5584340787588:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:1863,1863,Oracle%20Database%20Free,Oracle%20Database%20Free,1,0&cs=33ik6GYF_z4Zq66Qe9NBkb8UT7E51RmD_gBF8B8Lsf2mjLMJme3LDj458VtCPQZTZ9LPaDwUIJgne4yHnVkvUBA)
 
-    ```bash
-    <copy>      
-    docker pull container-registry.oracle.com/database/free:23.26.0.0
-    </copy>    
-    ```
+        ```shell
+        <copy>
+        docker pull container-registry.oracle.com/database/free:23.26.0.0
+        </copy>
+        ```
 
 ## Task 2: Ollama 설치 & 모델 다운로드
 
 1. Ollama를 다운로드 사이트로 이동하여, 각 OS 가이드에 따라 설치합니다.
 
-	[Download Ollama](https://ollama.com/download)
+	- [Download Ollama](https://ollama.com/download)
 
     - 설치예시
 
         * Linux 기준
 
-            ```bash
+            ```shell
             <copy>      
             curl -fsSL https://ollama.com/install.sh | sh
             </copy>    
@@ -89,30 +93,29 @@
 
 2. 실습시 사용할 Text Embedding 모델을 미리 다운로드 받습니다.
 
-    ```bash
+    ```shell
     <copy>      
     ollama pull paraphrase-multilingual:latest
     </copy>    
     ```
 
-3. 실습시 사용할 LLM 모델 미리 다운로드하고 실행합니다.
+3. 실습시 사용할 LLM 모델 미리 다운로드합니다.
 
-    ```bash
+    ```shell
     <copy>      
     ollama pull llama3.1
-    ollama run llama3.1
 
-    # CPU Only
-    ollama run llama3.2
-    ollama run llama3.2:1b
+    # CPU Only - 랩탑에 GPU가 없는 경우 아래 모델을 다운로드합니다.
+    ollama pull llama3.2
+    ollama pull llama3.2:1b
     </copy>    
     ```
 
 4. 호출 테스트합니다.
 
-    - Linux 기준
+    - Linux / macOS 기준
 
-        ```bash
+        ```shell
         <copy>
         curl -v http://localhost:11434/api/embeddings \
           -H "Content-Type: application/json" \
@@ -120,7 +123,7 @@
         </copy>
         ```
 
-        ```bash
+        ```shell
         <copy>
         curl -v http://localhost:11434/api/generate \
           -H "Content-Type: application/json" \
@@ -142,19 +145,19 @@
         </copy>
         ```
 
-4. Linux 기준 다음을 추가 작업합니다.
+5. Linux 기준 다음을 추가 작업합니다.
 
     - 다음 파일을 엽니다.
 
-        ```bash
+        ```shell
         <copy>      
         sudo vi /etc/systemd/system/ollama.service
-        </copy>      
-    ```
+        </copy>
+        ```
 
     - 다음 한 줄을 추가합니다. 이미 Environment이 있으면, 그 다음에 한 줄 더 추가합니다.
 
-        ```bash
+        ```shell
         <copy>      
         Environment="OLLAMA_HOST=0.0.0.0"
         </copy>    
@@ -162,7 +165,7 @@
 
     - 재시작합니다.
 
-        ```bash
+        ```shell
         <copy>      
         sudo systemctl daemon-reload
         sudo systemctl restart ollama
@@ -171,7 +174,7 @@
 
     - 0.0.0.0:11434 또는 :::11434로 수신하고 있는 확인합니다.
 
-        ```bash
+        ```shell
         <copy>       
         netstat -an | grep 11434
         </copy>   
@@ -179,22 +182,22 @@
 
 ## Task 3: Python
 
-1. Python을 설치합니다.
+1. Python을 설치합니다. 실습에서는 3.11 버전을 사용합니다.
 
     * Linux - Oracle Linux 8,9
 
-        ```bash
+        ```shell
         <copy>
         sudo yum install -y python3.11
         </copy>
         ```
 
-        ```bash
+        ```shell
         $ <copy>python3.11 --version</copy>
         Python 3.11.11
         ```
 
-        ```bash
+        ```shell
         <copy>
         sudo yum install python3.11-pip -y
         python3.11 -m ensurepip
@@ -202,7 +205,7 @@
         </copy>
         ```
 
-        ```bash
+        ```shell
         <copy>
         cat <<EOF >> ~/.bash_profile
         alias pip='pip3.11'
@@ -223,7 +226,7 @@
 
     * Linux - Oracle Linux 8,9
 
-        ```bash
+        ```shell
         <copy>
         sudo yum install -y git
         </copy>
@@ -242,4 +245,4 @@
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, October 22, 2025
+* **Last Updated By/Date** - DongHee Lee, November 6, 2025

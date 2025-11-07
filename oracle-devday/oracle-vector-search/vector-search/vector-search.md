@@ -29,7 +29,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
     - [Oracle Database Free](https://container-registry.oracle.com/ords/f?p=113:4:5584340787588:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:1863,1863,Oracle%20Database%20Free,Oracle%20Database%20Free,1,0&cs=33ik6GYF_z4Zq66Qe9NBkb8UT7E51RmD_gBF8B8Lsf2mjLMJme3LDj458VtCPQZTZ9LPaDwUIJgne4yHnVkvUBA)
 
-        ```bash
+        ```shell
         <copy>      
         docker pull container-registry.oracle.com/database/free:23.26.0.0
         </copy>    
@@ -39,7 +39,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
     - Linux
 
-        ```bash
+        ```shell
         <copy>    
         docker run -d \
         --name oracle-free-26ai \
@@ -54,7 +54,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
     - Mac/Windows
 
-        ```bash
+        ```shell
         <copy>
         docker run -d \
         --name oracle-free-26ai \
@@ -68,7 +68,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 4. 컨테이너 로그에서 기동 완료 확인
 
-    ```bash
+    ```shell
     $ <copy>docker logs -f oracle-free-26ai</copy>
     ...
     Version 23.26.0.0.0
@@ -83,7 +83,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 1. sys 유저로 컨테이너내 sqlplus로 접속
 
-    ```bash
+    ```shell
     <copy>
     docker exec -it oracle-free-26ai sqlplus sys/OracleIsAwesome@FREEPDB1 as sysdba
     </copy>
@@ -110,13 +110,13 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
     PROMPT executed;
     </copy>
-    ```    
+    ```
 
 3. 엔터키를 한번 더 칩니다.
 
 4. DB내에서 외부 Embedding 모델을 API로 호출하기 위해서는 네트워크 접근 허용을 설정해야 합니다. 다음 명령으로 생성한 vector 유저에게 허용합니다.
 
-    ```bash
+    ```shell
     <copy>
     BEGIN
        DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE(
@@ -127,7 +127,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     END;
     /
     </copy>
-    ```    
+    ```
 
 5. vector 유저로 재접속합니다.
 
@@ -139,7 +139,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     ```sql
     SQL> <copy>show user</copy>
     USER is "VECTOR"
-    ```    
+    ```
 
 6. 외부 호출이 되는지 확인합니다.
 
@@ -152,6 +152,8 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     ```sql
     SQL> <copy>SELECT UTL_HTTP.REQUEST(url => 'http://host.docker.internal:11434/api/ps') FROM dual;</copy>
     ```
+
+SELECT UTL_HTTP.REQUEST(url => 'https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com') FROM dual;
 
 ## Task 3: Visual Studio Code - DB Connection 만들기
 
@@ -170,7 +172,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     - Save Password: *체크*
     - Host: `localhost`
     - Port: `1521`
-    - Type: `Service Name` 
+    - Type: `Service Name`
     - Service Name: `FREEPDB1`
 
 4. 아래 **Test**를 클릭하여, 연결을 확인합니다.
@@ -199,7 +201,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 1. 터미널 또는 명령창에서 다음을 수행하여, 실습 코드를 다운로드 받습니다.
 
-    ```bash
+    ```shell
     <copy>
     git clone https://github.com/TheKoguryo/oracle-devday.git
     </copy>
@@ -207,7 +209,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 2. 실습을 위한 압축파일을 해제 합니다.
 
-    ```bash
+    ```shell
     <copy>
     cd oracle-devday
     unzip data/DATAGO_SEOUL_2022.RSTR_INFO_KOREAN.zip -d data/
@@ -231,9 +233,9 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 6. 노트북을 따라 진행하고 PL/SQL Code 부분은 왼쪽 화살표를 클릭하면, 현재 연결된 connection에서 실행하고 그 아래에 결과가 표시됩니다.
 
-    ![](./images/execute-cell.png)
+    ![Execute Shell](./images/execute-cell.png)
 
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, October 22, 2025
+* **Last Updated By/Date** - DongHee Lee, November 6, 2025

@@ -23,4 +23,4 @@ DB 관점이라기 보다는 LangChain과 같은 개발 프레임워크를 통�
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, October 22, 2025
+* **Last Updated By/Date** - DongHee Lee, November 7, 2025

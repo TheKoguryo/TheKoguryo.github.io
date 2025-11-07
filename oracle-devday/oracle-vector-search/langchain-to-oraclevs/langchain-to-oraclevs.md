@@ -24,7 +24,7 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 
 1. 터미널에서 다음 폴더로 이동합니다.
 
-    ```bash
+    ```shell
     <copy>
     cd oracle-devday
     </copy>
@@ -32,7 +32,7 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 
 2. Python 가상 환경을 만들고 활성화합니다.
 
-    ```bash
+    ```shell
     <copy>
     python3.11 -m venv .venv
     source .venv/bin/activate
@@ -42,7 +42,7 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 
 3. 필요한 패키지를 설치합니다.
 
-    ```bash
+    ```shell
     <copy>
     pip3.11 install -r requirements.txt
     </copy>
@@ -50,7 +50,7 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 
 4. 필요한 추가 패키지를 설치합니다.
 
-    ```bash
+    ```shell
     <copy>
     pip3.11 install ipykernel jupyter
     </copy>
@@ -62,7 +62,7 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 
     ![Select Kernel](./images/select-kernel.png)
 
-7. 추천된 VS Code Extension인 Python + Jupyter extension 설치를 선택합니다.
+7. 추천된 VS Code Extension인 Python + Jupyter extension 설치를 선택합니다. 이미 설치된 경우 다음으로 넘어갑니다.
 
     ![install extensions](./images/install-extensions.png)
 
@@ -83,4 +83,4 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, October 22, 2025
+* **Last Updated By/Date** - DongHee Lee, November 6, 2025

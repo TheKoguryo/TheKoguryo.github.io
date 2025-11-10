@@ -12,6 +12,7 @@
 * Git
 
 개인 PC에 설치되어 있어야 하는 도구
+
 * [*Visual Studio Code*](https://code.visualstudio.com/)
 
 실습 예상 시간: 20분
@@ -37,7 +38,7 @@
 
 네트워크 자원을 만들기 위해 아래와 같이 새 VCN을 만듭니다.
 
-1. 왼쪽 상단의 **Navigation Menu**(또는 햄버거 메뉴라고 말함)를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
+1. 왼쪽 상단의 **Navigation Menu**(또는 햄버거 메뉴라고도 말함)를 클릭하고 **Networking**으로 이동한 다음 **Virtual Cloud Networks** 을 선택합니다.
 
     ![Navigation Menu](images/navigation-menu.png)
 
@@ -100,7 +101,7 @@
 
 ## Task 3: Compute VM 만들기
 
-1. 왼쪽 위 햄버거 메뉴에서 **Compute** > **Instances**로 이동합니다.
+1. 왼쪽 상단의 **Navigation Menu**(또는 햄버거 메뉴라고도 말함)를 클릭하고 **Compute** > **Instances**로 이동합니다.
 
 2. Applied filters에서 root > OCI-HOL 아래 각자의 Compartment를 선택합니다.
 
@@ -114,17 +115,23 @@
 
 6. **My images**에서 **common-shared** Compartment를 선택하고 `devday-base-image` 이미지를 선택합니다.
 
-7. Change shape은 AMD 타입에서 `VM.Standard.E5.Flex`를 선택합니다. 기본값인 1 OCPU / 12 GB를 그대로 사용합니다.
+    ![](./images/devday-base-image.png)
+
+7. Change shape은 AMD 타입에서 `VM.Standard.E5.Flex`를 선택합니다. 기본값인 1 OCPU(2vCPU) / 12 GB를 그대로 사용합니다.
+
+    ![](./images/flexshapes.png)
 
 8. **Next**로 연속이동하여, **Networking** 항목으로 이동합니다.
 
 9. **Primary network**에서 앞서 만든 oci-hol-vcn내 `public-subnet-oci-hol-vcn`을 선택합니다.
 
-10. **Add SSH keys**에서 `Download Private Key`, `Download Public Key` 선택하여, 2개의 키를 저장합니다.
+10. **Add SSH keys**에서 사용할 키를 등록할 수 있습니다. 여기서는 편의상 자동 생성되는 키를 사용하기 위해 `Download Private Key`, `Download Public Key`을 클릭하여, SSH 접속시 사용할 개인키와 공개키 2개를 각각 다운로드 받습니다.
+
+    ![](./images/generate-key-pair.png)
 
 11. **Next**로 끝까지 이동하여, **Create**을 클릭합니다.
 
-12. 인스턴스가 **Running** 상태가 될 때까지 기다랍니다.
+12. 인스턴스가 생성되고 **Running** 상태가 될 때까지 기다랍니다.
 
 13. 인스턴스 목록에서 현재 생성된 인스턴스(예, my-devday)의 Public IP를 확인합니다.
 
@@ -152,7 +159,7 @@
         chmod 400 ssh-key-2025-11-07.key*
         ```
 
-        3) ~/.ssh/config 파일을 열어, config 파일에 앞서 생성한 Compute VM을 접속하기 위한 정보를 입력합니다.
+        3) `~/.ssh/config` 파일을 직접 열거나, VS Code에서 열어, config 파일에 앞서 생성한 Compute VM을 접속하기 위한 정보를 입력합니다.
 
         ![](./images/open-ssh-config.png)
 

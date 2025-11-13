@@ -56,7 +56,10 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
     </copy>
     ```
 
-5. notebooks 폴더 밑에 Jupyter Notebook(26ai-vector-search-langchain-lab.ipynb) 파일을 엽니다.
+5. notebooks 폴더 밑에 Jupyter Notebook 파일을 엽니다.
+
+    - 로컬 작업시: 26ai-vector-search-langchain-lab.ipynb 선택
+    - OCI 환경에서 작업시: 26ai-vector-search-langchain-lab-oci.ipynb 선택
 
 6. 오른쪽 위 Select Kernel을 선택합니다.
 

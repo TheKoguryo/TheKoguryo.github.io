@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.139.3">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-mds-debezium/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-mds-debezium/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기">
+  <meta property="og:description" content="17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기 OCI Streaming - Kafka Connect, Debezium로 MySQL CDC 구성하기을 먼저 본 것을 전제로 합니다.
+이전 문서에서 debezium에서 제공하는 컨테이너 이미지를 사용하여, Source MySQL -&gt; Debezium Connector -&gt; OCI Streaming -&gt; JDBC Connector -&gt; Target MySQL 구성하고, CDC를 테스트하였습니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="oci">
+    <meta property="article:published_time" content="2024-05-05T00:00:00+00:00">
+    <meta property="article:modified_time" content="2024-05-05T00:00:00+00:00">
+    <meta property="article:tag" content="Oci Streaming">
+    <meta property="article:tag" content="Kafka Connect">
+    <meta property="article:tag" content="Cdc">
+    <meta property="article:tag" content="Debezium">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2025-11-19</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="1713-kafka-connect-debezium로-oci-mysql-database-service에-cdc-구성하기">17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기</h2>
+<p><em><a href="/oci/chapter17/1/oci-oss-cdc-mysql-debezium/">OCI Streaming - Kafka Connect, Debezium로 MySQL CDC 구성하기</a>을 먼저 본 것을 전제로 합니다.</em></p>
+<br>
+<p>이전 문서에서 debezium에서 제공하는 컨테이너 이미지를 사용하여, Source MySQL -&gt; Debezium Connector -&gt; OCI Streaming -&gt; JDBC Connector -&gt; Target MySQL 구성하고, CDC를 테스트하였습니다.</p>
+<p>여기서는 MySQL을 OCI MySQL Database Service로 만들어진 MySQL을 사용할때, Kafka Connect를 구성시 주의사항이 있는 지 확인해 보도록 하겠습니다.</p>
+<h6 id="source-target-mysql-database-service-인스턴스-구성">Source, Target MySQL Database Service 인스턴스 구성</h6>
+<p>먼저, Source, Target으로 사용할 MySQL 데이터베이스 인스턴스를 만듭니다.</p>
+<p><strong><a href="https://debezium.io/releases/">Debezium release overview</a></strong></p>
+<ul>
+<li>Debezium 2.6 릴리즈 문서에서 테스트된 버전이라는 MySQL <em>8.0.x</em>, <em>8.2</em> 을 사용합니다. OCI MySQL Database Service로 생성시 해당 버전으로 선택합니다.
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>2.7 - development</th>
+          <th>2.6 - latest stable</th>
+          <th>2.5</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Java</td>
+          <td>11+</td>
+          <td>11+</td>
+          <td>11+</td>
+      </tr>
+      <tr>
+          <td>Kafka Connect</td>
+          <td>2.x, 3.x</td>
+          <td>2.x, 3.x</td>
+          <td>2.x, 3.x</td>
+      </tr>
+      <tr>
+          <td>MySQL</td>
+          <td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.3.0</td>
+          <td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.0.33</td>
+          <td><em>Database:</em> 8.0.x, 8.2 <br><em>Driver:</em> 8.0.33</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+</ul>
+<p><strong>Source MySQL 생성 정보</strong></p>
+<ol>
+<li>
+<p>왼쪽 상단의 <strong>Navigation Menu</strong>를 클릭하고 <strong>Databases</strong>로 이동한 다음 <strong>MySQL HeatWave</strong> 하위 <strong>DB systems</strong>를 선택 합니다.</p>
+</li>
+<li>
+<p>생성을 위해 <strong>Create DB system</strong>을 클릭합니다.</p>
+</li>
+<li>
+<p><strong>Development or testing</strong> 유형을 선택합니다.</p>
+</li>
+<li>
+<p>Provide DB system information:</p>
+<ul>
+<li>Name: 이름을 입력합니다. 예) mysql-source</li>
+</ul>
+</li>
+<li>
+<p>Create Administrator credentials: 관리자 이름과 암호를 입력합니다.</p>
+<ul>
+<li>
+<p>Username: admin</p>
+</li>
+<li>
+<p>Password: 예) Password123!</p>
+<ul>
+<li>
+<p>Administrator password must be between 8 and 32 characters, and contain at least 1 uppercase, 1 lowercase, 1 numeric, and 1 special characters.</p>
+</li>
+<li>
+<p>OCI MySQL Database Service에서 Administrator는 root user랑은 다르며, root user보다는 제한된 권한을 가지고 있습니다. <a href="https://docs.oracle.com/en-us/iaas/mysql-database/doc/default-mysql-privileges.html#GUID-410B2C03-5238-463E-85FA-7E9861ABA0C0">Default MySQL Privileges</a>을 참조하세요</p>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>DB system 타입: <strong>Standalone</strong>을 선택합니다.</p>
+</li>
+<li>
+<p>Configure networking: <em>Private IP만을 사용하므로, Kafka Connect와 같은 서브넷 또는 접근 가능한 서브넷을 선택합니다.</em></p>
+</li>
+<li>
+<p>Configure placement: 기본값을 선택</p>
+</li>
+<li>
+<p>Configure hardware:</p>
+<ul>
+<li>Enable HeatWave: <em>체크 해제</em></li>
+<li>Shape Details: 기본 선택된 MySQL.2을 사용합니다.</li>
+</ul>
+</li>
+<li>
+<p>Configure backup plan</p>
+<ul>
+<li>Enable automatic backups: <em>체크 해제</em></li>
+</ul>
+</li>
+<li>
+<p>고급 옵션을 엽니다.</p>
+<ul>
+<li>Configuration
+<ul>
+<li>MySQL version: Debezium release을 기준으로 <em>8.0.x</em>을 선택합니다. 예, <em>8.0.37</em>을 선택</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Create 버튼을 클릭하여, DB를 생성합니다.</p>
+</li>
+<li>
+<p>일단 시작되면 MySQL DB가 프로비저닝됩니다. 위 설정기준으로 Active 상태로 되기까지, 약 10~15분 정도 걸립니다.</p>
+</li>
+<li>
+<p>Security List Ingress 규칙에 <strong>3306</strong> 포트를 개방합니다.</p>
+</li>
+</ol>
+<p><strong>Target MySQL 생성 정보</strong></p>
+<ol>
+<li>이름만 달리하여, MySQL Database Service 인스턴스를 하나 더 만듭니다.
+<ul>
+<li>Name: mysql-target</li>
+</ul>
+</li>
+</ol>
+<p><strong>Source DB에 설정 확인</strong></p>
+<p><a href="https://debezium.io/documentation/reference/stable/connectors/mysql.html#setting-up-mysql">Debezium Setting up MySQL</a>을 기준으로 설정값을 확인해 봅니다.</p>
+<ol>
+<li>
+<p>Administrator로 MySQL에 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql --host &lt;Source-MySQL-Public-IP&gt; -u admin --password=Password123!
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Enabling the binlog</strong>: ON으로 이미 설정됨</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql&gt; SELECT variable_value as &#34;BINARY LOGGING STATUS (log-bin) ::&#34;
+</span></span><span class="line"><span class="cl">    -&gt; FROM performance_schema.global_variables WHERE variable_name=&#39;log_bin&#39;;
+</span></span><span class="line"><span class="cl">+------------------------------------+
+</span></span><span class="line"><span class="cl">| BINARY LOGGING STATUS (log-bin) :: |
+</span></span><span class="line"><span class="cl">+------------------------------------+
+</span></span><span class="line"><span class="cl">| ON                                 |
+</span></span><span class="line"><span class="cl">+------------------------------------+
+</span></span><span class="line"><span class="cl">1 row in set (0.00 sec)
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Enabling GTIDs</strong>: ON으로 이미 설정됨</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql&gt; show global variables like &#39;%GTID%&#39;;
+</span></span><span class="line"><span class="cl">+----------------------------------------------+-------+
+</span></span><span class="line"><span class="cl">| Variable_name                                | Value |
+</span></span><span class="line"><span class="cl">+----------------------------------------------+-------+
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">| enforce_gtid_consistency                     | ON    |
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">| gtid_mode                                    | ON    |
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">+----------------------------------------------+-------+
+</span></span><span class="line"><span class="cl">9 rows in set (0.00 sec)
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Enabling query log events</strong>: ON으로 이미 설정됨</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql&gt; show global variables where variable_name = &#39;binlog_rows_query_log_events&#39;;
+</span></span><span class="line"><span class="cl">+------------------------------+-------+
+</span></span><span class="line"><span class="cl">| Variable_name                | Value |
+</span></span><span class="line"><span class="cl">+------------------------------+-------+
+</span></span><span class="line"><span class="cl">| binlog_rows_query_log_events | ON    |
+</span></span><span class="line"><span class="cl">+------------------------------+-------+
+</span></span><span class="line"><span class="cl">1 row in set (0.00 sec)
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Validating binlog row value options</strong>: &quot;&quot; - 설정값이 없어야 하나 <code>PARTIAL_JSON</code> 로 설정된 상태</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql&gt; show global variables where variable_name = &#39;binlog_row_value_options&#39;;
+</span></span><span class="line"><span class="cl">+--------------------------+--------------+
+</span></span><span class="line"><span class="cl">| Variable_name            | Value        |
+</span></span><span class="line"><span class="cl">+--------------------------+--------------+
+</span></span><span class="line"><span class="cl">| binlog_row_value_options | PARTIAL_JSON |
+</span></span><span class="line"><span class="cl">+--------------------------+--------------+
+</span></span><span class="line"><span class="cl">1 row in set (0.00 sec)
+</span></span></code></pre></div><ul>
+<li>
+<p><code>PARTIAL_JSON</code>인 경우 <strong>빈 값</strong>으로 설정해야 하나, <em>Administrator 권한으로 설정할 수 없습니다.</em></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql&gt; set @@global.binlog_row_value_options=&#34;&#34; ;
+</span></span><span class="line"><span class="cl">ERROR 1227 (42000): Access denied; you need (at least one of) the SUPER or SYSTEM_VARIABLES_ADMIN privilege(s) for this operation
+</span></span></code></pre></div></li>
+<li>
+<p><code>PARTIAL_JSON</code>로 설정된 경우, UPDATE 이벤트를 처리하는 데 실패할 수 있다고 합니다.</p>
+<ul>
+<li>문서 상의 원문: make sure that value is <strong>not</strong> set to <code>PARTIAL_JSON</code>, since in such case connector might fail to consume <strong>UPDATE</strong> events.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong>Source DB에 CDC 관련 권한 설정</strong></p>
+<ol>
+<li>
+<p>Administrator로 MySQL에 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql --host &lt;Source-MySQL-Public-IP&gt; -u admin --password=Password123!
+</span></span></code></pre></div></li>
+<li>
+<p>데이터베이스 및 유저 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">CREATE DATABASE sourcedb;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CREATE USER &#39;mysqluser&#39;@&#39;%&#39; IDENTIFIED BY &#39;Password123!&#39;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">GRANT ALL PRIVILEGES ON sourcedb.* TO &#39;mysqluser&#39;@&#39;%&#39;;
+</span></span></code></pre></div></li>
+<li>
+<p>복제를 위한 권한 mysqluser 유저에 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">GRANT SELECT, RELOAD, SHOW DATABASES, LOCK TABLES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO &#39;mysqluser&#39;@&#39;%&#39;;
+</span></span></code></pre></div><ul>
+<li>
+<p>이 중 RELOAD는 Administrator가 부여할 수 없는 권한으로 제외하고, 나머지 권한을 부여</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">### RELOAD는 Administrator가 부여할 수 없는 권한
+</span></span><span class="line"><span class="cl">mysql&gt; GRANT RELOAD ON *.* TO &#39;mysqluser&#39;@&#39;%&#39;;
+</span></span><span class="line"><span class="cl">ERROR 1045 (28000): Access denied for user &#39;admin&#39;@&#39;%&#39; (using password: YES)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">### RELOAD 제외하고 권한 부여
+</span></span><span class="line"><span class="cl">GRANT SELECT, SHOW DATABASES, LOCK TABLES, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO &#39;mysqluser&#39;@&#39;%&#39;;
+</span></span></code></pre></div><ul>
+<li>
+<p>Debezium에서 설명하는 유저 권한을 snapshot을 실행할 때 이 RELOAD 권한이 필요하다고 합니다. 당장 테스트에는 문제가 없지만, 참고합니다.</p>
+<ul>
+<li><a href="https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-creating-user">https://debezium.io/documentation/reference/stable/connectors/mysql.html#mysql-creating-user</a></li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">Keyword</th>
+          <th style="text-align: left">Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><code>RELOAD</code></td>
+          <td style="text-align: left">Enables the connector the use of the <code>FLUSH</code> statement to clear or reload internal caches, flush tables, or acquire locks. This is used only when performing a snapshot.</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>접속을 종료합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">quit
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>Target DB 접속 확인</strong></p>
+<ol>
+<li>
+<p>Administrator로 MySQL에 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql --host &lt;Target-MySQL-Public-IP&gt; -u admin --password=Password123!
+</span></span></code></pre></div></li>
+<li>
+<p>데이터베이스 및 유저 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">CREATE DATABASE targetdb;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CREATE USER &#39;mysqluser&#39;@&#39;%&#39; IDENTIFIED BY &#39;Password123!&#39;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">GRANT ALL PRIVILEGES ON targetdb.* TO &#39;mysqluser&#39;@&#39;%&#39;;
+</span></span></code></pre></div></li>
+<li>
+<p>접속종료</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">quit
+</span></span></code></pre></div></li>
+<li>
+<p>mysqluser 로 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql --host &lt;Target-MySQL-Public-IP&gt; -u mysqluser --password=Password123!
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>OCI Streaming 및 Kafka Connect 설치 및 구성</strong></p>
+<p><em><a href="/oci/chapter17/1/oci-oss-cdc-mysql-debezium/">OCI Streaming - Kafka Connect, Debezium로 MySQL CDC 구성하기</a>과 동일합니다.</em> Connector에서 MySQL 서버 주소 및 접속 사용자 정보만 변경하면 됩니다.</p>
+<h6 id="cdc-테스트-1">CDC 테스트 #1</h6>
+<p><strong>Source DB에 데이터 변경분 발생</strong></p>
+<ol>
+<li>
+<p>데이터베이스 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql --host &lt;Source-MySQL-Public-IP&gt; -u mysqluser --password=Password123!
+</span></span></code></pre></div></li>
+<li>
+<p>DATABASE 선택</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">use sourcedb;
+</span></span></code></pre></div></li>
+<li>
+<p>샘플 테이블 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">create</span><span class="w"> </span><span class="k">table</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">emp_no</span><span class="w">      </span><span class="nb">int</span><span class="w">             </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">birth_date</span><span class="w">  </span><span class="nb">date</span><span class="w">            </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">first_name</span><span class="w">  </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span><span class="w">     </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">last_name</span><span class="w">   </span><span class="nb">varchar</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="w">     </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">gender</span><span class="w">      </span><span class="n">enum</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;M&#39;</span><span class="p">,</span><span class="s1">&#39;F&#39;</span><span class="p">)</span><span class="w">  </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">hire_date</span><span class="w">   </span><span class="nb">date</span><span class="w">            </span><span class="k">not</span><span class="w"> </span><span class="k">null</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">primary</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="p">(</span><span class="n">emp_no</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>새 데이터 삽입</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">10001</span><span class="p">,</span><span class="s1">&#39;1953-09-02&#39;</span><span class="p">,</span><span class="s1">&#39;Georgi&#39;</span><span class="p">,</span><span class="s1">&#39;Facello&#39;</span><span class="p">,</span><span class="s1">&#39;M&#39;</span><span class="p">,</span><span class="s1">&#39;1986-06-26&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>데이터를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">emp_no</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">birth_date</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">gender</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">hire_date</span><span class="w">  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">10001</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1953</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">02</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Georgi</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">Facello</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">M</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1986</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">26</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">row</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ol>
+<p><strong>Target DB에 데이터 확인</strong></p>
+<ol>
+<li>
+<p>데이터베이스 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mysql --host &lt;Target-MySQL-Public-IP&gt; -u mysqluser --password=Password123!
+</span></span></code></pre></div></li>
+<li>
+<p>DATABASE 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">use targetdb;
+</span></span></code></pre></div></li>
+<li>
+<p>현재 데이터 확인합니다. 테이블이 생성되고 데이터가 들어간 것을 확인할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">emp_no</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">birth_date</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">gender</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">hire_date</span><span class="w">  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">10001</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1953</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">02</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Georgi</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">Facello</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">M</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1986</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">26</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">1</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>Target DB에 동일 테이블이 생성되고 데이터도 동기화되었습니다.</p>
+</li>
+</ol>
+<h6 id="cdc-테스트-2---update">CDC 테스트 #2 - UPDATE</h6>
+<p><strong>Source DB에 데이터 변경분 발생</strong></p>
+<ol>
+<li>
+<p>DATABASE 선택</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">use sourcedb;
+</span></span></code></pre></div></li>
+<li>
+<p>업데이트 및 새 데이터 삽입</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">UPDATE</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">SET</span><span class="w"> </span><span class="n">last_name</span><span class="o">=</span><span class="s1">&#39;Facello - New&#39;</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">emp_no</span><span class="o">=</span><span class="mi">10001</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">INSERT</span><span class="w"> </span><span class="k">INTO</span><span class="w"> </span><span class="n">employees</span><span class="w"> </span><span class="k">VALUES</span><span class="w"> </span><span class="p">(</span><span class="mi">10002</span><span class="p">,</span><span class="s1">&#39;1964-06-02&#39;</span><span class="p">,</span><span class="s1">&#39;Bezalel&#39;</span><span class="p">,</span><span class="s1">&#39;Simmel&#39;</span><span class="p">,</span><span class="s1">&#39;F&#39;</span><span class="p">,</span><span class="s1">&#39;1985-11-21&#39;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>데이터를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+---------------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">emp_no</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">birth_date</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">last_name</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">gender</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">hire_date</span><span class="w">  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+---------------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">10001</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1953</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">02</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Georgi</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">Facello</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="k">New</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">M</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1986</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">26</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="mi">10002</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1964</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">02</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Bezalel</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Simmel</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="n">F</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1985</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">21</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+---------------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">2</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ol>
+<p><strong>Target DB에 데이터 확인</strong></p>
+<ol>
+<li>
+<p>DATABASE 접속</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">use targetdb;
+</span></span></code></pre></div></li>
+<li>
+<p>현재 데이터 확인합니다. 테이블이 생성되고 데이터가 들어간 것을 확인할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">mysql</span><span class="o">&gt;</span><span class="w"> </span><span class="k">select</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">from</span><span class="w"> </span><span class="n">employees</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w"> </span><span class="n">emp_no</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">birth_date</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">first_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">last_name</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">gender</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">hire_date</span><span class="w">  </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">|</span><span class="w">  </span><span class="mi">10001</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1953</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">02</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Georgi</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="n">Facello</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">M</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1986</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">26</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">|</span><span class="w">  </span><span class="mi">10002</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1964</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">02</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Bezalel</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Simmel</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">F</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">1985</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">21</span><span class="w"> </span><span class="o">|</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">+</span><span class="c1">--------+------------+------------+-----------+--------+------------+
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="mi">2</span><span class="w"> </span><span class="k">rows</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">01</span><span class="w"> </span><span class="n">sec</span><span class="p">)</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>binlog_row_value_options=PARTIAL_JSON</strong> 설정 때문인지, 추가 UPDATE, INSERT 변경분에 대해서 INSERT만 반영되고, <em>UPDATE한 last_name 변경분은 Target DB에 반영되지 않은 것</em>을 볼 수 있습니다.</p>
+</li>
+</ol>
+<h6 id="oci-mysql-database-service-인스턴스를-debezium-mysql-connector로-사용시-제한사항-확인결과">OCI MySQL Database Service 인스턴스를 Debezium MySQL Connector로 사용시 제한사항 확인결과</h6>
+<ul>
+<li>필요한 권한 중에서 <strong>RELOAD</strong> 권한을 Administrator로는 설정할 수 없어, snapshot 관련 기능을 사용하는 데 제한사항이 있습니다.</li>
+<li><strong>binlog_row_value_options=PARTIAL_JSON</strong> 설정값을 Administrator <strong>빈값</strong>으로 변경 설정할 수 없어, Source DB 변경분 중에서 UPDATE 변경분을 반영할 수 없었습니다.</li>
+</ul>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <div class="edit-meta">Last updated on 5 May 2024<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-mysql-debezium/" title="17.1.2 Kafka Connect, Debezium로 MySQL CDC 구성하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 17.1.2 Kafka Connect, Debezium로 MySQL CDC 구성하기</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter17/2/mirror-maker2/" title="17.2.2 Mirror Maker 2로 Active-Passive 구성하기">Next - 17.2.2 Mirror Maker 2로 Active-Passive 구성하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/">
+                OCI(Oracle Cloud Infrastructure)
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter01/">
+                1. OCI 기본개념
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/1/">1.1 Regions, Availability Domains</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/2/">1.2 Fault Domains</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/3/">1.3 Compartment</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/4/">1.4 Virtual Cloud Network(VCN)</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/5/">1.5 Bare Metal, Virtual Machine</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter01/6/">1.6 클라우드 서비스 제공업체(CSP) 간 제공 서비스 매핑</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter02/">
+                2. OCI 서비스 시작하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/1/">2.1 Oracle Cloud Free Tier 계정 생성</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/2/">2.2 OCI Console 접속하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/3/">2.3 OCI Console 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter02/4/">2.4 최초 Cloud Account(Tenancy) 구조</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/">
+                3. OCI Compute VM 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/1/">3.1 작업 Compartment 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/2/">3.2 가상 네트워크 환경을 위한 VCN 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/3/">3.3 SSH 접속을 위한 Key Pair 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/4/">3.4 Linux 인스턴스 생성하기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/5/">
+                3.5 Linux 인스턴스 접속하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/1/">3.5.1 Linux, Mac 에서 접속하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/2/">3.5.2 Windows에서 PuTTY로 접속하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/3/">3.5.3 PEM &lt;-&gt; PPK 포맷 변경하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/5/4/">3.5.4 Oracle Linux 8 on OCI에 VNC 서버 설정하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/6/">
+                3.6 하드 드라이브 같은 Block Volume
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/1/">3.6.1 Block Volume 생성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/2/">3.6.2 Block Volume을 Instance에 장착하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/3/">3.6.3 Block Volume에 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/4/">3.6.4 Block Volume 포맷하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/5/">3.6.5 Block Volume 마운트하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/6/">3.6.6 Block Volume 장착 해제하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/7/">3.6.7 Block Volume 삭제하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/6/8/">3.6.8 Ultra High Performance 레벨 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/7/">
+                3.7 Block Volume 백업 활용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/1/">3.7.1 Block Volume 백업하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/2/">3.7.2 백업으로 새 Volume 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/3/">3.7.3 백업을 다른 Region으로 복사하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/8/">
+                3.8 Boot Volume 백업 활용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/1/">3.8.1 Boot Volume 백업하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/2/">3.8.2 백업으로 새 Boot Volume 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/8/3/">3.8.3 Boot Volume으로 새 Instance 생성하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter03/9/">
+                3.9 비용 절감하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/9/1.burstable-instances/">3.9.1 Burstable Instances 사용하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter04/">
+                4. 고정 IP 할당을 위한 Reserved Public IP
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/1/">4.1 Reserved Public IP 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter04/2/">4.2 Reserved Public IP 할당하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter05/">
+                5. 방화벽 구성을 위해 Security Rules 적용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/1/">5.1 Linux 인스턴스에 Apache HTTP Server 설치</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/2/">5.2 Default Security List 업데이트 하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/3/">5.3 Custom Security List 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/4/">5.4 Network Security Group 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter05/5/">5.5 Apache HTTP Server 접속 테스트</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter06/">
+                6. 사용자 권한 설정을 위해 IAM 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/1/">6.1 Compartment</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/2/">6.2 사용자 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/3/">6.3 그룹 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/4/">6.4 Policy 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter06/5/">6.5 Policy 개념 잡기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter07/">
+                7. Object Storage 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/1/">7.1 Bucket 생성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/2/">7.2 Bucket에 파일 올리기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/3/">7.3 Object 권한 관리 - 사전인증</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/4/">7.4 Object 권한 관리 - Public Bucket</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/5/">7.5 Public Bucket을 통한 정적 웹사이트 호스팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/6/">7.6 CloudBerry Explorer를 통한 파일 업로드</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter07/7/">7.7 수명주기를 통한 Archive 설정하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter08/">
+                8. 네트워크 파일 시스템인 File Storage 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/1/">8.1 File Storage 구성 예시</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/2/">8.2 FSS를 Linux VM에 마운트하여 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/3/">8.3 접근 제어를 위한 Export Option</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter08/4/">8.4 백업을 위한 스냅샷</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter09/">
+                9. Machine Image
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/1/">9.1 기본 제공하고 있는 OS Image</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter09/3/">9.3 Custom Image Export/Import</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter10/">
+                10. 고가용성을 위한 Load Balancer 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/1/">10.1 Load Balancer 구성 예시</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/2/">10.2 VCN 구성</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/3/">10.3 Backend 웹서버 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/4/">10.4 Load Balancer를 위한 Subnet 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/5/">10.5 Load Balancer 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter10/6/">10.6 Load Balancer 연결 확인</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter11/">
+                11. Domain Name System (DNS)
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/1/">11.1 Domain Name과 매핑하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter11/2/">11.2 GoDadday의 서브 도메인을 OCI DNS 서비스에 delegation 하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter12/">
+                12. OCI 자원 모니터링을 위한 Monitoring
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/1/">12.1 Compute 인스턴스 Monitoring 활성화</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/2/">12.2 Monitoring Alarm 만들기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter12/3/">
+                12.3 OCI Grafana Plugin
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/1/">12.3.1 Compute VM에 Grafana 설치</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter12/3/2/">12.3.2 Grafana 구성</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter13/">
+                13. Metric에 기반한 Autoscaling
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/1/">13.1 Autoscaling을 위한 준비</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/2/">13.2 Autoscaling 구성</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter13/3/">13.3 Autoscaling 테스트</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/">
+                14. Developer Tools 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/1/">
+                14.1 OCI CLI
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/1/1/">
+                14.1.1 OCI CLI 설치하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/1/">14.1.1.1 Windows에서 OCI CLI 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/2/">14.1.1.2 리눅스계열에서 OCI CLI 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/3/">14.1.1.3 Token 기반 인증 Config File 설정</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/1/4/">14.1.1.4 API Key 기반 인증 Config File 설정</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/1/2/">
+                14.1.2 Object Storage를 CLI로 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/1/">14.1.2.1 Object Storage를 위한 IAM Policy 설정</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/1/2/2/">14.1.2.2 CLI를 통한 파일 업로드</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/2/">
+                14.2 REST API
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/1/">14.2.1 OCI Request Signature Version 1</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/2/">14.2.2 Bash 샘플 클라이언트</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/4/">14.2.4 Postman - OCI REST API 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/2/5/">14.2.5 Postman - OCI REST APIs 호출하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter14/3/">
+                14.3 Terraform
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/1/">14.3.1 Terraform 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/2/">14.3.2 Terraform Configurations 작성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/3/">14.3.3 Terraform OCI Provider 연결정보 구하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/4/">14.3.4 Terraform Configuration 실행하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/5/">14.3.5 다중 환경을 위한 workspace 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/6/">14.3.6 예시, list, count를 이용한 유저 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/7/">14.3.7 OCI Terraform 사용 예제</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/8/"></a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter15/">
+                15. Resource Manager 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/1/">15.1 Resource Manager 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/2/">15.2 Resource Manager을 위한 Stack Template</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter15/3/">15.3 Resource Manager을 위한 Private Git 서버 구성</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter16/">
+                16. 인증서 관리를 위한 OCI Certificate 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter16/1/">16.1 Load Balancer의 인증서를 OCI Certificate로 관리하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter16/2/">16.2 OCI Certificate에 외부 인증서 임포트하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter16/3/">16.3 단일 Load Balancer 포트에 2개의 인증서 적용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter17/">
+                17. OCI Streaming 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/2/provision-kafka-cluster/">17.2.1 Kafka Cluster 만들기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter17/1/">
+                17.1 Kafka 호환 OCI Streaming 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-postgresql-debezium/">17.1.1 Kafka Connect, Debezium로 PostgreSQL CDC 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-mysql-debezium/">17.1.2 Kafka Connect, Debezium로 MySQL CDC 구성하기</a></li>
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-mds-debezium/">17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter17/2/mirror-maker2/">17.2.2 Mirror Maker 2로 Active-Passive 구성하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/chapter18/">
+                18. OCI 로그 관리하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter18/1/">18.1 OCI Logging Analytics로 로그 관리시 비용 최적화</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter18/2/">18.2  Object Storage Archive 사용하여 로그 관리 비용 줄이기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oci/troubleshooting/">
+                19. 문제해결
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/cloud-shell/">Cloud Shell 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/load-balancer/">Load Balancer 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/bastion-service/">Bastion Service 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/access-console/">Console 접근을 위한 방화벽에 등록할 주소 찾기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/comartment/">Compartment 문제해결</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oci/troubleshooting/rancher-desktop/">Rancher Desktop 설정하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

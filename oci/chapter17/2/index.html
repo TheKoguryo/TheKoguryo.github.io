@@ -3,10 +3,10 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>3.7.4 정책 기반 Block Volume 백업하기 - TheKoguryo&#39;s 기술 블로그</title>
+<title>17.2 OCI Streaming with Apache Kafka 서비스 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
 <meta name="generator" content="Hugo 0.139.3">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
-<link rel="canonical" href="https://thekoguryo.github.io/oci/chapter03/7/4/">
+<link rel="canonical" href="https://thekoguryo.github.io/oci/chapter17/2/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
@@ -28,19 +28,12 @@
   gtag('config', 'UA-106207316-1');
 </script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
-     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter03/7/4/">
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter17/2/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
-  <meta property="og:title" content="3.7.4 정책 기반 Block Volume 백업하기">
-  <meta property="og:description" content="3.7.4 정책 기반 Block Volume 백업하기 Volume Backup Policies Bronze Policy
-월단위 - 매월 첫날에 월간 증분 백업이 실행됩니다. 12개월 동안 유지됩니다. 매단위 - 매년 1월 1일에 전체 백업이 실행됩니다. 5년간 유지됩니다. Silver Policy">
+  <meta property="og:title" content="17.2 OCI Streaming with Apache Kafka 서비스 사용하기">
+  <meta property="og:description" content="17.2 Kafka 호환 OCI Streaming 서비스 사용하기">
   <meta property="og:locale" content="ko">
-  <meta property="og:type" content="article">
-    <meta property="article:section" content="oci">
-    <meta property="article:published_time" content="2022-01-11T00:00:00+00:00">
-    <meta property="article:modified_time" content="2022-01-11T00:00:00+00:00">
-    <meta property="article:tag" content="Block-Volume">
-    <meta property="article:tag" content="Backup">
-    <meta property="article:tag" content="Copy">
+  <meta property="og:type" content="website">
 
 </head>
 <body>
@@ -66,106 +59,9 @@
 </nav>
 </div>
 <div class="content-container">
-<main><h3 id="374-정책-기반-block-volume-백업하기">3.7.4 정책 기반 Block Volume 백업하기</h3>
-<h4 id="volume-backup-policies">Volume Backup Policies</h4>
-<ul>
-<li>
-<p>Bronze Policy</p>
-<ul>
-<li>월단위 - 매월 첫날에 월간 증분 백업이 실행됩니다. 12개월 동안 유지됩니다.</li>
-<li>매단위 - 매년 1월 1일에 전체 백업이 실행됩니다. 5년간 유지됩니다.</li>
-</ul>
-</li>
-<li>
-<p>Silver Policy</p>
-<ul>
-<li>주단위 - 매주 일요일에 주 단위 증분 백업이 실행됩니다. 4주 동안 보존됩니다.</li>
-<li>월단위 - 매월 첫날에 월간 증분 백업이 실행됩니다. 12개월 동안 유지됩니다.</li>
-<li>매단위 - 매년 1월 1일에 전체 백업이 실행됩니다. 5년간 유지됩니다.</li>
-</ul>
-</li>
-<li>
-<p>Gold Policy</p>
-<ul>
-<li>일단위 - 일일 증분 백업이 실행됩니다. 7일 동안 보존됩니다.</li>
-<li>주단위 - 매주 일요일에 주 단위 증분 백업이 실행됩니다. 4주 동안 보존됩니다.</li>
-<li>월단위 - 매월 첫날에 월간 증분 백업이 실행됩니다. 12개월 동안 유지됩니다.</li>
-<li>매단위 - 매년 1월 1일에 전체 백업이 실행됩니다. 5년간 유지됩니다.</li>
-</ul>
-</li>
-</ul>
-<h4 id="정책-기반-block-volume-백업하기">정책 기반 Block Volume 백업하기</h4>
-<ol>
-<li>
-<p>OCI 콘솔에서 내비게이션 메뉴를 엽니다. <strong>Storage</strong>  &gt; <strong>Block Storage</strong> &gt; <strong>Block Volumes Backups</strong> 항목으로 이동합니다.</p>
-</li>
-<li>
-<p>설정하려는 Block Volume의 우측 메뉴를 클릭하고, <strong>Edit</strong>를 클릭합니다.</p>
-<p>
+<main>
 
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230504164954808.png" alt='image-20230504164954808' onerror="this.onerror=null;this.src='images\/image-20230504164954808.png';" />
-</p>
-</li>
-<li>
-<p>백업 정책을 고르고 아래쪽 <strong>Save Changes</strong>를 클릭합니다.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230504165204041.png" alt='image-20230504165204041' onerror="this.onerror=null;this.src='images\/image-20230504165204041.png';" />
-</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230504165142006.png" alt='image-20230504165142006' onerror="this.onerror=null;this.src='images\/image-20230504165142006.png';" />
-</p>
-</li>
-<li>
-<p>Block Volume 리스트에서도 확인할 수 있으며, 추가 정보로 백업일정을 확인할 수 있습니다.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230504165440415.png" alt='image-20230504165440415' onerror="this.onerror=null;this.src='images\/image-20230504165440415.png';" />
-</p>
-</li>
-<li>
-<p>백업 정책에 따라 그림과 같이 스케줄에 따라 백업됩니다.</p>
-<p>
-
-
-
-
-
-
-
-<img class="img-fluid1" src="../images/image-20230508163742097.png" alt='image-20230508163742097' onerror="this.onerror=null;this.src='images\/image-20230508163742097.png';" />
-</p>
-</li>
-</ol>
-<h4 id="block-volume-백업-정책-삭제변경하기">Block Volume 백업 정책 삭제/변경하기</h4>
-<ol>
-<li>설정시와 동일하게 Block Volume의 우측 액션 메뉴에서 <strong>Edit</strong>를 클릭하여, 정책을 변경, 삭제하면 됩니다.</li>
-</ol>
+<h1 id="172-kafka-호환-oci-streaming-서비스-사용하기">17.2 Kafka 호환 OCI Streaming 서비스 사용하기</h1>
 <br>
 <br>
 <div class="panel panel-caution">
@@ -174,8 +70,8 @@
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 11 Jan 2022<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter03/7/3/" title="3.7.3 백업을 다른 Region으로 복사하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.7.3 백업을 다른 Region으로 복사하기</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter03/8/" title="3.8 Boot Volume 백업 활용하기">Next - 3.8 Boot Volume 백업 활용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+ <div class="edit-meta">Last updated on 2 May 2024<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter17/1/oci-oss-cdc-mds-debezium/" title="17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 17.1.3 Kafka Connect, Debezium로 OCI MySQL Database Service에 CDC 구성하기</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter17/2/provision-kafka-cluster/" title="17.2.1 Kafka Cluster 만들기">Next - 17.2.1 Kafka Cluster 만들기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -341,15 +237,15 @@
       
         
           
-          <li class="parent has-sub-menu">
+          <li class=" has-sub-menu">
               <a href="https://thekoguryo.github.io/oci/chapter03/">
                 3. OCI Compute VM 사용하기
                 <button type="button" class="toggleButton">
-                  <span class="right  hidden">
+                  <span class="right ">
                     <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
                       <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
                     </svg></span>
-                  <span class="down " >
+                  <span class="down  hidden" >
                     <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
                       <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
                     </svg>
@@ -359,7 +255,7 @@
                  
             
              
-            <ul class="sub-menu">
+            <ul class=" hidden">
 
     
     
@@ -505,15 +401,15 @@
       
         
           
-          <li class="parent has-sub-menu">
+          <li class=" has-sub-menu">
               <a href="https://thekoguryo.github.io/oci/chapter03/7/">
                 3.7 Block Volume 백업 활용하기
                 <button type="button" class="toggleButton">
-                  <span class="right  hidden">
+                  <span class="right ">
                     <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
                       <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
                     </svg></span>
-                  <span class="down " >
+                  <span class="down  hidden" >
                     <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
                       <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
                     </svg>
@@ -523,7 +419,7 @@
                  
             
              
-            <ul class="sub-menu">
+            <ul class=" hidden">
 
     
     
@@ -543,7 +439,7 @@
     
     
 
-      <li class="active"><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
+      <li class=""><a href="https://thekoguryo.github.io/oci/chapter03/7/4/">3.7.4 정책 기반 Block Volume 백업하기</a></li>
             </ul>
               
             </li>
@@ -1506,15 +1402,15 @@
       
         
           
-          <li class=" has-sub-menu">
+          <li class="parent has-sub-menu">
               <a href="https://thekoguryo.github.io/oci/chapter17/">
                 17. OCI Streaming 서비스 사용하기
                 <button type="button" class="toggleButton">
-                  <span class="right ">
+                  <span class="right  hidden">
                     <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
                       <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
                     </svg></span>
-                  <span class="down  hidden" >
+                  <span class="down " >
                     <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
                       <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
                     </svg>
@@ -1524,7 +1420,7 @@
                  
             
              
-            <ul class=" hidden">
+            <ul class="sub-menu">
 
     
     
@@ -1576,7 +1472,7 @@
       
         
           
-          <li class=" has-sub-menu">
+          <li class=" active has-sub-menu">
               <a href="https://thekoguryo.github.io/oci/chapter17/2/">
                 17.2 OCI Streaming with Apache Kafka 서비스 사용하기
                 <button type="button" class="toggleButton">

@@ -83,7 +83,15 @@ LangChain과 같은 개발 프레임워크에서 Vector Store로 Oracle AI Datab
 
     ![26ai-vector-search-langchain-lab.ipynb](./images/26ai-vector-search-langchain-lab.ipynb.png)
 
+11. VSCode에서 새 터미널을 열거나, SQLcl 등을 실행하면, 생성한 .venv가 자동으로 기본 활성화됩니다. 이는 SQLcl과 충돌이 발생할 수 있으니, 기본 활성을 해제합니다.
+
+    - VS Code 메뉴에서 Preferences > Settings를 클릭
+    - `python.terminal.activateEnvironment`로 검색
+    - `python.terminal.activateEnvironment`: true 설정을 체크해제
+
+        ![python.terminal.activateEnvironment](./images/python-terminal-activate-environment.png)
+
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, November 6, 2025
+* **Last Updated By/Date** - DongHee Lee, December 3, 2025

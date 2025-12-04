@@ -26,9 +26,9 @@
 
     - https://cloud.oracle.com/
 
-2. 접속정보는 사전에 이메일로 전달된 정보를 사용합니다.
+2. 접속정보는 사전에 이메일로 전달된 정보 또는 보유한 환경을 사용합니다.
 
-    - Cloud Account Name: oradevday*xxx*
+    - Cloud Account Name: 예, oradevday*xxx*
     - User Name & Password
 
 ## Task 2: VCN 및 서브넷 생성
@@ -44,7 +44,7 @@
 
     ![Navigation Menu](images/navigation-networking-vcn.png)
 
-2. Applied filters에서 root > OCI-HOL 아래 각자의 Compartment를 선택합니다.
+2. Applied filters에서 각자의 Compartment를 선택합니다. (예, root > OCI-HOL 아래 )
 
 3. **Actions**에서 **Start VCN Wizard**을 선택합니다.
 
@@ -103,7 +103,7 @@
 
 1. 왼쪽 상단의 **Navigation Menu**(또는 햄버거 메뉴라고도 말함)를 클릭하고 **Compute** > **Instances**로 이동합니다.
 
-2. Applied filters에서 root > OCI-HOL 아래 각자의 Compartment를 선택합니다.
+2. Applied filters에서 각자의 Compartment를 선택합니다. (예, root > OCI-HOL 아래 )
 
 3. **Create instance**를 클릭합니다.
 

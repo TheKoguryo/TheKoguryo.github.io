@@ -8,8 +8,6 @@ Oracle Cloud Infrastructure Compute 인스턴스 작업에 대한 추가 정보�
 
 예상 시간: 30분
 
-[](youtube:09kahbIF0Ew)
-
 ### 목표
 
 이 실습에서는 다음을 수행합니다:
@@ -60,26 +58,24 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 5. Image and shape - 사용할 이미지와 Shape(CPU, Memory 크기)을 선택합니다.
 
-    ![Create Instance - Image & Shape](images/instance-image-n-shape.png =60%x*)
-
     - Change Image를 선택하면 제공하는 다양한 이미지를 확인할 수 있습니다. 리눅스 및 윈도우를 지원합니다. 리눅스를 사용할 경우 기술지원이 포함된 Oracle Linux를 권장합니다. OS에 따라 버전과 빌드이미지를 날짜로 선택할 수 있습니다.
 
-        ![Image를](images/instance-image-os.png =60%x*)
+        ![OS Image](images/instance-image-os.png =70%x*)
 
         RedHat Linux는 [Learn More](#LearnMore)를 확인합니다.
 
     - Change Shape을 선택하면, 인스턴스 유형(VM, 베어메탈)을 고를 수 있고, AMD, Intel, Arm CPU를 제공합니다. 기본 AMD를 선택합니다.
 
-        ![Shape을](images/instance-shape.png =60%x*)
+        ![Shape을](images/instance-shape.png =70%x*)
 
-        * VM.Standard.E4.Flex을 선택합니다. _Flex Shape으로, 비용 최적화된 Shape을 사용할 수 있습니다._ 고정된 CPU, Memory 중에 고르는 것이 아니라, 원하는 CPU, 원하는 메모리 크기를 직접 고를 수 있습니다. 
+        * VM.Standard.E4.Flex을 선택합니다. _Flex Shape으로, 비용 최적화된 Shape을 사용할 수 있습니다._ 고정된 CPU, Memory 중에 고르는 것이 아니라, 원하는 CPU, 원하는 메모리 크기를 직접 고를 수 있습니다. _1_ OCPU, _4_ GB로 선택
 
         ![Shape을](images/instance-shape-flex.png =70%x*)
     
 
 6. Primary VNIC information - 앞선 실습에서 만든 VCN내에 Public Subnet을 선택합니다. **Automatically assign a public IPv4 address**을 선택되었는지 확인합니다.
 
-    ![Networking](images/instance-networking.png =60%x*)
+    ![Networking](images/instance-networking.png =80%x*)
 
 7. Add SSH Keys - SSH 접속을 위한 키를 등록하는 부분입니다. 별도로 생성해서 등록해도 되지만 편의상 **Generate a key pair for me**를 선택하여, 키를 자동으로 생성합니다. 
     - _Save private key_, _Save public key_를 클릭하여, 반드시 개인키와 공개키 둘다 다운로드 받습니다.
@@ -88,7 +84,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 8. Create를 클릭하여 인스턴스를 생성합니다.
 
-9. 인스턴스의 상태가 *RUNNING*이 되면, 인스턴스의 Public IP를 확인합니다.
+9. 인스턴스의 상태가 *Running*이 되면, 인스턴스의 Public IP를 확인합니다.
 
     ![Public IP](images/instance-public-ip.png)
 
@@ -101,7 +97,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
     Cloud Shell이 ​​시작될 때 콘솔의 Region 기준으로, Cloud Shell의 OCI CLI 컨텍스트가 기본 설정됩니다.
 
-    ![Cloud Shell](images/cloudshell-1.png)
+    ![Cloud Shell](images/cloudshell.png)
 
 2. Cloud Shell VM의 아키턱처를 x86으로 변경하고, Cloud Shell을 재시작합니다.
 
@@ -127,7 +123,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 7. 파일의 권한을 변경합니다.
 
     ```shell
-    chmod 400 ssh-key-2023-03-03.key*
+    chmod 400 ssh-key*
     ```
 
 8. 인스턴스에 접속하기 위해, 다음 명령을 실행합니다.
@@ -184,7 +180,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
     - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
 
         ```shell
-        curl http://144.24.xx.xxx
+        curl http://158.179.xx.xxx
         ```
 
     - *Security Lists에 아직 80 포트가 열려있지 않기 때문에, 응답에 실패하는 것이 정상입니다.*
@@ -196,7 +192,9 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
 5. 왼쪽 아래 Resources 아래 **Security Lists**을 클릭합니다.
 
-    ![Click on Security Lists](images/security-list.png)
+    ![Click on Security Lists](images/subnet-of-compute-instance.png)
+
+    ![Click on Security Lists](images/subnet-security-list.png)
 
 6. **Default Security List**를 클릭합니다.
 
@@ -217,8 +215,8 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
     - 또는 접속한 터미널에서 curl 명령으로 접속해 봅니다.
 
-        ```
-        $ curl http://144.24.xx.xxx
+        ```shell
+        $ curl http://158.179.xx.xxx
         Hello Apache on Web-Server-1
         ```
 
@@ -233,16 +231,14 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
         * 퍼블릭 존에 http가 보이는 지 확인합니다.
 
-            ```
-        
+            ```shell
             [opc@web-server-1 ~]$ <copy>sudo firewall-cmd --zone=public --list-services</copy>
             dhcpv6-client http ssh
             ```
 
         * httpd 서비스가 80 포트로 리스닝하고 있는 지 확인합니다. 포트가 다르다면 VCN Security List에서 해당 포트를 개방합니다.
 
-            ```
-        
+            ```shell
             [opc@web-server-1 ~]$ <copy>sudo netstat -tulnp | grep httpd</copy>
             tcp6       0      0 :::80                   :::*                    LISTEN      58543/httpd
             ```
@@ -251,7 +247,7 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 
         * Cloud Shell에서 접속을 테스트 해봅니다.
         
-            ```
+            ```shell
             curl http://<public_ip_address>
             ```
 
@@ -260,9 +256,8 @@ Oracle Cloud Infrastructure VM 컴퓨트 인스턴스는 동일한 클라우드 
 ## Learn More
 
 - [RHEL runs on OCI supported by Oracle and Red Hat](https://blogs.oracle.com/cloud-infrastructure/post/red-hat-enterprise-linux-supported-oci)
+
 ## Acknowledgements
 
-- **Author** - Rajeshwari Rai, Prasenjit Sarkar, DongHee Lee
-- **Contributors** - Oracle LiveLabs QA Team (Kamryn Vinson, QA Intern, Arabella Yao, Product Manager, DB Product Management)
-- **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, July 2024
+- **Author** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, December 2025

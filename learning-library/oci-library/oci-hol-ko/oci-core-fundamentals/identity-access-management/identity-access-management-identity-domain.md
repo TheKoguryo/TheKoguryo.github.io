@@ -65,7 +65,7 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
    ![Default Domain](images/id-domains-default.png " ")
 
-3. **Groups** 클릭
+3. **User Management** 탭을 클릭하고 화면 아래쪽 **Groups**로 이동합니다.
 
    ![Groups](images/id-domains-groups.png)
 
@@ -90,12 +90,12 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
     * Compartment(`<compartment_name>`) 레벨 또는 테넌시(`tenancy`) 레벨로 유저 그룹(`<group_name>`)에 대해서 특정자원유형(`<resource-type>`)에 대해 작업권한(`<verb>`)를 주는 기본 포맷입니다.
 
-       ```
+       ```shell
        <copy>
        Allow group <group_name> to <verb> <resource-type> in compartment <compartment_name>
        </copy>
        ```
-       ```
+       ```shell
        <copy>
        Allow group <group_name> to <verb> <resource-type> in tenancy
        </copy>
@@ -171,7 +171,7 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
 1. 왼쪽 상단의 **Navigation Menu**를 클릭하고 **Identity & Security**으로 이동한 다음 **Domains** 으로 이동하여, **Default Domain**을 선택합니다.
 
-2. **Domains** 하위의 **Users**을 선택합니다.
+2. **User management** 탭에서 **Users** 영역으로 이동합니다.
 
    ![Select Users](images/id-domains-users.png)
 
@@ -186,15 +186,16 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
     - **Assign cloud account administrator role**: 체크 해제
     - 앞서 만든 **oci-group** 그룹으로 지정
 
-      ![New user form](images/id-domains-create-user.png)
+      ![New user form](images/id-domains-create-user-1.png)
+      ![New user form](images/id-domains-create-user-2.png)
 
 4. 생성시 입력한 이메일 주소로 활성화 링크가 발송됩니다.
 
-    - 이메일을 수신하지 못한 경우, 유저 상세페이지에서 Reset password 버튼을 클릭하여 메일을 재전송하게 합니다.
+    - 이메일을 수신하지 못한 경우, 유저 상세페이지에서 Reset password 버튼을 클릭하여 메일을 재전송합니다.
 
     ![Reset password](images/id-domains-user-resetpw.png)
 
-5. 관리자 권한인 현재 사용자는 Oracle Cloud Console에서 로그아웃합니다.
+5. 관리자 권한인 현재 사용자는 로그아웃합니다.
 
 
 ### 신규 유저의 패스워드 초기화 및 MFA 등록하기
@@ -245,13 +246,13 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
     ![Compute Instances](images/compute-instances.png)
 
-7. 왼쪽 아래 Compartment에서 Root Compartment를 선택합니다.
+7. Applied Filter에서 _Root_ Compartment를 선택합니다.
 
-    - Compute 인스턴스 목록화면에서 권한이 없다는 경고 문구를 볼 수 있습니다. **_You don’t have permission to view these resources in this compartment**
+    - Compute 인스턴스 목록화면에서 권한이 없다는 경고 문구를 볼 수 있습니다.
 
     ![No Permission](images/compute-instances-no-permission.png)
 
-8. 왼쪽 아래 Compartment에서 정책을 부여한 oci-hol-xx Compartment를 선택합니다.
+8. Applied Filter에서 앞서 정책을 부여한 _oci-hol-xx_ Compartment를 선택합니다.
 
     - Compute 인스턴스 목록화면에 경고 문구가 사라졌습니다. 아직 생성한 자원이 없어서 리스트는 보이지 않는 상태입니다.
 
@@ -265,6 +266,5 @@ OCI 서비스에 대한 유저의 권한은 유저가 속한 _그룹_에 따라 
 
 ## Acknowledgements
 
-- **Author** - Orlando Gentil, DongHee Lee
-- **Korean Translator & Contributors** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, July 2024
+- **Author** - DongHee Lee, March 2023
+- **Last Updated By/Date** - DongHee Lee, December 2025

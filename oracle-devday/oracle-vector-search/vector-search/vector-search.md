@@ -23,7 +23,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 ## Task 1: Oracle AI Database 26ai 준비
 
-1. 준비된 환경의 터미널 또는 명령창에서 진행합니다.
+1. 준비된 환경(my-devday VM 또는 로컬환경)의 터미널 또는 명령창에서 진행합니다.
 
 2. Oracle AI Database 26ai Free 컨테이너 이미지 다운로드
 
@@ -153,8 +153,6 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     SQL> <copy>SELECT UTL_HTTP.REQUEST(url => 'http://host.docker.internal:11434/api/ps') FROM dual;</copy>
     ```
 
-SELECT UTL_HTTP.REQUEST(url => 'https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com') FROM dual;
-
 ## Task 3: Visual Studio Code - DB Connection 만들기
 
 1. Visual Studio Code에서 실행합니다.
@@ -197,9 +195,11 @@ SELECT UTL_HTTP.REQUEST(url => 'https://inference.generativeai.ap-osaka-1.oci.or
 
     ![Connection](./images/sql-developer-connection.png)
 
+    ![SQL Worksheet](./images/run-sql-in-vscode-sql-worksheet.png)
+
 ## Task 4: Oracle AI Database 26ai Vector Search 주요 기능 알아보기
 
-1. 터미널 또는 명령창에서 다음을 수행하여, 실습 코드를 다운로드 받습니다.
+1. 준비된 환경(my-devday VM 또는 로컬환경)의 터미널 또는 명령창에서 진행합니다. 실습 코드를 다운로드 받습니다.
 
     ```shell
     <copy>
@@ -231,9 +231,9 @@ SELECT UTL_HTTP.REQUEST(url => 'https://inference.generativeai.ap-osaka-1.oci.or
 
     - SQL Notebook은 Jupyter Notebook과 비슷합니다. Python 대신 SQL, PL/SQL을 실행할 수 있습니다.
 
-6. 노트북을 따라 진행하고 PL/SQL Code 부분은 왼쪽 화살표를 클릭하면, 현재 연결된 connection에서 실행하고 그 아래에 결과가 표시됩니다.
+    - 노트북을 따라 진행하고 PL/SQL Code 부분은 왼쪽 화살표를 클릭하면, 현재 연결된 connection에서 실행하고 그 아래에 결과가 표시됩니다.
 
-    ![Execute Shell](./images/execute-cell.png)
+        ![Execute Shell](./images/execute-cell.png)
 
 ## Acknowledgements
 

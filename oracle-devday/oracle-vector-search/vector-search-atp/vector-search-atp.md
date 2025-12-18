@@ -151,10 +151,15 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 3. `private_key` (예, `~/.oci/oci_api_key.pem`)를 한줄 텍스트로 변경합니다.
 
     ```shell
-    <copy>
-    awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ~/.oci/oci_api_key.pem
-    </copy>    
+    <copy>awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ~/.oci/oci_api_key.pem</copy>
     ```
+
+    - 실행예시: _결과 문자열을 수정없이 그대로 복사해서 사용합니다_
+
+        ```shell
+        $ awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' ~/.oci/oci_api_key.pem
+        -----BEGIN RSA PRIVATE KEY-----\nMIIE........m84M=\n-----END RSA PRIVATE KEY-----\nOCI_API_KEY\n
+        ```
 
 4. API Key 정보를 사용하여 OCI_CRED 이름으로 Credential을 생성합니다.
 
@@ -194,7 +199,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
             jo.put('tenancy_ocid', 'ocid1.tenancy.oc1.....');
             jo.put('compartment_ocid', 'ocid1.compartment.oc1.....');
             jo.put('fingerprint', '31:8c:..');    
-            jo.put('private_key', '-----BEGIN RSA PRIVATE KEY-----\nMIIE...m84M=\n-----END RSA PRIVATE KEY-----\nOCI_API_KEY\n');
+            jo.put('private_key', '-----BEGIN RSA PRIVATE KEY-----\nMIIE........m84M=\n-----END RSA PRIVATE KEY-----\nOCI_API_KEY\n');
 
             dbms_vector.create_credential(
                 credential_name => 'OCI_CRED',

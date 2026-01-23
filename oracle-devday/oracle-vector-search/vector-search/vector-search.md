@@ -157,7 +157,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 1. Visual Studio Code에서 실행합니다.
 
-2. 왼쪽 Activity Bar에서 설치한 SQL Developer 아이콘을 클릭합니다.
+2. 왼쪽 Activity Bar에서 설치한 SQL Developer Extension 아이콘을 클릭합니다.
 
     ![SQL Developer](./images/activity-bar-sql-developer.png)
 

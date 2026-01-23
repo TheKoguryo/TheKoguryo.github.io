@@ -36,11 +36,11 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 1. Visual Studio Code에서 실행합니다.
 
-2. 왼쪽 Activity Bar에서 제일 위 Explorer 아이콘을 클릭하고, Open Folder를 클릭하여, /home/opc/ 폴더를 선택합니다.
+2. 왼쪽 Activity Bar에서 제일 위 Explorer 아이콘을 클릭합니다. Open Folder를 클릭하여, /home/opc/ 폴더를 선택합니다.
 
-3. 다운받은 Wallet 선택을 /home/opc/ 폴더 밑에 드래그 앤 드랍해서 업로드합니다.
+3. Wallet 파일을 /home/opc/ 폴더 밑에 드래그 앤 드랍해서 업로드합니다.
 
-4. 왼쪽 Activity Bar에서 설치한 SQL Developer 아이콘을 클릭합니다.
+4. 왼쪽 Activity Bar에서 설치한 SQL Developer Extension 아이콘을 클릭합니다.
 
     ![SQL Developer](./images/activity-bar-sql-developer.png)
 

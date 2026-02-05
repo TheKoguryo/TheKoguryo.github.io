@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>다른 리전 OCI Generative AI를 프라이빗하게 호출하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.139.3">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/cross-region-oci-genai/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="다른 리전 OCI Generative AI를 프라이빗하게 호출하기">
+  <meta property="og:description" content="다른 리전 OCI Generative AI를 프라이빗하게 호출하기 배경설명 OCI Generative AI가 OCI 일부 리전(Generative AI Regions)에서만 서비스되고 있습니다. 국내에서는 아직 Generative AI 서비스를 제공하고 있지 않아, 가까운 일본 오사카에 있는 OCI Generative AI 서비스를 사용한다고 할 경우, 국내 리전에 있는 서버에서 인터넷을 거치지 않고, 사용할 수 있는 지를 확인해 보고자 합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-02-05T00:00:01+00:00">
+    <meta property="article:modified_time" content="2026-02-05T00:00:01+00:00">
+    <meta property="article:tag" content="Cross-Region">
+    <meta property="article:tag" content="Genai">
+    <meta property="article:tag" content="Private Endpoint">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-02-06</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="다른-리전-oci-generative-ai를-프라이빗하게-호출하기">다른 리전 OCI Generative AI를 프라이빗하게 호출하기</h2>
+<h6 id="배경설명">배경설명</h6>
+<p>OCI Generative AI가 OCI 일부 리전(<a href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/regions.htm">Generative AI Regions</a>)에서만 서비스되고 있습니다. 국내에서는 아직 Generative AI 서비스를 제공하고 있지 않아, 가까운 일본 오사카에 있는 OCI Generative AI 서비스를 사용한다고 할 경우, 국내 리전에 있는 서버에서 인터넷을 거치지 않고, 사용할 수 있는 지를 확인해 보고자 합니다.</p>
+<p><strong>OCI Service Gateway</strong></p>
+<p>Service Gateway는 <em>같은 리전내 오라클 서비스들을 접근</em>할 수 있게 해주며, OCI Generative AI도 Service Gateway를 지원에서 지원합니다. 즉, 같은 리전내 Private 서브넷에 있는 VM에서는 Service Gateway를 통해 인터넷을 거치지 않고, 리전내 OCI Generative AI 서비스를 호출할 수 있습니다. VM에서 Service Gateway를 통해 타 리전의 오라클 서비스에 대한 접근은 기본적으로는 지원하지 않습니다.</p>
+<ul>
+<li>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/servicegateway.htm#highlights">Access to Oracle Services: Service Gateway</a></p>
+<ul>
+<li><em>The service gateway is regional</em> and enables access only to supported Oracle services <em>in the same region</em> as the VCN.</li>
+</ul>
+</li>
+<li>
+<p><a href="https://www.oracle.com/cloud/networking/service-gateway/service-gateway-supported-services/">Service Gateway: Supported Cloud Services in Oracle Services Network</a>.</p>
+</li>
+</ul>
+<p><strong>Generative AI 서비스의 Cross Region Call</strong></p>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/regions.htm#cross-region-call">Services that Call into the Generative AI Service</a>에 아래와 같은 설명이 있습니다.</p>
+<p>정리하면,  Generative AI 서비스가 현재 일부 리전에서만 서비스되고 있지만, 일부 OCI 관리형 클라우드 서비스에서 Generative AI가 필요한 경우가 있어, 일부 관리형 OCI 서비스에서 Generative AI를 호출할 수 있게 cross-region 호출을 지원한다고 합니다. 이중 가까운 일본 리전으로 예를 들면, 도쿄리전에 있는  일부 OCI 관리형 클라우드 서비스가 오사카 OCI Generative AI 서비스를 호출하면, OCI Generative AI 단에서 자동으로 다른 리전인 오사카 리전의 OCI Generative AI로 돌려준다는 의미로 추측됩니다.</p>
+<p>일부 OCI 관리형 클라우드 서비스만 쓰는 건지, 그러면 도쿄 ADB에서 오사카 Generative AI를 호출할 수 있게 해주는 지 확인하려 했지만, 개인적으로 원하는 결과를 얻지는 못했습니다.</p>
+<ul>
+<li>Currently, the Oracle Cloud Infrastructure (OCI) Generative AI Service is not offered in every OCI commercial region. See the column below titled “Destination Region:” for a list of OCI commercial regions offering the OCI Generative AI Service.</li>
+<li>There are OCI services which document (in the “<em>Oracle PaaS and IaaS Universal Credits Service Descriptions</em>”) that they make calls into the OCI Generative AI Service. For a given call into the OCI Generative AI Service, if the Calling Region and Destination Region are not the same, then a cross-region call will be made.
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">Area</th>
+          <th style="text-align: left">Calling Regions</th>
+          <th style="text-align: left">Destination Region:OCI region offering OCI Generative AI Service</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Japan</td>
+          <td style="text-align: left"><code>KIX</code>, <code>NRT</code></td>
+          <td style="text-align: left"><code>KIX</code></td>
+      </tr>
+  </tbody>
+</table>
+</li>
+</ul>
+<p><strong>Private Service Access Endpoints</strong></p>
+<p>일부 오라클 서비스는 개별 서비스에서 사용자의 서브넷에 Private IP로 노출시키는 것을 지원하였지만, 지난 1월에 <a href="https://docs.oracle.com/en-us/iaas/releasenotes/multiple/zpr-psa.htm">Private Service Access Endpoints Now Available</a> 릴리즈 노트와 함께 PSA 엔드포인트 출시되어, 더 많은 서비스를 지원하기 시작했습니다. OCI Generative AI도 기존에는 Dedicated Cluster만 Private Endpoint를 지원했지만, PSA 출시 직후인 1월 말부터 On-Demand 모드의 Generative AI 또한 Private Endpoint를 지원하기 시작했습니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/releasenotes/generative-ai/private-endpoint-on-demand.htm">Use Private Endpoints for On-Demand Mode in OCI Generative AI</a></li>
+</ul>
+<h6 id="테스트-환경구성">테스트 환경구성</h6>
+<ol>
+<li>
+<p>VCN Wizard로 Create VCN with Internet Connectivity 형식으로 VCN을 테스트할 각 리전에 생성합니다.</p>
+<table>
+  <thead>
+      <tr>
+          <th>Region</th>
+          <th>VCN CIDR Block</th>
+          <th>Public Subnet</th>
+          <th>Private Subnet</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>ap-osaka-1</td>
+          <td>10.0.0.0/16</td>
+          <td>10.0.0.0/24</td>
+          <td>10.0.1.0/24</td>
+      </tr>
+      <tr>
+          <td>ap-tokyo-1</td>
+          <td>10.1.0.0/16</td>
+          <td>10.1.0.0/24</td>
+          <td>10.1.1.0/24</td>
+      </tr>
+      <tr>
+          <td>ap-seoul-1</td>
+          <td>10.2.0.0/16</td>
+          <td>10.2.0.0/24</td>
+          <td>10.1.1.0/24</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+<li>
+<p>모든 Private Subnet Route Rules에서는 Service Gateway만 남깁니다.</p>
+<ul>
+<li>Service Gateway: 유지</li>
+<li><em>NAT Gateway: 삭제</em></li>
+</ul>
+</li>
+</ol>
+<h6 id="case-1-같은-리전내-oci-generative-ai-서비스-호출-테스트">Case #1. 같은 리전내 OCI Generative AI 서비스 호출 테스트</h6>
+<blockquote>
+<p>ComputeVM@PrivateSubnet@ap-osaka-1 -&gt; OCI GenAI@ap-osaka-1</p>
+<p>Service Gateway만을 사용</p>
+</blockquote>
+<ol>
+<li>
+<p>Python 코드를 작성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">oci</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Instance Principal Signer</span>
+</span></span><span class="line"><span class="cl"><span class="n">signer</span> <span class="o">=</span> <span class="n">oci</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">signers</span><span class="o">.</span><span class="n">InstancePrincipalsSecurityTokenSigner</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Service endpoint (unchanged)</span>
+</span></span><span class="line"><span class="cl"><span class="n">endpoint</span> <span class="o">=</span> <span class="s2">&#34;https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Create client using signer</span>
+</span></span><span class="line"><span class="cl"><span class="n">generative_ai_inference_client</span> <span class="o">=</span> <span class="n">oci</span><span class="o">.</span><span class="n">generative_ai_inference</span><span class="o">.</span><span class="n">GenerativeAiInferenceClient</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">   <span class="n">config</span><span class="o">=</span><span class="p">{},</span>  <span class="c1"># Still required but can be an empty dict</span>
+</span></span><span class="line"><span class="cl">   <span class="n">signer</span><span class="o">=</span><span class="n">signer</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="n">service_endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">   <span class="n">retry_strategy</span><span class="o">=</span><span class="n">oci</span><span class="o">.</span><span class="n">retry</span><span class="o">.</span><span class="n">NoneRetryStrategy</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">   <span class="n">timeout</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">inputs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;hello&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">embed_text_detail</span> <span class="o">=</span> <span class="n">oci</span><span class="o">.</span><span class="n">generative_ai_inference</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">EmbedTextDetails</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">embed_text_detail</span><span class="o">.</span><span class="n">serving_mode</span> <span class="o">=</span> <span class="n">oci</span><span class="o">.</span><span class="n">generative_ai_inference</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">OnDemandServingMode</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">   <span class="n">model_id</span><span class="o">=</span><span class="s2">&#34;cohere.embed-v4.0&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">embed_text_detail</span><span class="o">.</span><span class="n">inputs</span> <span class="o">=</span> <span class="n">inputs</span>
+</span></span><span class="line"><span class="cl"><span class="n">embed_text_detail</span><span class="o">.</span><span class="n">truncate</span> <span class="o">=</span> <span class="s2">&#34;NONE&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">embed_text_detail</span><span class="o">.</span><span class="n">compartment_id</span> <span class="o">=</span> <span class="s2">&#34;ocid1.compartment.oc1..aaaaa...&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">embed_text_response</span> <span class="o">=</span> <span class="n">generative_ai_inference_client</span><span class="o">.</span><span class="n">embed_text</span><span class="p">(</span><span class="n">embed_text_detail</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Print result</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;**************************Embed Texts Result**************************&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">embed_text_response</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">embeddings</span><span class="p">[</span><span class="mi">0</span><span class="p">])[:</span><span class="mi">100</span><span class="p">]</span><span class="si">}</span><span class="s2">...]&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>호출 테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ python call-genai.py
+</span></span><span class="line"><span class="cl">**************************Embed Texts Result**************************
+</span></span><span class="line"><span class="cl"><span class="o">[</span>0.015515471, 0.0130208265, 0.0023121093, -0.010769562, 0.008396608, 0.010769562, -0.037723888, 0.01...<span class="o">]</span>
+</span></span></code></pre></div><p>=&gt; 같은 리전내 OCI Generative AI 서비스는 Service Gateway를 통해 잘 호출됩니다.</p>
+</li>
+</ol>
+<h6 id="case-2-service-gateway로-리전-간-oci-generative-ai-호출-테스트">Case #2. Service Gateway로 리전 간 OCI Generative AI 호출 테스트</h6>
+<blockquote>
+<p>ComputeVM@PrivateSubnet@<em>ap-tokyo-1</em> -&gt; OCI GenAI@ap-osaka-1</p>
+<p>Service Gateway만을 사용</p>
+<p>일부 OCI 서비스의 경우 cross-region call이 된다고 하여, ap-tokyo-1에서 ap-osaka-1로 호출</p>
+</blockquote>
+<ol>
+<li>
+<p><em>ap-tokyo-1</em> 리전에서 ap-osaka-1에 있는 GenAI를 호출 테스트합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ python call-genai.py 
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+</span></span><span class="line"><span class="cl">File <span class="s2">&#34;/home/opc/call-genai.py&#34;</span>, line 28, in &lt;module&gt;
+</span></span><span class="line"><span class="cl">   <span class="nv">embed_text_response</span> <span class="o">=</span> generative_ai_inference_client.embed_text<span class="o">(</span>embed_text_detail<span class="o">)</span>
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">File <span class="s2">&#34;/usr/lib/python3.9/site-packages/oci/base_client.py&#34;</span>, line 754, in request
+</span></span><span class="line"><span class="cl">   raise exceptions.RequestException<span class="o">(</span>e<span class="o">)</span>
+</span></span><span class="line"><span class="cl">oci.exceptions.RequestException: <span class="o">(</span>MaxRetryError<span class="o">(</span><span class="s2">&#34;OCIConnectionPool(host=&#39;inference.generativeai.ap-osaka-1.oci.oraclecloud.com&#39;, port=443): Max retries exceeded with url: /20231130/actions/embedText (Caused by NewConnectionError(&#39;&lt;oci.base_client.OCIConnection object at 0x7f9c55e76610&gt;: Failed to establish a new connection: [Errno -2] Name or service not known&#39;))&#34;</span><span class="o">)</span>, <span class="s1">&#39;Request Endpoint: POST https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com/20231130/actions/embedText See https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdk_troubleshooting.htm for help troubleshooting this error, or contact support and provide this full error message.&#39;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ curl https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com/20231130/actions/embedText
+</span></span><span class="line"><span class="cl">curl: <span class="o">(</span>6<span class="o">)</span> Could not resolve host: inference.generativeai.ap-osaka-1.oci.oraclecloud.com   
+</span></span></code></pre></div><p>=&gt; 호출 실패</p>
+<p>=&gt; Service Gateway는 같은 리전내 오라클 서비스에 대한 접근을 지원한다고 했으니, 도쿄리전에서 오사카의 서비스가 Service Gateway를 통해 호출되지 않는 것은 당연해 보입니다.</p>
+</li>
+</ol>
+<h6 id="case-3-service-gateway로-리전-간-oci-generative-ai-호출-테스트-oci-서비스-중-하나인-adb에서-호출">Case #3. Service Gateway로 리전 간 OCI Generative AI 호출 테스트, OCI 서비스 중 하나인 ADB에서 호출</h6>
+<blockquote>
+<p>ADB@PrivateSubnet@<em>ap-tokyo-1</em> -&gt; OCI GenAI@ap-osaka-1</p>
+<p>ADB: ADB 26ai 버전, Private endpoint access only 옵션으로 Private Subnet에 생성</p>
+<p>PaaS 서비스내에서 호출이 되는지 확인하기 위해 SQL상에서 호출</p>
+</blockquote>
+<ol>
+<li>
+<p>Tokyo 리전에 ADB 26ai 버전을 Private endpoint access only 타입으로 Private Subnet에 생성합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/adb-private-endpoint.png" alt='ADB Private Endpoint' onerror="this.onerror=null;this.src='images\/adb-private-endpoint.png';" />
+</p>
+</li>
+<li>
+<p>유저 생성 및 권한 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">CREATE USER vector IDENTIFIED BY &lt;YOUR_PASSWORD&gt; DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users<span class="p">;</span>
+</span></span><span class="line"><span class="cl">GRANT CONNECT, RESOURCE TO vector<span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-- OCI 서비스 접속을 위한 Credential 생성 권한 부여
+</span></span><span class="line"><span class="cl">GRANT DB_DEVELOPER_ROLE TO vector<span class="p">;</span>
+</span></span><span class="line"><span class="cl">GRANT EXECUTE ON DBMS_CLOUD TO vector<span class="p">;</span>
+</span></span><span class="line"><span class="cl">GRANT execute on DBMS_CLOUD_AI to vector<span class="p">;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>DB내에서 외부 Embedding 모델을 호출하기 위해서는 네트워크 접근 허용을 설정해야 합니다. 사용할 DB 유저(예, vector 유저)에게 허용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">   DBMS_NETWORK_ACL_ADMIN.APPEND_HOST_ACE<span class="o">(</span>
+</span></span><span class="line"><span class="cl">         <span class="nv">host</span> <span class="o">=</span>&gt; <span class="s1">&#39;*&#39;</span>,
+</span></span><span class="line"><span class="cl">         <span class="nv">ace</span> <span class="o">=</span>&gt;  xs<span class="nv">$ace_type</span><span class="o">(</span> <span class="nv">privilege_list</span> <span class="o">=</span>&gt; xs<span class="nv">$name_list</span><span class="o">(</span><span class="s1">&#39;http&#39;</span><span class="o">)</span>,
+</span></span><span class="line"><span class="cl">                              <span class="nv">principal_name</span> <span class="o">=</span>&gt; <span class="s1">&#39;VECTOR&#39;</span>,
+</span></span><span class="line"><span class="cl">                              <span class="nv">principal_type</span> <span class="o">=</span>&gt; xs_acl.ptype_db<span class="o">))</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">END<span class="p">;</span>
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>vector 유저로 접속후 각 URL에 접근이 되는 지 테스트합니다.</p>
+<ul>
+<li>
+<p>외부 인터넷 접근 테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">SQL&gt; SELECT UTL_HTTP.REQUEST<span class="o">(</span><span class="nv">url</span> <span class="o">=</span>&gt; <span class="s1">&#39;https://www.naver.com/&#39;</span><span class="o">)</span> FROM dual<span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   &lt;!doctype html&gt; &lt;html <span class="nv">lang</span><span class="o">=</span><span class="s2">&#34;ko&#34;</span> <span class="nv">class</span><span class="o">=</span><span class="s2">&#34;fzoom&#34;</span>&gt; &lt;head&gt; &lt;meta <span class="nv">charset</span><span class="o">=</span><span class="s2">&#34;utf-8&#34;</span>&gt; ...
+</span></span><span class="line"><span class="cl">   ...
+</span></span></code></pre></div><p>=&gt; Routing Table에서 NAT를 제외하고, Service Gateway만 남겼는데도 외부 인터넷이 접근됩니다.</p>
+<p>=&gt; <a href="https://docs.oracle.com/en/cloud/paas/autonomous-database/serverless/adbsb/private-endpoints-autonomous.html#GUID-8FCA06C0-E1C1-49F6-82C2-6B7B3787CF3B">Enhanced Security for Outbound Connections with Private Endpoints</a> 문서를 보면, <strong>ADB는 자체 service VCN의 NAT를 기본 사용한다고 합니다.</strong> 그래서 ADB 인스턴스가 위치한 Private Subnet의 Routing Table이 아닌, ADB의 Service VCN의 NAT를 통해 외부 인터넷에 접근이 된 것입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Note
+</span></span><span class="line"><span class="cl">If the ROUTE_OUTBOUND_CONNECTIONS property is not set, all outgoing connections to the public internet are routed through the Network Address Translation (NAT) Gateway of the service VCN. In this case, if the target host is a public endpoint, these outgoing connections are not subject to the egress rules defined for the Autonomous AI Database instance&#39;s private endpoint VCN or Network Security Group (NSG).
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p><code>ROUTE_OUTBOUND_CONNECTIONS</code>는 <code>ENFORCE_PRIVATE_ENDPOINT</code>, <code>PRIVATE_ENDPOINT</code> 두 가지 설정이 있으며, DB내 AI 호출시 사용되는DBMS_CLOUD 패키지를 포함한 모든 아웃바운드 연결을 DB가 속한 VCN 또는 NSG의 설정을 따르도록 하려면, <code>ENFORCE_PRIVATE_ENDPOINT</code>로 설정해야 합니다.</p>
+</li>
+<li>
+<p>ADB <strong>ADMIN</strong> 유저로 <code>ROUTE_OUTBOUND_CONNECTIONS</code>을 <code>ENFORCE_PRIVATE_ENDPOINT</code>로 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">ALTER DATABASE PROPERTY SET <span class="nv">ROUTE_OUTBOUND_CONNECTIONS</span> <span class="o">=</span> <span class="s1">&#39;ENFORCE_PRIVATE_ENDPOINT&#39;</span><span class="p">;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">SQL&gt; SELECT * FROM DATABASE_PROPERTIES WHERE <span class="nv">PROPERTY_NAME</span> <span class="o">=</span> <span class="s1">&#39;ROUTE_OUTBOUND_CONNECTIONS&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">PROPERTY_NAME                 PROPERTY_VALUE              DESCRIPTION                                                              
+</span></span><span class="line"><span class="cl">_____________________________ ___________________________ _____________________________________________________________________
+</span></span><span class="line"><span class="cl">ROUTE_OUTBOUND_CONNECTIONS    ENFORCE_PRIVATE_ENDPOINT    Force all outbound connections to be routed via Private Endpoint <span class="o">(</span>PE<span class="o">)</span>       
+</span></span></code></pre></div></li>
+<li>
+<p>vector 유저로 접속후 각 URL에 접근이 되는 지 다시 테스트합니다.</p>
+<ul>
+<li>
+<p>외부 인터넷 접근 테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">SQL&gt; SELECT UTL_HTTP.REQUEST<span class="o">(</span><span class="nv">url</span> <span class="o">=</span>&gt; <span class="s1">&#39;https://www.naver.com/&#39;</span><span class="o">)</span> FROM dual<span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Error starting at line : <span class="m">1</span> in <span class="nb">command</span> -
+</span></span><span class="line"><span class="cl">SELECT UTL_HTTP.REQUEST<span class="o">(</span><span class="nv">url</span> <span class="o">=</span>&gt; <span class="s1">&#39;https://www.naver.com/&#39;</span><span class="o">)</span> FROM dual
+</span></span><span class="line"><span class="cl">Error at Command Line : <span class="m">1</span> Column : <span class="m">8</span>
+</span></span><span class="line"><span class="cl">Error report -
+</span></span><span class="line"><span class="cl">SQL Error: ORA-29273: HTTP request failed
+</span></span><span class="line"><span class="cl">ORA-06512: at <span class="s2">&#34;SYS.UTL_HTTP&#34;</span>, line <span class="m">1594</span>
+</span></span><span class="line"><span class="cl">ORA-30699: network connection failed: connection timed out
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div><p>=&gt; 이제 외부 인터넷이 접근이 안됩니다.</p>
+<p>=&gt; ADB가 속한 Private Subnet의 Routing Table에 NAT를 추가해 보면 다시 접근이 됩니다. 확인후 다시 NAT를 제거합니다.</p>
+</li>
+<li>
+<p>OCI Gen AI 오사카 리전 접근 테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">SQL&gt; SELECT UTL_HTTP.REQUEST<span class="o">(</span><span class="nv">url</span> <span class="o">=</span>&gt; <span class="s1">&#39;https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com/20231130/actions/embedText&#39;</span><span class="o">)</span> FROM dual<span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Error starting at line : <span class="m">1</span> in <span class="nb">command</span> -
+</span></span><span class="line"><span class="cl">SELECT UTL_HTTP.REQUEST<span class="o">(</span><span class="nv">url</span> <span class="o">=</span>&gt; <span class="s1">&#39;https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com/20231130/actions/embedText&#39;</span><span class="o">)</span> FROM dual
+</span></span><span class="line"><span class="cl">Error at Command Line : <span class="m">1</span> Column : <span class="m">8</span>
+</span></span><span class="line"><span class="cl">Error report -
+</span></span><span class="line"><span class="cl">SQL Error: ORA-29273: HTTP request failed
+</span></span><span class="line"><span class="cl">ORA-06512: at <span class="s2">&#34;SYS.UTL_HTTP&#34;</span>, line <span class="m">1594</span>
+</span></span><span class="line"><span class="cl">ORA-12545: Connect failed because target host or object does not exist
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div><p>=&gt; UTL_HTTP.REQUEST로는 도쿄리전에서 오사카의 서비스가 Service Gateway를 통해 호출되지 않습니다.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>DBMS_VECTOR 패키지를 이용해 호출해 봅니다.</p>
+<ol>
+<li>
+<p>Credential을 먼저 생성합니다.</p>
+<ol>
+<li>
+<p><code>private_key</code> (예, <code>~/.oci/oci_api_key.pem</code>)를 한줄 텍스트로 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">awk <span class="s1">&#39;NF {sub(/\r/, &#34;&#34;); printf &#34;%s\\n&#34;,$0;}&#39;</span> ~/.oci/oci_api_key.pem
+</span></span></code></pre></div></li>
+<li>
+<p>API Key 정보를 사용하여 OCI_CRED 이름으로 Credential을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="nb">declare</span>
+</span></span><span class="line"><span class="cl">    jo json_object_t<span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">begin
+</span></span><span class="line"><span class="cl">    jo :<span class="o">=</span> json_object_t<span class="o">()</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    jo.put<span class="o">(</span><span class="s1">&#39;user_ocid&#39;</span>, <span class="s1">&#39;ocid1.user.oc1..aaaaa.....&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    jo.put<span class="o">(</span><span class="s1">&#39;tenancy_ocid&#39;</span>, <span class="s1">&#39;ocid1.tenancy.oc1..aaaaa.....&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    jo.put<span class="o">(</span><span class="s1">&#39;compartment_ocid&#39;</span>, <span class="s1">&#39;ocid1.compartment.oc1..aaaaa.....&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    jo.put<span class="o">(</span><span class="s1">&#39;fingerprint&#39;</span>, <span class="s1">&#39;31:8c:.....&#39;</span><span class="o">)</span><span class="p">;</span>    
+</span></span><span class="line"><span class="cl">    jo.put<span class="o">(</span><span class="s1">&#39;private_key&#39;</span>, <span class="s1">&#39;-----BEGIN RSA PRIVATE KEY-----\nMII...84M=\n-----END RSA PRIVATE KEY-----\nOCI_API_KEY\n&#39;</span><span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    dbms_vector.create_credential<span class="o">(</span>
+</span></span><span class="line"><span class="cl">        <span class="nv">credential_name</span> <span class="o">=</span>&gt; <span class="s1">&#39;OCI_CRED&#39;</span>,
+</span></span><span class="line"><span class="cl">        <span class="nv">params</span>          <span class="o">=</span>&gt; json<span class="o">(</span>jo.to_string<span class="o">)</span>
+</span></span><span class="line"><span class="cl">    <span class="o">)</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">end<span class="p">;</span>
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>오사카 리전 서비스를 호출해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">var params clob<span class="p">;</span>
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">:params :<span class="o">=</span> <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;provider&#34; : &#34;ocigenai&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;credential_name&#34; : &#34;OCI_CRED&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;url&#34; : &#34;https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com/20231130/actions/chat&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;model&#34; : &#34;meta.llama-3.3-70b-instruct&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">END<span class="p">;</span>
+</span></span><span class="line"><span class="cl">/
+</span></span><span class="line"><span class="cl">SELECT DBMS_VECTOR.UTL_TO_GENERATE_TEXT<span class="o">(</span><span class="s1">&#39;who are you?&#39;</span>, json<span class="o">(</span>:params<span class="o">))</span><span class="p">;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">Error at Line: 1, Column: <span class="m">6</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">SQL Error: ORA-20000: ORA-30699: network connection failed: connection timed out
+</span></span><span class="line"><span class="cl">ORA-06512: at <span class="s2">&#34;SYS.DBMS_VECTOR&#34;</span>, line <span class="m">8026</span>
+</span></span><span class="line"><span class="cl">ORA-06512: at <span class="s2">&#34;C##CLOUD</span><span class="nv">$SERVICE</span><span class="s2">.DBMS_CLOUD</span><span class="nv">$PDBCS_260111_0</span><span class="s2">&#34;</span>, line <span class="m">2265</span>
+</span></span><span class="line"><span class="cl">ORA-06512: at <span class="s2">&#34;C##CLOUD</span><span class="nv">$SERVICE</span><span class="s2">.DBMS_CLOUD</span><span class="nv">$PDBCS_260111_0</span><span class="s2">&#34;</span>, line <span class="m">15079</span>
+</span></span><span class="line"><span class="cl">ORA-06512: at line <span class="m">5</span>
+</span></span></code></pre></div><p>=&gt; OCI 서비스인 ADB임에도 DBMS_VECTOR로 도쿄리전에서 오사카 리전의 Generative AI가 호출되지 않는 것을 알 수 있습니다.</p>
+</li>
+</ol>
+</li>
+</ol>
+<h6 id="case-4-oci-generative-ai의-private-endpoint를-생성하고-remote-peering을-통해-두-리전을-연결하는-방법">Case #4. OCI Generative AI의 Private Endpoint를 생성하고, Remote Peering을 통해 두 리전을 연결하는 방법</h6>
+<blockquote>
+<p>ADB@PrivateSubnet@<em>ap-tokyo-1</em> -&gt; OCI GenAI@ap-osaka-1</p>
+<p>ADB: ADB 26ai 버전, Private endpoint access only 옵션으로 PrivateSubnet에 생성</p>
+<p>OCI GenAI@ap-osaka-1를 Private Endpoint를 생성</p>
+</blockquote>
+<p><strong>OCI Generative AI의 Private Endpoint를 생성</strong></p>
+<ol>
+<li>
+<p>OCI Console에서 GenAI 서비스가 있는 오사카리전에서 <a href="https://cloud.oracle.com/ai-service/generative-ai/generativeAiPrivateEndpoints">Generative AI &gt; Private endpoints</a> 로 이동합니다.</p>
+</li>
+<li>
+<p>사용할 서브넷과 DNS Prefix를 입력하고, <code>Allow Usage In On-Demand Mode</code>를 반드시 체크하여, Private endpoint를 생성합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260205193429147.png" alt='image-20260205193429147' onerror="this.onerror=null;this.src='images\/image-20260205193429147.png';" />
+</p>
+</li>
+<li>
+<p>Case #1에서 사용한 ComputeVM@PrivateSubnet@ap-osaka-1에 다시 접속합니다.</p>
+</li>
+<li>
+<p>VM과 OCI Generative AI의 Private Endpoint가 같은 서브넷이지만, Security Rule에 Generative AI를 접속하기 위한 Ingress Rule에서 443 포트를 개방합니다.</p>
+<ul>
+<li>Source CIDR: 10.0.0.0/16</li>
+<li>Destination Port Range: 443</li>
+</ul>
+</li>
+<li>
+<p>코드가 호출하는 Endpoint를 Private Endpoint의 DNS FQDN으로 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Service endpoint (unchanged)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#endpoint = &#34;https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">endpoint</span> <span class="o">=</span> <span class="s2">&#34;https://genai.pe.inference.generativeai.ap-osaka-1.oci.oraclecloud.com&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>다시 호출해 보면 Private Endpoint로 잘 호출되는 것을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ python call-genai.py
+</span></span><span class="line"><span class="cl">**************************Embed Texts Result**************************
+</span></span><span class="line"><span class="cl"><span class="o">[</span>0.015515471, 0.0130208265, 0.0023121093, -0.010769562, 0.008396608, 0.010769562, -0.037723888, 0.01...<span class="o">]</span>
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>Remote Peering 생성</strong></p>
+<ol>
+<li>
+<p>Tokyo 리전과 Osaka 리전을 Remote Peering합니다.</p>
+<ol>
+<li>tokyo-drg를 생성</li>
+<li>tokyo-rpc 생성</li>
+<li>osaka-drg를 생성</li>
+<li>osaka-rpc 생성</li>
+<li>tokyo-rpc에서 osaka-rpc랑 연결</li>
+<li>tokyo-drg에 tokyo-vcn을, osaka-drg에 osaka-vcn을 attach 합니다.</li>
+</ol>
+</li>
+<li>
+<p>Tokyo 리전</p>
+<ol>
+<li>Private Subnet의 라우팅에 다음을 추가
+<ul>
+<li>Target Type: Dynamic Routing Gateways</li>
+<li>Destination CIDR Block: 10.0.0.0/16</li>
+<li>Target DRG: tokyo-drg</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>Osaka 리전</p>
+<ol>
+<li>Private Subnet의 라우팅에 다음을 추가
+<ul>
+<li>Target Type: Dynamic Routing Gateways</li>
+<li>Destination CIDR Block: 10.1.0.0/16</li>
+<li>Target DRG: osaka-drg</li>
+</ul>
+</li>
+<li>Security Rule에 Tokyo 리전에서 Generative AI를 접속하기 위한 Ingress Rule 추가
+<ul>
+<li>Source CIDR: 10.1.0.0/16</li>
+<li>Destination Port Range: 443</li>
+</ul>
+</li>
+</ol>
+</li>
+</ol>
+<p><strong>DNS 설정</strong></p>
+<p>Private Endpoint의 FQDN이 Tokyo리전에 조회될 수 있도록 DNS 설정이 필요합니다. DNS Forwarding을 설정해도 되지만, 여기서 한 건이므로, 직접 입력합니다.</p>
+<ol>
+<li>
+<p>Tokyo 리전에서 <a href="https://cloud.oracle.com/dns/private-zones">DNS Management &gt; Private Zone</a> 에 새로운 Zone과 Record를 추가합니다.</p>
+<ol>
+<li>Zone Name: <code>pe.inference.generativeai.ap-osaka-1.oci.oraclecloud.com</code></li>
+<li>Record
+<ul>
+<li>Name: <code>genai</code></li>
+<li>Type: <code>A</code></li>
+<li>IP: 생성한 Private Endpoint의 IP</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>약간이 시간이 지나고 Tokyo 리전의 VM에서 조회가 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ nslookup genai.pe.inference.generativeai.ap-osaka-1.oci.oraclecloud.com
+</span></span><span class="line"><span class="cl">Server:		169.254.xxx.xxx
+</span></span><span class="line"><span class="cl">Address:	169.254.xxx.xxx#53
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Non-authoritative answer:
+</span></span><span class="line"><span class="cl">Name:	genai.pe.inference.generativeai.ap-osaka-1.oci.oraclecloud.com
+</span></span><span class="line"><span class="cl">Address: 10.0.1.50
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>호출 테스트</strong></p>
+<ol>
+<li>
+<p>Tokyo 리전의 VM에서 코드가 호출하는 Endpoint를 Private Endpoint의 DNS FQDN으로 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Service endpoint (unchanged)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#endpoint = &#34;https://inference.generativeai.ap-osaka-1.oci.oraclecloud.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">endpoint</span> <span class="o">=</span> <span class="s2">&#34;https://genai.pe.inference.generativeai.ap-osaka-1.oci.oraclecloud.com&#34;</span>
+</span></span></code></pre></div></li>
+<li>
+<p>다시 호출해 보면 Private Endpoint로 잘 호출되는 것을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ python call-genai.py
+</span></span><span class="line"><span class="cl">**************************Embed Texts Result**************************
+</span></span><span class="line"><span class="cl"><span class="o">[</span>0.015515471, 0.0130208265, 0.0023121093, -0.010769562, 0.008396608, 0.010769562, -0.037723888, 0.01...<span class="o">]</span>
+</span></span></code></pre></div></li>
+<li>
+<p>Case #3에서 실패한, Tykyo 리전에 있는 ADB에서 DBMS_VECTOR를 사용해 다시 오사카 리전 서비스를 호출해 봅니다. 이번에는 url을 Private Endpoint FQDN으로 변경하여 호출합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">var params clob<span class="p">;</span>
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">:params :<span class="o">=</span> <span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;provider&#34; : &#34;ocigenai&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;credential_name&#34; : &#34;OCI_CRED&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;url&#34; : &#34;https://genai.pe.inference.generativeai.ap-osaka-1.oci.oraclecloud.com/20231130/actions/chat&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">   &#34;model&#34; : &#34;meta.llama-3.3-70b-instruct&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">}&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">END<span class="p">;</span>
+</span></span><span class="line"><span class="cl">/
+</span></span><span class="line"><span class="cl">SELECT DBMS_VECTOR.UTL_TO_GENERATE_TEXT<span class="o">(</span><span class="s1">&#39;who are you?&#39;</span>, json<span class="o">(</span>:params<span class="o">))</span><span class="p">;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DBMS_VECTOR.UTL_TO_GENERATE_TEXT(&#39;WHOAREYOU?&#39;,JSON(:PARAMS))                        
+</span></span><span class="line"><span class="cl">___________________________________________________________________________________ 
+</span></span><span class="line"><span class="cl">I&#39;m an artificial intelligence model known as Llama. Llama stands for &#34;Large Lan 
+</span></span></code></pre></div><p>=&gt; ADB임에도 DBMS_VECTOR로 도쿄리전에서 리모트 피어링되어 있는 오사카 리전의 Generative AI의 Private Endpoint의 FQDN으로 호출되는 것을 알 수 있습니다.</p>
+</li>
+</ol>
+<h6 id="정리된-내용으로-seoul-리전에서-osaka-리전-genai를-프라이빗하게-호출하다면">정리된 내용으로 Seoul 리전에서 Osaka 리전 GenAI를 프라이빗하게 호출하다면&hellip;</h6>
+<ol>
+<li>Osaka 리전: <code>Allow Usage In On-Demand Mode</code>를 반드시 체크하여 Generative AI의 <strong>Private Endpoint 생성</strong></li>
+<li>Osaka 리전 VCN과 Seoul 리전 VCN간 <strong>Remote Peering</strong> 생성</li>
+<li>Seoul 리전: Generative AI의 <strong>Private Endpoint의 FQDN를 DNS 등록</strong></li>
+<li>Seoul 리전: ADB를 Private endpoint access only 타입으로 생성</li>
+<li>Seoul 리전: <strong>ADB가 Private Subnet의 Routing Table 사용하도록 설정</strong>
+<ol>
+<li>ROUTE_OUTBOUND_CONNECTIONS: <code>ENFORCE_PRIVATE_ENDPOINT</code></li>
+</ol>
+</li>
+<li>위 설정으로 Seoul 리전 ADB에서 Osaka Generative AI를 호출하는 것을 확인하였습니다.</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-05 다른 리전 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

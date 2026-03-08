@@ -15,14 +15,12 @@
 ### 전제 조건
 
 * **Lab 4: Deploy the MuShop Application** 완료하고 현재 앱이 실행 중일 것
-* OKE Cluster *1.26 이상*, *Oracle Linux 7*
+* Standalone으로 Service Mesh 설치시
     - OCI VCN-Native Pod Networking CNI에서 Istio를 사용하기 위해서는 작성일 기준으로 Kubernetes 1.26 이상, Oracle Linux 7 이어야만 합니다.
     - [Installing Istio Service Mesh on OKE](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengistio-intro-topic.htm)
-
-
-### 실습 비디오
-
-[](youtube:Es__wypgoNI)
+* Istio add-on으로 설치시
+    - Oracle Linux 7, Oracle Linux 8 둘 다 지원
+    - Kubernetes 1.26 이상
 
 ## Task 1: Istio 설치
 

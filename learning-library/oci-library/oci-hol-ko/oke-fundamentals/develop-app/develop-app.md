@@ -43,7 +43,7 @@
 
     ````shell
     <copy>
-    curl https://start.spring.io/starter.tgz -d type=maven-project -d bootVersion=4.0.1 -d baseDir=restservice -d name=rest-service -d artifactId=rest-service -d javaVersion=17 -d dependencies=web,actuator | tar -xzvf -   
+    curl https://start.spring.io/starter.tgz -d type=maven-project -d bootVersion=4.0.1 -d baseDir=restservice -d name=restservice -d artifactId=restservice -d javaVersion=17 -d dependencies=web,actuator | tar -xzvf -
     </copy>
     ````
 
@@ -155,12 +155,13 @@
     Java HotSpot(TM) 64-Bit Server VM GraalVM EE 22.3.5 (build 17.0.10+11-LTS-jvmci-22.3-b32, mixed mode, sharing)
     ````
 
-11. Terminal에서 실행을 위해 코드를 빌드합니다.
+11. Terminal에서 실행을 위해 mvnw로 코드를 빌드합니다.
 
     ````shell
-    <copy>
-    ./mvnw clean package
-    </copy>
+    $ pwd
+    /home/kildong_ho/restservice
+
+    $ <copy>./mvnw clean package</copy>
     ````
 
 12. Terminal에서 빌드된 JAR 파일을 실행합니다.
@@ -232,7 +233,7 @@
 
 2. OCI에서는 Java를 무료로 사용할 수 있습니다. 그에 따라 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/)에서 제공하는 Java, GraalVM에 대한 Container Image도 무료로 사용할 수 있으며, 해당 이미지는 지속적으로 업데이트됩니다.
 
-    - [High-performance Java on OCI at no additional cost](https://www.oracle.com/cloud/java/#:~:text=High%2Dperformance%20Java%20on%20OCI,interoperability%20with%20no%20performance%20penalty.)
+    - [High-performance Java on OCI at no additional cost](https://www.oracle.com/java/#java-on-oci)
     - [Oracle Java SE Subscription](https://www.oracle.com/a/tech/docs/javase-subscription-datasheet.pdf)
 
     ![OCI GraalVM Container Images](images/ocr-graalvm-images.png)
@@ -240,11 +241,13 @@
 
 3. 그래서 여기서는 [Oracle Container Registry (OCR)](https://container-registry.oracle.com/) 에서 제공하는 Oracle GraalVM Container Image을 베이스 이미지로 사용합니다.
 
-    프로젝트 폴더에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다. 
+    프로젝트 폴더에 파일이름을 Dockerfile으로 하여 파일을 만들고 아래 내용으로 붙여 넣습니다.
+    
+    *2026년 3월 기준 Cloud Shell의 FIPS 모드 사용과 OCR과 TLS 1.3 지원 문제로 인해, 오류가 있어, container-registry.oracle.com/graalvm/jdk:17 주소 대신 ghcr.io 주소를 임시로 대신 사용합니다.*
 
     ````shell
     <copy>
-    FROM container-registry.oracle.com/graalvm/jdk:17
+    FROM ghcr.io/thekoguryo/graalvm/jdk:17
     WORKDIR /app
     ARG JAR_FILE=target/*.jar
     COPY ${JAR_FILE} app.jar
@@ -311,7 +314,7 @@
         }
         ````
 
-    - REPO_NAME: OCIR에서 Cloud Account내에서 고유하게 사용하는 저장소 이름입니다. 사용할 이미지 이름 또는 경로가 있는 경우 경로까지 포함한 이름
+    - REPO_NAME: OCIR에서 *Cloud Account내에서 고유하게 사용하는 저장소 이름*입니다. 사용할 이미지 이름 또는 경로가 있는 경우 경로까지 포함한 이름
 
         * 예시) oci-hol-*xx*/spring-boot-greeting
 
@@ -525,4 +528,4 @@
 ## Acknowledgements
 
 - **Author** - DongHee Lee, March 2023
-- **Last Updated By/Date** - DongHee Lee, December 2025
+- **Last Updated By/Date** - DongHee Lee, March 2026

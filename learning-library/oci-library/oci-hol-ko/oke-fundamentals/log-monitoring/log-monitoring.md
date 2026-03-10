@@ -471,7 +471,7 @@ OCI Kubernetes Monitoring Solution 버전이 올라가면서 OCI Kubernetes Moni
     <copy>
     cat <<EOF > myvalues.yaml
     config:
-    outputs: |
+      outputs: |
         [OUTPUT]
             Name es
             Match *

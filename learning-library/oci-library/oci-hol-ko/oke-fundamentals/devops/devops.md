@@ -181,8 +181,8 @@ DevOps 파이프 라인 실행이 발생하는 주요 이벤트를 알려주기 
 
     ````shell
     <copy>
-    wget https://github.com/TheKoguryo/MuShop-storefront/archive/refs/tags/v2022.03.tar.gz
-    tar -xvzf v2022.03.tar.gz --strip-components=1 -C mushop-storefront-code-repo/
+    wget https://github.com/TheKoguryo/MuShop-storefront/archive/refs/tags/v2026.03.tar.gz
+    tar -xvzf v2026.03.tar.gz --strip-components=1 -C mushop-storefront-code-repo/
     </copy>
     ````
 

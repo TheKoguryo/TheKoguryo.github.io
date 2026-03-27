@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>8.2 GraalVM 사용하여 Spring Boot 3 애플리케이션 개발하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.139.3">
+<meta name="generator" content="Hugo 0.152.1">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.develop-spring-boot-app/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -339,8 +339,8 @@ Spring Boot 기반 마이크로 서비스 만들기 Spring Initializr를 사용�
 <li>
 <p><a href="https://spring.io/guides/topicals/spring-boot-docker/">Getting Started | Spring Boot Docker</a> 예시에서 보면 Dockerfile 베이스 이미지로 eclipse-temurin:17-jdk-alpine을 사용합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="c"># Dockerfile</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> eclipse-temurin:17-jdk-alpine</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">VOLUME</span><span class="s"> /tmp</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="w"> </span><span class="s">eclipse-temurin:17-jdk-alpine</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">VOLUME</span><span class="w"> </span><span class="s">/tmp</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> <span class="nv">JAR_FILE</span><span class="o">=</span>target/*.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> <span class="si">${</span><span class="nv">JAR_FILE</span><span class="si">}</span> app.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;java&#34;</span><span class="p">,</span><span class="s2">&#34;-jar&#34;</span><span class="p">,</span><span class="s2">&#34;/app.jar&#34;</span><span class="p">]</span><span class="err">
@@ -350,16 +350,16 @@ Spring Boot 기반 마이크로 서비스 만들기 Spring Initializr를 사용�
 <ol>
 <li>
 <p>Dockerfile: JAR 파일 사용시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> container-registry.oracle.com/graalvm/jdk:17</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="k">FROM</span><span class="w"> </span><span class="s">container-registry.oracle.com/graalvm/jdk:17</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> <span class="nv">JAR_FILE</span><span class="o">=</span>target/*.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> <span class="si">${</span><span class="nv">JAR_FILE</span><span class="si">}</span> app.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;java&#34;</span><span class="p">,</span><span class="s2">&#34;-jar&#34;</span><span class="p">,</span><span class="s2">&#34;/app/app.jar&#34;</span><span class="p">]</span><span class="err">
 </span></span></span></code></pre></div></li>
 <li>
 <p>Dockerfile.native: 빌드된 Native Image 사용시</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="k">FROM</span><span class="s"> container-registry.oracle.com/os/oraclelinux:8-slim</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="s"> /app</span><span class="err">
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="k">FROM</span><span class="w"> </span><span class="s">container-registry.oracle.com/os/oraclelinux:8-slim</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> <span class="nv">APP_FILE</span><span class="o">=</span>target/rest-service<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> <span class="si">${</span><span class="nv">APP_FILE</span><span class="si">}</span> /app/native<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;/app/native&#34;</span><span class="p">]</span><span class="err">

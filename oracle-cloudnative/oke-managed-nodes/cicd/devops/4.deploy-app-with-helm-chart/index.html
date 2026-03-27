@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>1.7.1.4 Helm Chart로 배포 자동화하기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.139.3">
+<meta name="generator" content="Hugo 0.152.1">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/4.deploy-app-with-helm-chart/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -239,14 +239,14 @@ Code Repository를 사용하여 애플리케이션 코드 관리하기 코드 �
 </span></span></span><span class="line"><span class="cl"><span class="sd">      mkdir -p ~/.local/bin
 </span></span></span><span class="line"><span class="cl"><span class="sd">      wget https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd64 -O ~/.local/bin/yq
 </span></span></span><span class="line"><span class="cl"><span class="sd">      chmod +x ~/.local/bin/yq
-</span></span></span><span class="line"><span class="cl"><span class="sd">      export PATH=$HOME/.local/bin:$PATH</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="sd">      export PATH=$HOME/.local/bin:$PATH</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Build Source&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">4000</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
 </span></span></span><span class="line"><span class="cl"><span class="sd">      echo no action
-</span></span></span><span class="line"><span class="cl"><span class="sd">      echo no action</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="sd">      echo no action</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
@@ -258,7 +258,7 @@ Code Repository를 사용하여 애플리케이션 코드 관리하기 코드 �
 </span></span></span><span class="line"><span class="cl"><span class="sd">      helm package .
 </span></span></span><span class="line"><span class="cl"><span class="sd">      helm registry login -u $TENANCY_NAMESPACE/$ocir_username ${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io -p $ocir_authtoken
 </span></span></span><span class="line"><span class="cl"><span class="sd">      export HELM_EXPERIMENTAL_OCI=1
-</span></span></span><span class="line"><span class="cl"><span class="sd">      helm push ./*.tgz oci://${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io/$TENANCY_NAMESPACE/helm</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="sd">      helm push ./*.tgz oci://${OCI_RESOURCE_PRINCIPAL_REGION}.ocir.io/$TENANCY_NAMESPACE/helm</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">Command</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">timeoutInSeconds</span><span class="p">:</span><span class="w"> </span><span class="m">1200</span><span class="w">
@@ -267,7 +267,7 @@ Code Repository를 사용하여 애플리케이션 코드 관리하기 코드 �
 </span></span></span><span class="line"><span class="cl"><span class="sd">      cd ${OCI_PRIMARY_SOURCE_DIR}/mychart
 </span></span></span><span class="line"><span class="cl"><span class="sd">      CHART_NAME=`yq eval &#39;.name&#39; Chart.yaml`
 </span></span></span><span class="line"><span class="cl"><span class="sd">      CHART_VERSION=`yq eval &#39;.version&#39; Chart.yaml`
-</span></span></span><span class="line"><span class="cl"><span class="sd">      REPO_NAME=helm/$CHART_NAME</span><span class="w">      
+</span></span></span><span class="line"><span class="cl"><span class="sd">      REPO_NAME=helm/$CHART_NAME</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">outputArtifacts</span><span class="p">:</span><span class="w">
 </span></span></span></code></pre></div></li>

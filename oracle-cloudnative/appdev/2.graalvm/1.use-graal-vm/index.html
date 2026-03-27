@@ -4,7 +4,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>7.2.1 GraalVM 기반 컨테이너 이미지 만들기 - TheKoguryo&#39;s 기술 블로그</title>
-<meta name="generator" content="Hugo 0.139.3">
+<meta name="generator" content="Hugo 0.152.1">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.graalvm/1.use-graal-vm/">
 <link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
@@ -114,7 +114,7 @@ GraalVM 제공 컨테이너 이미지 GraalVM은 오픈소스로 제공하는 Co
 <li>GraalVM CE 컨테이너 이미지는 GitHub Registry에 등록되어 Public하게 개방되어 바로 가져와서 사용할 수 있습니다. <a href="https://github.com/graalvm/container/pkgs/container/jdk">사용가능한 JDK 컨테이너 이미지</a> 중에서 선택합니다.</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="c"># Dockerfile.graalvm-ce</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> ghcr.io/graalvm/jdk:ol7-java8-21.2</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="w"> </span><span class="s">ghcr.io/graalvm/jdk:ol7-java8-21.2</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> <span class="nv">JAR_FILE</span><span class="o">=</span>target/*.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> <span class="si">${</span><span class="nv">JAR_FILE</span><span class="si">}</span> app.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;java&#34;</span><span class="p">,</span><span class="s2">&#34;-jar&#34;</span><span class="p">,</span><span class="s2">&#34;app.jar&#34;</span><span class="p">]</span><span class="err">
@@ -277,7 +277,7 @@ GraalVM 제공 컨테이너 이미지 GraalVM은 오픈소스로 제공하는 Co
 <p>jdk-ee:ol8-java8-21.3.2 이미지의 기본 홈 디렉토리는 /app입니다. ENTRYPOINT에서 실행시 /app.jar라고 하면 해당 위치에 app.jar 파일이 없기 때문에 에러가 발생합니다.</p>
 </blockquote>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-docker" data-lang="docker"><span class="line"><span class="cl"><span class="c"># Dockerfile.graalvm-ee</span><span class="err">
-</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="s"> container-registry.oracle.com/graalvm/jdk-ee:ol8-java8-21.3.2</span><span class="err">
+</span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">FROM</span><span class="w"> </span><span class="s">container-registry.oracle.com/graalvm/jdk-ee:ol8-java8-21.3.2</span><span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ARG</span> <span class="nv">JAR_FILE</span><span class="o">=</span>target/*.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">COPY</span> <span class="si">${</span><span class="nv">JAR_FILE</span><span class="si">}</span> app.jar<span class="err">
 </span></span></span><span class="line"><span class="cl"><span class="err"></span><span class="k">ENTRYPOINT</span> <span class="p">[</span><span class="s2">&#34;java&#34;</span><span class="p">,</span><span class="s2">&#34;-jar&#34;</span><span class="p">,</span><span class="s2">&#34;app.jar&#34;</span><span class="p">]</span><span class="err">

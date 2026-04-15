@@ -35,8 +35,8 @@
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oracle-cloudnative">
-    <meta property="article:published_time" content="2023-05-03T00:00:00+00:00">
-    <meta property="article:modified_time" content="2023-05-03T00:00:00+00:00">
+    <meta property="article:published_time" content="2026-04-15T00:00:01+00:00">
+    <meta property="article:modified_time" content="2026-04-15T00:00:01+00:00">
     <meta property="article:tag" content="Oke">
     <meta property="article:tag" content="Secret Store">
     <meta property="article:tag" content="Vault">
@@ -46,7 +46,7 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">&nbsp;Version 2026-02-06</span>
+ <span class="version">&nbsp;Version 2026-04-15</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -78,7 +78,7 @@
 <p>OCI 콘솔에 로그인합니다.</p>
 </li>
 <li>
-<p>좌측 상단 햄버거 메뉴에서 <strong>Identity &amp; Security</strong> &gt; <strong>Vault</strong>로 이동합니다.</p>
+<p>좌측 상단 햄버거 메뉴에서 <strong>Identity &amp; Security</strong> &gt; <strong>Key Management</strong> &gt; <strong>Vault</strong>로 이동합니다.</p>
 </li>
 <li>
 <p><strong>Create Vault</strong>를 클릭합니다.</p>
@@ -90,11 +90,11 @@
 
 
 
-<img class="img-fluid1" src="../images/image-20230503132037374.png" alt='image-20230503132037374' onerror="this.onerror=null;this.src='images\/image-20230503132037374.png';" />
+<img class="img-fluid1" src="../images/image-20260415165256263.png" alt='image-20260415165256263' onerror="this.onerror=null;this.src='images\/image-20260415165256263.png';" />
 </p>
 </li>
 <li>
-<p>위치할 Compartment를 선택하고, 이름을 입력하여 생성합니다.</p>
+<p>이름을 입력하고 생성합니다.</p>
 <p>
 
 
@@ -103,17 +103,14 @@
 
 
 
-<img class="img-fluid1" src="../images/image-20230503132358134.png" alt='image-20230503132358134' onerror="this.onerror=null;this.src='images\/image-20230503132358134.png';" />
+<img class="img-fluid1" src="../images/image-20260415165326548.png" alt='image-20260415165326548' onerror="this.onerror=null;this.src='images\/image-20260415165326548.png';" />
 </p>
-</li>
-<li>
-<p>생성된 Vault를 클릭합니다.</p>
 </li>
 </ol>
 <p><strong>마스터 키 만들기</strong></p>
 <ol>
 <li>
-<p>먼저 마스터키 생성을 위해 <strong>Resources</strong> &gt; <strong>Master Encryption Keys</strong>로 이동합니다.</p>
+<p>생성된 Vault에서 마스터키 생성을 위해 <strong>Master encryption keys</strong> 탭으로 이동합니다.</p>
 </li>
 <li>
 <p><strong>Create Key</strong>를 클릭합니다.</p>
@@ -134,7 +131,7 @@
 
 
 
-<img class="img-fluid1" src="../images/image-20230503133352999.png" alt='image-20230503133352999' onerror="this.onerror=null;this.src='images\/image-20230503133352999.png';" />
+<img class="img-fluid1" src="../images/image-20260415165826702.png" alt='image-20260415165826702' onerror="this.onerror=null;this.src='images\/image-20260415165826702.png';" />
 </p>
 </li>
 <li>
@@ -144,7 +141,20 @@
 <p><strong>암호를 저장할 Secret 만들기</strong></p>
 <ol>
 <li>
-<p>Secret 생성을 위해 <strong>Resources</strong> &gt; <strong>Secrets</strong>로 이동합니다.</p>
+<p>Secret 생성을 위해, 좌측 상단 햄버거 메뉴에서 <strong>Identity &amp; Security</strong> &gt; <strong>Secret Management</strong>로 이동합니다.</p>
+</li>
+<li>
+<p><strong>Applied filters</strong>에서 사용할 Vault가 맞는지 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260415170234174.png" alt='image-20260415170234174' onerror="this.onerror=null;this.src='images\/image-20260415170234174.png';" />
+</p>
 </li>
 <li>
 <p><strong>Create Secret</strong>을 클릭합니다.</p>
@@ -164,7 +174,7 @@
 
 
 
-<img class="img-fluid1" src="../images/image-20230503134525995.png" alt='image-20230503134525995' onerror="this.onerror=null;this.src='images\/image-20230503134525995.png';" />
+<img class="img-fluid1" src="../images/image-20260415171209852.png" alt='image-20260415171209852' onerror="this.onerror=null;this.src='images\/image-20260415171209852.png';" />
 </p>
 </li>
 <li>
@@ -178,16 +188,23 @@
 <ol>
 <li>
 <p>Helm 또는 YAML로 대상 OKE 클러스터에 설치 가능합니다. 여기서는 Helm으로 설치합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add oci-provider https://oracle-samples.github.io/oci-secrets-store-csi-driver-provider/charts
-</span></span><span class="line"><span class="cl">helm install oci-provider oci-provider/oci-secrets-store-csi-driver-provider --namespace kube-system
+<ul>
+<li>Workload Identity를 사용하는 경우, <code>provider.oci.auth.types.workload.resourcePrincipalVersion=&lt;version&gt;</code>, <code>provider.oci.auth.types.workload.resourcePrincipalRegion=&lt;region&gt;</code>은 필요한 경우 변경합니다. 기본값은 각각 2.2, us-ashburn-1 입니다.  여기서는 OKE 클러스터가 위치한 리전으로 지정합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">helm repo add oci-provider https://oracle.github.io/oci-secrets-store-csi-driver-provider/charts
+</span></span><span class="line"><span class="cl">helm install oci-provider oci-provider/oci-secrets-store-csi-driver-provider --namespace kube-system <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--set provider.oci.auth.types.workload.resourcePrincipalVersion<span class="o">=</span><span class="s2">&#34;2.2&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--set provider.oci.auth.types.workload.resourcePrincipalRegion<span class="o">=</span><span class="s2">&#34;ap-chuncheon-1&#34;</span>
 </span></span></code></pre></div><ul>
 <li>실행예시</li>
 </ul>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ helm repo add oci-provider https://oracle-samples.github.io/oci-secrets-store-csi-driver-provider/charts
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ helm repo add oci-provider https://oracle.github.io/oci-secrets-store-csi-driver-provider/charts
 </span></span><span class="line"><span class="cl"><span class="s2">&#34;oci-provider&#34;</span> has been added to your repositories
-</span></span><span class="line"><span class="cl">$ helm install oci-provider oci-provider/oci-secrets-store-csi-driver-provider --namespace kube-system
+</span></span><span class="line"><span class="cl">$ helm install oci-provider oci-provider/oci-secrets-store-csi-driver-provider --namespace kube-system <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --set provider.oci.auth.types.workload.resourcePrincipalVersion<span class="o">=</span><span class="s2">&#34;2.2&#34;</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt; --set provider.oci.auth.types.workload.resourcePrincipalRegion<span class="o">=</span><span class="s2">&#34;ap-chuncheon-1&#34;</span>
 </span></span><span class="line"><span class="cl">NAME: oci-provider
-</span></span><span class="line"><span class="cl">LAST DEPLOYED: Wed May  <span class="m">3</span> 01:26:51 <span class="m">2023</span>
+</span></span><span class="line"><span class="cl">LAST DEPLOYED: Wed Apr <span class="m">15</span> 11:54:31 <span class="m">2026</span>
 </span></span><span class="line"><span class="cl">NAMESPACE: kube-system
 </span></span><span class="line"><span class="cl">STATUS: deployed
 </span></span><span class="line"><span class="cl">REVISION: <span class="m">1</span>
@@ -204,11 +221,213 @@
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;       --namespace kube-system <span class="se">\
 </span></span></span><span class="line"><span class="cl"><span class="se"></span>&gt;       --selector<span class="o">=</span><span class="s1">&#39;app.kubernetes.io/name in (oci-secrets-store-csi-driver-provider, secrets-store-csi-driver)&#39;</span>
 </span></span><span class="line"><span class="cl">NAME                                    DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
-</span></span><span class="line"><span class="cl">oci-provider-secrets-store-csi-driver   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       <span class="m">3</span>            <span class="m">3</span>           kubernetes.io/os<span class="o">=</span>linux   2m3s
-</span></span><span class="line"><span class="cl">oci-secrets-store-csi-driver-provider   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       <span class="m">3</span>            <span class="m">3</span>           &lt;none&gt;                   2m3s      
+</span></span><span class="line"><span class="cl">oci-provider-secrets-store-csi-driver   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       <span class="m">3</span>            <span class="m">3</span>           kubernetes.io/os<span class="o">=</span>linux   96s
+</span></span><span class="line"><span class="cl">oci-secrets-store-csi-driver-provider   <span class="m">3</span>         <span class="m">3</span>         <span class="m">3</span>       <span class="m">3</span>            <span class="m">3</span>           &lt;none&gt;                   96s
+</span></span></code></pre></div></li>
+<li>
+<p>설정값이 잘 반영되었는지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl describe ds oci-secrets-store-csi-driver-provider -n kube-system | grep OCI_
+</span></span><span class="line"><span class="cl">      OCI_RESOURCE_PRINCIPAL_VERSION:  2.2
+</span></span><span class="line"><span class="cl">      OCI_RESOURCE_PRINCIPAL_REGION:   ap-chuncheon-1
 </span></span></code></pre></div></li>
 </ol>
-<h6 id="1-instance-principal을-사용하는-경우">#1. Instance Principal을 사용하는 경우</h6>
+<h6 id="1-workload-identity를-사용하는-경우">#1. Workload Identity를 사용하는 경우</h6>
+<p>Enhanced OKE 클러스터에서만 사용할 수 있는 기능으로 Resource Principal을 사용하여, 클러스터내에 특정 자원에 권한을 부여하는 방법입니다.</p>
+<p><strong>Policy 설정</strong></p>
+<ol>
+<li>
+<p>OCI 콘솔에서 <a href="https://cloud.oracle.com/identity/domains">Identity Domains</a>로 이동합니다.</p>
+</li>
+<li>
+<p>Dynamic Group을 생성합니다.</p>
+<ul>
+<li>Name: 이름을 입력합니다, 예, oke-workload-type-dyn-grp</li>
+<li>Matching Rules: 아래와 같이 입력합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL { resource.type=&#39;workload&#39; }
+</span></span></code></pre></div></li>
+<li>
+<p>Policy를 생성합니다.</p>
+<ul>
+<li>Name: 이름을 입력합니다, 예, oke-workload-identity-to-vault-policy</li>
+<li>Description: Access Policies for Workloads - Secrets Store CSI Driver Provider for OCI Vault</li>
+<li>Compartment: OCI Vault가 위치한 Compartment 선택</li>
+<li>Policy: 만든 Dynamic Group 이름, OCI Secret이 있는 compartment-name, OKE 클러스터의 OCID로 각각 지정합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow dynamic-group &lt;dynamic-group-name&gt; to use secret-family in compartment &lt;compartment-name&gt; where ALL {request.principal.namespace =&#39;&lt;namespace&gt;&#39;, request.principal.service_account = &#39;&lt;service-account&gt;&#39;, request.principal.cluster_id = &#39;ocid1.cluster.oc1....&#39;}
+</span></span></code></pre></div><ul>
+<li>설정 예시
+<ul>
+<li><code>&lt;namespace&gt;</code> : OCI Vault를 실제 사용하는 앱이 위치할 namespace입니다. 여기서는 default</li>
+<li><code>&lt;service-account&gt;</code> : OCI Vault를 실제 사용하는 앱이 위치할 namespace에서 사용할 service account입니다.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow dynamic-group oke-workload-type-dyn-grp to use secret-family in compartment oci-hol where ALL {request.principal.namespace =&#39;default&#39;, request.principal.service_account = &#39;workload-identity-sa&#39;, request.principal.cluster_id = &#39;ocid1.cluster.oc1.ap-chuncheon-1....&#39;}
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>Workload Identity용 Service Account 생성</strong></p>
+<ol>
+<li>
+<p>배포될 앱이 위치하는 namespace에 쿠버네티스 Service Account를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl create serviceaccount &lt;service-account-name&gt; --namespace &lt;namespace-name&gt;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl create serviceaccount workload-identity-sa --namespace default
+</span></span><span class="line"><span class="cl">serviceaccount/workload-identity-sa created
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<p><strong>SecretProviderClass 설정</strong></p>
+<ol>
+<li>
+<p>배포될 앱이 사용할 OCI Vault, Secret 정보를 설정할 SecretProviderClass 생성을 위한 파일을 생성합니다.</p>
+<ul>
+<li>파일이름 예, secret-provider-class.yaml</li>
+<li>대상 OCI Vault에 있는 secret1과 secret2을 가져옵니다. secret2는 컨테이너에 app1-db-password 파일이름으로 이름을 변경해 마운트해 사용하는 예시입니다. vaultId는 앞서 만든 사용할 OCI Vault의 OCID로 지정합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">secrets-store.csi.x-k8s.io/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">SecretProviderClass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">test-oci-provider-class</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">provider</span><span class="p">:</span><span class="w"> </span><span class="l">oci </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">parameters</span><span class="p">:</span><span class="w"> </span><span class="c"># provider-specific parameters</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">secrets</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">      - name: secret1              # Name of the secret in vault
+</span></span></span><span class="line"><span class="cl"><span class="sd">      - name: secret2
+</span></span></span><span class="line"><span class="cl"><span class="sd">        fileName: app1-db-password # Secret will be mounted with this name instead of secret name</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">authType: workload             # # possible values are</span><span class="p">:</span><span class="w"> </span><span class="l">user, instance, workload</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">vaultId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.vault.oc1..aaaaaaaaaaaaaaa</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>작성한 파일을 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl apply -f secret-provider-class.yaml -n default
+</span></span></code></pre></div></li>
+<li>
+<p>배포를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get SecretProviderClass
+</span></span><span class="line"><span class="cl">NAME                      AGE
+</span></span><span class="line"><span class="cl">test-oci-provider-class   83s
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>테스트 앱 배포</strong></p>
+<ol>
+<li>
+<p>테스트할 앱(app.deployment.yaml)을 작성합니다.</p>
+<ul>
+<li>
+<p><code>serviceAccountName</code>: 앞서 만든 Service Account의 이름을 지정합니다.</p>
+</li>
+<li>
+<p><code>automountServiceAccountToken</code>: true 로 설정</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">apiVersion: apps/v1
+</span></span><span class="line"><span class="cl">kind: Deployment
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: nginx
+</span></span><span class="line"><span class="cl">  labels:
+</span></span><span class="line"><span class="cl">    app: nginx
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  selector:
+</span></span><span class="line"><span class="cl">    matchLabels:
+</span></span><span class="line"><span class="cl">      app: nginx
+</span></span><span class="line"><span class="cl">  template:
+</span></span><span class="line"><span class="cl">    metadata:
+</span></span><span class="line"><span class="cl">      labels:
+</span></span><span class="line"><span class="cl">        app: nginx
+</span></span><span class="line"><span class="cl">    spec:
+</span></span><span class="line"><span class="cl">      serviceAccountName: workload-identity-sa
+</span></span><span class="line"><span class="cl">      automountServiceAccountToken: true
+</span></span><span class="line"><span class="cl">      containers:
+</span></span><span class="line"><span class="cl">        - name: nginx
+</span></span><span class="line"><span class="cl">          image: docker.io/nginx:1.21.4-alpine
+</span></span><span class="line"><span class="cl">          ports:
+</span></span><span class="line"><span class="cl">            - containerPort: 80
+</span></span><span class="line"><span class="cl">          resources:
+</span></span><span class="line"><span class="cl">            limits:
+</span></span><span class="line"><span class="cl">              memory: 128Mi
+</span></span><span class="line"><span class="cl">              cpu: 200m
+</span></span><span class="line"><span class="cl">          volumeMounts:
+</span></span><span class="line"><span class="cl">            - name: &#39;some-creds&#39;
+</span></span><span class="line"><span class="cl">              mountPath: &#39;/mnt/secrets-store&#39;  # here are mounted secrets
+</span></span><span class="line"><span class="cl">              readOnly: true
+</span></span><span class="line"><span class="cl">      volumes:
+</span></span><span class="line"><span class="cl">        - name: some-creds
+</span></span><span class="line"><span class="cl">          csi:
+</span></span><span class="line"><span class="cl">            driver: &#39;secrets-store.csi.k8s.io&#39;
+</span></span><span class="line"><span class="cl">            readOnly: true
+</span></span><span class="line"><span class="cl">            volumeAttributes:
+</span></span><span class="line"><span class="cl">              secretProviderClass: &#39;test-oci-provider-class&#39;  # here we reference particular SecretProviderClass
+</span></span></code></pre></div></li>
+<li>
+<p>해당 YAML 파일을 보면, 작성한 SecretProviderClass을 아래와 같이 volume으로 추가하고 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">some-creds</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">csi</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;secrets-store.csi.k8s.io&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">volumeAttributes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">secretProviderClass</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;test-oci-provider-class&#39;</span><span class="w">  </span><span class="c"># here we reference particular SecretProviderClass</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>그리고 컨테이너 Pod의 /mnt/secrets-store 경로에 volume을 마운트하고 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;some-creds&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;/mnt/secrets-store&#39;</span><span class="w">  </span><span class="c"># here are mounted secrets</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">readOnly</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>작성한 yaml파일로 테스트 앱을 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl apply -f app.deployment.yaml -n default
+</span></span></code></pre></div></li>
+<li>
+<p>마운트가 성공하면, Pod가 RUNNING 상태가 됩니다. 실패시 컨테이너 로그를 확인해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ kubectl get sa,SecretProviderClass,pod -n default
+</span></span><span class="line"><span class="cl">NAME                                  SECRETS   AGE
+</span></span><span class="line"><span class="cl">serviceaccount/default                <span class="m">0</span>         23d
+</span></span><span class="line"><span class="cl">serviceaccount/workload-identity-sa   <span class="m">0</span>         35s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                                                                     AGE
+</span></span><span class="line"><span class="cl">secretproviderclass.secrets-store.csi.x-k8s.io/test-oci-provider-class   28s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                         READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">pod/nginx-797985f5f7-khs59   1/1     Running   <span class="m">0</span>          14s
+</span></span></code></pre></div></li>
+<li>
+<p>다음 명령으로 컨테이너에 Secret이 잘 마운트 되었는지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl <span class="nb">exec</span> -it deployment.apps/nginx  -- sh<span class="p">;</span>
+</span></span><span class="line"><span class="cl">ls /mnt/secrets-store/<span class="p">;</span>
+</span></span><span class="line"><span class="cl">cat /mnt/secrets-store/secret1<span class="p">;</span> <span class="nb">echo</span>
+</span></span><span class="line"><span class="cl">cat /mnt/secrets-store/app1-db-password<span class="p">;</span> <span class="nb">echo</span>
+</span></span><span class="line"><span class="cl">exit<span class="p">;</span>
+</span></span></code></pre></div><ul>
+<li>실행예시
+<ul>
+<li>대상 위치에서 파일로 확인할 수 있으며, 두번째 secret은 이름이 변경되어 마운트된 것을 알 수 있습니다.</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">$ kubectl <span class="nb">exec</span> -it deployment.apps/nginx  -- sh<span class="p">;</span>
+</span></span><span class="line"><span class="cl">/ <span class="c1"># ls /mnt/secrets-store/;</span>
+</span></span><span class="line"><span class="cl">app1-db-password  secret1
+</span></span><span class="line"><span class="cl">/ <span class="c1"># cat /mnt/secrets-store/secret1; echo</span>
+</span></span><span class="line"><span class="cl">test-password-1
+</span></span><span class="line"><span class="cl">/ <span class="c1"># cat /mnt/secrets-store/app1-db-password; echo</span>
+</span></span><span class="line"><span class="cl">test-password-2
+</span></span><span class="line"><span class="cl">/ <span class="c1"># exit;</span>
+</span></span><span class="line"><span class="cl">$
+</span></span></code></pre></div></li>
+<li>
+<p>정상동작하지 않는 경우 로그를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl">kubectl logs -f -l app.kubernetes.io/name<span class="o">=</span>oci-secrets-store-csi-driver-provider -n kube-system
+</span></span><span class="line"><span class="cl">kubectl logs -f -l app.kubernetes.io/name<span class="o">=</span>secrets-store-csi-driver -n kube-system
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="2-instance-principal을-사용하는-경우">#2. Instance Principal을 사용하는 경우</h6>
 <p>OKE 클러스터의 Worker Node인 Compute 인스턴스에 사용할 OCI Vault에 접근 권한을 부여하는 방법입니다.</p>
 <p><strong>Policy 설정</strong></p>
 <ol>
@@ -256,14 +475,14 @@
 </span></span></span></code></pre></div></li>
 <li>
 <p>작성한 파일을 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl apply -f secret-provider-class.yaml</span><span class="w">
-</span></span></span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl apply -f secret-provider-class.yaml
+</span></span></code></pre></div></li>
 </ol>
 <p><strong>테스트 앱 배포</strong></p>
 <ol>
 <li>
 <p>테스트할 앱을 다운로드 받습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">wget https://raw.githubusercontent.com/oracle-samples/oci-secrets-store-csi-driver-provider/main/deploy/example/app.deployment.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">https://raw.githubusercontent.com/oracle/oci-secrets-store-csi-driver-provider/refs/heads/main/deploy/example/app.deployment.yaml
 </span></span></code></pre></div></li>
 <li>
 <p>해당 YAML 파일을 보면, 작성한 SecretProviderClass을 아래와 같이 volume으로 추가하고 있습니다.</p>
@@ -393,15 +612,15 @@
 </span></span></span></code></pre></div></li>
 <li>
 <p>작성한 파일을 배포합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="l">kubectl apply -f secret-provider-class.yaml</span><span class="w">
-</span></span></span></code></pre></div></li>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl apply -f secret-provider-class.yaml
+</span></span></code></pre></div></li>
 </ol>
 <p><strong>테스트 앱 배포</strong></p>
 <p>테스트 절차는 #1. Instance Principal과 동일합니다.</p>
 <ol>
 <li>
 <p>테스트할 앱을 다운로드 받습니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">wget https://raw.githubusercontent.com/oracle-samples/oci-secrets-store-csi-driver-provider/main/deploy/example/app.deployment.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">https://raw.githubusercontent.com/oracle/oci-secrets-store-csi-driver-provider/refs/heads/main/deploy/example/app.deployment.yaml
 </span></span></code></pre></div></li>
 <li>
 <p>다운로드 받은 테스트 앱을 배포합니다. 또는 이미 배포된 경우 Pod를 삭제하고 다시 시작합니다.</p>
@@ -445,7 +664,7 @@
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 3 May 2023<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/security/" title="1.6 Security"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.6 Security</a>
+ <div class="edit-meta">Last updated on 15 Apr 2026<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/security/" title="1.6 Security"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.6 Security</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/" title="1.7 CI/CD(Continuous Integration &amp; Delivery)">Next - 1.7 CI/CD(Continuous Integration &amp; Delivery) <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>

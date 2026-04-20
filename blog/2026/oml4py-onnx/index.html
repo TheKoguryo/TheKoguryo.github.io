@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OML4Py 설치 후 Embedding 모델 DB에 로드하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OML4Py 설치 후 Embedding 모델 DB에 로드하기">
+  <meta property="og:description" content="OML4Py 설치 후 Text Embedding 모델 DB에 로드하기 OML4Py 2.1.1 설치 OML4Py 2.1.1 설치 요구사항
+Database and System Requirements for OML4Py OML4Py Version Python Version Oracle AI Database Version Operating System 2.1.1 3.13.5 26ai Linux X64 ( OL8, OL9 ) Python 3.13 설치">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-04-20T00:00:02+00:00">
+    <meta property="article:modified_time" content="2026-04-20T00:00:02+00:00">
+    <meta property="article:tag" content="Oml4py">
+    <meta property="article:tag" content="Onnx">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-04-20</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="oml4py-설치-후-text-embedding-모델-db에-로드하기">OML4Py 설치 후 Text Embedding 모델 DB에 로드하기</h2>
+<h6 id="oml4py-211-설치">OML4Py 2.1.1 설치</h6>
+<p><strong>OML4Py 2.1.1 설치 요구사항</strong></p>
+<ul>
+<li><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/database-and-system-requirements-oml4py.html">Database and System Requirements for OML4Py</a>
+<table>
+  <thead>
+      <tr>
+          <th>OML4Py Version</th>
+          <th>Python Version</th>
+          <th>Oracle AI Database Version</th>
+          <th>Operating System</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>2.1.1</code></td>
+          <td><code>3.13.5</code></td>
+          <td><code>26ai</code></td>
+          <td>Linux X64 ( OL8, OL9 )</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+</ul>
+<p><strong>Python 3.13 설치</strong></p>
+<ul>
+<li><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/build-and-install-python-linux-premises-databases-oml4py-2.1.1.html">Build and Install Python for Linux for On-Premises Databases</a></li>
+</ul>
+<ol>
+<li>
+<p>설치파일 다운로드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">wget https://www.python.org/ftp/python/3.13.5/Python-3.13.5.tgz
+</span></span></code></pre></div></li>
+<li>
+<p>압축해제</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mkdir -p $HOME/python
+</span></span><span class="line"><span class="cl">tar -xvzf Python-3.13.5.tgz --strip-components=1 -C $HOME/python
+</span></span></code></pre></div></li>
+<li>
+<p>필요 패키지 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo yum install openssl-devel bzip2-devel libffi-devel sqlite-devel
+</span></span><span class="line"><span class="cl">sudo yum install perl-Env libffi-devel openssl openssl-devel tk-devel tcl-devel \
+</span></span><span class="line"><span class="cl">xz-devel zlib-devel bzip2-devel readline-devel libuuid-devel ncurses-devel openblas libsqlite3-dev
+</span></span></code></pre></div></li>
+<li>
+<p>빌드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd $HOME/python
+</span></span><span class="line"><span class="cl">./configure --enable-shared --prefix=$HOME/python
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">make clean; make
+</span></span><span class="line"><span class="cl">make altinstall
+</span></span></code></pre></div></li>
+<li>
+<p>환경 변수 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export PYTHONHOME=$HOME/python
+</span></span><span class="line"><span class="cl">export PATH=$PYTHONHOME/bin:$PATH
+</span></span><span class="line"><span class="cl">export LD_LIBRARY_PATH=$PYTHONHOME/lib:$LD_LIBRARY_PATH
+</span></span></code></pre></div></li>
+<li>
+<p>링크</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd $HOME/python/bin
+</span></span><span class="line"><span class="cl">ln -s python3.13 python3
+</span></span></code></pre></div></li>
+<li>
+<p>버전 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ python3.13 --version
+</span></span><span class="line"><span class="cl">Python 3.13.5
+</span></span><span class="line"><span class="cl">$ python3 --version
+</span></span><span class="line"><span class="cl">Python 3.13.5
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>OML4Py 설치</strong></p>
+<ol>
+<li>
+<p><code>requirements.txt</code> 파일 생성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">--extra-index-url https://download.pytorch.org/whl/cpu
+</span></span><span class="line"><span class="cl">pandas==2.2.3
+</span></span><span class="line"><span class="cl">setuptools==80.8.0
+</span></span><span class="line"><span class="cl">scipy==1.14.1
+</span></span><span class="line"><span class="cl">matplotlib==3.10.0
+</span></span><span class="line"><span class="cl">oracledb==3.3.0
+</span></span><span class="line"><span class="cl">scikit-learn==1.6.1
+</span></span><span class="line"><span class="cl">numpy==2.1.0
+</span></span><span class="line"><span class="cl">pyarrow==19.0.0
+</span></span><span class="line"><span class="cl">onnxruntime==1.20.0
+</span></span><span class="line"><span class="cl">onnxruntime-extensions==0.14.0
+</span></span><span class="line"><span class="cl">onnx==1.18.0
+</span></span><span class="line"><span class="cl">torch==2.9.0
+</span></span><span class="line"><span class="cl">transformers==4.56.1
+</span></span><span class="line"><span class="cl">sentencepiece==0.2.1
+</span></span></code></pre></div></li>
+<li>
+<p>설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">pip3.13 install --upgrade pip
+</span></span><span class="line"><span class="cl">pip3.13 install -r requirements.txt
+</span></span></code></pre></div></li>
+<li>
+<p><a href="https://www.oracle.com/database/technologies/oml4py-downloads.html">Oracle Machine Learning for Python</a> 사이트에서 OML4Py 2.1.1 클라이언트를 다운로드 받습니다.</p>
+</li>
+<li>
+<p>OML4Py 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">unzip oml4py-client-linux-x86_64-2.1.1.zip
+</span></span><span class="line"><span class="cl">pip3.13 install client/oml-2.1.1-cp313-cp313-linux_x86_64.whl
+</span></span></code></pre></div></li>
+<li>
+<p>oml 패키지 설치 확인 및 pretrained embedding models 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ python3.13
+</span></span><span class="line"><span class="cl">Python 3.13.5 (main, Jan 31 2026, 16:26:14) [GCC 8.5.0 20210514 (Red Hat 8.5.0-28.0.1)] on linux
+</span></span><span class="line"><span class="cl">Type &#34;help&#34;, &#34;copyright&#34;, &#34;credits&#34; or &#34;license&#34; for more information.
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; from oml.utils import ONNXPipeline, ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; all_preconfigured_models = ONNXPipelineConfig.show_preconfigured()
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; import json
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; print(json.dumps(sorted(all_preconfigured_models), indent=4))
+</span></span><span class="line"><span class="cl">[
+</span></span><span class="line"><span class="cl">    &#34;AdamCodd/vit-base-nsfw-detector&#34;,
+</span></span><span class="line"><span class="cl">    &#34;BAAI/bge-base-en-v1.5&#34;,
+</span></span><span class="line"><span class="cl">    &#34;BAAI/bge-large-en-v1.5&#34;,
+</span></span><span class="line"><span class="cl">    &#34;BAAI/bge-reranker-base&#34;,
+</span></span><span class="line"><span class="cl">    &#34;BAAI/bge-small-en-v1.5&#34;,
+</span></span><span class="line"><span class="cl">    &#34;Falconsai/nsfw_image_detection&#34;,
+</span></span><span class="line"><span class="cl">    &#34;Snowflake/snowflake-arctic-embed-l&#34;,
+</span></span><span class="line"><span class="cl">    &#34;Snowflake/snowflake-arctic-embed-m&#34;,
+</span></span><span class="line"><span class="cl">    &#34;Snowflake/snowflake-arctic-embed-s&#34;,
+</span></span><span class="line"><span class="cl">    &#34;Snowflake/snowflake-arctic-embed-xs&#34;,
+</span></span><span class="line"><span class="cl">    &#34;TaylorAI/gte-tiny&#34;,
+</span></span><span class="line"><span class="cl">    &#34;WhereIsAI/UAE-Large-V1&#34;,
+</span></span><span class="line"><span class="cl">    &#34;WinKawaks/vit-small-patch16-224&#34;,
+</span></span><span class="line"><span class="cl">    &#34;WinKawaks/vit-tiny-patch16-224&#34;,
+</span></span><span class="line"><span class="cl">    &#34;google/vit-base-patch16-224&#34;,
+</span></span><span class="line"><span class="cl">    &#34;ibm-granite/granite-embedding-278m-multilingual&#34;,
+</span></span><span class="line"><span class="cl">    &#34;intfloat/e5-base-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;intfloat/e5-small-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;intfloat/multilingual-e5-base&#34;,
+</span></span><span class="line"><span class="cl">    &#34;intfloat/multilingual-e5-small&#34;,
+</span></span><span class="line"><span class="cl">    &#34;microsoft/resnet-18&#34;,
+</span></span><span class="line"><span class="cl">    &#34;microsoft/resnet-50&#34;,
+</span></span><span class="line"><span class="cl">    &#34;mixedbread-ai/mxbai-embed-large-v1&#34;,
+</span></span><span class="line"><span class="cl">    &#34;nateraw/vit-age-classifier&#34;,
+</span></span><span class="line"><span class="cl">    &#34;openai/clip-vit-large-patch14&#34;,
+</span></span><span class="line"><span class="cl">    &#34;rizvandwiki/gender-classification&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/all-MiniLM-L12-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/all-MiniLM-L6-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/all-mpnet-base-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/distiluse-base-multilingual-cased-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/multi-qa-MiniLM-L6-cos-v1&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/paraphrase-multilingual-mpnet-base-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;sentence-transformers/stsb-xlm-r-multilingual&#34;,
+</span></span><span class="line"><span class="cl">    &#34;taylorAI/bge-micro-v2&#34;,
+</span></span><span class="line"><span class="cl">    &#34;thenlper/gte-base&#34;,
+</span></span><span class="line"><span class="cl">    &#34;thenlper/gte-large&#34;,
+</span></span><span class="line"><span class="cl">    &#34;thenlper/gte-small&#34;,
+</span></span><span class="line"><span class="cl">    &#34;trpakov/vit-face-expression&#34;
+</span></span><span class="line"><span class="cl">]
+</span></span></code></pre></div></li>
+<li>
+<p>이중 한국어를 지원하는 목록을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span> <span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">all_preconfigured_models</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">show_preconfigured</span><span class="p">(</span><span class="n">include_properties</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">all_preconfigured_models</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="s2">&#34;languages&#34;</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span> <span class="s2">&#34;ko&#34;</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&#34;languages&#34;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="nb">print</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sentence-transformers/distiluse-base-multilingual-cased-v2
+</span></span><span class="line"><span class="cl">sentence-transformers/paraphrase-multilingual-mpnet-base-v2
+</span></span><span class="line"><span class="cl">intfloat/multilingual-e5-base
+</span></span><span class="line"><span class="cl">intfloat/multilingual-e5-small
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="한국어-embedding-모델-순위"><strong>한국어 Embedding 모델 순위</strong></h6>
+<p>인터넷 상에 아주 많은 모델이 검색되어, 어떤 모델이 좋은 지 판단이 필요합니다. 여기서는 <a href="https://huggingface.co/spaces/mteb/leaderboard">HuggingFace mteb Embedding Leaderboard</a>에서 2026년 3월 말 기준 한국어 모델 순위를 기준으로 하겠습니다. 그리고 모델의 평가 항목중 Retrieval, STS를 기준으로 정렬해봅니다.</p>
+<ul>
+<li>
+<p><a href="https://embeddings-benchmark.github.io/mteb/overview/available_tasks/retrieval/"><strong>Massive Text Embedding Benchmark</strong></a></p>
+</li>
+<li>
+<p>Retrieval</p>
+<ul>
+<li>
+<p>Includes tasks which require asymmetric matching between a set of queries and a corpus.</p>
+</li>
+<li>
+<p>해석하면, 검색 대상 문서 집합에서 질문에 대해 매칭되는 문서를 잘 찾는 작업 능력</p>
+</li>
+<li>
+<p>사용 예시: RAG, 의미 검색, 질문 답변</p>
+</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>Model</th>
+          <th>Embedding Dimensions</th>
+          <th>Retrieval (↓)</th>
+          <th>STS</th>
+          <th>참조</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-8B">F2LLM-v2-8B</a></td>
+          <td>4096</td>
+          <td>73.42</td>
+          <td>86.51</td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td><a href="https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0">snowflake-arctic-embed-l-v2.0</a></td>
+          <td>1024</td>
+          <td>73.27</td>
+          <td>78.18</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-14B">F2LLM-v2-14B</a></td>
+          <td>5120</td>
+          <td>72.33</td>
+          <td>87.09</td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td><a href="https://huggingface.co/SamilPwC-AXNode-GenAI/PwC-Embedding_expr">PwC-Embedding_expr</a></td>
+          <td>1024</td>
+          <td>72.15</td>
+          <td>86.22</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>5</td>
+          <td><a href="https://huggingface.co/jinaai/jina-embeddings-v3">jina-embeddings-v3</a></td>
+          <td>1024</td>
+          <td>71.78</td>
+          <td>84.89</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>6</td>
+          <td><a href="https://huggingface.co/infly/inf-retriever-v1">inf-retriever-v1</a></td>
+          <td>3584</td>
+          <td>71.59</td>
+          <td></td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>7</td>
+          <td><a href="https://huggingface.co/infly/inf-retriever-v1-1.5b">inf-retriever-v1-1.5b</a></td>
+          <td>1536</td>
+          <td>71.38</td>
+          <td></td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>8</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-4B">F2LLM-v2-4B</a></td>
+          <td>2560</td>
+          <td>71.07</td>
+          <td>85.93</td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>9</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-1.7B">F2LLM-v2-1.7B</a></td>
+          <td>2048</td>
+          <td>70.78</td>
+          <td>85.49</td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>10</td>
+          <td><a href="https://huggingface.co/intfloat/multilingual-e5-large-instruct">multilingual-e5-large-instruct</a></td>
+          <td>1024</td>
+          <td>69.93</td>
+          <td>85.59</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>12</td>
+          <td><a href="https://huggingface.co/intfloat/multilingual-e5-base">multilingual-e5-base</a></td>
+          <td>768</td>
+          <td>69.31</td>
+          <td>77.9</td>
+          <td>Preconfigured Model</td>
+      </tr>
+      <tr>
+          <td>14</td>
+          <td><a href="https://huggingface.co/intfloat/multilingual-e5-small">multilingual-e5-small</a></td>
+          <td>384</td>
+          <td>68.2</td>
+          <td>76.41</td>
+          <td>Preconfigured Model</td>
+      </tr>
+      <tr>
+          <td>25</td>
+          <td><a href="https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2">paraphrase-multilingual-mpnet-base-v2</a></td>
+          <td>768</td>
+          <td>41.52</td>
+          <td>80.95</td>
+          <td>Preconfigured Model</td>
+      </tr>
+      <tr>
+          <td>-</td>
+          <td><a href="https://huggingface.co/sentence-transformers/distiluse-base-multilingual-cased-v2">distiluse-base-multilingual-cased-v2</a></td>
+          <td>768</td>
+          <td>-</td>
+          <td></td>
+          <td>Preconfigured Model</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+<li>
+<p>STS (Semantic Textual Similarity)</p>
+<ul>
+<li>Tasks that evaluated examines the semantic similarity between correctly and incorrectly paired items.</li>
+<li>해석하면, 두 항목이 얼마나 유사한지는 평가하는 작업 능력, 두 문장이 같은 뜻인지 판단하는 능력</li>
+<li>사용 예시: 중복 탐지, 의역 식별</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th>Model</th>
+          <th>Embedding Dimensions</th>
+          <th>Retrieval</th>
+          <th>STS (↓)</th>
+          <th>참조</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>1</td>
+          <td><a href="https://huggingface.co/Gameselo/STS-multilingual-mpnet-base-v2">STS-multilingual-mpnet-base-v2</a></td>
+          <td>768</td>
+          <td>32.98</td>
+          <td>90.74</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>2</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-14B">F2LLM-v2-14B</a></td>
+          <td>5120</td>
+          <td>72.33</td>
+          <td>87.09</td>
+          <td>Retrieval: 3위</td>
+      </tr>
+      <tr>
+          <td>3</td>
+          <td><a href="https://huggingface.co/Alibaba-NLP/gte-Qwen2-7B-instruct">gte-Qwen2-7B-instruct</a></td>
+          <td>3584</td>
+          <td></td>
+          <td>86.77</td>
+          <td>Qwen2Tokenizer</td>
+      </tr>
+      <tr>
+          <td>4</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-8B">F2LLM-v2-8B</a></td>
+          <td>4096</td>
+          <td>73.42</td>
+          <td>86.51</td>
+          <td>Retrieval: 1위</td>
+      </tr>
+      <tr>
+          <td>5</td>
+          <td><a href="https://huggingface.co/SamilPwC-AXNode-GenAI/PwC-Embedding_expr">PwC-Embedding_expr</a></td>
+          <td>1024</td>
+          <td>72.15</td>
+          <td>86.22</td>
+          <td>Retrieval: 4위</td>
+      </tr>
+      <tr>
+          <td>6</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-4B">F2LLM-v2-4B</a></td>
+          <td>2560</td>
+          <td>71.07</td>
+          <td>85.93</td>
+          <td>Retrieval: 8위</td>
+      </tr>
+      <tr>
+          <td>7</td>
+          <td><a href="https://huggingface.co/Lajavaness/bilingual-embedding-large">bilingual-embedding-large</a></td>
+          <td>1024</td>
+          <td></td>
+          <td>85.78</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>8</td>
+          <td><a href="https://huggingface.co/intfloat/multilingual-e5-large-instruct">multilingual-e5-large-instruct</a></td>
+          <td>1024</td>
+          <td>69.93</td>
+          <td>85.59</td>
+          <td>Retrieval: 10위</td>
+      </tr>
+      <tr>
+          <td>9</td>
+          <td><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-1.7B">F2LLM-v2-1.7B</a></td>
+          <td>2048</td>
+          <td>70.78</td>
+          <td>85.49</td>
+          <td>Retrieval: 9위</td>
+      </tr>
+      <tr>
+          <td>10</td>
+          <td><a href="https://huggingface.co/Salesforce/SFR-Embedding-Mistral">SFR-Embedding-Mistral</a></td>
+          <td>4096</td>
+          <td></td>
+          <td>85.12</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td>20</td>
+          <td><a href="https://huggingface.co/intfloat/multilingual-e5-large">multilingual-e5-large</a></td>
+          <td>1024</td>
+          <td></td>
+          <td>81.95</td>
+          <td><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/support-large-onnx-format-model-support.html">OML4Py 문서 예시로 사용된 모델</a></td>
+      </tr>
+      <tr>
+          <td>26</td>
+          <td><a href="https://cohere.com/blog/introducing-embed-v3">Cohere-embed-multilingual-v3.0</a></td>
+          <td>512</td>
+          <td></td>
+          <td>80.51</td>
+          <td>OCI Generative AI에서 제공</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+<li>
+<p>참고</p>
+<ul>
+<li><a href="https://modal.com/blog/mteb-leaderboard-article">https://modal.com/blog/mteb-leaderboard-article</a></li>
+</ul>
+</li>
+</ul>
+<h6 id="oml4py-preconfigured-models-임포트-준비">OML4Py Preconfigured Models 임포트 준비</h6>
+<p>OML4Py에서 사전구성설정을 제공하는 모델입니다. 해당 모델은 쉽게 Oracle AI Database 26ai 버전에 임포트해서 사용할 수 있습니다. 해외 Oracle ACE Pro가 정리한 문서 및 제공하는 모델 링크를 활용하기 바랍니다.</p>
+<ul>
+<li><a href="https://practicalplsql.org/2025/05/25/oml4py-2-1-quickstart/">OML4PY 2.1 Quickstart</a></li>
+</ul>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다. Preconfigured Models은 이름만 입력하면 됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;sentence-transformers/distiluse-base-multilingual-cased-v2&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;distiluse-base-multilingual-cased-v2&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;sentence-transformers/paraphrase-multilingual-mpnet-base-v2&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;paraphrase-multilingual-mpnet-base-v2&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;intfloat/multilingual-e5-base&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;multilingual-e5-base&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;intfloat/multilingual-e5-small&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;multilingual-e5-small&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 131M Apr  2 02:47 distiluse-base-multilingual-cased-v2.onnx
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 271M Apr  2 02:54 multilingual-e5-base.onnx
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 118M Apr  2 02:50 multilingual-e5-small.onnx
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 271M Apr  2 02:49 paraphrase-multilingual-mpnet-base-v2.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object put --bucket-name onnx-models --file distiluse-base-multilingual-cased-v2.onnx
+</span></span><span class="line"><span class="cl">oci os object put --bucket-name onnx-models --file multilingual-e5-base.onnx
+</span></span><span class="line"><span class="cl">oci os object put --bucket-name onnx-models --file multilingual-e5-small.onnx
+</span></span><span class="line"><span class="cl">oci os object put --bucket-name onnx-models --file paraphrase-multilingual-mpnet-base-v2.onnx
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="사전-구성되지-않은-일반-embedding-모델-준비">사전 구성되지 않은 일반 Embedding 모델 준비</h6>
+<p><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/oml4py-2.1.1-updates.html">OML4Py 2.1.1 Updates</a>부터 Large ONNX Model Conversion을 지원합니다. <a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/support-large-onnx-format-model-support.html">Support For Large ONNX Format Model</a> 설명을 보면 아래와 같은 내용이 있습니다.</p>
+<ul>
+<li>1GB 미만: 최적의 성능으로 지원됩니다.</li>
+<li>1GB ~ 2GB: 양자화(quantize_model=True)가 활성화된 경우 완벽한 지원이 제공되며, quantize_model=False인 경우에는 use_external_data=True 기본으로 ONNX 파일외 추가 파일들이 만들어집니다.</li>
+<li>0.4GB ~ 2GB: quantize_model=False인 경우, 성능 향상을 위해 양자화를 권장하는 경고 메시지가 표시됩니다.</li>
+<li>2GB 초과: quantize_model=False만 지원하고, ONNX 파일외 추가 파일들이 만들어집니다.</li>
+</ul>
+<p><strong><a href="https://huggingface.co/codefuse-ai/F2LLM-v2-8B">F2LLM-v2-8B</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from oml.utils import ONNXPipeline,ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">config = ONNXPipelineConfig.from_template(&#34;text&#34;, max_seq_length=10000, distance_metrics=[&#34;COSINE&#34;], quantize_model=False)
+</span></span><span class="line"><span class="cl">pipeline = ONNXPipeline(model_name=&#34;codefuse-ai/F2LLM-v2-8B&#34;, config=config)
+</span></span><span class="line"><span class="cl">pipeline.export2file(&#34;f2llm-v2-8b&#34;, output_dir=&#34;.&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>다음 오류 발생</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ValueError: Unsupported tokenizer &lt;class &#39;transformers.models.qwen2.tokenization_qwen2.Qwen2Tokenizer&#39;&gt;
+</span></span></code></pre></div></li>
+<li>
+<p><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/onnx-pipeline-models-text-embedding.html">ONNX Pipeline Models: Text Embedding</a>을 보면 OML4Py는 현재 Tokenizer로 <code>BERT</code>, <code>GPT2</code>, <code>SENTENCEPIECE</code>, <code>CLIP</code>or <code>ROBERTA</code>만 지원합니다.</p>
+</li>
+<li>
+<p><code>F2LLM-v2-8B</code>, <code>F2LLM-v2-14B</code>, <code>F2LLM-v2-4B</code>, <code>F2LLM-v2-1.7B</code>, <code>inf-retriever-v1</code>, <code>inf-retriever-v1-1.5b</code> 모델은 <code>Qwen2Tokenizer</code>를 사용하여, OML4Py 2.1.1에서 지원하지 않습니다.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong><a href="https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0">snowflake-arctic-embed-l-v2.0</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from oml.utils import ONNXPipeline,ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">config = ONNXPipelineConfig.from_template(&#34;text&#34;, max_seq_length=8192, distance_metrics=[&#34;COSINE&#34;], quantize_model=False)
+</span></span><span class="line"><span class="cl">pipeline = ONNXPipeline(model_name=&#34;Snowflake/snowflake-arctic-embed-l-v2.0&#34;, config=config)
+</span></span><span class="line"><span class="cl">pipeline.export2file(&#34;snowflake-arctic-embed-l-v2.0&#34;, output_dir=&#34;.&#34;)
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah snowflake-arctic-embed-l-v2.0*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 2.2G Apr  1 03:14 snowflake-arctic-embed-l-v2.0.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip snowflake-arctic-embed-l-v2.0.zip -d snowflake-arctic-embed-l-v2.0
+</span></span><span class="line"><span class="cl">Archive:  snowflake-arctic-embed-l-v2.0.zip
+</span></span><span class="line"><span class="cl"> extracting: snowflake-arctic-embed-l-v2.0/snowflake-arctic-embed-l-v2.0_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: snowflake-arctic-embed-l-v2.0/snowflake-arctic-embed-l-v2.0_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> extracting: snowflake-arctic-embed-l-v2.0/snowflake-arctic-embed-l-v2.0_0.data
+</span></span><span class="line"><span class="cl"> extracting: snowflake-arctic-embed-l-v2.0/snowflake-arctic-embed-l-v2.0_1.data
+</span></span><span class="line"><span class="cl"> extracting: snowflake-arctic-embed-l-v2.0/snowflake-arctic-embed-l-v2.0.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir snowflake-arctic-embed-l-v2.0
+</span></span></code></pre></div></li>
+</ol>
+<p><strong><a href="https://huggingface.co/SamilPwC-AXNode-GenAI/PwC-Embedding_expr">PwC-Embedding_expr</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from oml.utils import ONNXPipeline,ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">config = ONNXPipelineConfig.from_template(&#34;text&#34;, max_seq_length=512, distance_metrics=[&#34;COSINE&#34;], quantize_model=False)
+</span></span><span class="line"><span class="cl">pipeline = ONNXPipeline(model_name=&#34;SamilPwC-AXNode-GenAI/PwC-Embedding_expr&#34;, config=config)
+</span></span><span class="line"><span class="cl">pipeline.export2file(&#34;pwc-embedding_expr&#34;, output_dir=&#34;.&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>다음 오류 발생</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">OSError: Unable to load vocabulary from file. Please check that the provided vocabulary is accessible and not corrupted.
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/loading-pretrained-models-filesystem.html">커스텀 모델 로드 방식</a>을 참고하여 연관된 상위 모델의 vocabulary 파일을 사용하여 우회합니다. 아래와 같이 다시 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">hf_hub_download</span><span class="p">,</span> <span class="n">snapshot_download</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">hf_hub_download</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repo_id</span><span class="o">=</span><span class="s2">&#34;intfloat/multilingual-e5-large-instruct&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">filename</span><span class="o">=</span><span class="s2">&#34;sentencepiece.bpe.model&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&#34;./SamilPwC-AXNode-GenAI/PwC-Embedding_expr&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">snapshot_download</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repo_id</span><span class="o">=</span><span class="s2">&#34;SamilPwC-AXNode-GenAI/PwC-Embedding_expr&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&#34;./SamilPwC-AXNode-GenAI/PwC-Embedding_expr&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;SamilPwC-AXNode-GenAI/PwC-Embedding_expr&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;local_model_path&#34;</span><span class="p">:</span> <span class="s2">&#34;.&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;pwc-embedding_expr&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah pwc-embedding_expr*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 2.1G Apr  1 09:45 pwc-embedding_expr.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip pwc-embedding_expr.zip -d pwc-embedding_expr
+</span></span><span class="line"><span class="cl">Archive:  pwc-embedding_expr.zip
+</span></span><span class="line"><span class="cl"> extracting: pwc-embedding_expr/pwc-embedding_expr_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: pwc-embedding_expr/pwc-embedding_expr_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> extracting: pwc-embedding_expr/pwc-embedding_expr_0.data
+</span></span><span class="line"><span class="cl"> extracting: pwc-embedding_expr/pwc-embedding_expr_1.data
+</span></span><span class="line"><span class="cl"> extracting: pwc-embedding_expr/pwc-embedding_expr.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir pwc-embedding_expr
+</span></span></code></pre></div></li>
+</ol>
+<p><strong><a href="https://huggingface.co/jinaai/jina-embeddings-v3">jina-embeddings-v3</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from oml.utils import ONNXPipeline,ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">config = ONNXPipelineConfig.from_template(&#34;text&#34;, max_seq_length=2048, distance_metrics=[&#34;COSINE&#34;], quantize_model=False)
+</span></span><span class="line"><span class="cl">pipeline = ONNXPipeline(model_name=&#34;jinaai/jina-embeddings-v3&#34;, config=config)
+</span></span><span class="line"><span class="cl">pipeline.export2file(&#34;jina-embeddings-v3&#34;, output_dir=&#34;.&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>다음 오류 발생</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">OSError: Unable to load vocabulary from file. Please check that the provided vocabulary is accessible and not corrupted.
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>오류를 최대한 우회하기 위해 아래와 같이 실행해 보았습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">hf_hub_download</span><span class="p">,</span> <span class="n">snapshot_download</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">hf_hub_download</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repo_id</span><span class="o">=</span><span class="s2">&#34;FacebookAI/xlm-roberta-base&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">filename</span><span class="o">=</span><span class="s2">&#34;sentencepiece.bpe.model&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&#34;./jinaai/jina-embeddings-v3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">snapshot_download</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repo_id</span><span class="o">=</span><span class="s2">&#34;jinaai/jina-embeddings-v3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&#34;./jinaai/jina-embeddings-v3&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;jinaai/jina-embeddings-v3&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;local_model_path&#34;</span><span class="p">:</span> <span class="s2">&#34;.&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;jina-embeddings-v3&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>해결할 수 없음 오류로 인해 본 모델은 export 실패함.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ne">ValueError</span><span class="p">:</span> <span class="n">Could</span> <span class="ow">not</span> <span class="n">download</span> <span class="n">model</span><span class="o">.</span>
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<p><strong><a href="https://huggingface.co/intfloat/multilingual-e5-large-instruct">multilingual-e5-large-instruct</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;intfloat/multilingual-e5-large-instruct&#34;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;multilingual-e5-large-instruct&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah multilingual-e5-large-instruct*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 2.1G Apr  1 10:17 multilingual-e5-large-instruct.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip multilingual-e5-large-instruct.zip -d multilingual-e5-large-instruct
+</span></span><span class="line"><span class="cl">Archive:  multilingual-e5-large-instruct.zip
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large-instruct/multilingual-e5-large-instruct_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large-instruct/multilingual-e5-large-instruct_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large-instruct/multilingual-e5-large-instruct_0.data
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large-instruct/multilingual-e5-large-instruct_1.data
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large-instruct/multilingual-e5-large-instruct.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir multilingual-e5-large-instruct
+</span></span></code></pre></div></li>
+</ol>
+<p><strong><a href="https://huggingface.co/Gameselo/STS-multilingual-mpnet-base-v2">STS-multilingual-mpnet-base-v2</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;Gameselo/STS-multilingual-mpnet-base-v2&#34;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;sts-multilingual-mpnet-base-v2&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah sts-multilingual-mpnet-base-v2*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 1.1G Apr  1 10:22 sts-multilingual-mpnet-base-v2.zip
+</span></span></code></pre></div></li>
+<li>
+<p>파일사이즈가 2G이하입니다. quantize_model=True로 설정하여, Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;Gameselo/STS-multilingual-mpnet-base-v2&#34;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;sts-multilingual-mpnet-base-v2-q&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. 양자화된 파일은 .onnx 단일 파일로 생성됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ls -lah sts-multilingual-mpnet-base-v2*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 271M Apr  1 10:24 sts-multilingual-mpnet-base-v2-q.onnx
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 1.1G Apr  1 10:22 sts-multilingual-mpnet-base-v2.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip sts-multilingual-mpnet-base-v2.zip -d sts-multilingual-mpnet-base-v2
+</span></span><span class="line"><span class="cl">Archive:  sts-multilingual-mpnet-base-v2.zip
+</span></span><span class="line"><span class="cl"> extracting: sts-multilingual-mpnet-base-v2/sts-multilingual-mpnet-base-v2_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: sts-multilingual-mpnet-base-v2/sts-multilingual-mpnet-base-v2_0.data
+</span></span><span class="line"><span class="cl"> extracting: sts-multilingual-mpnet-base-v2/sts-multilingual-mpnet-base-v2_1.data
+</span></span><span class="line"><span class="cl"> extracting: sts-multilingual-mpnet-base-v2/sts-multilingual-mpnet-base-v2.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object put --bucket-name onnx-models --file sts-multilingual-mpnet-base-v2-q.onnx
+</span></span><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir sts-multilingual-mpnet-base-v2
+</span></span></code></pre></div></li>
+</ol>
+<p><strong><a href="https://huggingface.co/Alibaba-NLP/gte-Qwen2-7B-instruct">gte-Qwen2-7B-instruct</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from oml.utils import ONNXPipeline,ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">config = ONNXPipelineConfig.from_template(&#34;text&#34;, max_seq_length=8192, distance_metrics=[&#34;COSINE&#34;], quantize_model=False)
+</span></span><span class="line"><span class="cl">pipeline = ONNXPipeline(model_name=&#34;Alibaba-NLP/gte-Qwen2-7B-instruct&#34;, config=config)
+</span></span><span class="line"><span class="cl">pipeline.export2file(&#34;gte-qwen2-7b-instruct&#34;, output_dir=&#34;.&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>다음 오류 발생</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ValueError: Unsupported tokenizer &lt;class &#39;transformers.models.qwen2.tokenization_qwen2.Qwen2Tokenizer&#39;&gt;
+</span></span></code></pre></div></li>
+<li>
+<p><code>Qwen2Tokenizer</code>를 사용하여, OML4Py 2.1.1에서 지원하지 않습니다.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong><a href="https://huggingface.co/Lajavaness/bilingual-embedding-large">bilingual-embedding-large</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;Lajavaness/bilingual-embedding-large&#34;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;bilingual-embedding-large&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah bilingual-embedding-large*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 2.1G Apr  1 10:36 bilingual-embedding-large.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip bilingual-embedding-large.zip -d bilingual-embedding-large
+</span></span><span class="line"><span class="cl">Archive:  bilingual-embedding-large.zip
+</span></span><span class="line"><span class="cl"> extracting: bilingual-embedding-large/bilingual-embedding-large_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: bilingual-embedding-large/bilingual-embedding-large_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> extracting: bilingual-embedding-large/bilingual-embedding-large_0.data
+</span></span><span class="line"><span class="cl"> extracting: bilingual-embedding-large/bilingual-embedding-large_1.data
+</span></span><span class="line"><span class="cl"> extracting: bilingual-embedding-large/bilingual-embedding-large.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir bilingual-embedding-large
+</span></span></code></pre></div></li>
+</ol>
+<p><strong><a href="https://huggingface.co/Salesforce/SFR-Embedding-Mistral">SFR-Embedding-Mistral</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;Salesforce/SFR-Embedding-Mistral&#34;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;sfr-embedding-mistral&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>다음 오류 발생</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ValueError: Unsupported tokenizer &lt;class &#39;transformers.models.llama.tokenization_llama.LlamaTokenizer&#39;&gt;
+</span></span></code></pre></div></li>
+<li>
+<p><code>LlamaTokenizer</code>를 사용하여, OML4Py 2.1.1에서는 아직 지원하지 않습니다.</p>
+</li>
+</ul>
+</li>
+</ol>
+<p><strong><a href="https://huggingface.co/intfloat/multilingual-e5-large">multilingual-e5-large</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;intfloat/multilingual-e5-large&#34;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;multilingual-e5-large&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah multilingual-e5-large*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 2.1G Apr  1 10:45 multilingual-e5-large.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip multilingual-e5-large.zip -d multilingual-e5-large
+</span></span><span class="line"><span class="cl">Archive:  multilingual-e5-large.zip
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large/multilingual-e5-large_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large/multilingual-e5-large_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large/multilingual-e5-large_0.data
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large/multilingual-e5-large_1.data
+</span></span><span class="line"><span class="cl"> extracting: multilingual-e5-large/multilingual-e5-large.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir multilingual-e5-large
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>추가 <a href="https://huggingface.co/dragonkue/BGE-m3-ko">dragonkue-bge-m3-ko</a></strong></p>
+<ol>
+<li>
+<p>Python에서 다음을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from oml.utils import ONNXPipeline,ONNXPipelineConfig
+</span></span><span class="line"><span class="cl">config = ONNXPipelineConfig.from_template(&#34;text&#34;, max_seq_length=8192, distance_metrics=[&#34;COSINE&#34;], quantize_model=False)
+</span></span><span class="line"><span class="cl">pipeline = ONNXPipeline(model_name=&#34;dragonkue/BGE-m3-ko&#34;, config=config)
+</span></span><span class="line"><span class="cl">pipeline.export2file(&#34;bge-m3-ko&#34;, output_dir=&#34;.&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>다음 오류 발생</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">OSError: Unable to load vocabulary from file. Please check that the provided vocabulary is accessible and not corrupted.
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en/database/oracle/machine-learning/oml4py/2-23ai/mlpug/loading-pretrained-models-filesystem.html">커스텀 모델 로드 방식</a>을 참고하여 연관된 상위 모델의 vocabulary 파일을 사용하여 우회합니다. 아래와 같이 다시 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">huggingface_hub</span> <span class="kn">import</span> <span class="n">hf_hub_download</span><span class="p">,</span> <span class="n">snapshot_download</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">hf_hub_download</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repo_id</span><span class="o">=</span><span class="s2">&#34;BAAI/bge-m3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">filename</span><span class="o">=</span><span class="s2">&#34;sentencepiece.bpe.model&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&#34;./dragonkue/BGE-m3-ko&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">snapshot_download</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">repo_id</span><span class="o">=</span><span class="s2">&#34;dragonkue/BGE-m3-ko&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">local_dir</span><span class="o">=</span><span class="s2">&#34;./dragonkue/BGE-m3-ko&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">oml.utils</span> <span class="kn">import</span> <span class="n">ONNXPipeline</span><span class="p">,</span><span class="n">ONNXPipelineConfig</span>
+</span></span><span class="line"><span class="cl"><span class="n">config</span> <span class="o">=</span> <span class="n">ONNXPipelineConfig</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&#34;text&#34;</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">8192</span><span class="p">,</span> <span class="n">distance_metrics</span><span class="o">=</span><span class="p">[</span><span class="s2">&#34;COSINE&#34;</span><span class="p">],</span> <span class="n">quantize_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span> <span class="o">=</span> <span class="n">ONNXPipeline</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model_name</span><span class="o">=</span><span class="s2">&#34;dragonkue/BGE-m3-ko&#34;</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">    <span class="n">settings</span><span class="o">=</span><span class="p">{</span><span class="s2">&#34;local_model_path&#34;</span><span class="p">:</span> <span class="s2">&#34;.&#34;</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">pipeline</span><span class="o">.</span><span class="n">export2file</span><span class="p">(</span><span class="s2">&#34;bge-m3-ko&#34;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&#34;.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 파일을 확인합니다. zip 파일로 생성되었습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -lah bge-m3-ko*
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 2.2G Apr  1 10:56 bge-m3-ko.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축 해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ unzip bge-m3-ko.zip -d bge-m3-ko
+</span></span><span class="line"><span class="cl">Archive:  bge-m3-ko.zip
+</span></span><span class="line"><span class="cl"> extracting: bge-m3-ko/bge-m3-ko_external_data.json
+</span></span><span class="line"><span class="cl"> extracting: bge-m3-ko/bge-m3-ko_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> extracting: bge-m3-ko/bge-m3-ko_0.data
+</span></span><span class="line"><span class="cl"> extracting: bge-m3-ko/bge-m3-ko_1.data
+</span></span><span class="line"><span class="cl"> extracting: bge-m3-ko/bge-m3-ko.onnx
+</span></span></code></pre></div></li>
+<li>
+<p>다음 예시와 같이 OCI Object Storage에 업로드하여, DB에서 사용할 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object bulk-upload --bucket-name onnx-models --src-dir bge-m3-ko
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oracle-ai-database-26ai에-모델-로드하기">Oracle AI Database 26ai에 모델 로드하기</h6>
+<ol>
+<li>
+<p>사용할  유저 생성 및 권한 부여합니다. <code>&lt;YOUR_PASSWORD&gt;</code>는 각자 사용하는 값으로 변경</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">--CREATE TABLESPACE USERS DATAFILE &#39;USERS&#39; SIZE 64M AUTOEXTEND ON;
+</span></span><span class="line"><span class="cl">CREATE USER vector IDENTIFIED BY &lt;YOUR_PASSWORD&gt; DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+</span></span><span class="line"><span class="cl">GRANT CONNECT, RESOURCE TO vector;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-- ONNX 모델 업로드 권한 부여
+</span></span><span class="line"><span class="cl">GRANT CREATE MINING MODEL TO vector;
+</span></span><span class="line"><span class="cl">CREATE OR REPLACE DIRECTORY AI_ASSETS_DIR as &#39;AI_ASSETS_DIR&#39;;
+</span></span><span class="line"><span class="cl">GRANT READ,WRITE ON DIRECTORY AI_ASSETS_DIR to vector;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-- dba_directories 테이블 접근 권한 부여
+</span></span><span class="line"><span class="cl">GRANT SELECT_CATALOG_ROLE TO vector;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">-- OCI 서비스 접속을 위한 생성 권한 부여
+</span></span><span class="line"><span class="cl">GRANT EXECUTE ON DBMS_CLOUD TO vector;
+</span></span></code></pre></div></li>
+<li>
+<p>임포트할 ADB 유저로 접속하여 파일을 다운로드 받습니다. (미리 업로드해둔 파일을 이용합니다. 필요하면, 본인의 Object Storage 로 변경합니다)</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DECLARE
+</span></span><span class="line"><span class="cl">    TYPE t_str_array IS TABLE OF VARCHAR2(200);
+</span></span><span class="line"><span class="cl">    v_base_url VARCHAR2(200);
+</span></span><span class="line"><span class="cl">    v_arr t_str_array := t_str_array(&#39;bge-m3-ko.onnx&#39;, &#39;bge-m3-ko_0.data&#39;, &#39;bge-m3-ko_1.data&#39;, &#39;bge-m3-ko_external_data.json&#39;, &#39;bge-m3-ko_largeTensor_0.data&#39;,
+</span></span><span class="line"><span class="cl">        &#39;bilingual-embedding-large.onnx&#39;, &#39;bilingual-embedding-large_0.data&#39;, &#39;bilingual-embedding-large_1.data&#39;, &#39;bilingual-embedding-large_external_data.json&#39;, &#39;bilingual-embedding-large_largeTensor_0.data&#39;,
+</span></span><span class="line"><span class="cl">        &#39;multilingual-e5-large-instruct.onnx&#39;, &#39;multilingual-e5-large-instruct_0.data&#39;, &#39;multilingual-e5-large-instruct_1.data&#39;, &#39;multilingual-e5-large-instruct_external_data.json&#39;, &#39;multilingual-e5-large-instruct_largeTensor_0.data&#39;, 
+</span></span><span class="line"><span class="cl">        &#39;multilingual-e5-large.onnx&#39;, &#39;multilingual-e5-large_0.data&#39;, &#39;multilingual-e5-large_1.data&#39;, &#39;multilingual-e5-large_external_data.json&#39;, &#39;multilingual-e5-large_largeTensor_0.data&#39;, 
+</span></span><span class="line"><span class="cl">        &#39;pwc-embedding_expr.onnx&#39;, &#39;pwc-embedding_expr_0.data&#39;, &#39;pwc-embedding_expr_1.data&#39;, &#39;pwc-embedding_expr_external_data.json&#39;, &#39;pwc-embedding_expr_largeTensor_0.data&#39;,
+</span></span><span class="line"><span class="cl">        &#39;snowflake-arctic-embed-l-v2.0.onnx&#39;, &#39;snowflake-arctic-embed-l-v2.0_0.data&#39;, &#39;snowflake-arctic-embed-l-v2.0_1.data&#39;, &#39;snowflake-arctic-embed-l-v2.0_external_data.json&#39;, &#39;snowflake-arctic-embed-l-v2.0_largeTensor_0.data&#39;,
+</span></span><span class="line"><span class="cl">        &#39;sts-multilingual-mpnet-base-v2-q.onnx&#39;, 
+</span></span><span class="line"><span class="cl">        &#39;sts-multilingual-mpnet-base-v2.onnx&#39;, &#39;sts-multilingual-mpnet-base-v2_0.data&#39;, &#39;sts-multilingual-mpnet-base-v2_1.data&#39;, &#39;sts-multilingual-mpnet-base-v2_external_data.json&#39;,
+</span></span><span class="line"><span class="cl">        &#39;distiluse-base-multilingual-cased-v2.onnx&#39;,
+</span></span><span class="line"><span class="cl">        &#39;multilingual-e5-base.onnx&#39;,
+</span></span><span class="line"><span class="cl">        &#39;multilingual-e5-small.onnx&#39;,
+</span></span><span class="line"><span class="cl">        &#39;paraphrase-multilingual-mpnet-base-v2.onnx&#39;        
+</span></span><span class="line"><span class="cl">    );
+</span></span><span class="line"><span class="cl">    v_object_uri VARCHAR2(200);
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">    v_base_url := &#39;https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/apackrsct01/b/onnx-models/o/&#39;;
+</span></span><span class="line"><span class="cl">    FOR i IN 1 .. v_arr.COUNT LOOP
+</span></span><span class="line"><span class="cl">        v_object_uri := v_base_url || v_arr(i);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        DBMS_OUTPUT.PUT_LINE(v_object_uri);
+</span></span><span class="line"><span class="cl">        dbms_cloud.get_object(
+</span></span><span class="line"><span class="cl">            object_uri      =&gt; v_object_uri,
+</span></span><span class="line"><span class="cl">            directory_name  =&gt; &#39;AI_ASSETS_DIR&#39;
+</span></span><span class="line"><span class="cl">        );        
+</span></span><span class="line"><span class="cl">    END LOOP;
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>다운로드 받는 파일들을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">select * from DBMS_CLOUD.LIST_FILES(&#39;AI_ASSETS_DIR&#39;);
+</span></span></code></pre></div></li>
+<li>
+<p>다운받은 파일로 모델을 로드합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;bge-m3-ko.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;BGE_M3_KO&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;bilingual-embedding-large.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;BILINGUAL_EMBEDDING_LARGE&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;multilingual-e5-large-instruct.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;MULTILINGUAL_E5_LARGE_INSTRUCT&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;multilingual-e5-large.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;MULTILINGUAL_E5_LARGE&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;pwc-embedding_expr.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;PWC_EMBEDDING_EXPR&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;snowflake-arctic-embed-l-v2.0.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;SNOWFLAKE_ARCTIC_EMBED_L_V2&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;sts-multilingual-mpnet-base-v2-q.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;STS_MULTILINGUAL_MPNET_BASE_V2_Q&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;sts-multilingual-mpnet-base-v2.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;STS_MULTILINGUAL_MPNET_BASE_V2&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;distiluse-base-multilingual-cased-v2.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;DISTILUSE_BASE_MULTILINGUAL_CASED_V2&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;multilingual-e5-base.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;MULTILINGUAL_E5_BASE&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;multilingual-e5-small.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;MULTILINGUAL_E5_SMALL&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_VECTOR.LOAD_ONNX_MODEL(
+</span></span><span class="line"><span class="cl">        directory =&gt; &#39;AI_ASSETS_DIR&#39;,
+</span></span><span class="line"><span class="cl">        file_name =&gt; &#39;paraphrase-multilingual-mpnet-base-v2.onnx&#39;,
+</span></span><span class="line"><span class="cl">        model_name =&gt; &#39;PARAPHRASE_MULTILINGUAL_MPNET_BASE_V2&#39;);        
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>로드된 모델을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">SQL&gt; SELECT model_name, mining_function, algorithm, model_size, external_data, inmemory FROM user_mining_models order by model_size;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">MODEL_NAME                               MINING_FUNCTION    ALGORITHM       MODEL_SIZE EXTERNAL_DATA    INMEMORY    
+</span></span><span class="line"><span class="cl">________________________________________ __________________ ____________ _____________ ________________ ___________ 
+</span></span><span class="line"><span class="cl">MULTILINGUAL_E5_SMALL                    EMBEDDING          ONNX             123086356 NO               NO          
+</span></span><span class="line"><span class="cl">DISTILUSE_BASE_MULTILINGUAL_CASED_V2     EMBEDDING          ONNX             136472418 NO               NO          
+</span></span><span class="line"><span class="cl">MULTILINGUAL_E5_BASE                     EMBEDDING          ONNX             283211967 NO               NO          
+</span></span><span class="line"><span class="cl">STS_MULTILINGUAL_MPNET_BASE_V2_Q         EMBEDDING          ONNX             283211977 NO               NO          
+</span></span><span class="line"><span class="cl">PARAPHRASE_MULTILINGUAL_MPNET_BASE_V2    EMBEDDING          ONNX             283211998 NO               NO          
+</span></span><span class="line"><span class="cl">STS_MULTILINGUAL_MPNET_BASE_V2           EMBEDDING          ONNX            1454997716 YES              NO          
+</span></span><span class="line"><span class="cl">PWC_EMBEDDING_EXPR                       EMBEDDING          ONNX            3449151655 YES              NO          
+</span></span><span class="line"><span class="cl">MULTILINGUAL_E5_LARGE                    EMBEDDING          ONNX            3449152823 YES              NO          
+</span></span><span class="line"><span class="cl">MULTILINGUAL_E5_LARGE_INSTRUCT           EMBEDDING          ONNX            3449156358 YES              NO          
+</span></span><span class="line"><span class="cl">BILINGUAL_EMBEDDING_LARGE                EMBEDDING          ONNX            3449197584 YES              NO          
+</span></span><span class="line"><span class="cl">BGE_M3_KO                                EMBEDDING          ONNX            3480666946 YES              NO          
+</span></span><span class="line"><span class="cl">SNOWFLAKE_ARCTIC_EMBED_L_V2              EMBEDDING          ONNX            3480674941 YES              NO          
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">12 rows selected.
+</span></span></code></pre></div></li>
+<li>
+<p>EXTERNAL_DATA=YES인 외부 초기화를 사용하는 모델에 대해서 인메모리 공유를 활성화합니다.</p>
+<ul>
+<li><strong>외부 초기값(initializers)을 가진 ONNX 모델에 대해 인메모리 공유</strong>를 활성화하면, 데이터베이스는 모델의 초기값을 <strong>공유 메모리에 한 번만 로드</strong>합니다. 그 결과, 해당 모델을 사용하는 모든 세션에서 <strong>전체 메모리 사용량이 감소하는 이점</strong>을 얻을 수 있습니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;STS_MULTILINGUAL_MPNET_BASE_V2&#39;);
+</span></span><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;PWC_EMBEDDING_EXPR&#39;);
+</span></span><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;MULTILINGUAL_E5_LARGE&#39;);
+</span></span><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;MULTILINGUAL_E5_LARGE_INSTRUCT&#39;);
+</span></span><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;BILINGUAL_EMBEDDING_LARGE&#39;);
+</span></span><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;BGE_M3_KO&#39;);
+</span></span><span class="line"><span class="cl">exec DBMS_VECTOR.INMEMORY_ONNX_MODEL(&#39;SNOWFLAKE_ARCTIC_EMBED_L_V2&#39;);
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="테스트">테스트</h6>
+<ol>
+<li>
+<p>벡터 임베딩을 테스트 해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ SELECT TO_VECTOR(VECTOR_EMBEDDING(STS_MULTILINGUAL_MPNET_BASE_V2 USING &#39;hello&#39; as data)) AS embedding;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">--------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">[2.47946754E-003,5.18687144E-002,-1.21183312E-002,8.14371463E-003,4.05915678E-002,5.59453992E-003,6.18041027E-003,
+</span></span></code></pre></div></li>
+<li>
+<p>양자화된 모델로 벡터 임베딩을 테스트 해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ SELECT TO_VECTOR(VECTOR_EMBEDDING(STS_MULTILINGUAL_MPNET_BASE_V2_Q USING &#39;hello&#39; as data)) AS embedding;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">--------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">[8.90885945E-004,5.45100681E-002,-1.22425444E-002,3.97114782E-003,3.96228954E-002,3.26337409E-003,2.04377738E-003,
+</span></span></code></pre></div></li>
+<li>
+<p>단 건이지만, 각 모델별로 호출 시간을 테스트해봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DECLARE
+</span></span><span class="line"><span class="cl">  v_sql              VARCHAR2(4000);
+</span></span><span class="line"><span class="cl">  v_start            NUMBER;
+</span></span><span class="line"><span class="cl">  v_end              NUMBER;
+</span></span><span class="line"><span class="cl">  v_total            NUMBER;
+</span></span><span class="line"><span class="cl">  v_avg              NUMBER;
+</span></span><span class="line"><span class="cl">  v_embedding        VECTOR;
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  FOR r IN (
+</span></span><span class="line"><span class="cl">    SELECT model_name, model_size
+</span></span><span class="line"><span class="cl">    FROM user_mining_models
+</span></span><span class="line"><span class="cl">    ORDER BY model_size
+</span></span><span class="line"><span class="cl">  )
+</span></span><span class="line"><span class="cl">  LOOP
+</span></span><span class="line"><span class="cl">    v_sql := &#39;SELECT VECTOR_EMBEDDING(&#39; || r.model_name || &#39; USING &#39;&#39;서울특별시 중구에서 가 볼 만한 식당을 찾으신다면? 신당역 근처에 있는 &#34;1번지 닭갈비&#34;를 추천합니다! 배달 가능한 매장입니다.&#39;&#39; as data) AS embedding&#39;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    v_total := 0;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    FOR i IN 1 .. 10 LOOP    
+</span></span><span class="line"><span class="cl">        v_start := DBMS_UTILITY.GET_TIME;
+</span></span><span class="line"><span class="cl">        EXECUTE IMMEDIATE v_sql INTO v_embedding;
+</span></span><span class="line"><span class="cl">        v_end := DBMS_UTILITY.GET_TIME;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        v_total := v_total + (v_end - v_start);
+</span></span><span class="line"><span class="cl">    END LOOP;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    v_avg := v_total / 10;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_OUTPUT.PUT_LINE(LPAD(r.model_name, 40) || &#39; | &#39; || LPAD(TO_CHAR(r.model_size, &#39;FM999,999,999,999&#39;), 13) || &#39; | Elapsed (sec): &#39; || LPAD(TO_CHAR((v_avg)/100, &#39;FM9990.000&#39;), 8));
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  END LOOP;
+</span></span><span class="line"><span class="cl">END;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행결과 예시 - ATP, 2ECPU, 서비스 HIGH에서 테스트 결과로 단순 참고사항입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">                   MULTILINGUAL_E5_SMALL |   123,086,356 | Elapsed (sec):    0.093
+</span></span><span class="line"><span class="cl">    DISTILUSE_BASE_MULTILINGUAL_CASED_V2 |   136,472,418 | Elapsed (sec):    0.049
+</span></span><span class="line"><span class="cl">                    MULTILINGUAL_E5_BASE |   283,211,967 | Elapsed (sec):    0.127
+</span></span><span class="line"><span class="cl">        STS_MULTILINGUAL_MPNET_BASE_V2_Q |   283,211,977 | Elapsed (sec):    0.116
+</span></span><span class="line"><span class="cl">   PARAPHRASE_MULTILINGUAL_MPNET_BASE_V2 |   283,211,998 | Elapsed (sec):    0.117
+</span></span><span class="line"><span class="cl">          STS_MULTILINGUAL_MPNET_BASE_V2 | 1,454,997,716 | Elapsed (sec):    0.258
+</span></span><span class="line"><span class="cl">                      PWC_EMBEDDING_EXPR | 3,449,151,655 | Elapsed (sec):    0.655
+</span></span><span class="line"><span class="cl">                   MULTILINGUAL_E5_LARGE | 3,449,152,823 | Elapsed (sec):    0.573
+</span></span><span class="line"><span class="cl">          MULTILINGUAL_E5_LARGE_INSTRUCT | 3,449,156,358 | Elapsed (sec):    0.575
+</span></span><span class="line"><span class="cl">               BILINGUAL_EMBEDDING_LARGE | 3,449,197,584 | Elapsed (sec):    0.612
+</span></span><span class="line"><span class="cl">                               BGE_M3_KO | 3,480,666,946 | Elapsed (sec):    0.600
+</span></span><span class="line"><span class="cl">             SNOWFLAKE_ARCTIC_EMBED_L_V2 | 3,480,674,941 | Elapsed (sec):    0.650
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="추가-테스트">추가 테스트</h6>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DECLARE
+</span></span><span class="line"><span class="cl">  v_sql              VARCHAR2(4000);
+</span></span><span class="line"><span class="cl">  v_start            NUMBER;
+</span></span><span class="line"><span class="cl">  v_end              NUMBER;
+</span></span><span class="line"><span class="cl">  v_total            NUMBER;
+</span></span><span class="line"><span class="cl">  v_avg              NUMBER;
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  FOR r IN (
+</span></span><span class="line"><span class="cl">    SELECT model_name, model_size
+</span></span><span class="line"><span class="cl">    FROM user_mining_models
+</span></span><span class="line"><span class="cl">    --WHERE ROWNUM &lt;= 1
+</span></span><span class="line"><span class="cl">    ORDER BY model_size
+</span></span><span class="line"><span class="cl">  )
+</span></span><span class="line"><span class="cl">  LOOP
+</span></span><span class="line"><span class="cl">    v_sql := &#39;UPDATE rstr_info_test
+</span></span><span class="line"><span class="cl">              SET vector_description =
+</span></span><span class="line"><span class="cl">                  VECTOR_EMBEDDING(&#39; || r.model_name || &#39; USING description AS data)
+</span></span><span class="line"><span class="cl">              WHERE ROWNUM &lt;= 10&#39;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    v_total := 0;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    FOR i IN 1 .. 2 LOOP
+</span></span><span class="line"><span class="cl">        v_start := DBMS_UTILITY.GET_TIME;
+</span></span><span class="line"><span class="cl">        EXECUTE IMMEDIATE v_sql;
+</span></span><span class="line"><span class="cl">        v_end := DBMS_UTILITY.GET_TIME;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        v_total := v_total + (v_end - v_start);
+</span></span><span class="line"><span class="cl">    END LOOP;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    v_avg := v_total / 2;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    DBMS_OUTPUT.PUT_LINE(LPAD(TO_CHAR((v_avg)/100, &#39;FM9990.000&#39;), 8));
+</span></span><span class="line"><span class="cl">    --DBMS_OUTPUT.PUT_LINE(LPAD(r.model_name, 40) || &#39; | Elapsed (sec): &#39; || LPAD(TO_CHAR((v_avg)/100, &#39;FM9990.000&#39;), 8));
+</span></span><span class="line"><span class="cl">    --DBMS_OUTPUT.PUT_LINE(TO_CHAR(v_embedding));
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    COMMIT;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  END LOOP;
+</span></span><span class="line"><span class="cl">END;
+</span></span></code></pre></div><h6 id="onnx-모델로-변환된-모델-정리">ONNX 모델로 변환된 모델 정리</h6>
+<p>변환된 모델을 다음 주소에서 확인할 수 있습니다.</p>
+<ul>
+<li><a href="https://axvefwoufeow.objectstorage.ap-chuncheon-1.oci.customer-oci.com/n/axvefwoufeow/b/onnx-models/o/onnx-models.html">https://axvefwoufeow.objectstorage.ap-chuncheon-1.oci.customer-oci.com/n/axvefwoufeow/b/onnx-models/o/onnx-models.html</a></li>
+</ul>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

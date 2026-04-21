@@ -159,7 +159,7 @@
         chmod 400 ssh-key-2025-11-07.key*
         ```
 
-        3) `~/.ssh/config` 파일을 직접 열거나, VS Code에서 열어, config 파일에 앞서 생성한 Compute VM을 접속하기 위한 정보를 입력합니다.
+        3) `~/.ssh/config` 파일을 직접 열거나, VS Code에서 열어, Remote Explorer 탭에서, config 파일에 앞서 생성한 Compute VM을 접속하기 위한 정보를 입력합니다.
 
         ![](./images/open-ssh-config.png)
 
@@ -191,7 +191,7 @@
 
     ![Remote SSH](./images/connect-remote-server.png)
 
-5. 첫 접속으로 팝업이 뜨면 Linux 선택 또는 Continue를 클릭합니다. 그러면 아래와 같이 서버에 연결되었습니다.
+5. 첫 접속으로 팝업이 뜨면 yes 입력후 엔터키를 입력합니다. 그러면 아래와 같이 서버에 연결되었습니다.
 
     ![Remote SSH Connected](./images/remote-server-connected.png)
 

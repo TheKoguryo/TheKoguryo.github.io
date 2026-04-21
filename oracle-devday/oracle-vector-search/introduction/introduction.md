@@ -11,7 +11,7 @@ DB 관점이라기 보다는 LangChain과 같은 개발 프레임워크를 통�
 3. Python oracledb와 LangChain의 OracleVS를 이용한 Python 기반 개발 실습
    로컬 환경에서 Oracle AI Database 26ai를 직접 Vector Store로 구성하고 사용하는 과정을 단계별로 실습  
 
-[Oracle AI Database 26ai: Vector Search](youtube:pu79sny1AzY)
+[What Is a Vector Database and How Can It Help Meet Business Needs](youtube:ebMkbWzFCnA)
 
 ### 학습 목표
 

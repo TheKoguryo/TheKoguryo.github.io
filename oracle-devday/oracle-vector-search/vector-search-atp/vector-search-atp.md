@@ -26,11 +26,13 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     - Display name: 예, oracle26aiatp
     - Database name: 예, oracle26aiatp
     - Workload type: Transaction Processing
+    - Developer: **Enable**
     - database version: **26ai**
+
+    ![ADB Developer Version](./images/adb26ai-developer.png) 
 
 2. 생성된 인스턴스 정보에서 **Database connection**를 클릭후 wallet을 다운로드 받습니다.
 
-3. wallet을 사용할 위치에 복사 또는 업로드합니다.
 
 ## Task 2: Visual Studio Code - DB Connection 만들기
 
@@ -132,15 +134,19 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     SQL> <copy>SELECT UTL_HTTP.REQUEST(url => 'https://www.oracle.com/') FROM dual;</copy>
     ```
 
+7. 이후 실습은 특별한 언급이 없으면, vector 유저로 접속한 연결에서 작업합니다.    
+
 ## Task 4: Credential 생성
 
 데이터베이스에서 OCI Object Storage 또는 OCI Generative AI 서비스 호출 등 OCI 자원에 접근하기 위해 Credential을 먼저 생성해야 합니다.
 
 1. OCI 자원에 접근하기 위해 사용하는 OCI IAM 유저에 대한 API key을 생성합니다. 이미 있는 경우, 기존 정보를 사용합니다.
 
-    [Working with API Keys](https://docs.oracle.com/en-us/iaas/Content/Identity/access/working-with-console-passwords-and-API-keys.htm)
+    [Working with API Keys - Adding an API Signing Key](https://docs.oracle.com/en-us/iaas/Content/Identity/access/to_upload_an_API_signing_key.htm)
 
-2. API Key를 포함한 연결시 사용할 다음 정보를 확인합니다.
+    - OCI Console에서 오른쪽 위의 유저 프로필 클릭 → User settings 클릭 → Tokens and keys 클릭 → Add API key 클릭하여 추가합니다.
+
+2. 등록한 API Key 쌍을 포함한 연결시 사용할 다음 정보를 확인합니다.
 
     - "user_ocid"
     - "tenancy_ocid"
@@ -240,15 +246,16 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     </copy>    
     ```
 
+    - namespace: [테넌시 정보](https://cloud.oracle.com/tenancy)에서 Object storage namespace 항목을 확인합니다.
+
     - 예, 
 
         ```shell
         <copy>    
-        SELECT * FROM DBMS_CLOUD.LIST_OBJECTS('OCI_CRED', 'https://objectstorage.us-chicago-1.oraclecloud.com/n/apackrsct01/b/oravs-bucket/o/');
+        SELECT * FROM DBMS_CLOUD.LIST_OBJECTS('OCI_CRED', 'https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/axgbnievursk/b/oravs-bucket/o/');
         </copy>    
         ```    
     
-
 
 
 ## Task 5: Oracle AI Database 26ai Vector Search 주요 기능 알아보기

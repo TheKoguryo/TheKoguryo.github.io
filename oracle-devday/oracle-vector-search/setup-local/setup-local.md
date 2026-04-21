@@ -67,11 +67,11 @@
 
 3. Oracle AI Database 26ai Free 컨테이너 이미지 다운로드
 
-    - [Oracle Database Free](https://container-registry.oracle.com/ords/f?p=113:4:5584340787588:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:1863,1863,Oracle%20Database%20Free,Oracle%20Database%20Free,1,0&cs=33ik6GYF_z4Zq66Qe9NBkb8UT7E51RmD_gBF8B8Lsf2mjLMJme3LDj458VtCPQZTZ9LPaDwUIJgne4yHnVkvUBA)
+    - [Oracle Container Registry > Database Repositories > free > Oracle Database Free](https://container-registry.oracle.com)   
 
         ```shell
         <copy>
-        docker pull container-registry.oracle.com/database/free:23.26.0.0
+        docker pull container-registry.oracle.com/database/free:23.26.1.0
         </copy>
         ```
 
@@ -86,10 +86,18 @@
         * Linux 기준
 
             ```shell
-            <copy>      
+            <copy>
             curl -fsSL https://ollama.com/install.sh | sh
             </copy>    
             ```
+
+        * Linux 버전에 따라 설치오류시 다음을 먼저 설치합니다.
+
+            ```shell
+            <copy>
+            sudo dnf install -y zstd
+            </copy>    
+            ```            
 
 2. 실습시 사용할 Text Embedding 모델을 미리 다운로드 받습니다.
 
@@ -127,7 +135,7 @@
         <copy>
         curl -v http://localhost:11434/api/generate \
           -H "Content-Type: application/json" \
-          -d '{"model":"llama3.1","prompt":"Why is the sky blue?"}'
+          -d '{"model":"llama3.2:1b","prompt":"Why is the sky blue?"}'
         </copy>
         ```
 
@@ -141,7 +149,7 @@
 
         ```powershell
         <copy>
-        (Invoke-WebRequest -method POST -Body '{"model":"llama3.1", "prompt":"Why is the sky blue?", "stream": false}' -uri http://localhost:11434/api/generate ).Content | ConvertFrom-json
+        (Invoke-WebRequest -method POST -Body '{"model":"llama3.2:1b", "prompt":"Why is the sky blue?", "stream": false}' -uri http://localhost:11434/api/generate ).Content | ConvertFrom-json
         </copy>
         ```
 
@@ -245,4 +253,4 @@
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, November 6, 2025
+* **Last Updated By/Date** - DongHee Lee, April 21, 2026

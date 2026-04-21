@@ -27,11 +27,11 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 
 2. Oracle AI Database 26ai Free 컨테이너 이미지 다운로드
 
-    - [Oracle Database Free](https://container-registry.oracle.com/ords/f?p=113:4:5584340787588:::4:P4_REPOSITORY,AI_REPOSITORY,AI_REPOSITORY_NAME,P4_REPOSITORY_NAME,P4_EULA_ID,P4_BUSINESS_AREA_ID:1863,1863,Oracle%20Database%20Free,Oracle%20Database%20Free,1,0&cs=33ik6GYF_z4Zq66Qe9NBkb8UT7E51RmD_gBF8B8Lsf2mjLMJme3LDj458VtCPQZTZ9LPaDwUIJgne4yHnVkvUBA)
+    - [Oracle Container Registry > Database Repositories > free > Oracle Database Free](https://container-registry.oracle.com)   
 
         ```shell
         <copy>      
-        docker pull container-registry.oracle.com/database/free:23.26.0.0
+        docker pull container-registry.oracle.com/database/free:23.26.1.0
         </copy>    
         ```
 
@@ -48,7 +48,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
         -e ENABLE_ARCHIVELOG=false \
         -e ENABLE_FORCE_LOGGING=false \
         -e ORACLE_PWD=OracleIsAwesome \
-        container-registry.oracle.com/database/free:23.26.0.0
+        container-registry.oracle.com/database/free:23.26.1.0
         </copy>
         ```
 
@@ -71,7 +71,7 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
     ```shell
     $ <copy>docker logs -f oracle-free-26ai</copy>
     ...
-    Version 23.26.0.0.0
+    Version 23.26.1.0.0
     The Oracle base remains unchanged with value /opt/oracle
     #########################
     DATABASE IS READY TO USE!
@@ -238,4 +238,4 @@ Oracle AI Database 26ai을 직접 설치하거나, OCI에서 제공하는 서비
 ## Acknowledgements
 
 * **Author** - DongHee Lee, Principal Cloud Engineer, Oracle Korea
-* **Last Updated By/Date** - DongHee Lee, November 6, 2025
+* **Last Updated By/Date** - DongHee Lee, February 5, 2026

@@ -182,7 +182,7 @@
         <copy>
         Host my-devday
             HostName 150.xx.xx.xx
-            IdentityFile C:\Users\leedh\.ssh\ssh-key-2025-11-07.key
+            IdentityFile C:\Users\kildong\.ssh\ssh-key-2025-11-07.key
             User opc
         </copy>
         ```

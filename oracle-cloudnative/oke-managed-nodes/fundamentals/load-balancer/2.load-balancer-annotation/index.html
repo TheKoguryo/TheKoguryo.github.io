@@ -35,8 +35,8 @@
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oracle-cloudnative">
-    <meta property="article:published_time" content="2024-01-07T00:00:00+00:00">
-    <meta property="article:modified_time" content="2024-01-07T00:00:00+00:00">
+    <meta property="article:published_time" content="2026-06-01T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-06-01T00:00:00+00:00">
     <meta property="article:tag" content="Oke">
 
 </head>
@@ -217,24 +217,86 @@
 </ul>
 </li>
 </ol>
-<ul>
+<p><strong>추가사항: Internal Load Balancer</strong></p>
+<p><a href="https://docs.oracle.com/en-us/iaas/releasenotes/conteng/conteng-Reserved-private-IP-address-LB-NLB-NIC.htm">Annotation to assign a reserved private IPv4 address to a load balancer or network load balancer with OKE</a> 기능이 출시되면서, Reserved Private IP를 지정하는 기능을 제공합니다. 기존 Internal Load Balancer를 사용하는 것에 추가하여, 해당 기능도 함께 알아봅니다.</p>
+<ol>
 <li>
-<p>추가사항: <strong>Internal Load Balancer</strong></p>
-<ul>
-<li>
-<p>생성되는 위치가 Private Subnet인 경우, 아래 옵션을 추가로 지정합니다.</p>
+<p>Private Load Balancer를 사용하는 경우, 아래 옵션을 추가로 지정합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">metadata</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service.beta.kubernetes.io/oci-load-balancer-internal</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;true&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="l">...</span><span class="w">
-</span></span></span></code></pre></div><ul>
-<li>지정하지 않는 경우 Kubernetes상의 오류와 함께 OCI Load Balancer 자체가 생성되지 않습니다.</li>
-<li>위 항목 지정시, <code>spec.loadBalancerIP</code>는 동작하지 않습니다.</li>
-</ul>
+</span></span></span></code></pre></div></li>
+<li>
+<p>Reserved Private IP를 사용하는 경우, Load Balancer가 위치하는 서브넷에서 먼저 <strong>reserved IPv4 address</strong>를 먼저 생성해야 합니다.</p>
+<ol>
+<li>
+<p>OCI Console에서 해당 서브넷으로 이동합니다.</p>
 </li>
-</ul>
+<li>
+<p><strong>IP administration</strong> 탭에서 <strong>Add reserved IPv4 address</strong>를 클릭합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260601182529560.png" alt='image-20260601182529560' onerror="this.onerror=null;this.src='images\/image-20260601182529560.png';" />
+</p>
 </li>
-</ul>
+<li>
+<p>서브넷 CIDR 내에서 예약할 IP를 입력하고 Private DNS에 등록할 Hostname도 입력합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260601182545014.png" alt='image-20260601182545014' onerror="this.onerror=null;this.src='images\/image-20260601182545014.png';" />
+</p>
+</li>
+<li>
+<p>예약 완료</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260601182630488.png" alt='image-20260601182630488' onerror="this.onerror=null;this.src='images\/image-20260601182630488.png';" />
+</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Load Balancer 타입 서비스를 배포할 때 <code>oci.oraclecloud.com/reserved-private-ips</code>을 사용하여 reserved IPv4 address을 입력합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nn">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">annotations</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service.beta.kubernetes.io/oci-load-balancer-internal</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;true&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">oci.oraclecloud.com/reserved-private-ips</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;10.0.20.101&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">oci.oraclecloud.com/load-balancer-type</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;lb&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service.beta.kubernetes.io/oci-load-balancer-shape</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;flexible&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service.beta.kubernetes.io/oci-load-balancer-shape-flex-min</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;10&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service.beta.kubernetes.io/oci-load-balancer-shape-flex-max</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;10&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">service.beta.kubernetes.io/oci-load-balancer-backend-protocol</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;HTTP&#34;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nn">...</span><span class="w">    
+</span></span></span></code></pre></div></li>
+<li>
+<p>작성한 yaml 파일을 배포하면, 아래와 같이 Service 자원이 만들어 집니다. EXTERNAL-IP에 예약한 IP가 할당된 것을 볼 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get svc
+</span></span><span class="line"><span class="cl">NAME                   TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)             AGE
+</span></span><span class="line"><span class="cl">kubernetes             ClusterIP      10.96.0.1       &lt;none&gt;        443/TCP,12250/TCP   4h29m
+</span></span><span class="line"><span class="cl">nginx-docker-hub-svc   LoadBalancer   10.96.157.194   10.0.20.101   80:31261/TCP        53s
+</span></span></code></pre></div></li>
+</ol>
 <br>
 <br>
 <div class="panel panel-caution">
@@ -243,7 +305,7 @@
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 7 Jan 2024<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/1.default-load-balancer/" title="1.2.1.1 OCI Load Balancer로 서비스하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.2.1.1 OCI Load Balancer로 서비스하기</a>
+ <div class="edit-meta">Last updated on 1 Jun 2026<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/1.default-load-balancer/" title="1.2.1.1 OCI Load Balancer로 서비스하기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 1.2.1.1 OCI Load Balancer로 서비스하기</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/3.network-load-balancer-annotation/" title="1.2.1.3 OCI Network Load Balancer 상세 설정하기">Next - 1.2.1.3 OCI Network Load Balancer 상세 설정하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기">
+  <meta property="og:description" content="OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기 오라클 블로그에서는 OKE 상의 Pod에서 Object Storage에 있는 파일에 접근하는 방법으로 아래 2가지로 설명하고 있습니다. OKE에서 OCI Object Storage Bucket를 위한 CSI Driver를 아직 제공하지 않습니다. 그렇지만, OCI Object Storage Bucket가 S3 API에 호환되므로 Mountpoint for Amazon S3 CSI Driver를 사용할 수 있습니다. 또는 오라클 리눅스에서 제공하는 OCIFS 유틸리티를 활용하여, OCIFS 설치된 컨테이너 이미지를 initContainer로 사용하여, 파일 패스에 마운트하는 방법입니다. 여기서는 2번째 방법인 OCIFS 유틸리티를 사용하는 방법을 테스트 해보고자 합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-06-10T00:00:01+00:00">
+    <meta property="article:modified_time" content="2026-06-10T00:00:01+00:00">
+    <meta property="article:tag" content="Oke">
+    <meta property="article:tag" content="Ocifs">
+    <meta property="article:tag" content="Object Storage">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-06-11</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="oke-상의-컨테이너에서-ocifs-유틸리티로-object-storage-연결하기">OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</h2>
+<p>오라클 블로그에서는 OKE 상의 Pod에서 Object Storage에 있는 파일에 접근하는 방법으로 아래 2가지로 설명하고 있습니다. OKE에서 OCI Object Storage Bucket를 위한 CSI Driver를 아직 제공하지 않습니다. 그렇지만, OCI Object Storage Bucket가 S3 API에 호환되므로 Mountpoint for Amazon S3 CSI Driver를 사용할 수 있습니다. 또는 오라클 리눅스에서 제공하는 OCIFS 유틸리티를 활용하여, OCIFS 설치된 컨테이너 이미지를 initContainer로 사용하여, 파일 패스에 마운트하는 방법입니다. 여기서는 2번째 방법인 OCIFS 유틸리티를 사용하는 방법을 테스트 해보고자 합니다.</p>
+<ul>
+<li>
+<p><a href="https://blogs.oracle.com/linux/oci-object-storage-pvc-oke">Using OCI Object Storage buckets as a Persistent Volume Claim (PVC) in OCI Kubernetes Engine (OKE)</a></p>
+</li>
+<li>
+<p><a href="https://blogs.oracle.com/linux/ocifs-oke-and-object-storage">Using OCIFS utility with OCI Kubernetes Engine (OKE) and Object Storage</a></p>
+</li>
+</ul>
+<p>OCIFS 유틸리티를 사용하면, OCI Object Storage 버킷을 POSIX 스타일의 파일시스템처럼 마운트하여, 오브젝트들을 파일로 접근할 수 있게 해줍니다. OCIFS는 인증과 유효성 검사를 처리한 뒤 마운트된 경로를 제공하므로, 애플리케이션은 별도의 코드 수정 없이 일반 파일로 읽고 쓸 수 있습니다.</p>
+<p>이점을 이용해 OCIFS 설치된 컨테이너 이미지를 initContainer로 사용하여, 파일 패스에 마운트합니다. 그리고는 같은 Pod내 메인 애플리케이션 컨테이너에서 마운트된 파일 볼륨을 사용하는 방법입니다.</p>
+<h6 id="ocifs-컨테이너-이미지-준비">OCIFS 컨테이너 이미지 준비</h6>
+<p><a href="https://docs.oracle.com/en-us/iaas/oracle-linux/oci/ocifs.htm#install-ocifs-util">Installing the OCIFS Utility</a> 문서를 참조하여, 설치할 수 있습니다. <code>ocifs</code> 패키지가 있는 <code>oci_included</code> 리포지토리를 활성화해야 합니다. 그래서, 여기서는 OCI 춘천리전에 Oracle Linux 9 VM을 생성하여, 아래와 같이 이미지를 생성하였습니다.</p>
+<ol>
+<li>
+<p><code>oci-included-ol9.repo</code> 파일 생성합니다.</p>
+<ul>
+<li>컨테이너 베이스 이미지로 oraclelinux 중 <strong>slim</strong> 이미지를 사용하는 경우, yum 변수가 동작하지 않는 것 같아, 블로그와 달리 <code>baseurl</code>에 주소 전체를 직접 명시하였습니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[ol9_oci_included]
+</span></span><span class="line"><span class="cl">name=Oracle Linux $releasever OCI Included Packages ($basearch)
+</span></span><span class="line"><span class="cl">baseurl=https://yum.ap-chuncheon-1.oci.oraclecloud.com/repo/OracleLinux/OL9/oci/included/$basearch/
+</span></span><span class="line"><span class="cl">gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+</span></span><span class="line"><span class="cl">gpgcheck=1
+</span></span><span class="line"><span class="cl">enabled=1
+</span></span></code></pre></div></li>
+<li>
+<p>Dockerfile 파일을 작성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">FROM container-registry.oracle.com/os/oraclelinux:9-slim
+</span></span><span class="line"><span class="cl">COPY oci-included-ol9.repo /etc/yum.repos.d/
+</span></span><span class="line"><span class="cl">RUN microdnf install ocifs &amp;&amp; \
+</span></span><span class="line"><span class="cl">    microdnf clean all
+</span></span><span class="line"><span class="cl">ENTRYPOINT [&#34;/bin/ocifs&#34;]
+</span></span></code></pre></div></li>
+<li>
+<p>이미지를 빌드하고, 사용할 레지스트리에 등록하여 사용합니다. 필요하면 미리 등록해둔 다음 이미지를 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ghcr.io/thekoguryo/ocifs:ol9-slim
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="pod에서-oci-object-storage에-접근하기-위한-권한-설정">Pod에서 OCI Object Storage에 접근하기 위한 권한 설정</h6>
+<ol>
+<li>
+<p>OKE Worker Nodes를 위한 Dynamic Group을 만듭니다.</p>
+<ul>
+<li>
+<p>이름: <code>oke-worker-nodes-dynamic-group</code></p>
+</li>
+<li>
+<p>규칙</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">All {instance.compartment.id = &#39;&lt;REPLACE_WITH_YOUR_COMPARTMENT_OCID&gt;&#39;}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Object Storage에 읽기/쓰기 권한을 부여하기 위한 IAM Policy를 만듭니다.</p>
+<ul>
+<li>
+<p>이름: <code>oke-workloads-object-storage-access-policy</code></p>
+</li>
+<li>
+<p>규칙</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Allow dynamic-group &lt;REPLACE_WITH_YOUR_IAM_DOMAIN&gt;/oke-worker-nodes-dynamic-group to use objects in compartment &lt;REPLACE_WITH_YOUR_COMPARTMENT_NAME&gt;
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="oci-object-storage-bucket-준비">OCI Object Storage Bucket 준비</h6>
+<ol>
+<li>
+<p>OKE 클러스터가 있는 리전내에 Bucket을 생성하고, 테스트할 파일을 업로드합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260610232726753.png" alt='image-20260610232726753' onerror="this.onerror=null;this.src='images\/image-20260610232726753.png';" />
+</p>
+</li>
+</ol>
+<h6 id="테스트">테스트</h6>
+<ol>
+<li>
+<p>OKE 클러스터에 배포할 Deployment yaml 파일을 작성합니다. app.yaml 로 생성합니다.</p>
+<ul>
+<li>initContainers에서 image, args, volumeMounts에서 사용할 OCIFS 컨테이너 이미지 주소, 마운트할 Bucket 이름과 마운트 경로 등을 원하는 값으로 지정합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">apps/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">Deployment</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">os-bucket-access</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">os-bucket-access</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="m">1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">os-bucket-access</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l">os-bucket-access</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">containers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">main-app</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">securityContext</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;oraclelinux:9-slim&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;sh&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-c&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;sleep infinity&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">oci-test-bucket-vol</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/mnt/bucket</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">mountPropagation</span><span class="p">:</span><span class="w"> </span><span class="l">Bidirectional</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">initContainers</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">ocifs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;ghcr.io/thekoguryo/ocifs:ol9-slim&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">restartPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">Always</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;--auth=instance_principal&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;oci-test-bucket&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;/mnt/bucket&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">securityContext</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="nt">privileged</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">volumeMounts</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">oci-test-bucket-vol</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l">/mnt/bucket</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">              </span><span class="nt">mountPropagation</span><span class="p">:</span><span class="w"> </span><span class="l">Bidirectional</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">oci-test-bucket-vol</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span>{}<span class="w">
+</span></span></span></code></pre></div></li>
+<li>
+<p>배포가 잘 실행되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl apply -f app.yaml 
+</span></span><span class="line"><span class="cl">deployment.apps/os-bucket-access created
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get pod
+</span></span><span class="line"><span class="cl">NAME                                READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">os-bucket-access-74fd98b476-8fq55   2/2     Running   0          9s
+</span></span></code></pre></div></li>
+<li>
+<p>Pod의 메인 컨테이너에 접속해서 마운트된 결과를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl exec -it os-bucket-access-74fd98b476-8fq55 -c main-app -- bash
+</span></span><span class="line"><span class="cl">bash-5.1# ls -la /mnt/bucket/
+</span></span><span class="line"><span class="cl">total 0
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 2 root root 23 Jun 10 14:49 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 1 root root 20 Jun 10 14:49 ..
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 root root 11 Jun 10 14:49 hello.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">bash-5.1# cat /mnt/bucket/hello.txt 
+</span></span><span class="line"><span class="cl">Hello, OKE
+</span></span></code></pre></div></li>
+<li>
+<p>마운트된 경로에 새 파일을 생성해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">bash-5.1# echo &#34;Hello, Bucket. I&#39;m from Pod&#34; &gt; /mnt/bucket/hello-bucket.txt
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">bash-5.1# ls -la /mnt/bucket/
+</span></span><span class="line"><span class="cl">total 8
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 2 root root 47 Jun 10 14:58 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 1 root root 20 Jun 10 14:49 ..
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 root root 28 Jun 10 14:58 hello-bucket.txt
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 root root 11 Jun 10 14:52 hello.txt
+</span></span></code></pre></div></li>
+<li>
+<p>생성한 파일이 Object Storage Bucket에 업로드 되었는지 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260611000019421.png" alt='image-20260611000019421' onerror="this.onerror=null;this.src='images\/image-20260611000019421.png';" />
+</p>
+</li>
+<li>
+<p>이처럼 OCIFS 설치된 컨테이너 이미지를 initContainer로 사용하여, 파일 패스에 마운트해서, 마운트된 Bucket내 오브젝트를 파일로 읽고 쓸 수 있음을 확인하였습니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

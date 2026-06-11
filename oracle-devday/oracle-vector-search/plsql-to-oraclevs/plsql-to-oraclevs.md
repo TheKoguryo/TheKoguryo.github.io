@@ -87,12 +87,12 @@ Autonomous AI Database Serverless 문서에서 Autonomous AI Database이 제공�
         dbms_cloud.delete_file('AI_ASSETS_DIR', 'database-release-notes.pdf', force => true);    
 
         dbms_cloud.get_object(
-            object_uri      => 'https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/axgbnievursk/b/oravs-bucket/o/customer-stories_stories-from-oracle-cloud-v3.pdf',
+            object_uri      => 'https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/axvefwoufeow/b/oravs-bucket/o/customer-stories_stories-from-oracle-cloud-v3.pdf',
             directory_name  => 'AI_ASSETS_DIR'
         );
 
         dbms_cloud.get_object(
-            object_uri      => 'https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/axgbnievursk/b/oravs-bucket/o/database-release-notes.pdf',
+            object_uri      => 'https://objectstorage.ap-chuncheon-1.oraclecloud.com/n/axvefwoufeow/b/oravs-bucket/o/database-release-notes.pdf',
             directory_name  => 'AI_ASSETS_DIR'
         );    
     end;

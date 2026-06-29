@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Private AI Services Container 시작하기 - Vector Embedding Service - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="Private AI Services Container 시작하기 - Vector Embedding Service">
+  <meta property="og:description" content="Private AI Services Container 시작하기 - Vector Embedding Service Getting Started with Private AI Services Container을 기반으로 테스트한 내용입니다.
+설치할 VM 준비 OCI에서 VM을 생성합니다. 블로그와 달리 현재 기본 선택인 Oracle Linux 9를 사용하였습니다. Name: privateaivm OS: Oracle Linux 9 Shape: VM.Standard.E5.Flex, 2 OCPU, 24 GB Memory Boot volume: 스크립트 설치시 22 GB 필요 경고가 나오니, 기본 100GB로 설치 Boot Volume Resize 다음 명령을 실행합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-06-17T00:00:01+00:00">
+    <meta property="article:modified_time" content="2026-06-17T00:00:01+00:00">
+    <meta property="article:tag" content="Oml4py">
+    <meta property="article:tag" content="Onnx">
+    <meta property="article:tag" content="Private-Ai-Service-Container">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-06-29</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="private-ai-services-container-시작하기---vector-embedding-service">Private AI Services Container 시작하기 - Vector Embedding Service</h2>
+<p><a href="https://blogs.oracle.com/database/getting-started-with-private-ai-services-container">Getting Started with Private AI Services Container</a>을 기반으로 테스트한 내용입니다.</p>
+<h6 id="설치할-vm-준비">설치할 VM 준비</h6>
+<ol>
+<li>OCI에서 VM을 생성합니다. 블로그와 달리 현재 기본 선택인 Oracle Linux 9를 사용하였습니다.
+<ul>
+<li>Name: <strong>privateaivm</strong></li>
+<li>OS: Oracle Linux 9</li>
+<li>Shape: VM.Standard.E5.Flex, 2 OCPU, 24 GB Memory</li>
+<li>Boot volume: 스크립트 설치시 22 GB 필요 경고가 나오니, 기본 100GB로 설치</li>
+</ul>
+</li>
+</ol>
+<h6 id="boot-volume-resize">Boot Volume Resize</h6>
+<ol>
+<li>
+<p>다음 명령을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo /usr/libexec/oci-growfs -y
+</span></span><span class="line"><span class="cl">df -h
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="podman-설치">Podman 설치</h6>
+<ol>
+<li>
+<p>Oracle Linux 9 기준 다음 명령으로 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install -y container-tools
+</span></span></code></pre></div></li>
+<li>
+<p>설치된 버전을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman version
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman images
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman version
+</span></span><span class="line"><span class="cl">Client:       Podman Engine
+</span></span><span class="line"><span class="cl">Version:      5.6.0
+</span></span><span class="line"><span class="cl">API Version:  5.6.0
+</span></span><span class="line"><span class="cl">Go Version:   go1.25.7 (Red Hat 1.25.7-1.el9_7)
+</span></span><span class="line"><span class="cl">Built:        Wed Feb 25 15:59:14 2026
+</span></span><span class="line"><span class="cl">OS/Arch:      linux/amd64
+</span></span><span class="line"><span class="cl">$ podman images
+</span></span><span class="line"><span class="cl">REPOSITORY  TAG         IMAGE ID    CREATED     SIZE
+</span></span><span class="line"><span class="cl">$
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>로그아웃 이웃에도 컨테이너가 계속 실행되도록 Lingering 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo loginctl enable-linger $(whoami)
+</span></span><span class="line"><span class="cl">$ loginctl show-user $(whoami) | grep Linger
+</span></span><span class="line"><span class="cl">Linger=yes
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너를 실행후 로그아웃합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman run -d ghcr.io/oracle/oraclelinux9-nginx:1.20
+</span></span><span class="line"><span class="cl">exit
+</span></span></code></pre></div></li>
+<li>
+<p>VM에 SSH로 재접속하여, 컨테이너가 실행중인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman ps
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oracle-container-registry-ocr에서-이미지-다운로드-받기">Oracle Container Registry (OCR)에서 이미지 다운로드 받기</h6>
+<ol>
+<li>
+<p>Oracle Private AI Services Container 이미지는 <a href="https://container-registry.oracle.com/">OCR(Oracle Container Registry)</a>에서 제공합니다. Oracle Account로 로그인합니다.</p>
+</li>
+<li>
+<p>Access Token이 필요합니다. 없는 경우 오른쪽 상단 유저 정보에서 생성합니다.</p>
+</li>
+<li>
+<p>컨테이너 목록에서 Database &gt; private-ai를 선택합니다.</p>
+</li>
+<li>
+<p>이미지 다운로드를 위해서 라이센스 동의가 필요합니다. 오른쪽 가운데 Oracle AI Database License 경고문구에서 Continue를 클릭하여 동의합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260402203156561.png" alt='image-20260402203156561' onerror="this.onerror=null;this.src='images\/image-20260402203156561.png';" />
+</p>
+</li>
+<li>
+<p>로그인후 이미지를 가져오는 것이 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman login container-registry.oracle.com
+</span></span><span class="line"><span class="cl">podman pull container-registry.oracle.com/database/private-ai:25.1.5.0.0
+</span></span></code></pre></div></li>
+<li>
+<p>이미지를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman images
+</span></span><span class="line"><span class="cl">REPOSITORY                                         TAG         IMAGE ID      CREATED       SIZE
+</span></span><span class="line"><span class="cl">container-registry.oracle.com/database/private-ai  25.1.5.0.0  72f75a18a7cc  7 days ago    5.22 GB
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="private-ai-services-container-설치-스크립트-가져오기">Private AI Services Container 설치 스크립트 가져오기</h6>
+<ol>
+<li>
+<p>IMAGEID를 가져옵니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">IMAGEID=`podman create container-registry.oracle.com/database/private-ai:25.1.5.0.0`
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 이미지 내부에 있는 스크립트 파일을 복사하여 꺼냅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman cp $IMAGEID:/privateai/scripts/privateai-setup-25.1.5.0.0.zip .
+</span></span></code></pre></div></li>
+<li>
+<p>파일을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateaivm ~]$ ls -l
+</span></span><span class="line"><span class="cl">total 12
+</span></span><span class="line"><span class="cl">-rw-rw-r--.  1 opc  opc  11417 Jun  8 21:50 privateai-setup-25.1.5.0.0.zip
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>압축해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">unzip privateai-setup-25.1.5.0.0.zip
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="http-기본-모델로-설치하기install-with-http-and-default-models">HTTP, 기본 모델로 설치하기(Install with HTTP and Default Models)</h6>
+<ol>
+<li>
+<p>설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd setup
+</span></span><span class="line"><span class="cl">mkdir /home/opc/privateai
+</span></span><span class="line"><span class="cl">export PRIVATE_DIR=/home/opc/privateai
+</span></span><span class="line"><span class="cl">./configSetup.sh -d $PRIVATE_DIR
+</span></span><span class="line"><span class="cl">./containerSetup.sh -d $PRIVATE_DIR --http
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateaivm ~]$ cd setup
+</span></span><span class="line"><span class="cl">[opc@privateaivm setup]$ mkdir /home/opc/privateai
+</span></span><span class="line"><span class="cl">[opc@privateaivm setup]$ export PRIVATE_DIR=/home/opc/privateai
+</span></span><span class="line"><span class="cl">[opc@privateaivm setup]$ ./configSetup.sh -d $PRIVATE_DIR
+</span></span><span class="line"><span class="cl">  SUCC: Container UID 2001 maps to Host UID 102000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  WARN: No security directory passed
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Generated PrivateAI logs directory
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[opc@privateaivm setup]$ ./containerSetup.sh -d $PRIVATE_DIR --http
+</span></span><span class="line"><span class="cl">Using image version 25.1.5.0.0
+</span></span><span class="line"><span class="cl">HTTPS connection enabled: false
+</span></span><span class="line"><span class="cl">  SUCC: Container started
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 실행을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman ps
+</span></span><span class="line"><span class="cl">CONTAINER ID  IMAGE                                                         COMMAND     CREATED         STATUS         PORTS                   NAMES
+</span></span><span class="line"><span class="cl">ec4e0ec2a824  container-registry.oracle.com/database/private-ai:25.1.5.0.0              25 seconds ago  Up 25 seconds  0.0.0.0:8080-&gt;8080/tcp  privateai
+</span></span></code></pre></div></li>
+<li>
+<p>헬스체크합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -i http://localhost:8080/health
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ curl -i http://localhost:8080/health
+</span></span><span class="line"><span class="cl">HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">date: Tue, 16 Jun 2026 08:33:15 GMT
+</span></span><span class="line"><span class="cl">x-ratelimit-limit-requests: 60
+</span></span><span class="line"><span class="cl">x-ratelimit-remaining-requests: 59
+</span></span><span class="line"><span class="cl">x-ratelimit-reset-requests: 1
+</span></span><span class="line"><span class="cl">x-server-id: 89f7f194-5a62-4ed0-95a9-709ec60e42f6
+</span></span><span class="line"><span class="cl">content-length: 0
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 이미지에 기본 포함된 모델을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman exec -it privateai ls -la /privateai/app/oaa_home/linux_x64/models/
+</span></span><span class="line"><span class="cl">total 4426332
+</span></span><span class="line"><span class="cl">drwxrwxr-x. 2 ai_user ai_users       4096 Jun  8 21:51 .
+</span></span><span class="line"><span class="cl">drwxrwxr-x. 4 ai_user ai_users         31 Jun  8 21:50 ..
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 ai_user ai_users  133306253 Jun  8 21:50 all-MiniLM-L12-v2.onnx
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 ai_user ai_users  436022639 Jun  8 21:50 all-mpnet-base-v2.onnx
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 ai_user ai_users  351664616 Jun  8 21:50 clip-vit-base-patch32-img.onnx
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 ai_user ai_users  255396580 Jun  8 21:50 clip-vit-base-patch32-txt.onnx
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 ai_user ai_users 1115159937 Jun  8 21:51 multilingual-e5-base.zip
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 ai_user ai_users 2241000731 Jun  8 21:51 multilingual-e5-large.zip
+</span></span></code></pre></div></li>
+<li>
+<p>기본 로딩된 모델을 확인합니다. 기본 설정으로 실행하면, 기본 포함된 모델들이 모두 로딩됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -sS http://localhost:8080/v1/models | jq .
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;clip-vit-base-patch32-img&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:32:25.259052142Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;335.37M&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;IMAGE_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;clip-vit-base-patch32-txt&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:32:25.259771267Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;243.57M&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-large&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:32:25.261177079Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;2.09G&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;all-minilm-l12-v2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:32:25.256877237Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;127.13M&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-base&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:32:25.260511325Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;1.04G&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;all-mpnet-base-v2&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:32:25.258269729Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;415.82M&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>기본 포함된 모델 중 한글을 지원하는 모델을 다음과 같습니다.</p>
+<ul>
+<li>clip-vit-base-patch32-txt: 멀티 모달 벡터 쿼리(예, text + image)시 사용합니다.</li>
+<li>clip-vit-base-patch32-img: 멀티 모달 벡터 쿼리(예, text + image)시 사용합니다.</li>
+<li>all-mpnet-base-v2: 영어 지원</li>
+<li>all-MiniLM-L12-v2: 영어 지원</li>
+<li>multilingual-e5-base: 다국어 지원, 한국어 지원</li>
+<li>multilingual-e5-large: 다국어 지원, 한국어 지원</li>
+</ul>
+</li>
+<li>
+<p>벡터 임베딩 호출을 테스트 해봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -X POST -H &#34;Content-Type: application/json&#34; -d &#39;{&#34;model&#34;: &#34;multilingual-e5-base&#34;, &#34;input&#34;:[&#34;안녕하세요&#34;]}&#39; http://localhost:8080/v1/embeddings
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ curl -X POST -H &#34;Content-Type: application/json&#34; -d &#39;{&#34;model&#34;: &#34;multilingual-e5-base&#34;, &#34;input&#34;:[&#34;안녕하세요&#34;]}&#39; http://localhost:8080/v1/embeddings
+</span></span><span class="line"><span class="cl">{&#34;data&#34;:[{&#34;embedding&#34;:[0.02195834,0.046486404,-0.0032452648,0.035856757,0.03248249,-0.027783277,...,0.036063176],&#34;index&#34;:0}],&#34;model&#34;:&#34;MULTILINGUAL-E5-BASE&#34;}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>성능 메트릭을 테스트합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl http://localhost:8080/metrics/embeddings_call_latency
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ curl -sS http://localhost:8080/metrics/embeddings_call_latency | jq .
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;name&#34;: &#34;embeddings_call_latency&#34;,
+</span></span><span class="line"><span class="cl">  &#34;measurements&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;statistic&#34;: &#34;COUNT&#34;,
+</span></span><span class="line"><span class="cl">      &#34;value&#34;: 1.0
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;statistic&#34;: &#34;TOTAL_TIME&#34;,
+</span></span><span class="line"><span class="cl">      &#34;value&#34;: 2.47
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;statistic&#34;: &#34;MAX&#34;,
+</span></span><span class="line"><span class="cl">      &#34;value&#34;: 2.47
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ],
+</span></span><span class="line"><span class="cl">  &#34;availableTags&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;tag&#34;: &#34;model&#34;,
+</span></span><span class="line"><span class="cl">      &#34;values&#34;: [
+</span></span><span class="line"><span class="cl">        &#34;multilingual-e5-base&#34;
+</span></span><span class="line"><span class="cl">      ]
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;tag&#34;: &#34;container.id&#34;,
+</span></span><span class="line"><span class="cl">      &#34;values&#34;: [
+</span></span><span class="line"><span class="cl">        &#34;89f7f194-5a62-4ed0-95a9-709ec60e42f6&#34;
+</span></span><span class="line"><span class="cl">      ]
+</span></span><span class="line"><span class="cl">    },
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;tag&#34;: &#34;status&#34;,
+</span></span><span class="line"><span class="cl">      &#34;values&#34;: [
+</span></span><span class="line"><span class="cl">        &#34;success&#34;
+</span></span><span class="line"><span class="cl">      ]
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ],
+</span></span><span class="line"><span class="cl">  &#34;description&#34;: &#34;Call latency in milliseconds&#34;,
+</span></span><span class="line"><span class="cl">  &#34;baseUnit&#34;: &#34;seconds&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="http-커스텀-설정으로-배포하기">HTTP, 커스텀 설정으로 배포하기</h6>
+<ol>
+<li>
+<p>사용할 모델을 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mkdir /home/opc/models
+</span></span><span class="line"><span class="cl">IMAGEID=`podman create container-registry.oracle.com/database/private-ai:25.1.5.0.0`
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">podman cp $IMAGEID:/privateai/app/oaa_home/linux_x64/models/multilingual-e5-base.zip /home/opc/models
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">wget https://adwc4pm.objectstorage.us-ashburn-1.oci.customer-oci.com/p/3ZkNN9ORHrCvTFBx5wXh_UnWT5SkudyzqzOFWkEwcDW32yRA1ZbOF-qeG-KQK7ba/n/adwc4pm/b/OML-ai-models/o/multilingual_e5_small_augmented.zip -P /home/opc/models
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">wget https://axvefwoufeow.objectstorage.ap-chuncheon-1.oci.customer-oci.com/n/axvefwoufeow/b/onnx-models/o/multilingual-e5-large-instruct.zip -P /home/opc/models
+</span></span></code></pre></div></li>
+<li>
+<p>모델 zip 파일 내용을 확인해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateaivm ~]$ unzip -l /home/opc/models/multilingual_e5_small_augmented.zip
+</span></span><span class="line"><span class="cl">Archive:  /home/opc/models/multilingual_e5_small_augmented.zip
+</span></span><span class="line"><span class="cl">  Length      Date    Time    Name
+</span></span><span class="line"><span class="cl">---------  ---------- -----   ----
+</span></span><span class="line"><span class="cl">123021105  10-30-2025 14:01   multilingual_e5_small.onnx
+</span></span><span class="line"><span class="cl">     4347  10-30-2025 14:01   README_MULTILINGUAL_E5_SMALL_augmented.txt
+</span></span><span class="line"><span class="cl">     1137  10-30-2025 14:01   LICENSE_ATTRIBUTION.txt
+</span></span><span class="line"><span class="cl">---------                     -------
+</span></span><span class="line"><span class="cl">123026589                     3 files
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[opc@privateaivm ~]$ unzip -l /home/opc/models/multilingual-e5-base.zip
+</span></span><span class="line"><span class="cl">Archive:  /home/opc/models/multilingual-e5-base.zip
+</span></span><span class="line"><span class="cl">  Length      Date    Time    Name
+</span></span><span class="line"><span class="cl">---------  ---------- -----   ----
+</span></span><span class="line"><span class="cl">    34031  10-07-2025 20:10   multilingual-e5-base_external_data.json
+</span></span><span class="line"><span class="cl">998925312  10-07-2025 20:10   multilingual-e5-base_0.data
+</span></span><span class="line"><span class="cl">110886912  10-07-2025 20:10   multilingual-e5-base_1.data
+</span></span><span class="line"><span class="cl">  5313120  10-07-2025 20:10   multilingual-e5-base.onnx
+</span></span><span class="line"><span class="cl">---------                     -------
+</span></span><span class="line"><span class="cl">1115159375                     4 files
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[opc@privateaivm ~]$ unzip -l /home/opc/models/multilingual-e5-large-instruct.zip
+</span></span><span class="line"><span class="cl">Archive:  /home/opc/models/multilingual-e5-large-instruct.zip
+</span></span><span class="line"><span class="cl">   Length      Date    Time    Name
+</span></span><span class="line"><span class="cl">----------  ---------- -----   ----
+</span></span><span class="line"><span class="cl">     67261  04-01-2026 10:16   multilingual-e5-large-instruct_external_data.json
+</span></span><span class="line"><span class="cl">1024008192  04-01-2026 10:15   multilingual-e5-large-instruct_largeTensor_0.data
+</span></span><span class="line"><span class="cl"> 993251328  04-01-2026 10:16   multilingual-e5-large-instruct_0.data
+</span></span><span class="line"><span class="cl"> 218103808  04-01-2026 10:16   multilingual-e5-large-instruct_1.data
+</span></span><span class="line"><span class="cl">   5572894  04-01-2026 10:16   multilingual-e5-large-instruct.onnx
+</span></span><span class="line"><span class="cl">----------                     -------
+</span></span><span class="line"><span class="cl">2241003483                      5 files
+</span></span></code></pre></div></li>
+<li>
+<p>설정 파일을 준비합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mkdir /home/opc/config
+</span></span></code></pre></div></li>
+<li>
+<p><code>/home/opc/config/config.json</code> 파일을 생성합니다.</p>
+<ul>
+<li>
+<p><code>service_requests_per_min</code>는 기본값이 <code>3000</code>(초당 50건)으로 그 이상 요청이 오면, 클라이언트가 HTTP 429 (Too Many Requests) 응답을 받음</p>
+</li>
+<li>
+<p>여기서는 <code>9000</code>으로 늘립니다.</p>
+</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;environment&#34;</span><span class="p">:{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;PRIVATE_AI_LOG_LEVEL&#34;</span><span class="p">:</span> <span class="s2">&#34;INFO&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;ratelimiter&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&#34;service_requests_per_min&#34;</span><span class="p">:</span> <span class="mi">9000</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">     <span class="nt">&#34;monitor_requests_per_min&#34;</span><span class="p">:</span> <span class="mi">60</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;models&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelname&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-small&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelfile&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual_e5_small_augmented.zip&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelfunction&#34;</span><span class="p">:</span> <span class="s2">&#34;EMBEDDING&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;cache_on_startup&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelname&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-base&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelfile&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-base.zip&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelfunction&#34;</span><span class="p">:</span> <span class="s2">&#34;EMBEDDING&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;cache_on_startup&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>    
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelname&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-large-instruct&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelfile&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-large-instruct.zip&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelfunction&#34;</span><span class="p">:</span> <span class="s2">&#34;EMBEDDING&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;cache_on_startup&#34;</span><span class="p">:</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p>설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd setup
+</span></span><span class="line"><span class="cl">mkdir /home/opc/privateai_http_adv
+</span></span><span class="line"><span class="cl">export PRIVATE_DIR=/home/opc/privateai_http_adv
+</span></span><span class="line"><span class="cl">./configSetup.sh -d $PRIVATE_DIR -m /home/opc/models -c /home/opc/config/config.json
+</span></span></code></pre></div></li>
+<li>
+<p>설치 위치 아래로 폴더가 생성되고 모델과 설정 파일이 복사됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -l $PRIVATE_DIR/Models/
+</span></span><span class="line"><span class="cl">total 3356076
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 102000 102000 1115159937 Jun 16 08:42 multilingual-e5-base.zip
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 102000 102000 2241004387 Jun 16 08:42 multilingual-e5-large-instruct.zip
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 102000 102000   80450976 Jun 16 08:42 multilingual_e5_small_augmented.zip
+</span></span><span class="line"><span class="cl">$ ls -l $PRIVATE_DIR/Config/
+</span></span><span class="line"><span class="cl">total 4
+</span></span><span class="line"><span class="cl">-rw-r--r--. 1 102000 102000 725 Jun 16 08:42 config.json
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 실행전에  <code>containerSetup.sh</code>을 수정하여 환경 변수를 추가합니다. <code>PRIVATE_AI_LOG_STDOUT_ENABLED=true</code>을 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$CONTAINER_SOFTWARE run -d --name $CONTAINER_NAME           \
+</span></span><span class="line"><span class="cl">  -e OML_AUTHENTICATION_ENABLED=true           \
+</span></span><span class="line"><span class="cl">  -e OML_SSL_CERT_TYPE=PKCS12                  \
+</span></span><span class="line"><span class="cl">  -e OML_HTTPS_ENABLED=&#34;$HTTPS_ON&#34;             \
+</span></span><span class="line"><span class="cl">  -e OML_MAX_SCORE_PAYLOAD=20000000            \
+</span></span><span class="line"><span class="cl">  -e OML_MAX_BATCHSIZE=256                     \
+</span></span><span class="line"><span class="cl">  -e PRIVATE_AI_LOG_STDOUT_ENABLED=true        \
+</span></span><span class="line"><span class="cl">  $MODELS_VAL                                  \
+</span></span></code></pre></div></li>
+<li>
+<p>설정을 이용하여, 컨테이너를 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./containerSetup.sh -d $PRIVATE_DIR --http -n privateai_http_adv -p 9000
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 실행을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman ps
+</span></span><span class="line"><span class="cl">CONTAINER ID  IMAGE                                                         COMMAND     CREATED         STATUS         PORTS                   NAMES
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">592ed8acad7e  container-registry.oracle.com/database/private-ai:25.1.5.0.0              8 seconds ago   Up 9 seconds   0.0.0.0:9000-&gt;8080/tcp  privateai_http_adv
+</span></span></code></pre></div></li>
+<li>
+<p>로그를 확인합니다.  <code>PRIVATE_AI_LOG_STDOUT_ENABLED=true</code> 설정이 적용되어 컨테이너 로그가 출력되는 것을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman logs -f privateai_http_adv
+</span></span><span class="line"><span class="cl">INFO: Config file set to config.json
+</span></span><span class="line"><span class="cl">WARNING: Disabling authentication because HTTPS has been disabled
+</span></span><span class="line"><span class="cl">Jun 16, 2026 8:45:03 AM com.oracle.usl.ort.ORTUtil configureLogger
+</span></span><span class="line"><span class="cl">INFO: Log directory is: /privateai/logs/6b9ee336-874b-448b-a061-cf534ca55b5d
+</span></span><span class="line"><span class="cl">  ____       _            _            _    ___
+</span></span><span class="line"><span class="cl"> |  _ \ _ __(_)_   ____ _| |_ ___     / \  |_ _|
+</span></span><span class="line"><span class="cl"> | |_) | &#39;__| \ \ / / _` | __/ _ \   / _ \  | |
+</span></span><span class="line"><span class="cl"> |  __/| |  | |\ V / (_| | ||  __/  / ___ \ | |
+</span></span><span class="line"><span class="cl"> |_|   |_|  |_| \_/ \__,_|\__\___| /_/   \_\___|
+</span></span><span class="line"><span class="cl">  Private-AI (version 25.1.5.0.0, build 1.12.15)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Jun 16, 2026 8:45:04 AM com.oracle.usl.ort.config.DefaultConfigurationManager &lt;init&gt;
+</span></span><span class="line"><span class="cl">INFO: DefaultConfigurationManager constructor with ObjectMapper and configFilePath is called
+</span></span><span class="line"><span class="cl">Jun 16, 2026 8:45:04 AM com.oracle.usl.ort.config.DefaultConfigurationManager &lt;init&gt;
+</span></span><span class="line"><span class="cl">INFO: Multi Model Mode
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">INFO: Skipping secrets configuration because PRIVATE_AI_HTTPS_ENABLED=false
+</span></span><span class="line"><span class="cl">08:46:13.682 [main] INFO  io.micronaut.runtime.Micronaut - Startup completed in 69286ms. Server Running: http://0.0.0.0:8080
+</span></span></code></pre></div></li>
+<li>
+<p>헬스체크합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -i http://localhost:9000/health
+</span></span></code></pre></div></li>
+<li>
+<p>설정 파일에 지정한 모델만 로딩된 것을 확인할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -sS http://localhost:9000/v1/models | jq .
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-base&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:45:29.106513961Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;1.04G&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-small&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:45:06.982209265Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;76.72M&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="s2">&#34;multilingual-e5-large-instruct&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelDeployedTime&#34;</span><span class="p">:</span> <span class="s2">&#34;2026-06-16T08:46:13.262646459Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelSize&#34;</span><span class="p">:</span> <span class="s2">&#34;2.09G&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;modelCapabilities&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;TEXT_EMBEDDINGS&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>벡터 임베딩 호출을 테스트 해봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -X POST -H &#34;Content-Type: application/json&#34; -d &#39;{&#34;model&#34;: &#34;multilingual-e5-small&#34;, &#34;input&#34;:[&#34;안녕하세요&#34;]}&#39; http://localhost:9000/v1/embeddings
+</span></span><span class="line"><span class="cl">curl -X POST -H &#34;Content-Type: application/json&#34; -d &#39;{&#34;model&#34;: &#34;multilingual-e5-base&#34;, &#34;input&#34;:[&#34;안녕하세요&#34;]}&#39; http://localhost:9000/v1/embeddings
+</span></span><span class="line"><span class="cl">curl -X POST -H &#34;Content-Type: application/json&#34; -d &#39;{&#34;model&#34;: &#34;multilingual-e5-large-instruct&#34;, &#34;input&#34;:[&#34;안녕하세요&#34;]}&#39; http://localhost:9000/v1/embeddings
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="multi-threaded-scaling-테스트">Multi-threaded Scaling 테스트</h6>
+<ol>
+<li>
+<p>2 OCPU 기준 다음 명령으로 core 수를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ nproc
+</span></span><span class="line"><span class="cl">4
+</span></span></code></pre></div></li>
+<li>
+<p>부하를 쏠 환경에 HTTP 부하 테스트를 위한 툴을 설치합니다. 여기서는 <a href="https://github.com/rakyll/hey">HEY</a>를 사용합니다.</p>
+</li>
+<li>
+<p>다음과 같이 호출합니다. 동시 요청 워커 10개(<code>-c 10</code>)로 총 10건(<code>-n 10</code>) 호출하는 예시입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./hey -n 10 -c 10 \
+</span></span><span class="line"><span class="cl">    -m POST \
+</span></span><span class="line"><span class="cl">    -H &#39;Content-Type: application/json&#39; \
+</span></span><span class="line"><span class="cl">    -d &#39;{&#34;model&#34;: &#34;multilingual-e5-large-instruct&#34;, &#34;input&#34;:[&#34;만원짜리와 천원짜리가 길에 떨어져 있으면, 어느 것을 주어야 할까?&#34;]}&#39; \
+</span></span><span class="line"><span class="cl">    http://10.0.10.44:9000/v1/embeddings
+</span></span></code></pre></div></li>
+<li>
+<p>Private AI Service Container 로그를 확인합니다. 아래와 같이 nproc 수와 동일한 4개의 thread(25,26,27,28)가 각 요청을 처리합니다. <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/prvai/multi-threaded-scaling.html">Multi-threaded Scaling</a>에서 설명하는 것처럼 CPU 코어수에 따라 자동으로 thread 풀을 조정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman logs -f privateai_http_adv 2&gt;&amp;1 | grep &#39;thread&#39;
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 28 at 1781600475289 scheduled to signal at 1781600595289 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 26 at 1781600475289 scheduled to signal at 1781600595289 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 25 at 1781600475290 scheduled to signal at 1781600595290 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 27 at 1781600475293 scheduled to signal at 1781600595293 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 26 at 1781600475656 (367 ms elapsed)
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>Private AI Service Container가 실행중인 VM의 OCPU를 5로 변경하고, VM 및 컨테이너를 재시작합니다.</p>
+</li>
+<li>
+<p>코어 수를 다시 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ nproc
+</span></span><span class="line"><span class="cl">10
+</span></span></code></pre></div></li>
+<li>
+<p>동일하게 다시 부하를 발생시킵니다.</p>
+</li>
+<li>
+<p>컨테이너 로그를 확인합니다. 아래와 같이 10개의 쓰레드가 처리하는 것을 알 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman logs -f privateai_http_adv 2&gt;&amp;1 | grep &#39;thread&#39;
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 38 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 39 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 37 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 35 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 34 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 33 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 32 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 41 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 36 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 40 at 1781600840450 scheduled to signal at 1781600960450 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 34 at 1781600840729 (279 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 35 at 1781600840771 (321 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 38 at 1781600840809 (359 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 33 at 1781600840814 (364 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 32 at 1781600840823 (373 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 36 at 1781600840837 (387 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 40 at 1781600840841 (391 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 41 at 1781600840852 (402 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 39 at 1781600840856 (406 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 37 at 1781600840861 (411 ms elapsed)
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="ai-database-26ai에서-호출하기">AI Database 26ai에서 호출하기</h6>
+<ol>
+<li>
+<p>Private AI Service Container가 실행중인 호스트명의 FQDN을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export HOST=$(hostname -f)
+</span></span><span class="line"><span class="cl">echo $HOST
+</span></span></code></pre></div><ul>
+<li>
+<p>실행예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateaivm ~]$ export HOST=$(hostname -f)
+</span></span><span class="line"><span class="cl">[opc@privateaivm ~]$ echo $HOST
+</span></span><span class="line"><span class="cl">privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Database에서 다음 SQL을 실행합니다. credential_name을 사전에 만들지도, http라서 실제 사용하지 않지만, 필수 항목이라 입력합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">var embed_params clob;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">    :embed_params := &#39;{
+</span></span><span class="line"><span class="cl">      &#34;provider&#34;: &#34;privateai&#34;,
+</span></span><span class="line"><span class="cl">      &#34;url&#34;: &#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1/embeddings&#34;,
+</span></span><span class="line"><span class="cl">      &#34;credential_name&#34;: &#34;ORACLE_PRIVATE_AI_CRED&#34;, 
+</span></span><span class="line"><span class="cl">      &#34;model&#34;: &#34;multilingual-e5-base&#34;,
+</span></span><span class="line"><span class="cl">    }&#39;;
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">SELECT DBMS_VECTOR.UTL_TO_EMBEDDING(&#39;hello&#39;, json(:embed_params)) AS embedding;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">--------------------------------------------------------------------------------
+</span></span><span class="line"><span class="cl">[2.48571374E-002,3.78951728E-002,-5.52070094E-003,2.99805235E-002,3.81360129E-002,-4.35146764E-002,-1.29409051E-002,...
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>호출 속도를 테스트합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">DECLARE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">TYPE</span><span class="w"> </span><span class="n">t_str_array</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">OF</span><span class="w"> </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_arr</span><span class="w"> </span><span class="n">t_str_array</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">t_str_array</span><span class="p">(</span><span class="s1">&#39;multilingual-e5-base&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_sql</span><span class="w">              </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">4000</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_start</span><span class="w">            </span><span class="nb">NUMBER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_end</span><span class="w">              </span><span class="nb">NUMBER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_total</span><span class="w">            </span><span class="nb">NUMBER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_avg</span><span class="w">              </span><span class="nb">NUMBER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_embedding</span><span class="w">        </span><span class="n">VECTOR</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">FOR</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">..</span><span class="w"> </span><span class="n">v_arr</span><span class="p">.</span><span class="k">COUNT</span><span class="w"> </span><span class="n">LOOP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">:</span><span class="n">embed_params</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;provider&#34;: &#34;privateai&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;url&#34;: &#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1/embeddings&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;credential_name&#34;: &#34;ORACLE_PRIVATE_AI_CRED&#34;,  
+</span></span></span><span class="line"><span class="cl"><span class="s1">      &#34;model&#34;: &#34;&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">TO_CHAR</span><span class="p">(</span><span class="n">v_arr</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">    }&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">v_total</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">FOR</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">..</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="n">LOOP</span><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">v_start</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">DBMS_UTILITY</span><span class="p">.</span><span class="n">GET_TIME</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">UPDATE</span><span class="w"> </span><span class="n">rstr_info_test</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">SET</span><span class="w"> </span><span class="n">vector_description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dbms_vector</span><span class="p">.</span><span class="n">utl_to_embedding</span><span class="p">(</span><span class="n">description</span><span class="p">,</span><span class="w"> </span><span class="n">json</span><span class="p">(:</span><span class="n">embed_params</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">WHERE</span><span class="w"> </span><span class="n">ROWNUM</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">v_end</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">DBMS_UTILITY</span><span class="p">.</span><span class="n">GET_TIME</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">v_total</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">v_total</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">v_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">v_start</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">--DBMS_OUTPUT.PUT_LINE(TO_CHAR(v_embedding));
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="w">    </span><span class="k">END</span><span class="w"> </span><span class="n">LOOP</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">v_avg</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">v_total</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DBMS_OUTPUT</span><span class="p">.</span><span class="n">PUT_LINE</span><span class="p">(</span><span class="n">LPAD</span><span class="p">(</span><span class="n">v_arr</span><span class="p">(</span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="mi">40</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39; | Elapsed (sec): &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">LPAD</span><span class="p">(</span><span class="n">TO_CHAR</span><span class="p">((</span><span class="n">v_avg</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;FM9990.000&#39;</span><span class="p">),</span><span class="w"> </span><span class="mi">8</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">COMMIT</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">END</span><span class="w"> </span><span class="n">LOOP</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">/</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>
+<p>결과</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: center">Model</th>
+          <th style="text-align: center">ECPU</th>
+          <th style="text-align: center">Service Name</th>
+          <th style="text-align: right">1000건 (초)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: center">multilingual-e5-small</td>
+          <td style="text-align: center">4</td>
+          <td style="text-align: center">TP</td>
+          <td style="text-align: right">26.330</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">multilingual-e5-base</td>
+          <td style="text-align: center">4</td>
+          <td style="text-align: center">TP</td>
+          <td style="text-align: right">53.300</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">multilingual-e5-large-instruct</td>
+          <td style="text-align: center">4</td>
+          <td style="text-align: center">TP</td>
+          <td style="text-align: right">134.130</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+<li>
+<p>Private AI Service Container 로그 - 1개 쓰레드씩 순차처리됨</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">INFO: Started monitoring thread: 37 at 1777466092228 scheduled to signal at 1777466212228 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 37 at 1777466092368 (140 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 38 at 1777466092391 scheduled to signal at 1777466212391 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 38 at 1777466092551 (160 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 39 at 1777466092573 scheduled to signal at 1777466212573 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 39 at 1777466092674 (101 ms elapsed)
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Private AI Service Container에서 여러개의 쓰레드가 동시에 처리되도록 병렬 호출 속도를 테스트합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">DECLARE</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">TYPE</span><span class="w"> </span><span class="n">t_str_array</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="k">OF</span><span class="w"> </span><span class="n">VARCHAR2</span><span class="p">(</span><span class="mi">200</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_arr</span><span class="w"> </span><span class="n">t_str_array</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">t_str_array</span><span class="p">(</span><span class="s1">&#39;multilingual-e5-base&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_sql</span><span class="w">   </span><span class="k">CLOB</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_start</span><span class="w"> </span><span class="nb">NUMBER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="n">v_end</span><span class="w">   </span><span class="nb">NUMBER</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">FOR</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">..</span><span class="w"> </span><span class="n">v_arr</span><span class="p">.</span><span class="k">COUNT</span><span class="w"> </span><span class="n">LOOP</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">v_sql</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;
+</span></span></span><span class="line"><span class="cl"><span class="s1">      UPDATE rstr_info_test
+</span></span></span><span class="line"><span class="cl"><span class="s1">      SET vector_description = dbms_vector.utl_to_embedding(
+</span></span></span><span class="line"><span class="cl"><span class="s1">        description,
+</span></span></span><span class="line"><span class="cl"><span class="s1">        json(&#39;&#39;{
+</span></span></span><span class="line"><span class="cl"><span class="s1">          &#34;provider&#34;: &#34;privateai&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">          &#34;url&#34;: &#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1/embeddings&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">          &#34;credential_name&#34;: &#34;ORACLE_PRIVATE_AI_CRED&#34;,
+</span></span></span><span class="line"><span class="cl"><span class="s1">          &#34;model&#34;: &#34;&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">v_arr</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="s1">&#39;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s1">        }&#39;&#39;)
+</span></span></span><span class="line"><span class="cl"><span class="s1">      )
+</span></span></span><span class="line"><span class="cl"><span class="s1">      WHERE rowid BETWEEN :start_id AND :end_id
+</span></span></span><span class="line"><span class="cl"><span class="s1">      AND rowid IN (
+</span></span></span><span class="line"><span class="cl"><span class="s1">          SELECT rowid FROM rstr_info_test WHERE ROWNUM &lt;= 1000
+</span></span></span><span class="line"><span class="cl"><span class="s1">      );      
+</span></span></span><span class="line"><span class="cl"><span class="s1">    &#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">BEGIN</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">DBMS_PARALLEL_EXECUTE</span><span class="p">.</span><span class="n">DROP_TASK</span><span class="p">(</span><span class="s1">&#39;EMBED_TASK&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">EXCEPTION</span><span class="w"> </span><span class="k">WHEN</span><span class="w"> </span><span class="n">OTHERS</span><span class="w"> </span><span class="k">THEN</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">END</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DBMS_PARALLEL_EXECUTE</span><span class="p">.</span><span class="n">CREATE_TASK</span><span class="p">(</span><span class="s1">&#39;EMBED_TASK&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DBMS_PARALLEL_EXECUTE</span><span class="p">.</span><span class="n">CREATE_CHUNKS_BY_ROWID</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">TASK_NAME</span><span class="w">   </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;EMBED_TASK&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">TABLE_OWNER</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">USER</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="k">TABLE_NAME</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;RSTR_INFO_TEST&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">BY_ROW</span><span class="w">      </span><span class="o">=&gt;</span><span class="w"> </span><span class="k">TRUE</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">CHUNK_SIZE</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">v_start</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">DBMS_UTILITY</span><span class="p">.</span><span class="n">GET_TIME</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DBMS_PARALLEL_EXECUTE</span><span class="p">.</span><span class="n">RUN_TASK</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">TASK_NAME</span><span class="w">      </span><span class="o">=&gt;</span><span class="w"> </span><span class="s1">&#39;EMBED_TASK&#39;</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">SQL_STMT</span><span class="w">       </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">v_sql</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">LANGUAGE_FLAG</span><span class="w">  </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">DBMS_SQL</span><span class="p">.</span><span class="n">NATIVE</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="n">PARALLEL_LEVEL</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="mi">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">v_end</span><span class="w"> </span><span class="p">:</span><span class="o">=</span><span class="w"> </span><span class="n">DBMS_UTILITY</span><span class="p">.</span><span class="n">GET_TIME</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DBMS_OUTPUT</span><span class="p">.</span><span class="n">PUT_LINE</span><span class="p">(</span><span class="s1">&#39;Elapsed: &#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">(</span><span class="n">v_end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">v_start</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">DBMS_PARALLEL_EXECUTE</span><span class="p">.</span><span class="n">DROP_TASK</span><span class="p">(</span><span class="s1">&#39;EMBED_TASK&#39;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="k">END</span><span class="w"> </span><span class="n">LOOP</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">END</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="o">/</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>
+<p>실행결과</p>
+<ul>
+<li>ADB, 4 ECPU, Service Name=TP</li>
+<li>병렬 처리관련 <a href="https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-service-concurrency.html#ADBSB-GUID-6E4DCD27-CDAA-432D-A90B-485C19EF72B0">Service Concurrency Limits for ECPU Compute Model</a> 참조</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: center">PARALLEL_LEVEL</th>
+          <th style="text-align: center">multilingual-e5-small<br />1000건 처리 걸린 시간(초)</th>
+          <th style="text-align: center">multilingual-e5-base<br />1000건 처리 걸린 시간(초)</th>
+          <th style="text-align: center">multilingual-e5-large-instruct<br />1000건 처리 걸린 시간(초)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: center">1</td>
+          <td style="text-align: center">26.05</td>
+          <td style="text-align: center">73.87</td>
+          <td style="text-align: center">123.30</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">2</td>
+          <td style="text-align: center">12.47</td>
+          <td style="text-align: center">36.06</td>
+          <td style="text-align: center">108.41</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">5</td>
+          <td style="text-align: center">6.11</td>
+          <td style="text-align: center">24.11</td>
+          <td style="text-align: center">93.12</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">10</td>
+          <td style="text-align: center">6.66</td>
+          <td style="text-align: center">24.20</td>
+          <td style="text-align: center">93.23</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+<li>
+<p>Private AI Service Container 로그</p>
+<ul>
+<li><strong>PARALLEL_LEVEL</strong> 10기준</li>
+<li>여러개 쓰레드씩 동시에 요청메시지 수신됨, 동시처리됨</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">INFO: Started monitoring thread: 41 at 1778340679174 scheduled to signal at 1778340799174 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 32 at 1778340679261 scheduled to signal at 1778340799261 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 34 at 1778340679263 scheduled to signal at 1778340799263 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 33 at 1778340679263 scheduled to signal at 1778340799263 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 35 at 1778340679266 scheduled to signal at 1778340799266 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 36 at 1778340679314 scheduled to signal at 1778340799314 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 37 at 1778340679375 scheduled to signal at 1778340799375 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 38 at 1778340679377 scheduled to signal at 1778340799377 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 39 at 1778340679380 scheduled to signal at 1778340799380 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 40 at 1778340679383 scheduled to signal at 1778340799383 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 41 at 1778340679699 (525 ms elapsed)
+</span></span><span class="line"><span class="cl">INFO: Started monitoring thread: 41 at 1778340679728 scheduled to signal at 1778340799728 (120000) ms from now
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="python-코드로-임베딩해서-db-업데이트하기">Python 코드로 임베딩해서 DB 업데이트하기</h6>
+<p><strong>배치 처리가 되는 지 확인 테스트</strong></p>
+<ol>
+<li>
+<p>Python을 설치합니다. 3.12 버전을 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo yum install -y python3.12
+</span></span><span class="line"><span class="cl">sudo yum install python3.12-pip -y
+</span></span><span class="line"><span class="cl">python3.12 -m ensurepip
+</span></span><span class="line"><span class="cl">pip3.12 install --upgrade pip
+</span></span><span class="line"><span class="cl">cat &lt;&lt;EOF &gt;&gt; ~/.bash_profile
+</span></span><span class="line"><span class="cl">alias pip=&#39;pip3.12&#39;
+</span></span><span class="line"><span class="cl">alias python=&#39;python3.12&#39;
+</span></span><span class="line"><span class="cl">EOF
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">source ~/.bash_profile
+</span></span></code></pre></div></li>
+<li>
+<p>OpenAI Python 클라이언트 설치</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">pip install openai
+</span></span></code></pre></div></li>
+<li>
+<p>연결 테스트 - HTTP 연결시 api_key는 필요없이만, 필수 항목이라 입력</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from openai import OpenAI
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">my_url = &#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1&#34;
+</span></span><span class="line"><span class="cl">my_key = &#34;Any string will do&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">client = OpenAI(base_url=my_url, api_key=my_key)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">models = client.models.list()
+</span></span><span class="line"><span class="cl">for model in models:
+</span></span><span class="line"><span class="cl">   print(f&#34;- {model.id}, {model.modelSize}, {model.modelCapabilities}&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>실행결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">- multilingual-e5-base, 1.04G, [&#39;TEXT_EMBEDDINGS&#39;]
+</span></span><span class="line"><span class="cl">- multilingual-e5-large-instruct, 2.09G, [&#39;TEXT_EMBEDDINGS&#39;]
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>임베딩 테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from openai import OpenAI
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">my_url = &#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1&#34;
+</span></span><span class="line"><span class="cl">my_key = &#34;Any string will do&#34;
+</span></span><span class="line"><span class="cl">my_sentence = &#34;안녕하세요&#34;
+</span></span><span class="line"><span class="cl">my_model    = &#34;multilingual-e5-large-instruct&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">client = OpenAI(base_url=my_url, api_key=my_key)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">embeddings = client.embeddings.create(model=my_model,input=my_sentence)
+</span></span><span class="line"><span class="cl">print(embeddings.data[0].embedding)
+</span></span></code></pre></div></li>
+<li>
+<p>배치로 처리하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from openai import OpenAI
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">my_url = &#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1&#34;
+</span></span><span class="line"><span class="cl">my_key = &#34;Any string will do&#34;
+</span></span><span class="line"><span class="cl">my_model    = &#34;multilingual-e5-large-instruct&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">client = OpenAI(base_url=my_url, api_key=my_key)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">response = client.embeddings.create(
+</span></span><span class="line"><span class="cl">    model=my_model,
+</span></span><span class="line"><span class="cl">    input=[
+</span></span><span class="line"><span class="cl">        &#34;text1&#34;,
+</span></span><span class="line"><span class="cl">        &#34;text2&#34;,
+</span></span><span class="line"><span class="cl">        &#34;text3&#34;
+</span></span><span class="line"><span class="cl">    ]
+</span></span><span class="line"><span class="cl">)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">for i, embedding in enumerate(response.data):
+</span></span><span class="line"><span class="cl">    print(f&#34;{i}: {embedding.embedding[:5]} ...&#34;)
+</span></span></code></pre></div><ul>
+<li>
+<p>실행결과</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">0: [0.00903765, 0.04617005, 0.0025545114, -0.05463993, 0.058799524] ...
+</span></span><span class="line"><span class="cl">1: [0.014997475, 0.046555214, -0.005457429, -0.048455324, 0.044321958] ...
+</span></span><span class="line"><span class="cl">2: [0.013243982, 0.03413066, -0.014309111, -0.055250105, 0.045067724] ...
+</span></span></code></pre></div></li>
+<li>
+<p>Private AI Service Container 로그 - 한 건으로 처리됨</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">INFO: Started monitoring thread: 41 at 1777468033113 scheduled to signal at 1777468153113 (120000) ms from now
+</span></span><span class="line"><span class="cl">INFO: Stopped monitoring thread: 41 at 1777468033163 (50 ms elapsed)
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<p><strong>배치 및 병렬 처리시 속도 테스트</strong></p>
+<ol>
+<li>
+<p>Python 코드를 작성합니다. 연결에 필요한 정보는 알맞게 수정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">array</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">sys</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">math</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">oracledb</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">DefaultAioHttpClient</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">AsyncOpenAI</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">my_url</span> <span class="o">=</span> <span class="s2">&#34;http://privateaivm.sub2d82ee11c.okecluster1.oraclevcn.com:9000/v1&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">my_key</span> <span class="o">=</span> <span class="s2">&#34;Any string will do&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">MODEL</span><span class="o">=</span><span class="s2">&#34;multilingual-e5-small&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">TARGET_ROWS</span> <span class="o">=</span> <span class="mi">1000</span>
+</span></span><span class="line"><span class="cl"><span class="n">CONCURRENCY</span> <span class="o">=</span> <span class="mi">10</span>
+</span></span><span class="line"><span class="cl"><span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">dsn</span> <span class="o">=</span> <span class="s2">&#34;db_tp&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">sem</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="n">CONCURRENCY</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_db_conn</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conn</span><span class="o">=</span><span class="n">oracledb</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">user</span><span class="o">=</span><span class="s2">&#34;VECTOR&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">password</span><span class="o">=</span><span class="s2">&#34;...&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">dsn</span><span class="o">=</span><span class="s2">&#34;adb26aipe_tp&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">config_dir</span><span class="o">=</span><span class="s2">&#34;./wallet&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">wallet_location</span><span class="o">=</span><span class="s2">&#34;./wallet&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">wallet_password</span><span class="o">=</span><span class="s2">&#34;&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">conn</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">fetch_target_rows</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conn</span> <span class="o">=</span> <span class="n">get_db_conn</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">            SELECT id, description
+</span></span></span><span class="line"><span class="cl"><span class="s2">            FROM rstr_info_test
+</span></span></span><span class="line"><span class="cl"><span class="s2">            FETCH FIRST :n ROWS ONLY
+</span></span></span><span class="line"><span class="cl"><span class="s2">        &#34;&#34;&#34;</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">TARGET_ROWS</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">finally</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">split_chunks</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">size</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="p">[</span><span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">size</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">size</span><span class="p">)]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">process_chunk</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">sem</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">async</span> <span class="k">with</span> <span class="n">AsyncOpenAI</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">            <span class="n">base_url</span><span class="o">=</span><span class="n">my_url</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">api_key</span><span class="o">=</span><span class="n">my_key</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">            <span class="n">http_client</span><span class="o">=</span><span class="n">DefaultAioHttpClient</span><span class="p">(),</span>
+</span></span><span class="line"><span class="cl">        <span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">BATCH_SIZE</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">                <span class="n">batch_rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">BATCH_SIZE</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">batch_rows</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">                <span class="n">texts</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">batch_rows</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">model</span><span class="o">=</span><span class="n">MODEL</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="nb">input</span><span class="o">=</span><span class="n">texts</span>
+</span></span><span class="line"><span class="cl">                <span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="n">update_data</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s2">&#34;f&#34;</span><span class="p">,</span> <span class="n">emb</span><span class="o">.</span><span class="n">embedding</span><span class="p">),</span> <span class="n">row_id</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">for</span> <span class="n">row_id</span><span class="p">,</span> <span class="n">emb</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="k">def</span> <span class="nf">update_db</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                    <span class="n">conn</span> <span class="o">=</span> <span class="n">get_db_conn</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">try</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">cursor</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">                            UPDATE rstr_info_test
+</span></span></span><span class="line"><span class="cl"><span class="s2">                            SET vector_description = :1
+</span></span></span><span class="line"><span class="cl"><span class="s2">                            WHERE id = :2
+</span></span></span><span class="line"><span class="cl"><span class="s2">                        &#34;&#34;&#34;</span><span class="p">,</span> <span class="n">update_data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">conn</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">                        <span class="k">raise</span>
+</span></span><span class="line"><span class="cl">                    <span class="k">finally</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">                        <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">                <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span><span class="n">update_db</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">rows</span> <span class="o">=</span> <span class="n">fetch_target_rows</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;no rows&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">chunks</span> <span class="o">=</span> <span class="n">split_chunks</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">CONCURRENCY</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">process_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">MODEL</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">CONCURRENCY</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">BATCH_SIZE</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span></span></code></pre></div></li>
+<li>
+<p>실행하고, 결과를 확인합니다.</p>
+<ul>
+<li>
+<p>실행결과</p>
+<ul>
+<li>ADB, 4 ECPU, Service Name=TP</li>
+<li>병렬 처리관련 <a href="https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-service-concurrency.html#ADBSB-GUID-6E4DCD27-CDAA-432D-A90B-485C19EF72B0">Service Concurrency Limits for ECPU Compute Model</a> 참조</li>
+<li>Private AI Services Container: 5 OCPU(10 vCPU)</li>
+<li>Private AI Services Container가 지원하는 쓰레드에 따라 클라이언트의 CONCURRENCY를 높히고, 배치처리도 하면 좋지만, 임베디 모델의 무게에 따라 건당 처리시간이 길다면(그때 Private AI Services Container의 CPU 사용량도 높습니다.) 둘다 효과가 없어집니다.</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: center">CONCURRENCY</th>
+          <th>Batch</th>
+          <th style="text-align: center">multilingual-e5-small<br />1000건 처리 걸린 시간(초)</th>
+          <th style="text-align: center">multilingual-e5-base<br />1000건 처리 걸린 시간(초)</th>
+          <th style="text-align: center">multilingual-e5-large-instruct<br />1000건 처리 걸린 시간(초)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: center"><strong>1</strong></td>
+          <td><strong>1</strong></td>
+          <td style="text-align: center"><strong>104.541</strong></td>
+          <td style="text-align: center"><strong>125.091</strong></td>
+          <td style="text-align: center"><strong>180.985</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>2</strong></td>
+          <td><strong>1</strong></td>
+          <td style="text-align: center"><strong>45.781</strong></td>
+          <td style="text-align: center"><strong>65.583</strong></td>
+          <td style="text-align: center"><strong>126.216</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>5</strong></td>
+          <td><strong>1</strong></td>
+          <td style="text-align: center"><strong>23.973</strong></td>
+          <td style="text-align: center"><strong>32.945</strong></td>
+          <td style="text-align: center"><strong>93.826</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>10</strong></td>
+          <td><strong>1</strong></td>
+          <td style="text-align: center"><strong>20.519</strong></td>
+          <td style="text-align: center"><strong>24.858</strong></td>
+          <td style="text-align: center"><strong>90.861</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center">1</td>
+          <td>1</td>
+          <td style="text-align: center">93.988</td>
+          <td style="text-align: center">114.906</td>
+          <td style="text-align: center">182.792</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">1</td>
+          <td>2</td>
+          <td style="text-align: center">52.807</td>
+          <td style="text-align: center">76.212</td>
+          <td style="text-align: center">155.329</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">1</td>
+          <td>5</td>
+          <td style="text-align: center">22.822</td>
+          <td style="text-align: center">56.070</td>
+          <td style="text-align: center">152.514</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">1</td>
+          <td>10</td>
+          <td style="text-align: center">17.945</td>
+          <td style="text-align: center">60.013</td>
+          <td style="text-align: center">161.692</td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>2</strong></td>
+          <td><strong>1</strong></td>
+          <td style="text-align: center"><strong>49.615</strong></td>
+          <td style="text-align: center"><strong>63.850</strong></td>
+          <td style="text-align: center"><strong>136.105</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>2</strong></td>
+          <td><strong>2</strong></td>
+          <td style="text-align: center"><strong>25.331</strong></td>
+          <td style="text-align: center"><strong>48.565</strong></td>
+          <td style="text-align: center"><strong>125.588</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>2</strong></td>
+          <td><strong>5</strong></td>
+          <td style="text-align: center"><strong>12.646</strong></td>
+          <td style="text-align: center"><strong>42.780</strong></td>
+          <td style="text-align: center"><strong>151.985</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center"><strong>2</strong></td>
+          <td><strong>10</strong></td>
+          <td style="text-align: center"><strong>9.153</strong></td>
+          <td style="text-align: center"><strong>43.098</strong></td>
+          <td style="text-align: center"><strong>168.482</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: center">5</td>
+          <td>1</td>
+          <td style="text-align: center">22.786</td>
+          <td style="text-align: center">34.036</td>
+          <td style="text-align: center">94.869</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">5</td>
+          <td>2</td>
+          <td style="text-align: center">13.099</td>
+          <td style="text-align: center">31.225</td>
+          <td style="text-align: center">111.977</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">5</td>
+          <td>5</td>
+          <td style="text-align: center">7.329</td>
+          <td style="text-align: center">34.722</td>
+          <td style="text-align: center">137.553</td>
+      </tr>
+      <tr>
+          <td style="text-align: center">5</td>
+          <td>10</td>
+          <td style="text-align: center">5.766</td>
+          <td style="text-align: center">39.459</td>
+          <td style="text-align: center">159.322</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+</ul>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Private AI Services Container 시작하기 - Vector Indexing Service - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="Private AI Services Container 시작하기 - Vector Indexing Service">
+  <meta property="og:description" content="Private AI Services Container 시작하기 - Vector Indexing Service Getting Started with the Vector Index Service – Part 1, Getting Started with the Vector Index Service – Part 2를 기반으로 테스트한 내용입니다.
+설치할 VM 준비 Install the Private AI Services Container 내용중 Vector Indexing Service을 참조하여 설치합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-06-29T00:00:02+00:00">
+    <meta property="article:modified_time" content="2026-06-29T00:00:02+00:00">
+    <meta property="article:tag" content="Private-Ai-Service-Container">
+    <meta property="article:tag" content="Vector-Indexing">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-06-29</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="private-ai-services-container-시작하기---vector-indexing-service">Private AI Services Container 시작하기 - Vector Indexing Service</h2>
+<p><a href="https://blogs.oracle.com/database/getting-started-with-the-vector-index-service">Getting Started with the Vector Index Service – Part 1</a>, <a href="https://blogs.oracle.com/database/getting-started-with-the-vector-index-service-part-2">Getting Started with the Vector Index Service – Part 2</a>를 기반으로 테스트한 내용입니다.</p>
+<h6 id="설치할-vm-준비">설치할 VM 준비</h6>
+<p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/prvai/install-private-ai-services-container.html">Install the Private AI Services Container</a> 내용중 Vector Indexing Service을 참조하여 설치합니다.</p>
+<ol>
+<li>OCI에서 VM을 생성합니다. 블로그와 달리 현재 기본 선택인 Oracle Linux 9를 사용하였습니다.
+<ul>
+<li>Name: <strong>privateai-gpuvm</strong></li>
+<li>Shape: <strong>VM.GPU.A10.1</strong></li>
+<li>OS: Oracle Linux 9</li>
+<li>Boot volume: 스크립트 설치시 22 GB 필요 경고가 나오니, 기본 100GB로 설치</li>
+</ul>
+</li>
+</ol>
+<h6 id="boot-volume-resize">Boot Volume Resize</h6>
+<ol>
+<li>
+<p>다음 명령을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo /usr/libexec/oci-growfs -y
+</span></span><span class="line"><span class="cl">df -h
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="설치-요구사항-확인">설치 요구사항 확인</h6>
+<p>문서상의 요구사항에 따라 NVIDIA GPU, NVIDIA driver version 580.65.06+, NVIDIA Container Toolkit 등이 필요합니다. 다음 명령을 통해 요구사항에 충족하는 지 확인합니다.</p>
+<ol>
+<li>
+<p><code>nvidia-smi</code> 명령으로 설치된 GPU 및 Driver 버전을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateai-gpuvm ~]$ nvidia-smi
+</span></span><span class="line"><span class="cl">Thu Jun 18 02:48:19 2026
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl">| NVIDIA-SMI 595.71.05              Driver Version: 595.71.05      CUDA Version: 13.2     |
+</span></span><span class="line"><span class="cl">+-----------------------------------------+------------------------+----------------------+
+</span></span><span class="line"><span class="cl">| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+</span></span><span class="line"><span class="cl">| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+</span></span><span class="line"><span class="cl">|                                         |                        |               MIG M. |
+</span></span><span class="line"><span class="cl">|=========================================+========================+======================|
+</span></span><span class="line"><span class="cl">|   0  NVIDIA A10                     Off |   00000000:00:04.0 Off |                    0 |
+</span></span><span class="line"><span class="cl">|  0%   24C    P8             10W /  150W |       0MiB /  23028MiB |      0%      Default |
+</span></span><span class="line"><span class="cl">|                                         |                        |                  N/A |
+</span></span><span class="line"><span class="cl">+-----------------------------------------+------------------------+----------------------+
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------+
+</span></span><span class="line"><span class="cl">| Processes:                                                                              |
+</span></span><span class="line"><span class="cl">|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+</span></span><span class="line"><span class="cl">|        ID   ID                                                               Usage      |
+</span></span><span class="line"><span class="cl">|=========================================================================================|
+</span></span><span class="line"><span class="cl">|  No running processes found                                                             |
+</span></span><span class="line"><span class="cl">+-----------------------------------------------------------------------------------------+
+</span></span></code></pre></div></li>
+<li>
+<p><a href="https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html">NVIDIA installation guide</a>에 따라 NVIDIA Container Toolkit을 설치합니다.</p>
+<ol>
+<li>
+<p>repository를 구성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -s -L https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo | \
+</span></span><span class="line"><span class="cl">  sudo tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+</span></span></code></pre></div></li>
+<li>
+<p>NVIDIA Container Toolkit 패키지를 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.19.1-1
+</span></span><span class="line"><span class="cl">  sudo dnf install -y \
+</span></span><span class="line"><span class="cl">      nvidia-container-toolkit-${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+</span></span><span class="line"><span class="cl">      nvidia-container-toolkit-base-${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+</span></span><span class="line"><span class="cl">      libnvidia-container-tools-${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+</span></span><span class="line"><span class="cl">      libnvidia-container1-${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 런타임에서 GPU에 접근할 수 있는지, Container Device Interface 명령으로 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ nvidia-ctk --debug cdi list
+</span></span><span class="line"><span class="cl">INFO[0000] Found 3 CDI devices
+</span></span><span class="line"><span class="cl">nvidia.com/gpu=0
+</span></span><span class="line"><span class="cl">nvidia.com/gpu=GPU-254e0845-21f5-822e-9001-bd62fd279bbf
+</span></span><span class="line"><span class="cl">nvidia.com/gpu=all
+</span></span></code></pre></div></li>
+</ol>
+</li>
+</ol>
+<h6 id="podman-설치">Podman 설치</h6>
+<ol>
+<li>
+<p>Oracle Linux 9 기준 다음 명령으로 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install -y container-tools
+</span></span></code></pre></div></li>
+<li>
+<p>설치된 버전을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman version
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman images
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman version
+</span></span><span class="line"><span class="cl">Client:       Podman Engine
+</span></span><span class="line"><span class="cl">Version:      5.6.0
+</span></span><span class="line"><span class="cl">API Version:  5.6.0
+</span></span><span class="line"><span class="cl">Go Version:   go1.25.9 (Red Hat 1.25.9-1.0.1.el9_7)
+</span></span><span class="line"><span class="cl">Built:        Fri May 29 13:42:49 2026
+</span></span><span class="line"><span class="cl">OS/Arch:      linux/amd64
+</span></span><span class="line"><span class="cl">$ podman images
+</span></span><span class="line"><span class="cl">REPOSITORY  TAG         IMAGE ID    CREATED     SIZE
+</span></span><span class="line"><span class="cl">$
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>로그아웃 이웃에도 컨테이너가 계속 실행되도록 Lingering 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo loginctl enable-linger $(whoami)
+</span></span><span class="line"><span class="cl">$ loginctl show-user $(whoami) | grep Linger
+</span></span><span class="line"><span class="cl">Linger=yes
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너를 실행후 로그아웃합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman run -d ghcr.io/oracle/oraclelinux9-nginx:1.20
+</span></span><span class="line"><span class="cl">exit
+</span></span></code></pre></div></li>
+<li>
+<p>VM에 SSH로 재접속하여, 컨테이너가 실행중인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman ps
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oracle-container-registry-ocr에서-이미지-다운로드-받기">Oracle Container Registry (OCR)에서 이미지 다운로드 받기</h6>
+<ol>
+<li>
+<p>Oracle Private AI Services Container 이미지는 <a href="https://container-registry.oracle.com/">OCR(Oracle Container Registry)</a>에서 제공합니다. Oracle Account로 로그인합니다.</p>
+</li>
+<li>
+<p>Access Token이 필요합니다. 없는 경우 오른쪽 상단 유저 정보에서 생성합니다.</p>
+</li>
+<li>
+<p>컨테이너 목록에서 Database &gt; private-ai를 선택합니다.</p>
+</li>
+<li>
+<p>이미지 다운로드를 위해서 라이센스 동의가 필요합니다. 오른쪽 가운데 Oracle AI Database License 경고문구에서 Continue를 클릭하여 동의합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260402203156561.png" alt='image-20260402203156561' onerror="this.onerror=null;this.src='images\/image-20260402203156561.png';" />
+</p>
+</li>
+<li>
+<p>로그인후 이미지를 가져오는 것이 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman login container-registry.oracle.com
+</span></span><span class="line"><span class="cl">docker pull container-registry.oracle.com/database/private-ai:gpu-index-26.1.0.0.0
+</span></span></code></pre></div></li>
+<li>
+<p>이미지를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman images
+</span></span><span class="line"><span class="cl">REPOSITORY                                         TAG                   IMAGE ID      CREATED      SIZE
+</span></span><span class="line"><span class="cl">container-registry.oracle.com/database/private-ai  gpu-index-26.1.0.0.0  2a7965e5c8f1  7 weeks ago  2.32 GB
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="private-ai-services-container-설치-스크립트-가져오기">Private AI Services Container 설치 스크립트 가져오기</h6>
+<ol>
+<li>
+<p>IMAGEID를 가져옵니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">IMAGEID=`podman create container-registry.oracle.com/database/private-ai:gpu-index-26.1.0.0.0`
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 이미지 내부에 있는 스크립트 파일을 복사하여 꺼냅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman cp $IMAGEID:/privateai/scripts/privateai-setup-gpu-index-26.1.0.0.0.zip .
+</span></span></code></pre></div></li>
+<li>
+<p>파일을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -l
+</span></span><span class="line"><span class="cl">total 12
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 12282 Apr 26 05:21 privateai-setup-gpu-index-26.1.0.0.0.zip
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>압축해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">unzip privateai-setup-gpu-index-26.1.0.0.0.zip
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="private-ai-services-container---vector-indexing-service-설치하기">Private AI Services Container - Vector Indexing Service 설치하기</h6>
+<ol>
+<li>
+<p>필요한 폴더를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd setup
+</span></span><span class="line"><span class="cl">export PRIVATE_DIR=/home/opc/privateai-gpu-index-https
+</span></span><span class="line"><span class="cl">export SECRETS_DIR=/home/opc/secrets
+</span></span><span class="line"><span class="cl">mkdir -p &#34;$PRIVATE_DIR&#34; &#34;$SECRETS_DIR&#34;
+</span></span></code></pre></div></li>
+<li>
+<p>Secret 관련 파일들을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./secretsSetup.sh -s &#34;$SECRETS_DIR&#34;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시 - keystore password 없으면, 이후 컨테이너 실행이 오류가 발생하니, 반드시 입력합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./secretsSetup.sh -s &#34;$SECRETS_DIR&#34;
+</span></span><span class="line"><span class="cl">Enter keystore password:
+</span></span><span class="line"><span class="cl">Confirm keystore password:
+</span></span><span class="line"><span class="cl">  SUCC: Generated security directory at /home/opc/secrets
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ ls -la $SECRETS_DIR
+</span></span><span class="line"><span class="cl">total 24
+</span></span><span class="line"><span class="cl">drwxr-xr-x.  3 opc opc   98 Jun 18 06:42 .
+</span></span><span class="line"><span class="cl">drwx------. 10 opc opc 4096 Jun 18 06:41 ..
+</span></span><span class="line"><span class="cl">-rw-r--r--.  1 opc opc   64 Jun 18 06:42 api-key
+</span></span><span class="line"><span class="cl">-rw-r--r--.  1 opc opc 1371 Jun 18 06:42 cert.pem
+</span></span><span class="line"><span class="cl">-rw-------.  1 opc opc 1704 Jun 18 06:42 key.pem
+</span></span><span class="line"><span class="cl">-rw-r--r--.  1 opc opc  451 Jun 18 06:42 key.pub
+</span></span><span class="line"><span class="cl">-rw-------.  1 opc opc 2782 Jun 18 06:42 keystore
+</span></span><span class="line"><span class="cl">drwxr-xr-x.  2 opc opc    6 Jun 18 06:42 secrets
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 설정 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./configSetup.sh -d &#34;$PRIVATE_DIR&#34; -s &#34;$SECRETS_DIR&#34;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./configSetup.sh -d &#34;$PRIVATE_DIR&#34; -s &#34;$SECRETS_DIR&#34;
+</span></span><span class="line"><span class="cl">  SUCC: Container UID 2001 maps to Host UID 102000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: GPU SELinux access is already enabled
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Copied PrivateAI security directory
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Generated PrivateAI logs directory
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너를 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./containerSetup.sh -d $PRIVATE_DIR -n privateai-gpu-index-https
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./containerSetup.sh -d $PRIVATE_DIR -n privateai-gpu-index-https
+</span></span><span class="line"><span class="cl">Using image version gpu-index-26.1.0.0.0
+</span></span><span class="line"><span class="cl">Using GPU: all
+</span></span><span class="line"><span class="cl">HTTPS connection enabled: true
+</span></span><span class="line"><span class="cl">  SUCC: Container started
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 실행을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman ps
+</span></span><span class="line"><span class="cl">CONTAINER ID  IMAGE                                                                   COMMAND     CREATED         STATUS         PORTS                   NAMES
+</span></span><span class="line"><span class="cl">4c94b0dd3696  container-registry.oracle.com/database/private-ai:gpu-index-26.1.0.0.0              20 seconds ago  Up 20 seconds  0.0.0.0:8443-&gt;8443/tcp  privateai-gpu-index-https
+</span></span></code></pre></div></li>
+<li>
+<p>헬스체크합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export HOST=$(hostname -f); echo $HOST
+</span></span><span class="line"><span class="cl">curl --http2-prior-knowledge -i --cacert $SECRETS_DIR/cert.pem https://$HOST:8443/health
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ curl --http2-prior-knowledge -i --cacert $SECRETS_DIR/cert.pem https://$HOST:8443/health
+</span></span><span class="line"><span class="cl">HTTP/2 200
+</span></span><span class="line"><span class="cl">date: Thu, 18 Jun 2026 06:47:44 GMT
+</span></span><span class="line"><span class="cl">x-ratelimit-limit-requests: 60
+</span></span><span class="line"><span class="cl">x-ratelimit-remaining-requests: 59
+</span></span><span class="line"><span class="cl">x-ratelimit-reset-requests: 1
+</span></span><span class="line"><span class="cl">x-server-id: 618c2d05-438c-411c-80b7-a1cbd4971911
+</span></span><span class="line"><span class="cl">content-length: 0
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="데이터베이스에서-사용할-준비">데이터베이스에서 사용할 준비</h6>
+<ol>
+<li>
+<p>데이터베이스에서 설정하기 위해 필요한 정보를 수집합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">echo &#34;offload_url : https://$(hostname -f):8443/v1/index&#34;
+</span></span><span class="line"><span class="cl">echo &#34;API key     : $(cat $SECRETS_DIR/api-key)&#34;
+</span></span><span class="line"><span class="cl">echo &#34;certificate : $SECRETS_DIR/cert.pem&#34;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateai-gpuvm setup]$ echo &#34;offload_url : https://$(hostname -f):8443/v1/index&#34;
+</span></span><span class="line"><span class="cl">offload_url : https://privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com:8443/v1/index
+</span></span><span class="line"><span class="cl">[opc@privateai-gpuvm setup]$ echo &#34;API key     : $(cat $SECRETS_DIR/api-key)&#34;
+</span></span><span class="line"><span class="cl">API key     : 716b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+</span></span><span class="line"><span class="cl">[opc@privateai-gpuvm setup]$ echo &#34;certificate : $SECRETS_DIR/cert.pem&#34;
+</span></span><span class="line"><span class="cl">certificate : /home/opc/secrets/cert.pem
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>OS 방화벽에서 포트를 개방합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=8443/tcp
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --list-ports
+</span></span></code></pre></div></li>
+<li>
+<p>Security List 등에서 필요한 추가작업을 합니다.</p>
+</li>
+</ol>
+<h6 id="1-oracle-ai-database-26ai-free-container에서-테스트-하기">#1 Oracle AI Database 26ai Free Container에서 테스트 하기</h6>
+<p><strong>데이터베이스 준비</strong></p>
+<ol>
+<li>
+<p>Oracle AI Database 26ai Free 컨테이너 이미지 다운로드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker pull container-registry.oracle.com/database/free:23.26.2.0
+</span></span></code></pre></div></li>
+<li>
+<p>Oracle AI Database 26ai Free 컨테이너 시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman run -d \
+</span></span><span class="line"><span class="cl">--name oracle-free-26ai \
+</span></span><span class="line"><span class="cl">container-registry.oracle.com/database/free:23.26.2.0
+</span></span></code></pre></div></li>
+<li>
+<p>AI Private Container Service에서 생성한 Secrets 내 cert.pem을  컨테이너로 복사합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker cp cert.pem oracle-free-26ai:/home/oracle/cert.pem
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 내부로 들어갑니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker exec -it oracle-free-26ai /bin/bash
+</span></span></code></pre></div></li>
+<li>
+<p>Private AI Container 서비스가 컨테이너에서 연결이 되는지, 인증서를 통해 SSL로 연결되는지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export HOST=privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com
+</span></span><span class="line"><span class="cl">curl --http2-prior-knowledge -i --cacert cert.pem https://$HOST:8443/health
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 내부에서 orapki 툴을 사용해 Wallet 생성하고 Certificate을 Wallet에 추가합니다. <code>&lt;my_wallet_passowrd&gt;</code>는 원하는 패스워드를 사용합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mkdir -p /home/oracle/wallets
+</span></span><span class="line"><span class="cl">orapki wallet create -wallet /home/oracle/wallets/my_wallet -pwd &lt;my_wallet_passowrd&gt; -auto_login
+</span></span><span class="line"><span class="cl">orapki wallet add -wallet /home/oracle/wallets/my_wallet -trusted_cert -cert /home/oracle/cert.pem -pwd &lt;my_wallet_passowrd&gt;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">bash-4.4$ orapki wallet create -wallet /home/oracle/wallets/my_wallet -pwd XXXXXXXXXXXXXXXX -auto_login
+</span></span><span class="line"><span class="cl">Oracle PKI Tool Release 23.26.2.0.0DBRU - Production
+</span></span><span class="line"><span class="cl">Version 23.26.2.0.0DBRU
+</span></span><span class="line"><span class="cl">Copyright (c) 2004, 2026, Oracle and/or its affiliates. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Operation is successfully completed.
+</span></span><span class="line"><span class="cl">bash-4.4$ orapki wallet add -wallet /home/oracle/wallets/my_wallet -trusted_cert -cert /home/oracle/cert.pem -pwd XXXXXXXXXXXXXXXX
+</span></span><span class="line"><span class="cl">Oracle PKI Tool Release 23.26.2.0.0DBRU - Production
+</span></span><span class="line"><span class="cl">Version 23.26.2.0.0DBRU
+</span></span><span class="line"><span class="cl">Copyright (c) 2004, 2026, Oracle and/or its affiliates. All rights reserved.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Operation is successfully completed.
+</span></span><span class="line"><span class="cl">bash-4.4$ ls -la wallets/
+</span></span><span class="line"><span class="cl">total 0
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 3 oracle oinstall 25 Jun 22 14:07 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 1 oracle oinstall 58 Jun 22 14:05 ..
+</span></span><span class="line"><span class="cl">drwx------. 2 oracle oinstall 90 Jun 22 14:07 my_wallet
+</span></span><span class="line"><span class="cl">bash-4.4$ ls -la wallets/my_wallet/
+</span></span><span class="line"><span class="cl">total 8
+</span></span><span class="line"><span class="cl">drwx------. 2 oracle oinstall   90 Jun 22 14:54 .
+</span></span><span class="line"><span class="cl">drwxr-xr-x. 4 oracle oinstall   42 Jun 22 14:54 ..
+</span></span><span class="line"><span class="cl">-rw-------. 1 oracle oinstall 1347 Jun 22 14:54 cwallet.sso
+</span></span><span class="line"><span class="cl">-rw-------. 1 oracle oinstall    0 Jun 22 14:54 cwallet.sso.lck
+</span></span><span class="line"><span class="cl">-rw-------. 1 oracle oinstall 1302 Jun 22 14:54 ewallet.p12
+</span></span><span class="line"><span class="cl">-rw-------. 1 oracle oinstall    0 Jun 22 14:54 ewallet.p12.lck
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>CDB SYS 유저로 Wallet 위치를 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sqlplus / as sysdba
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALTER DATABASE PROPERTY SET ssl_wallet=&#39;file:/home/oracle/wallets/my_wallet&#39;;
+</span></span><span class="line"><span class="cl">exit
+</span></span></code></pre></div></li>
+<li>
+<p>PDB SYS 유저로 접속하여, 사용할 유저를 생성하고 권한을 부여합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sqlplus sys/OracleIsAwesome@FREEPDB1 as sysdba
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">CREATE USER vector IDENTIFIED BY vector DEFAULT TABLESPACE users TEMPORARY TABLESPACE temp QUOTA UNLIMITED ON users;
+</span></span><span class="line"><span class="cl">GRANT CONNECT, RESOURCE TO vector;
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">GRANT DB_DEVELOPER_ROLE TO vector;
+</span></span><span class="line"><span class="cl">GRANT CREATE CREDENTIAL TO vector;
+</span></span><span class="line"><span class="cl">GRANT EXECUTE ON dbms_network_acl_admin TO vector;
+</span></span></code></pre></div></li>
+<li>
+<p>oracle-free-26ai 컨테이너 내부에서 CDB$ROOT의 메모리 풀 크기를 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALTER SYSTEM SET vector_memory_size = 512M SCOPE = SPFILE;
+</span></span><span class="line"><span class="cl">SHUTDOWN IMMEDIATE;
+</span></span><span class="line"><span class="cl">STARTUP
+</span></span></code></pre></div></li>
+<li>
+<p>생성한 유저로 접속합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sqlplus vector/vector@FREEPDB1
+</span></span></code></pre></div></li>
+<li>
+<p>AI Private Container Service에서 생성한 Secrets 내 API key로 Credential을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DECLARE
+</span></span><span class="line"><span class="cl">  jo json_object_t := json_object_t();
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  jo.put(&#39;access_token&#39;, &#39;&amp;api_key&#39;); -- Provide the &#34;API key&#34; listed in step 6
+</span></span><span class="line"><span class="cl">  dbms_vector.create_credential(
+</span></span><span class="line"><span class="cl">    credential_name =&gt; &#39;PRIVATE_AI_API_KEY_CRED&#39;, -- Replace with your preferred credential identifier
+</span></span><span class="line"><span class="cl">    params =&gt; json(jo.to_string));
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>데이터베이스 안에서 AI Private Container Service에 네트워크 상으로 접근할 수 있도록, Wallet을 사용하도록 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  dbms_network_acl_admin.append_host_ace (
+</span></span><span class="line"><span class="cl">    host =&gt; &#39;privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com&#39;,
+</span></span><span class="line"><span class="cl">    ace =&gt; xs$ace_type(
+</span></span><span class="line"><span class="cl">      privilege_list =&gt; xs$name_list(&#39;http&#39;, &#39;http_proxy&#39;, &#39;resolve&#39;),
+</span></span><span class="line"><span class="cl">      principal_name =&gt; USER,
+</span></span><span class="line"><span class="cl">      principal_type =&gt; xs_acl.ptype_db));
+</span></span><span class="line"><span class="cl">  dbms_network_acl_admin.append_wallet_ace(
+</span></span><span class="line"><span class="cl">    wallet_path =&gt; &#39;file:/home/oracle/wallets/my_wallet&#39;,
+</span></span><span class="line"><span class="cl">    ace =&gt; xs$ace_type(
+</span></span><span class="line"><span class="cl">      principal_name =&gt; USER,
+</span></span><span class="line"><span class="cl">      principal_type =&gt; xs_acl.ptype_db,
+</span></span><span class="line"><span class="cl">      privilege_list =&gt; xs$name_list(&#39;use_client_certificates&#39;, &#39;use_passwords&#39;)));
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>Private AI Container 서비스가 SQL 상에서 인증서를 통해 SSL로 연결되는지 확인합니다. 응답코드가 200이면 연결 성공입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">SET SERVEROUTPUT ON;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CREATE OR REPLACE PROCEDURE check_reachable(
+</span></span><span class="line"><span class="cl">  url       IN VARCHAR2,
+</span></span><span class="line"><span class="cl">  wallet    IN VARCHAR2,
+</span></span><span class="line"><span class="cl">  show_body IN BOOLEAN DEFAULT FALSE
+</span></span><span class="line"><span class="cl">) IS
+</span></span><span class="line"><span class="cl">  req utl_http.req;
+</span></span><span class="line"><span class="cl">  res utl_http.resp;
+</span></span><span class="line"><span class="cl">  buffer VARCHAR2(4000);
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  utl_http.set_wallet(wallet);
+</span></span><span class="line"><span class="cl">  req := utl_http.begin_request(url, &#39;GET&#39;, &#39;HTTP/1.1&#39;);
+</span></span><span class="line"><span class="cl">  res := utl_http.get_response(req);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  BEGIN
+</span></span><span class="line"><span class="cl">    dbms_output.put_line(&#39;HTTPS response status code: &#39; || res.status_code);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    IF show_body THEN
+</span></span><span class="line"><span class="cl">      LOOP
+</span></span><span class="line"><span class="cl">        utl_http.read_line(res, buffer);
+</span></span><span class="line"><span class="cl">        dbms_output.put_line(buffer);
+</span></span><span class="line"><span class="cl">      END LOOP;
+</span></span><span class="line"><span class="cl">    END IF;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    utl_http.end_response(res);
+</span></span><span class="line"><span class="cl">  EXCEPTION
+</span></span><span class="line"><span class="cl">    WHEN utl_http.end_of_body THEN
+</span></span><span class="line"><span class="cl">      utl_http.end_response(res);
+</span></span><span class="line"><span class="cl">  END;
+</span></span><span class="line"><span class="cl">END check_reachable;
+</span></span><span class="line"><span class="cl">/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">exec check_reachable(url =&gt; &#39;https://&amp;host:&amp;port/health&#39;, wallet =&gt; &#39;file:&amp;wallet&#39;);
+</span></span></code></pre></div><ul>
+<li>host: privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com</li>
+<li>port: 8443</li>
+<li>wallet: /home/oracle/wallets/my_wallet</li>
+</ul>
+</li>
+</ol>
+<p><strong>HNSW 인덱스 생성 테스트</strong></p>
+<ol>
+<li>
+<p>샘플 데이터 생성을 위해 <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/sql-quick-start-using-float32-vector-generator.html">AI Vector Search User’s Guide</a>의 1,2번 항목을 vector 유저로 실행해 <strong>genvec</strong> 테이블과 <strong>vector_gen_pkg</strong> 패키지를 설치합니다.</p>
+</li>
+<li>
+<p>설치후 연결 테스트용 샘플 데이터를 생성합니다.</p>
+<ul>
+<li>건수가 1000이하시에는 offload 되지 않고, 데이터베이스 내에서 바로 인덱싱합니다. 적어도 1001건이 있어야 합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  vector_gen_pkg.generate_vectors(
+</span></span><span class="line"><span class="cl">    num_vectors =&gt; 10000, -- Number of vectors to generate. Must be 1 or above
+</span></span><span class="line"><span class="cl">    dimensions =&gt; 3,      -- Number of dimensions of each vector. Must be above 1 but less than 500
+</span></span><span class="line"><span class="cl">    num_clusters =&gt; 6,    -- Number of clusters to create. Must be 1 or above
+</span></span><span class="line"><span class="cl">    cluster_spread =&gt; 1,  -- Relative closeness of each vector in each cluster (using standard deviation). Must be grather than 0
+</span></span><span class="line"><span class="cl">    min_value =&gt; 0,       -- Minimum value for a vector coordinate
+</span></span><span class="line"><span class="cl">    max_value =&gt; 100      -- Maximum value for a vector coordinate. Min value must be smaller than max value
+</span></span><span class="line"><span class="cl">  );
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>생성결과를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">SQL&gt; SELECT name, v FROM genvec WHERE ROWNUM &lt;=5;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME     V                                                    
+</span></span><span class="line"><span class="cl">________ ____________________________________________________ 
+</span></span><span class="line"><span class="cl">C1-87    [8.10606384E+001,4.74786644E+001,8.3993576E+001]     
+</span></span><span class="line"><span class="cl">C1-88    [8.32954712E+001,4.73931656E+001,8.26229553E+001]    
+</span></span><span class="line"><span class="cl">C1-89    [8.25189743E+001,4.63916054E+001,8.37631302E+001]    
+</span></span><span class="line"><span class="cl">C1-90    [8.26449814E+001,4.65031357E+001,8.45275574E+001]    
+</span></span><span class="line"><span class="cl">C1-91    [8.11419373E+001,4.67765045E+001,8.37020416E+001]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">SQL&gt; SELECT count(*) FROM genvec;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">   COUNT(*) 
+</span></span><span class="line"><span class="cl">___________ 
+</span></span><span class="line"><span class="cl">      10000 
+</span></span></code></pre></div></li>
+<li>
+<p>기본 구문으로 인덱스를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">set timing on;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">drop index my_hnsw_idx;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CREATE VECTOR INDEX my_hnsw_idx ON genvec(v)
+</span></span><span class="line"><span class="cl">  ORGANIZATION INMEMORY NEIGHBOR GRAPH
+</span></span><span class="line"><span class="cl">  DISTANCE EUCLIDEAN
+</span></span><span class="line"><span class="cl">  PARAMETERS (
+</span></span><span class="line"><span class="cl">    TYPE                       HNSW,
+</span></span><span class="line"><span class="cl">    OFFLOAD_CREDENTIAL_NAME    PRIVATE_AI_API_KEY_CRED,
+</span></span><span class="line"><span class="cl">    OFFLOAD_URL                &#39;https://privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com:8443/v1/index&#39;
+</span></span><span class="line"><span class="cl">)
+</span></span><span class="line"><span class="cl">PARALLEL 4;
+</span></span></code></pre></div></li>
+<li>
+<p>인덱스가 생성되고, offload가 되었는지 Private AI Container Service의 로그에서 호출여부를 확인합니다.</p>
+<ul>
+<li>건수가 1000이하시에는 offload 되지 않고, 데이터베이스 내에서 바로 인덱싱합니다. 적어도 1001건이 있어야 합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">00:36:47.594 [default-nioEventLoopGroup-1-3] INFO  com.oracle.pai.filter.ApiKeyAuthFilter - Auth succeeded: endpoint=&#39;/v1/index&#39;, remoteIp=&#39;10.0.1.119&#39;, method=&#39;POST&#39;,  user-agent=&#39;IPC_23.26.2.0.0DBRU_LINUX.X64_260408 - 2026-04-08_09:59&#39;, bodySize=&#39;-1&#39;.
+</span></span><span class="line"><span class="cl">00:36:47.617 [default-nioEventLoopGroup-1-3] INFO  com.oracle.pai.index.Index - Starting new offload request
+</span></span><span class="line"><span class="cl">00:36:47.622 [default-nioEventLoopGroup-1-3] INFO  com.oracle.pai.index.Index - # of active requests: 1
+</span></span><span class="line"><span class="cl">00:36:48.006 [default-nioEventLoopGroup-1-3] INFO  com.oracle.pai.index.Index - Offload cleanup completed
+</span></span><span class="line"><span class="cl">00:36:48.007 [default-nioEventLoopGroup-1-3] INFO  com.oracle.pai.index.Index - # of active requests: 0
+</span></span></code></pre></div></li>
+<li>
+<p>offload가 안되는 경우 아래 사항을 체크합니다.</p>
+<ul>
+<li>
+<p>offload가 실행되기 위해서는 <code>numactl-lib</code> 패키지가 데이터베이스가 구동중인 OS에 설치가 필요합니다.</p>
+</li>
+<li>
+<p>Oracle AI Database 26ai Free 컨테이너에 다음 명령으로 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker exec -it oracle-free-26ai /bin/bash
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ /bin/su - root
+</span></span><span class="line"><span class="cl"># yum install numactl-libs
+</span></span></code></pre></div></li>
+<li>
+<p>데이터베이스 컨테이너를 재시작하고, 다시 인덱스 생성을 테스트해봅니다.</p>
+</li>
+</ul>
+</li>
+</ol>
+<h6 id="2-oracle-autonomous-ai-database-26ai에서-테스트-하기">#2 Oracle Autonomous AI Database 26ai에서 테스트 하기</h6>
+<p><strong>데이터베이스 준비</strong></p>
+<p>&ldquo;#1 Oracle AI Database 26ai Free Container에서 테스트 하기&quot;과 다른 부분만 설명하도록 하겠습니다. Autonomous AI Database에서는 호스트에 직접 접속할 수 없어, 앞서와 같은 방법으로 <code>/home/oracle/wallets/my_wallet</code>에 파일을 업로드할 수 없는 차이가 있습니다. 아래 문서를 참고하여, wallet을 설정합니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/external-calls-with-customer-managed-wallet.html">Make External Calls Using a Customer-Managed Wallet</a></li>
+</ul>
+<ol>
+<li>
+<p>사용할 유저에 권한을 부여합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">GRANT EXECUTE ON dbms_network_acl_admin TO vector;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">GRANT SELECT_CATALOG_ROLE TO vector;
+</span></span><span class="line"><span class="cl">CREATE OR REPLACE DIRECTORY WALLET_DIR as &#39;WALLET_DIR&#39;;
+</span></span><span class="line"><span class="cl">GRANT READ,WRITE ON DIRECTORY WALLET_DIR to vector;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">GRANT DB_DEVELOPER_ROLE TO vector;
+</span></span><span class="line"><span class="cl">GRANT EXECUTE ON DBMS_CLOUD TO vector;
+</span></span><span class="line"><span class="cl">GRANT execute on DBMS_CLOUD_AI to vector;
+</span></span></code></pre></div></li>
+<li>
+<p>Object Storage Bucket을 생성합니다.</p>
+<ul>
+<li>Name: 예, my-privateai-wallet-bucket</li>
+</ul>
+</li>
+<li>
+<p><code>my_wallet</code> 폴더내에 있는 파일을 생성한 Bucket에 업로드합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260629154134305.png" alt='image-20260629154134305' onerror="this.onerror=null;this.src='images\/image-20260629154134305.png';" />
+</p>
+</li>
+<li>
+<p>사용할 DB 유저(vector)로 접속합니다.</p>
+</li>
+<li>
+<p>SQL상에서 Bucket에 접근하기 위한 API Key 정보를 사용하여 OCI_CRED 이름으로 Credential을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">declare
+</span></span><span class="line"><span class="cl">    jo json_object_t;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">begin
+</span></span><span class="line"><span class="cl">    jo := json_object_t();
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    jo.put(&#39;user_ocid&#39;, &#39;&lt;user ocid&gt;&#39;);
+</span></span><span class="line"><span class="cl">    jo.put(&#39;tenancy_ocid&#39;, &#39;&lt;tenancy ocid&gt;&#39;);
+</span></span><span class="line"><span class="cl">    jo.put(&#39;compartment_ocid&#39;, &#39;&lt;compartment ocid&gt;&#39;);
+</span></span><span class="line"><span class="cl">    jo.put(&#39;fingerprint&#39;, &#39;&lt;fingerprint&gt;&#39;);
+</span></span><span class="line"><span class="cl">    jo.put(&#39;private_key&#39;, &#39;&lt;private key&gt;&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    dbms_vector.create_credential(
+</span></span><span class="line"><span class="cl">        credential_name =&gt; &#39;OCI_CRED&#39;,
+</span></span><span class="line"><span class="cl">        params          =&gt; json(jo.to_string)
+</span></span><span class="line"><span class="cl">    );
+</span></span><span class="line"><span class="cl">end;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>Credential을 사용해 Bucket내 Object가 조회되는지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">SQL&gt; SELECT object_name FROM DBMS_CLOUD.LIST_OBJECTS(&#39;OCI_CRED&#39;, &#39;https://objectstorage.ap-osaka-1.oraclecloud.com/n/{NAMESPACE}/b/my-privateai-wall
+</span></span><span class="line"><span class="cl">et-bucket/o/&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">OBJECT_NAME    
+</span></span><span class="line"><span class="cl">______________ 
+</span></span><span class="line"><span class="cl">cwallet.sso    
+</span></span><span class="line"><span class="cl">ewallet.p12
+</span></span></code></pre></div></li>
+<li>
+<p>위 파일을 WALLET_DIR에 다운로드 받습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  DBMS_CLOUD.GET_OBJECT(
+</span></span><span class="line"><span class="cl">    credential_name =&gt; &#39;OCI_CRED&#39;,
+</span></span><span class="line"><span class="cl">    object_uri =&gt; &#39;https://objectstorage.ap-osaka-1.oraclecloud.com/n/{NAMESPACE}/b/my-privateai-wallet-bucket/o/cwallet.sso&#39;,
+</span></span><span class="line"><span class="cl">    directory_name =&gt; &#39;WALLET_DIR&#39;);
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  DBMS_CLOUD.GET_OBJECT(
+</span></span><span class="line"><span class="cl">    credential_name =&gt; &#39;OCI_CRED&#39;,
+</span></span><span class="line"><span class="cl">    object_uri =&gt; &#39;https://objectstorage.ap-osaka-1.oraclecloud.com/n/{NAMESPACE}/b/my-privateai-wallet-bucket/o/ewallet.p12&#39;,
+</span></span><span class="line"><span class="cl">    directory_name =&gt; &#39;WALLET_DIR&#39;);
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>다운로드 받은 파일을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">SQL&gt; SELECT object_name FROM DBMS_CLOUD.LIST_FILES(&#39;WALLET_DIR&#39;);
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">OBJECT_NAME    
+</span></span><span class="line"><span class="cl">______________ 
+</span></span><span class="line"><span class="cl">cwallet.sso    
+</span></span><span class="line"><span class="cl">ewallet.p12
+</span></span></code></pre></div></li>
+<li>
+<p>AI Private Container Service에서 생성한 Secrets 내 API key로 Credential을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">DECLARE
+</span></span><span class="line"><span class="cl">  jo json_object_t := json_object_t();
+</span></span><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  jo.put(&#39;access_token&#39;, &#39;&amp;api_key&#39;); -- Provide the &#34;API key&#34; listed in step 6
+</span></span><span class="line"><span class="cl">  dbms_vector.create_credential(
+</span></span><span class="line"><span class="cl">    credential_name =&gt; &#39;PRIVATE_AI_API_KEY_CRED&#39;, -- Replace with your preferred credential identifier
+</span></span><span class="line"><span class="cl">    params =&gt; json(jo.to_string));
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>데이터베이스 안에서 AI Private Container Service에 네트워크 상으로 접근할 수 있도록, Wallet을 사용하도록 설정합니다. <code>wallet_path =&gt; 'dir:WALLET_DIR'</code> 지정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  dbms_network_acl_admin.append_host_ace (
+</span></span><span class="line"><span class="cl">    host =&gt; &#39;privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com&#39;,
+</span></span><span class="line"><span class="cl">    ace =&gt; xs$ace_type(
+</span></span><span class="line"><span class="cl">      privilege_list =&gt; xs$name_list(&#39;http&#39;, &#39;http_proxy&#39;, &#39;resolve&#39;),
+</span></span><span class="line"><span class="cl">      principal_name =&gt; USER,
+</span></span><span class="line"><span class="cl">      principal_type =&gt; xs_acl.ptype_db));
+</span></span><span class="line"><span class="cl">  dbms_network_acl_admin.append_wallet_ace(
+</span></span><span class="line"><span class="cl">    wallet_path =&gt; &#39;dir:WALLET_DIR&#39;,
+</span></span><span class="line"><span class="cl">    ace =&gt; xs$ace_type(
+</span></span><span class="line"><span class="cl">      principal_name =&gt; USER,
+</span></span><span class="line"><span class="cl">      principal_type =&gt; xs_acl.ptype_db,
+</span></span><span class="line"><span class="cl">      privilege_list =&gt; xs$name_list(&#39;use_client_certificates&#39;, &#39;use_passwords&#39;)));
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>Private AI Container 서비스가 SQL 상에서 인증서를 통해 SSL로 연결되는지 확인합니다. wallet 경로가 <code>file:</code> 이 아니고 <code>dir:</code> 입니다. 응답코드가 200이면 연결 성공입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">exec check_reachable(url =&gt; &#39;https://&amp;host:&amp;port/health&#39;, wallet =&gt; &#39;dir:&amp;wallet&#39;);
+</span></span></code></pre></div><ul>
+<li>host: privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com</li>
+<li>port: 8443</li>
+<li>wallet: WALLET_DIR</li>
+</ul>
+</li>
+</ol>
+<p><strong>HNSW 인덱스 생성 테스트</strong></p>
+<ol>
+<li>
+<p>샘플 데이터 생성을 위해 <a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/sql-quick-start-using-float32-vector-generator.html">AI Vector Search User’s Guide</a>의 1,2번 항목을 vector 유저로 실행해 <strong>genvec</strong> 테이블과 <strong>vector_gen_pkg</strong> 패키지를 설치합니다.</p>
+</li>
+<li>
+<p>설치후 연결 테스트용 샘플 데이터를 생성합니다.</p>
+<ul>
+<li>건수가 1000이하시에는 offload 되지 않고, 데이터베이스 내에서 바로 인덱싱합니다. 적어도 1001건이 있어야 합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">BEGIN
+</span></span><span class="line"><span class="cl">  vector_gen_pkg.generate_vectors(
+</span></span><span class="line"><span class="cl">    num_vectors =&gt; 10000, -- Number of vectors to generate. Must be 1 or above
+</span></span><span class="line"><span class="cl">    dimensions =&gt; 3,      -- Number of dimensions of each vector. Must be above 1 but less than 500
+</span></span><span class="line"><span class="cl">    num_clusters =&gt; 6,    -- Number of clusters to create. Must be 1 or above
+</span></span><span class="line"><span class="cl">    cluster_spread =&gt; 1,  -- Relative closeness of each vector in each cluster (using standard deviation). Must be grather than 0
+</span></span><span class="line"><span class="cl">    min_value =&gt; 0,       -- Minimum value for a vector coordinate
+</span></span><span class="line"><span class="cl">    max_value =&gt; 100      -- Maximum value for a vector coordinate. Min value must be smaller than max value
+</span></span><span class="line"><span class="cl">  );
+</span></span><span class="line"><span class="cl">END;
+</span></span><span class="line"><span class="cl">/
+</span></span></code></pre></div></li>
+<li>
+<p>기본 구문으로 인덱스를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">set timing on;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">drop index my_hnsw_idx;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">CREATE VECTOR INDEX my_hnsw_idx ON genvec(v)
+</span></span><span class="line"><span class="cl">  ORGANIZATION INMEMORY NEIGHBOR GRAPH
+</span></span><span class="line"><span class="cl">  DISTANCE EUCLIDEAN
+</span></span><span class="line"><span class="cl">  PARAMETERS (
+</span></span><span class="line"><span class="cl">    TYPE                       HNSW,
+</span></span><span class="line"><span class="cl">    OFFLOAD_CREDENTIAL_NAME    PRIVATE_AI_API_KEY_CRED,
+</span></span><span class="line"><span class="cl">    OFFLOAD_URL                &#39;https://privateai-gpuvm.privatesubnet.ociholvcn.oraclevcn.com:8443/v1/index&#39;
+</span></span><span class="line"><span class="cl">)
+</span></span><span class="line"><span class="cl">PARALLEL 4;
+</span></span></code></pre></div></li>
+<li>
+<p>하지만 실행결과 다음과 같은 오류가 발생합니다. 아래 문제가 해결되면, 추가 업데이트 하겠습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Error report -
+</span></span><span class="line"><span class="cl">ORA-24247: network access denied by access control list (ACL)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">https://docs.oracle.com/error-help/db/ora-24247/
+</span></span><span class="line"><span class="cl">24247. 00000 -  &#34;network access denied by access control list (ACL)&#34;
+</span></span><span class="line"><span class="cl">*Cause:    No access control list (ACL) has been assigned to the target
+</span></span><span class="line"><span class="cl">           host or the privilege necessary to access the target host has not
+</span></span><span class="line"><span class="cl">           been granted to the user in the access control list.
+</span></span><span class="line"><span class="cl">*Action:   Ensure that an access control list (ACL) has been assigned to
+</span></span><span class="line"><span class="cl">           the target host and the privilege necessary to access the target
+</span></span><span class="line"><span class="cl">           host has been granted to the user.
+</span></span></code></pre></div></li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

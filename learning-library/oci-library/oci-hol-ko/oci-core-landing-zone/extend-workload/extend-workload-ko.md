@@ -1,74 +1,216 @@
-# Landing Zone에 네트워크 배포
+# Workload Extension으로 IAM 및 Network 확장
 
 ## 소개
 
-워크로드를 배포하는 데 필요한 Landing Zone의 기본 골격을 만들었습니다. 이 실습에는 워크로드 자체는 포함되지 않습니다. 컴파트먼트, 그룹, 정책을 포함한 모든 IAM 요구 사항도 충족했습니다. 이제 워크로드가 클라이언트 및 구성 요소와 통신할 수 있어야 합니다. 하나 이상의 Virtual Cloud Network를 사용하면 이를 수행할 수 있습니다.
+지금까지 Core Landing Zone을 사용하여 테넌시의 기본 구성을 위한 컴파트넌트, 그룹, 권한 설정, 네트워크 기반 등을 만들었습니다. 이를 기반으로 신규 워크로드를 환경이 필요하면, 확장이 필요합니다. 이번 실습에서는 [Core Landing Zone Extensions](https://github.com/oci-landing-zones/terraform-oci-core-landingzone/blob/main/extensions/README.md)를 사용하여 워크로드를 확장하는 방법을 알아봅니다.
+
+Extensions는 Core Landing Zone 위에 추가 기능을 배포하는 Terraform 모듈입니다. Core Landing Zone Extensions으로는 현재 다음 2가지가 있습니다.
+
+- [Generic IAM Extension](https://github.com/oci-landing-zones/terraform-oci-core-landingzone/tree/main/extensions/iam_generic): 워크로드를 위한 컴파트먼트, 그룹, 정책 생성
+- [Generic Network Extension](https://github.com/oci-landing-zones/terraform-oci-core-landingzone/tree/main/extensions/network_generic): 워크로드를 위한 VCN, 서브넷, 보안 규칙 등 네트워크 구성 생성
+
+예상 실습 시간: 30분
 
 ### 목표
 
-- 구성 변수를 변경하여 Landing Zone을 수정하는 방법 학습
-- 구성을 제자리에서 plan 및 apply하여 3계층 네트워크 생성
-- 네트워크 리소스 검사
+이 실습에서는 다음을 수행합니다.
 
-## 작업 1: 네트워크 변수 구성
+- Core Landing Zone Extensions의 IAM 및 Network 모듈 역할 이해
+- workload 전용 컴파트먼트, 하위 컴파트먼트, 그룹, 정책 생성
+- workload용 기본 VCN 및 서브넷 구성
+- 생성된 IAM 및 Network 리소스 검사
 
-Landing Zone을 정의하는 데 사용했던 구성으로 돌아가야 합니다. 구성 변수를 수정하여 Landing Zone에 추가될 네트워크를 선언할 수 있습니다.
+### 사전 준비 사항
 
-1. 이전 실습에서 배포한 *Resource Manager Stack*의 *Stacks* 메뉴에서 *Resources* 아래의 __Variables__를 선택합니다.
-1. __Edit Variables__ 버튼을 클릭합니다. 변수 양식이 채워지는 데 잠시 걸릴 수 있습니다.
+- 앞선 실습에서 Core Landing Zone Stack이 성공적으로 배포되어 있어야 합니다.
+- 기존 VCN과 겹치지 않는 workload VCN CIDR을 하나 정합니다. 이 실습에서는 예시로 `10.10.0.0/16`을 사용합니다.
 
-    ![Resource Manager Stack에서 강조 표시된 버튼이 있는 변수 편집 창](./images/edit-variables-btn.png "Edit Variables 버튼 선택")
+## 작업 1: Landing Zone을 Resource Manager에 업로드
 
-1. stack 변수의 *Configuration Options* 섹션에서 __Define Network Topology?__ 체크박스를 선택합니다.
+1. GitHub의 OCI Core Landing Zone 저장소 [https://github.com/oci-landing-zones/terraform-oci-core-landingzone/](https://github.com/oci-landing-zones/terraform-oci-core-landingzone/blob/main/README.md)로 이동합니다.
 
-    ![Define Network Topology?가 선택됨](./images/define-network.png "Define Networking? 버튼이 선택되어 있는지 확인")
+2. __Deploy to Oracle Cloud__ 버튼을 찾아 클릭합니다.
 
-1. 네 개의 Networking 섹션이 표시됩니다. *Networking - Three Tier VCNs*로 이동하여 __Add Three-Tier VCN (label: TT-VCN-1)?__ 버튼을 선택합니다. VCN의 표시 이름은 *VCN Name (label: TT-VCN-1)* 필드를 사용하여 구성할 수 있습니다. 그렇지 않으면 VCN 이름은 기본적으로 *TT-VCN-1*이 됩니다. 네트워크 CIDR 블록은 *List of CIDR Blocks* 필드에서 변경할 수 있습니다. *Customize VCN Subnets?*에서 추가 사용자 지정을 할 수 있지만, 이 실습 범위를 벗어납니다.
+3. OCI 테넌시에 아직 로그인하지 않은 경우 인증을 위한 로그인 화면으로 이동합니다. 인증이 완료되면 Resource Manager Stack을 생성하는 __Create Stack__ 메뉴가 표시됩니다.
 
-    ![3계층 네트워크 옵션](./images/network-config.png "여기에서 네트워크 구성")
+4. _I have reviewed and accept the Oracle Terms of Use_ 체크박스를 선택합니다.
 
-1. __Next__ 버튼을 선택하여 *Review* 페이지로 이동합니다.
-1. *Run apply*가 __선택되어 있지 않은지__ 확인하고 __Save changes__를 선택합니다.
+5. Workload IAM Extension을 위한 값으로 변경합니다.
 
-## 작업 2: 업데이트된 구성 Plan 및 Apply
+    ![Stack 생성 화면](images/workload-create-stack-iam.png "Resource Manager Stack 구성 화면")
 
-새 구성이 준비되었으므로 plan 및 apply 프로세스를 통해 네트워크를 배포합니다.
+    - _Working directory_ : `extensions/iam_generic`으로 선택
 
-1. 구성을 저장한 후 *Stack details* 페이지에 있어야 합니다. __Plan__ 버튼을 클릭한 다음 __Plan__을 다시 클릭합니다.
-1. plan 로그를 확인하여 리소스가 추가되고 있는지, 변경되거나 삭제되는 리소스가 없는지 확인합니다. 이는 리소스가 종료되고 다시 생성되지 않고 제자리에서 배포가 이루어짐을 의미합니다.
+    - _Name_ : 적절한 이름으로 변경. 예, `core-landing-zone-main-workload-1-iam`
 
-    *참고: 추가할 리소스의 정확한 수는 아래 스크린샷과 다를 수 있습니다.*
+    - _Create in Compartment_ : Stack 객체 자체가 포함될 컴파트먼트를 정의하며, 이전과 동일한 위치로 지정
 
-    ![추가, 변경, 삭제될 리소스를 보여 주는 Plan 출력](./images/network-plan-output.png "X to add, 0 to change, 0 to destroy")
+5. __Next__ 버튼을 클릭합니다.
 
-1. *Stack details* 페이지로 다시 이동하여 __Apply__ 버튼을 클릭합니다.
-1. __Apply job plan resolution__ 드롭다운에서 방금 만든 *Plan*을 선택한 다음 __Apply__를 다시 클릭합니다.
-1. *Apply*가 완료되면 로그를 검사하여 배포된 리소스가 구성에서 정의한 원하는 상태와 일치하는지 확인합니다.
+## 작업 2: Workload IAM Extension 변수 입력
 
-    ![Apply 출력 로그](./images/network-apply-output.png "Apply가 올바르게 실행되었는지 확인")
+IAM Extension은 workload용 컴파트먼트와 선택적 하위 컴파트먼트를 만들고, 워크로드 운영을 위한 그룹과 정책을 생성합니다. 이 실습에서는 워크로드를 랜딩존 공유 Network 컴파트먼트와 분리하는 구성으로 진행합니다. 워크로드 내부에 App, Network, Database 하위 컴파트먼트를 두지 않는 구성으로 진행합니다.
 
-## 작업 3: 변경 사항 검사
+1. *General* 섹션에서 다음 값을 입력합니다.
 
-1. 콘솔 왼쪽 위 모서리의 기본 메뉴에서 *Networking* > *Virtual cloud networks*로 이동하여 새 3계층 VCN을 검사합니다. 네트워크 리소스를 보려면 network 컴파트먼트에 있는지 확인합니다.
+    ![General](images/workload-stack-general.png "General")
 
-    ![Virtual Cloud Network](./images/3-tier-vcn.png "3계층 VCN")
+    - *Home Region*: 테넌시 Home Region
+    - *Workload Compartment Name*: 추가 확장을 고려한 이름 지정, 예, `workload-1-cmp`
+    - *Service Label*: 앞선 Landing Zone 실습에서 사용한 Service Label, 예, hol
+    - *Parent Compartment OCID*: top-cmp 컴파트먼트 선택
+    - *Isolate workload from parent landing zone?*: 랜딩존 공유 네트워크인 network-cmp 내에 VCN을 생성할지, Workload 내에 VCN을 따로 가져갈지 정하는 것으로 당장 VCN이 생성되진 않지만, 권한 설정과 관련됨. 여기서는 Isolate로 체크합니다.
+    - *Security Compartment OCID*: Security 컴파트먼트
 
-1. Three Tier VCN을 클릭하고 네트워크 세부 정보를 검사합니다. 서브넷, 라우트 테이블, 네트워크 보안 그룹 및 기타 객체가 네트워크용으로 생성되었음을 확인합니다. 이러한 리소스는 VCN이 동작하는 방식과 네트워크에 기본적으로 보안이 적용되는 방식을 결정합니다.
+1. *Compartment* 섹션에서 기본값을 사용합니다. 실습에서는 Workload 컴파트먼트 내에, 하위 컴파트먼트를 두지 않습니다.
 
-    ![VCN 서브넷 및 세부 정보](./images/subnets.png "VCN의 서브넷 및 기타 세부 정보")
+    ![Compartment](images/workload-stack-compartment.png "Compartment")
 
-1. (*선택 사항*) 기본 메뉴에서 *Networking* > *Network Visualizer*로 이동하여 네트워크 시각화를 확인합니다. 네트워크 시각화가 보이지 않으면 network 컴파트먼트가 현재 선택되어 있는지 확인합니다. 네트워크의 리소스가 통신할 수 있도록 세 가지 게이트웨이가 표시되어야 합니다. 웹 계층을 위한 IGW(Internet Gateway), App 및 DB 서브넷의 프라이빗 인터넷 접근을 위한 NAT(NAT gateway), 마지막으로 OCI 내부 서비스와의 프라이빗 통신을 위한 SGW(Service Gateway)입니다.
+1. *Groups and Policies* 섹션에서 다음 값을 확인합니다. 그룹, 정책은 워크로드 컴파트먼트에 맞게 이름을 변경합니다.
 
-    ![Network Visualizer 이미지](./images/visualizer-output.png "Network Visualizer 출력")
+    ![Groups and Policies](images/workload-stack-group-policy.png "Groups and Policies")
 
-이제 Landing Zone은 다음과 비슷한 모습입니다.
+    - *Use Custom Identity Domain?*: 선택하지 않음
+    - *Enable Database Admin Group?*: 선택하지 않음
+    - *Customize Group and Policy Names?*: 선택. 위에서 변경한 Workload Compartment Name에 맞추고, 추가 워크로드 확장을 고려하여, 향후 Group, Policy 이름이 충돌되지 않도록 하기 위해 선택
 
-![3계층 네트워크 아키텍처](./images/arch-three-tier.png "3계층 네트워크 아키텍처")
+1. __Next__를 클릭하여 검토 페이지로 이동합니다. 입력한 변수를 빠르게 다시 확인합니다.
 
-다음 실습에서는 Core Landing Zone 네트워크의 복잡성 및 확장성을 높입니다.
+1. __Run apply 버튼을 선택 해제합니다__.
 
-## 감사의 말
+    ![Apply 버튼](images/uncheck-apply-button.png "Run apply 버튼 선택 해제")
 
-- __작성자__ - KC Flynn
-- __기여자__ - Andre Correa, Johannes Murmann, Josh Hammer, Olaf Heimburger
-- __최종 업데이트/일자__ - KC Flynn, 2025년 9월
+1. 완료되면 __Create__ 버튼을 클릭합니다.
+
+## 작업 3: Workload IAM Extension Plan 및 Apply
+
+1. Stack이 생성되면 *Stack details* 페이지에서 Actions의 __Plan__ 버튼을 클릭하고, Job 생성 화면에서 __Plan__을 다시 클릭합니다.
+1. plan 로그에서 workload 컴파트먼트, 하위 컴파트먼트, 그룹, 정책이 추가되는지 확인합니다. 삭제되는 리소스가 없어야 합니다.
+1. *Stack details* 페이지로 돌아가 Actions의 __Apply__ 버튼을 클릭합니다.
+1. __Apply job plan resolution__ 드롭다운에서 방금 만든 Plan을 선택하고 __Apply__를 클릭합니다.
+1. Apply가 완료되면 로그를 확인합니다.
+
+## 작업 4: 생성된 자원 검사
+
+1. _Stack details_ 페이지에서 stack이 생성한 리소스 목록을 볼 수 있습니다. 
+
+    ![Stack 리소스](images/stack-resources.png "Stack에서 생성한 리소스")
+
+1. 생성된 compartment를 클릭합니다.  top-cmp 컴파트먼트 아래에 workload 컴파트먼트가 생성되었는지 확인합니다. 
+
+    ![Workload Compartment](images/workload-cmp.png "Workload Compartment")
+
+1. stack이 생성한 리소스 목록에서 워크로드 app-admin-policy, admin-policy를 각각 클릭해 봅니다. top-cmp 컴파트먼트에 만들어졌고, Workload 컴파트먼트 및 공용 컴파트먼트에 대한 권한을 설정되었습니다.
+
+    ![Workload Policy](images/workload-app-admin-policy.png "Workload Policy")
+
+1. stack이 생성한 리소스 목록에서 워크로드 root-policy를 클릭해 봅니다. root 컴파트먼트에 만들어졌습니다. tenancy 레벨의 Policy로 워크로드 admin-group과 app-admin-group의 권한을 설정하였습니다.
+
+    ![Workload Root Policy](images/workload-root-policy.png "Workload Root Policy")
+
+## 작업 5: Landing Zone을 Resource Manager에 업로드
+
+1. 앞서와 동일하게 OCI Core Landing Zone 저장소 [https://github.com/oci-landing-zones/terraform-oci-core-landingzone/](https://github.com/oci-landing-zones/terraform-oci-core-landingzone/blob/main/README.md)로 이동하여 __Deploy to Oracle Cloud__ 버튼을 클릭합니다.
+
+2. Workload Network Extension을 위한 값으로 변경합니다.
+
+    ![Stack 생성 화면](images/workload-create-stack-network.png "Resource Manager Stack 구성 화면")
+
+    - _Working directory_ : `extensions/network_generic`으로 선택
+
+    - _Name_ : 적절한 이름으로 변경. 예, `core-landing-zone-main-workload-1-network`
+
+3. __Next__ 버튼을 클릭합니다.
+
+## 작업 6: Workload Network Extension 변수 입력
+
+Network Extension은 workload용 Network 자원을 생성합니다. 이 실습에서는 워크로드를 랜딩존 공유 Network 컴파트먼트와 분리하는 구성으로 진행합니다. 워크로드 컴파트먼트 내부에 VCN을 생성하도록 구성합니다.
+
+1. *General* 섹션에서 다음 값을 입력합니다.
+
+    - *Network Architecture*:
+    
+        - `Hub and Spoke`: 생성될 Workload VCN은 Spoke로써 DRG로 연결된 DMZ VCN을 통해 외부로 연결되는 경우
+        - `Standalone`: 생성될 Workload VCN은 인터넷 연결 등을 독립적으로 관리하는 경우
+
+        ![Network General](images/workload-network-general.png "Network General")
+
+    - *Region*: 리소스를 배포할 리전
+    - *Workload Name*: 예, `cweb`
+    - *Deploy Isolated Resources?*: 선택. 워크로드 컴파트먼트 내부에 VCN을 생성하도록 구성, 앞서 IAM Extension에서 동일하게 선택해야 함. 그래야 관련 Policy가 이미 설정된 상태
+    - *Workload Compartment OCID*: 앞선 작업에서 만든 워크로드 컴파트먼트 지정, `workload-1-cmp`
+
+1. *Network* 섹션에서 다음 값을 입력합니다.
+
+    - 네트워크 기본
+
+        ![Network](images/workload-network-network-1.png "Network")
+
+        - *CIDR Block of the Workload VCN*: 기존 VCN과 겹치지 않게 입력 필요, 여기서는 `10.10.0.0/16` 사용
+        - *Hub DRG OCID*: 앞선 실습에서 생성한 DRG OCID
+        - *CIDR blocks of the Hub VCN*: DMZ VCN을 생성한 경우 입력하는 부분으로, 여기서는 그냥 기본값 그대로
+
+    - Gateway
+
+        ![Network](images/workload-network-network-2.png "Network")
+
+        - *Add NAT Gateway?*: 선택
+        - *Add Service Gateway?*: 선택
+
+    - 서브넷
+
+        ![Network](images/workload-network-network-3.png "Network")
+
+        - *Add Application Subnet?*: 선택
+        - *Add Database Subnet?*: 선택
+        - *Add Load Balancer Subnet?*: 선택
+
+1. __Next__를 클릭하여 검토 페이지로 이동합니다. 입력한 변수를 빠르게 다시 확인합니다.
+
+1. __Run apply 버튼을 선택 해제합니다__.
+
+1. 완료되면 __Create__ 버튼을 클릭합니다.
+
+## 작업 7: Workload Network Extension Plan 및 Apply
+
+1. Stack이 생성되면 *Stack details* 페이지에서 Actions의 __Plan__ 버튼을 클릭하고, Job 생성 화면에서 __Plan__을 다시 클릭합니다.
+1. plan 로그에서 workload 컴파트먼트, 하위 컴파트먼트, 그룹, 정책이 추가되는지 확인합니다. 삭제되는 리소스가 없어야 합니다.
+1. *Stack details* 페이지로 돌아가 Actions의 __Apply__ 버튼을 클릭합니다.
+1. __Apply job plan resolution__ 드롭다운에서 방금 만든 Plan을 선택하고 __Apply__를 클릭합니다.
+1. Apply가 완료되면 로그를 확인합니다.
+
+## 작업 8: 생성된 자원 검사
+
+1. _Stack details_ 페이지에서 stack이 생성한 리소스 목록을 볼 수 있습니다. 
+
+    ![Stack 리소스](images/stack-resources.png "Stack에서 생성한 리소스")
+
+1. 생성된 VCN을 클릭합니다. workload 컴파트먼트에 생성되었는지 확인합니다. 
+
+    ![Workload Compartment](images/workload-cmp.png "Workload Compartment")
+
+1. Subnets 탭으로 이동하여, 생성된 서브넷을 확인합니다.
+
+1. Routing 탭으로 이동하여, 생성된 라우팅 테이블을 확인합니다.
+
+1. lb-subnet-route-table을 클릭합니다. 설정된 라우팅 룰을 보면, DMZ VCN으로 지정한 CIDR에 대해 DRG로 라우팅되게 설정되어 있습니다.
+
+## 작업 9: Workload Extension 결과 정리
+
+이 실습을 완료하면 Core Landing Zone 위에 workload용 운영 단위가 추가됩니다.
+
+- IAM Extension Stack은 workload 컴파트먼트, 하위 컴파트먼트, 그룹, 정책을 관리합니다.
+- Network Extension Stack은 workload VCN, 서브넷, 라우팅, NSG를 관리합니다.
+- 두 Stack은 Core Landing Zone Stack과 분리되어 있어, workload 단위로 변경 계획과 적용 이력을 독립적으로 관리할 수 있습니다.
+
+그런데, Workload VCN에서 다른 Spoke, 예를 들어 앞서 만든 3티어 VCN 또는 OKE VCN과 통신을 하려면, 서로간의 VCN에 라우팅될 수 있도록 추가 설정이 필요합니다. 이런 요구사항은 워크로드마다 다를수 있을텐데, 그럼 다음 질문에 대해 생각해 볼까요.
+- 매번 요구사항이 다를테니, 현재 만들어진 것을 기반으로 Workload 관리자가 직접 설정하게 하는 게 나을까요?
+- 아니면, 워크로드 Compartment까지만 만들어주고, 나머지는 필요에 따라 직접 설정하게 하는 게 나을까요?
+- Landing Zone이 기본 구성해야 하는 범위는 어디까지가 적당할까요?
+
+## 감사의 말 (Acknowledgements)
+
+* **Author:** KC Flynn
+* **Contributors:** Andre Correa, Johannes Murmann, Josh Hammer, Olaf Heimburger
+* **Korean Translator & Contributors:** DongHee Lee, July 2026
+* **Last Updated By/Date:** DongHee Lee, July 2026

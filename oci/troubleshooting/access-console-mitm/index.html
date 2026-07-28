@@ -31,12 +31,12 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/troubleshooting/access-console-mitm/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="Oracle Cloud Console 접근을 위한 Proxy 설정하기 - mitmproxy">
-  <meta property="og:description" content="Oracle Cloud Console 접근을 위한 Proxy 설정하기 - mitmproxy Console 접근을 위한 방화벽에 등록할 주소 찾기 OCI Documentation 기준으로 외부 인터넷 접근을 통제하는 곳에서 Console 접근을 위해서는 방화벽 또는 Proxy Server 아래 주소에 아래 주소를 등록하여, 인터넷 접근이 허용되도록 하여야 합니다.">
+  <meta property="og:description" content="Oracle Cloud Console 접근을 위한 Proxy 설정하기 - mitmproxy Console 접근을 위한 방화벽에 등록할 주소 찾기 OCI Documentation 기준으로 외부 인터넷 접근을 통제하는 곳에서 Console 접근을 위해서는 방화벽 또는 Proxy Server에 아래 주소를 등록하여, 인터넷 접근이 허용되도록 하여야 합니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
-    <meta property="article:published_time" content="2026-07-24T00:00:00+00:00">
-    <meta property="article:modified_time" content="2026-07-24T00:00:00+00:00">
+    <meta property="article:published_time" content="2026-07-28T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-07-28T00:00:00+00:00">
     <meta property="article:tag" content="Console">
     <meta property="article:tag" content="Firewall">
     <meta property="article:tag" content="Proxyserver">
@@ -46,7 +46,7 @@
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">&nbsp;Version 2026-07-24</span>
+ <span class="version">&nbsp;Version 2026-07-28</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -67,7 +67,7 @@
 <div class="content-container">
 <main><h2 id="oracle-cloud-console-접근을-위한-proxy-설정하기---mitmproxy">Oracle Cloud Console 접근을 위한 Proxy 설정하기 - mitmproxy</h2>
 <h6 id="console-접근을-위한-방화벽에-등록할-주소-찾기">Console 접근을 위한 방화벽에 등록할 주소 찾기</h6>
-<p>OCI Documentation 기준으로 외부 인터넷 접근을 통제하는 곳에서 Console 접근을 위해서는  방화벽 또는 Proxy Server 아래 주소에 아래 주소를 등록하여, 인터넷 접근이 허용되도록 하여야 합니다.</p>
+<p>OCI Documentation 기준으로 외부 인터넷 접근을 통제하는 곳에서 Console 접근을 위해서는  방화벽 또는 Proxy Server에 아래 주소를 등록하여, 인터넷 접근이 허용되도록 하여야 합니다.</p>
 <ul>
 <li>
 <p>OCI Documentation - <a href="https://docs.oracle.com/en-us/iaas/Content/GSG/Concepts/console_topic-Allowlist.htm">Allowing Access to the Console from Your Network</a></p>
@@ -89,7 +89,7 @@
 </li>
 <li>
 <p>mitmproxy Server를 설치합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">wget https://downloads.mitmproxy.org/12.2.3/mitmproxy-12.2.3-linux-x86_64.tar.gz -o mitmproxy.tar.gz
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">wget https://downloads.mitmproxy.org/12.2.3/mitmproxy-12.2.3-linux-x86_64.tar.gz -O mitmproxy.tar.gz
 </span></span><span class="line"><span class="cl">tar -xzf mitmproxy.tar.gz
 </span></span><span class="line"><span class="cl">sudo mv mitmproxy /usr/local/bin/
 </span></span><span class="line"><span class="cl">sudo mv mitmdump /usr/local/bin/
@@ -127,7 +127,7 @@
 </p>
 </li>
 <li>
-<p><strong>Setting &gt; Network &amp; Internet &gt; Proxy</strong> 으로 이동하여 설정합니다.</p>
+<p><strong>Settings &gt; Network &amp; Internet &gt; Proxy</strong> 으로 이동하여 설정합니다.</p>
 <ul>
 <li>
 <p>Automatically detect settings: Off</p>
@@ -154,16 +154,17 @@
 </ul>
 </li>
 <li>
-<p>다시 브라우저로 접속해 보면 동일하게 모두 접속되지만, mitmproxy를 거쳐가는 로그가 보입니다.</p>
+<p>다시 브라우저로 접속해 보면 접속은 되지만, 인증서 오류가 발생합니다. mitmproxy에서도 거쳐가는 것이 확인되며, TLS 오류 로그가 보입니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@mitmproxy ~]$ mitmdump
-</span></span><span class="line"><span class="cl">[09:24:10.417] HTTP(S) proxy listening at *:8080.
-</span></span><span class="line"><span class="cl">[09:24:13.204][10.0.0.17:62409] client connect
-</span></span><span class="line"><span class="cl">[09:24:13.211][10.0.0.17:62409] server connect www.bing.com:443 (203.251.233.234:443)
-</span></span><span class="line"><span class="cl">10.0.0.17:62409: GET https://www.bing.com/qbox?query=&amp;language=en-US&amp;pt=EdgBox&amp;cvid=8f26b4ea75734f34bf32593d149da57b&amp;oit=0&amp;ri… HTTP/2.0
+</span></span><span class="line"><span class="cl">[03:03:57.230] HTTP(S) proxy listening at *:8080.
+</span></span><span class="line"><span class="cl">[03:09:49.810][10.0.0.251:56426] client connect
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">[03:09:50.139][10.0.0.251:56429] server disconnect cp601.prod.do.dsp.mp.microsoft.com:443 (184.28.184.34:443)
+</span></span><span class="line"><span class="cl">[03:09:50.634][10.0.0.251:56426] Client TLS handshake failed. The client does not trust the proxy&#39;s certificate for functional.events.data.microsoft.com (OpenSSL Error([(&#39;SSL routines&#39;, &#39;&#39;, &#39;ssl/tls alert certificate unknown&#39;)]))
 </span></span><span class="line"><span class="cl">...
 </span></span></code></pre></div></li>
 <li>
-<p>브라우저에서 <a href="https://mitm.it">https://mitm.it</a> 에 접속합니다. 상단에 인증서 오류가 난 것을 알 수 있습니다.</p>
+<p>브라우저에서 <a href="https://mitm.it">https://mitm.it</a> 에 접속합니다. 고급에서 Continue to mitm.it (unsafe) 클릭합니다. 상단에 인증서 오류가 난 것을 알 수 있습니다.</p>
 <p>
 
 
@@ -241,7 +242,7 @@
 </p>
 </li>
 <li>
-<p>mitm.it 사이트를 재접속하면, 아래와 같이 https로 인증서 오류없이 접속된 것을 확인할 수 있습니다.</p>
+<p>브라우저를 재시작해 mitm.it 사이트를 다시 접속하면, 아래와 같이 https로 인증서 오류없이 접속된 것을 확인할 수 있습니다.</p>
 <p>
 
 
@@ -262,90 +263,21 @@
 <ol>
 <li>
 <p>mitmproxy가 실행중인 서버에 whitelist.py 파일은 작성합니다. 코드내에 ALLOWED_TENANTS에 허용한 테넌트 이름을 입력합니다.</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">re</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">logging</span>
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">mitmproxy</span> <span class="kn">import</span> <span class="n">http</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="c1"># 허용할 tenant</span>
-</span></span><span class="line"><span class="cl"><span class="n">ALLOWED_TENANTS</span> <span class="o">=</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;demo-tenant&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">ALLOWED_EXACT</span> <span class="o">=</span> <span class="p">{</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;oracle.112.2o7.net&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;consent.trustarc.com&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl"><span class="p">}</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">ALLOWED_SUFFIXES</span> <span class="o">=</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;.oracle.com&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;.oraclecloud.com&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;.oracleinfinity.io&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="s2">&#34;.ocir.io&#34;</span><span class="p">,</span>    
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">LOGIN_HOST_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="sa">r</span><span class="s2">&#34;^login\.[^.]+\.oraclecloud\.com$&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
-</span></span><span class="line"><span class="cl"><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">allowed</span><span class="p">(</span><span class="n">host</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">host</span> <span class="ow">in</span> <span class="n">ALLOWED_EXACT</span> <span class="ow">or</span> <span class="nb">any</span><span class="p">(</span><span class="n">host</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ALLOWED_SUFFIXES</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">http_connect</span><span class="p">(</span><span class="n">flow</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HTTPFlow</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">    <span class="n">host</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">allowed</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">        <span class="n">flow</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">Response</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&#34;Blocked&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="n">flow</span><span class="p">:</span> <span class="n">http</span><span class="o">.</span><span class="n">HTTPFlow</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">    <span class="n">host</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="ow">not</span> <span class="n">allowed</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
-</span></span><span class="line"><span class="cl">        <span class="n">flow</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">Response</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="mi">403</span><span class="p">,</span> <span class="sa">b</span><span class="s2">&#34;Blocked&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="k">return</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1"># Query String 제외</span>
-</span></span><span class="line"><span class="cl">    <span class="n">path</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">path</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">    <span class="c1"># 정확히 이 로그인 authorize 요청일 때만 tenant 검사</span>
-</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">        <span class="n">LOGIN_HOST_PATTERN</span><span class="o">.</span><span class="k">match</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="ow">and</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&#34;/v1/oauth2/authorize&#34;</span>
-</span></span><span class="line"><span class="cl">        <span class="ow">and</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;action&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;login&#34;</span>
-</span></span><span class="line"><span class="cl">        <span class="ow">and</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;client_id&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;iaas_console&#34;</span>
-</span></span><span class="line"><span class="cl">    <span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
-</span></span><span class="line"><span class="cl">        <span class="n">LOGIN_HOST_PATTERN</span><span class="o">.</span><span class="k">match</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">        <span class="ow">and</span> <span class="n">path</span> <span class="o">==</span> <span class="s2">&#34;/v2/ui/domains&#34;</span>
-</span></span><span class="line"><span class="cl">        <span class="ow">and</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;action&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;login&#34;</span>
-</span></span><span class="line"><span class="cl">        <span class="ow">and</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;client_id&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&#34;iaas_console&#34;</span>      
-</span></span><span class="line"><span class="cl">    <span class="p">):</span>
-</span></span><span class="line"><span class="cl">        <span class="n">tenant</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&#34;tenant&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;##### tenant: </span><span class="si">{</span><span class="n">tenant</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">tenant</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_TENANTS</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">            <span class="n">flow</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">Response</span><span class="o">.</span><span class="n">make</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">                <span class="mi">403</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">                <span class="sa">b</span><span class="s2">&#34;Forbidden tenant&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">                <span class="p">{</span><span class="s2">&#34;Content-Type&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span><span class="p">},</span>
-</span></span><span class="line"><span class="cl">            <span class="p">)</span>
-</span></span><span class="line"><span class="cl">            <span class="k">return</span>
-</span></span></code></pre></div></li>
+<ul>
+<li>
+<p><a href="https://gist.githubusercontent.com/TheKoguryo/37cb43fa6ba340ede4dbcbeb6e659d97/raw/64cee8b76417297b28b3d46c0f899ec3970bc6d9/00_whitelist.py">whitelist.py</a></p>
+</li>
+<li>
+<p><a href="https://gist.githubusercontent.com/TheKoguryo/37cb43fa6ba340ede4dbcbeb6e659d97/raw/64cee8b76417297b28b3d46c0f899ec3970bc6d9/forbidden.html">forbidden.html</a></p>
+</li>
+</ul>
+</li>
 <li>
 <p>작성한 Addon을 사용하도록 mitmproxy 재시작</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mitmdump -s whitelist.py
 </span></span></code></pre></div></li>
 <li>
-<p><a href="http://cloud.oracle.com">http://cloud.oracle.com</a> 에 접속해 Cloud Account Name을 ALLOWED_TENANTS에 없는 이름으로 접속을 시도합니다.  아래와 같이 403 오류가 발생합니다.</p>
+<p>다시 윈도우즈 클라이언트에서 <a href="http://cloud.oracle.com">http://cloud.oracle.com</a> 에 접속해 Cloud Account Name을 ALLOWED_TENANTS에 없는 이름으로 접속을 시도합니다.  아래와 같이 403 오류가 발생합니다.</p>
 <p>
 
 
@@ -371,6 +303,87 @@
 </p>
 </li>
 </ol>
+<p><strong>OCI CLI 테스트하기</strong></p>
+<ol>
+<li>
+<p><a href="https://mitm.it">https://mitm.it</a> 접속을 위해 mitmproxy를 Addon 없이 다시 시작합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mitmproxy
+</span></span></code></pre></div></li>
+<li>
+<p>윈도우 클라이언트 브라우저에서 <a href="https://mitm.it">https://mitm.it</a> 에 접속합니다. 사이트가 뜨면 Linux Manual Installation에 따라 인증서를 설치합니다. 또는 mitmproxy이 설치된 서버에 .mitmproxy 폴더에 생성된 mitmproxy-ca-cert.pem 파일을 사용해도 됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260726215127088.png" alt='image-20260726215127088' onerror="this.onerror=null;this.src='images\/image-20260726215127088.png';" />
+</p>
+</li>
+<li>
+<p>다운로드 받은 인증서을 사용할 리눅스 환경에서 설치합니다.</p>
+<ul>
+<li>
+<p>예, Oracle Linux 9 기준</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo cp mitmproxy-ca-cert.pem /etc/pki/ca-trust/source/anchors/
+</span></span><span class="line"><span class="cl">sudo update-ca-trust
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>작성한 Addon을 사용하도록 mitmproxy 재시작</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">mitmdump -s whitelist.py
+</span></span></code></pre></div></li>
+<li>
+<p>OCI CLI가 없는 경우, <a href="https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm#InstallingCLI">가이드</a>에 따라 설치합니다.</p>
+</li>
+<li>
+<p>테스트를 위해 OCI CLI를 OCI 유저가 API Key를 사용하도록 관련 설정을 합니다.</p>
+</li>
+<li>
+<p>허용되지 않은 tenant를 고려해 whitelist.py에서 ALLOWED_TENANT_OCIDS를 빈값으로 설정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># 허용할 tenant: SDK, CLI 등에서 API Key를 사용하는 경우
+</span></span><span class="line"><span class="cl">ALLOWED_TENANT_OCIDS = {
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>OCI CLI를 mitmproxy를 사용해 조회해 봅니다. 아래와 같이 403 오류로 &ldquo;message&rdquo;: &ldquo;Forbidden tenant&quot;가 발생합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ oci os ns get --proxy http://10.0.0.73:8080
+</span></span><span class="line"><span class="cl">또는
+</span></span><span class="line"><span class="cl">$ export HTTPS_PROXY=http://10.0.0.205:8080
+</span></span><span class="line"><span class="cl">$ oci os ns get
+</span></span><span class="line"><span class="cl">ServiceError:
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">    &#34;client_version&#34;: &#34;Oracle-PythonSDK/2.175.0, Oracle-PythonCLI/3.83.0&#34;,
+</span></span><span class="line"><span class="cl">    &#34;code&#34;: null,
+</span></span><span class="line"><span class="cl">    &#34;logging_tips&#34;: &#34;Please run the OCI CLI command using --debug flag to find more debug information.&#34;,
+</span></span><span class="line"><span class="cl">    &#34;message&#34;: &#34;Forbidden tenant&#34;,
+</span></span><span class="line"><span class="cl">    &#34;opc-request-id&#34;: &#34;277BAF01D61F4334B2D2B5AC7A020788&#34;,
+</span></span><span class="line"><span class="cl">    &#34;operation_name&#34;: &#34;get_namespace&#34;,
+</span></span><span class="line"><span class="cl">    &#34;request_endpoint&#34;: &#34;GET https://objectstorage.ap-chuncheon-1.oraclecloud.com/n&#34;,
+</span></span><span class="line"><span class="cl">    &#34;status&#34;: 403,
+</span></span><span class="line"><span class="cl">    &#34;target_service&#34;: &#34;object_storage&#34;,
+</span></span><span class="line"><span class="cl">    &#34;timestamp&#34;: &#34;2026-07-28T03:50:13.208649+00:00&#34;,
+</span></span><span class="line"><span class="cl">    &#34;troubleshooting_tips&#34;: &#34;See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message.&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>허용할 tenant를 고려해 whitelist.py에서 ALLOWED_TENANT_OCIDS를 대상 tenant ocid를 입력합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># 허용할 tenant: SDK, CLI 등에서 API Key를 사용하는 경우
+</span></span><span class="line"><span class="cl">ALLOWED_TENANT_OCIDS = {
+</span></span><span class="line"><span class="cl">    &#34;ocid1.tenancy.oc1..aaaaa......&#34;,
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>OCI CLI를 mitmproxy를 사용해 다시 조회해 봅니다. 오류없이 잘 조회될 것입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ oci os ns get --proxy http://10.0.0.73:8080
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;data&#34;: &#34;axmd.....&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+</ol>
 <br>
 <br>
 <div class="panel panel-caution">
@@ -379,7 +392,7 @@
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 24 Jul 2026<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/troubleshooting/access-console-squid/" title="Oracle Cloud Console 접근을 위한 Proxy 설정하기 - Squid"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Oracle Cloud Console 접근을 위한 Proxy 설정하기 - Squid</a>
+ <div class="edit-meta">Last updated on 28 Jul 2026<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/troubleshooting/access-console-squid/" title="Oracle Cloud Console 접근을 위한 Proxy 설정하기 - Squid"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Oracle Cloud Console 접근을 위한 Proxy 설정하기 - Squid</a>
 <a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/" title="Oracle Cloud Native">Next - Oracle Cloud Native <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>

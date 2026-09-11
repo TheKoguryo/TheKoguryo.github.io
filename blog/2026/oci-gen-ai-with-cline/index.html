@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기">
+  <meta property="og:description" content="OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기 OCI Generative AI API key 생성 OpenAI API 호환모드로 OCI Generative AI에 연결하기 위해서는 OCI Generative AI API key 생성이 필요합니다. OCI IAM API Key와는 다릅니다. OCI Generative AI API key는 리전 자원이므로 사용할 리전에서 만들어야 합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-09-11T00:00:01+00:00">
+    <meta property="article:modified_time" content="2026-09-11T00:00:01+00:00">
+    <meta property="article:tag" content="Coding-Agent">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-09-11</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="oci-generative-ai를-cline을-통해-vs-code에서-코딩-에이전트로-활용하기">OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기</h2>
+<h6 id="oci-generative-ai-api-key-생성">OCI Generative AI API key 생성</h6>
+<p>OpenAI API 호환모드로 OCI Generative AI에 연결하기 위해서는 OCI Generative AI API key 생성이 필요합니다. OCI IAM API Key와는 다릅니다.  OCI Generative AI API key는 리전 자원이므로 사용할 리전에서 만들어야 합니다.</p>
+<ol>
+<li>
+<p>사용할 모델이 있는 리전을 먼저 확인합니다.</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/api-keys.htm#supported-models-openai">OCI Generative AI API key Supported Models</a></li>
+</ul>
+</li>
+<li>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/generative-ai/xai-models.htm#xAI-models">xAI Grok</a> 모델을 사용하기 위해 여기서는 콘솔로 시카고 리전에 접속합니다.</p>
+<ul>
+<li><a href="https://cloud.oracle.com/ai-service/generative-ai/apiKeys?region=us-chicago-1">https://cloud.oracle.com/ai-service/generative-ai/apiKeys?region=us-chicago-1</a></li>
+</ul>
+</li>
+<li>
+<p>Create API Key를 클릭하여 키를 생성합니다.</p>
+</li>
+<li>
+<p>OCI Generative AI API key는 2개가 기본 생성됩니다. 2개 모두 이름을 지정하여 생성합니다. 예, key-one, key-two</p>
+</li>
+<li>
+<p>이후 다시 확인할 수 없으니, 생성후 2키를 따로 저장해 둡니다.</p>
+</li>
+</ol>
+<h6 id="oci-generative-ai-api-key에-권한-생성">OCI Generative AI API key에 권한 생성</h6>
+<ol>
+<li>
+<p>OCI IAM Policy를 생성합니다.</p>
+</li>
+<li>
+<p>아래와 같이 Policy 구문을 생성합니다.</p>
+<ul>
+<li>
+<p>모든 키에 권한을 주는 경우</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow any-user to use generative-ai-family in compartment &lt;compartment-name&gt; where ALL {request.principal.type=&#39;generativeaiapikey&#39;}
+</span></span></code></pre></div></li>
+<li>
+<p>특정 키에 권한을 주는 경우</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow any-user to use generative-ai-chat in compartment &lt;compartment-name&gt; where ALL {request.principal.type=&#39;generativeaiapikey&#39;, request.principal.id=&#39;&lt;api-key-ocid&gt;&#39;}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="visual-studio-code--code--cline-구성하기">Visual Studio Code  Code &amp; Cline 구성하기</h6>
+<ol>
+<li>
+<p>Visual Studio Code가 없는 경우 다운로드 받아 설치합니다.</p>
+<ul>
+<li><a href="https://code.visualstudio.com/">https://code.visualstudio.com/</a></li>
+</ul>
+</li>
+<li>
+<p>Extenstion에서 Cline을 설치합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911121208205.png" alt='image-20260911121208205' onerror="this.onerror=null;this.src='images\/image-20260911121208205.png';" />
+</p>
+</li>
+<li>
+<p>Cline 창이 뜨면, 본인 키를 사용(Bring my own API key)을 선택하고, 진행합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911125248387.png" alt='image-20260911125248387' onerror="this.onerror=null;this.src='images\/image-20260911125248387.png';" />
+</p>
+</li>
+<li>
+<p>Provider를 설정합니다.</p>
+<ol>
+<li><strong>API Provider</strong>: <code>OpenAI Compatible</code></li>
+<li><strong>Base URL</strong>: 아래 형식이고, 여기서는 <code>region</code>으로 us-chicago-1을 사용
+<ul>
+<li><code>https://inference.generativeai.&lt;region&gt;.oci.oraclecloud.com/20231130/actions/v1</code></li>
+</ul>
+</li>
+<li><strong>OpenAI Compatible API Key</strong>: 앞서 만든 OCI Generative AI API key를 입력합</li>
+<li><strong>Model ID</strong>:
+<ul>
+<li>콘솔 <a href="https://cloud.oracle.com/ai-service/generative-ai/playground/chat">Playground &gt; Chat</a> 에서 보이는 Model ID를 사용합니다.</li>
+<li>예, <code>xai.grok-4.6</code></li>
+</ul>
+</li>
+</ol>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911130128851.png" alt='image-20260911130128851' onerror="this.onerror=null;this.src='images\/image-20260911130128851.png';" />
+</p>
+</li>
+<li>
+<p>연결되는 지 테스트 메시지를 보내봅니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911130233557.png" alt='image-20260911130233557' onerror="this.onerror=null;this.src='images\/image-20260911130233557.png';" />
+</p>
+</li>
+</ol>
+<h6 id="코딩-에이전트로-활용하기">코딩 에이전트로 활용하기</h6>
+<p>여기서는 개발 코드를 리뷰하는 데 사용해 보도록 하겠습니다.</p>
+<ol>
+<li>
+<p>Visual Studio Code에서 프로젝트를 오픈합니다. 여기서는 Spring Boot 예제를 사용합니다.</p>
+<ul>
+<li><a href="https://github.com/spring-projects/spring-petclinic">https://github.com/spring-projects/spring-petclinic</a></li>
+</ul>
+</li>
+<li>
+<p><code>현재 Spring Boot 프로젝트 전체를 보안 리뷰해줘</code>라고 간단히 리뷰를 요청해봅니다.</p>
+</li>
+<li>
+<p>리뷰 결과</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911131619328.png" alt='image-20260911131619328' onerror="this.onerror=null;this.src='images\/image-20260911131619328.png';" />
+</p>
+</li>
+<li>
+<p>표준 코드 리뷰 프롬프트를 미리 작성하고 사용해도 됩니다. AI을 도움을 받아 코드 리뷰 프롬프트 초안을 작성합니다.</p>
+</li>
+<li>
+<p>작성후 다음과 같이 리뷰 요청합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">`.ai/SECURITY_REVIEW.md` 기준으로 보안 리뷰해줘.
+</span></span></code></pre></div></li>
+<li>
+<p>리뷰 결과 예시입니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911134727274.png" alt='image-20260911134727274' onerror="this.onerror=null;this.src='images\/image-20260911134727274.png';" />
+</p>
+</li>
+</ol>
+<h6 id="인터넷-안되는-환경에서-테스트-하기">인터넷 안되는 환경에서 테스트 하기</h6>
+<ol>
+<li>
+<p>private 서브넷에 windows 서버를 생성합니다.</p>
+</li>
+<li>
+<p>private 서브넷의 security list의 ingress rule에 3389 포트를 오픈합니다.</p>
+</li>
+<li>
+<p>public 서브넷에 bastion을 생성합니다.</p>
+</li>
+<li>
+<p>public 서브넷의 security list의 ingress rule에 3389 포트를 오픈합니다.</p>
+</li>
+<li>
+<p>bastion에 새 세션을 만듭니다.</p>
+<ul>
+<li>Session type: SSH port forwarding session</li>
+<li>target host: 생성한 windows 서버</li>
+<li>ssh key 원하는 방식으로 입력</li>
+</ul>
+</li>
+<li>
+<p>생성된 session의 SSH command를 복사해서 로컬에서 실행합니다.</p>
+<ul>
+<li>
+<p>예, `~/.ssh/id_rsa&rsquo; 키를 사용할 때</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ssh -N -L 3389:10.0.1.17:3389 -p 22 ocid1.bastionsession.oc1.us-chicago-1.amaaaaaavsea7yiazg6765tijgzg6v2njm7foz653qt34r3fmc~~~~~~~~~~@host.bastion.us-chicago-1.oci.oraclecloud.com
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>윈도우즈 원격 데스크탑을 열어 127.0.0.1 주소로 접속합니다.</p>
+</li>
+<li>
+<p>이제 앞서 진행했던 순서대로 Visual Studio Code  Code &amp; Cline 구성하고, 리뷰할 코드 프로젝트까지 준비합니다.</p>
+</li>
+<li>
+<p>이제  windows 서버가 있는 private 서브넷의 라우팅 규칙에서 Service Gateway만 남기고, NAT Gateway를 제거합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911153535567.png" alt='image-20260911153535567' onerror="this.onerror=null;this.src='images\/image-20260911153535567.png';" />
+</p>
+</li>
+<li>
+<p><code>현재 Spring Boot 프로젝트 전체를 보안 리뷰해줘</code>라고 간단히 리뷰를 요청해봅니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911154021077.png" alt='image-20260911154021077' onerror="this.onerror=null;this.src='images\/image-20260911154021077.png';" />
+</p>
+</li>
+<li>
+<p>앞서 사용한 표준 코드 리뷰 프롬프트을 그대로 사용하여 다시 리뷰 요청합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">`.ai/SECURITY_REVIEW.md` 기준으로 보안 리뷰해줘.
+</span></span></code></pre></div></li>
+<li>
+<p>인터넷에서 필요한 정보를 조회하려고 하는 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911154829979.png" alt='image-20260911154829979' onerror="this.onerror=null;this.src='images\/image-20260911154829979.png';" />
+</p>
+</li>
+<li>
+<p>외부 접속을 승인해도 실제 인터넷이 안되는 환경이기 때문에 아래와 같은 조회 한계는 있지만, 그외 코드 리뷰는 잘 하는 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260911155425537.png" alt='image-20260911155425537' onerror="this.onerror=null;this.src='images\/image-20260911155425537.png';" />
+</p>
+</li>
+<li>
+<p>또는 애초에 표준 코드 리뷰 프롬프트를 작성시 인터넷이 안되는 환경임을 알려주고 리뷰하도록 하는 방법도 있습니다.</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">2026-09-11 OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

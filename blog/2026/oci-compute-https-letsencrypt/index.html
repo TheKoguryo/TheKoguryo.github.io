@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/oci-compute-https-letsencrypt/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/oci-compute-https-letsencrypt/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기">
+  <meta property="og:description" content="OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기 OCI Compute VM 준비 테스트를 위한 VM을 준비합니다.
+OS: Oracle Linux 9 SSH 접속 후 앱을 배포합니다.
+sudo dnf install python3-pip pip install streamlit nohup streamlit hello --server.port 8501 --server.address 0.0.0.0 &gt; streamlit.log 2&gt;&amp;1 &amp; OS레벨에서 방화벽 오픈">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-09-17T00:00:02+00:00">
+    <meta property="article:modified_time" content="2026-09-17T00:00:02+00:00">
+    <meta property="article:tag" content="Letsencrypt">
+    <meta property="article:tag" content="Https">
+    <meta property="article:tag" content="Oci-Compute">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-09-17</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="oci-compute-vm에-배포한-streamlit-앱-lets-encrypt로-https-적용하기">OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기</h2>
+<h6 id="oci-compute-vm-준비">OCI Compute VM 준비</h6>
+<ol>
+<li>
+<p>테스트를 위한 VM을 준비합니다.</p>
+<ul>
+<li>OS: Oracle Linux 9</li>
+</ul>
+</li>
+<li>
+<p>SSH 접속 후 앱을 배포합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install python3-pip
+</span></span><span class="line"><span class="cl">pip install streamlit
+</span></span><span class="line"><span class="cl">nohup streamlit hello --server.port 8501 --server.address 0.0.0.0 &gt; streamlit.log 2&gt;&amp;1 &amp;
+</span></span></code></pre></div></li>
+<li>
+<p>OS레벨에서 방화벽 오픈</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=8501/tcp
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
+<li>
+<p>OCI Security Rule에서 Ingress Rule에 8501 포트를 추가합니다.</p>
+</li>
+<li>
+<p>웹브라우저로 접속(http://vm-public-ip:8501)이 되는 지 확인합니다.</p>
+</li>
+</ol>
+<h6 id="nginx-설치">Nginx 설치</h6>
+<p>Let&rsquo;s Encrypt를 이용해 무료 SSL/TLS 인증서를 발급받아 HTTPS로 서비스하기 위해, Nginx 서버를 먼저 설치합니다.</p>
+<ol>
+<li>
+<p>Nginx를 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install -y epel-release
+</span></span><span class="line"><span class="cl">sudo dnf install -y nginx python3-pip
+</span></span><span class="line"><span class="cl">sudo pip3 install certbot certbot-nginx
+</span></span></code></pre></div></li>
+<li>
+<p>certbot 설치 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ certbot --version
+</span></span><span class="line"><span class="cl">certbot 4.2.0
+</span></span></code></pre></div></li>
+<li>
+<p>Nginx를 시작합니다. <code>Active: active (running)</code> 임을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ systemctl status nginx
+</span></span><span class="line"><span class="cl">○ nginx.service - The nginx HTTP and reverse proxy server
+</span></span><span class="line"><span class="cl">     Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; preset: disabled)
+</span></span><span class="line"><span class="cl">     Active: inactive (dead)
+</span></span><span class="line"><span class="cl">$ sudo systemctl start nginx
+</span></span><span class="line"><span class="cl">$ sudo systemctl status nginx
+</span></span><span class="line"><span class="cl">● nginx.service - The nginx HTTP and reverse proxy server
+</span></span><span class="line"><span class="cl">     Loaded: loaded (/usr/lib/systemd/system/nginx.service; disabled; preset: disabled)
+</span></span><span class="line"><span class="cl">     Active: active (running) since Thu 2026-09-17 08:00:40 GMT; 7s ago
+</span></span><span class="line"><span class="cl">    Process: 46523 ExecStartPre=/usr/bin/rm -f /run/nginx.pid (code=exited, status=0/SUCCESS)
+</span></span><span class="line"><span class="cl">    Process: 46524 ExecStartPre=/usr/sbin/nginx -t (code=exited, status=0/SUCCESS)
+</span></span><span class="line"><span class="cl">    Process: 46525 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+</span></span><span class="line"><span class="cl">   Main PID: 46526 (nginx)
+</span></span><span class="line"><span class="cl">      Tasks: 3 (limit: 72601)
+</span></span><span class="line"><span class="cl">     Memory: 3.0M (peak: 3.2M)
+</span></span><span class="line"><span class="cl">        CPU: 26ms
+</span></span><span class="line"><span class="cl">     CGroup: /system.slice/nginx.service
+</span></span><span class="line"><span class="cl">             ├─46526 &#34;nginx: master process /usr/sbin/nginx&#34;
+</span></span><span class="line"><span class="cl">             ├─46527 &#34;nginx: worker process&#34;
+</span></span><span class="line"><span class="cl">             └─46528 &#34;nginx: worker process&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+<li>
+<p>OS레벨에서 80 포트를 오픈합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=80/tcp
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
+<li>
+<p>OCI Security Rule에서 Ingress Rule에 80 포트를 추가합니다.</p>
+</li>
+<li>
+<p>웹브라우저에서 접속되는 지 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260917170417941.png" alt='image-20260917170417941' onerror="this.onerror=null;this.src='images\/image-20260917170417941.png';" />
+</p>
+</li>
+</ol>
+<h6 id="nginx에서-http로-라우팅하도록-설정">Nginx에서 HTTP로 라우팅하도록 설정</h6>
+<ol>
+<li>
+<p>root 유저로 작업합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo su
+</span></span><span class="line"><span class="cl"># cd /etc/nginx/
+</span></span></code></pre></div></li>
+<li>
+<p><code>/etc/nginx/nginx.conf</code> 파일을 보면 <code>include /etc/nginx/conf.d/*.conf;</code>가 설정되어 <code>conf.d</code> 하위 폴더에 설정도 포함되게 되어 있습니다. 해당 위치에 새 파일  <code>streamlit.conf</code> 을 만듭니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># /etc/nginx/conf.d/streamlit.conf
+</span></span><span class="line"><span class="cl">server {
+</span></span><span class="line"><span class="cl">    server_name 127.0.0.1;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    location / {
+</span></span><span class="line"><span class="cl">        proxy_pass http://127.0.0.1:8501;
+</span></span><span class="line"><span class="cl">        proxy_http_version 1.1;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        proxy_set_header Host $host;
+</span></span><span class="line"><span class="cl">        proxy_set_header X-Real-IP $remote_addr;
+</span></span><span class="line"><span class="cl">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+</span></span><span class="line"><span class="cl">        proxy_set_header X-Forwarded-Proto $scheme;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        # Streamlit WebSocket 연결
+</span></span><span class="line"><span class="cl">        proxy_set_header Upgrade $http_upgrade;
+</span></span><span class="line"><span class="cl">        proxy_set_header Connection &#34;upgrade&#34;;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        proxy_read_timeout 86400;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>설정을 반영하고 재시작합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo systemctl reload nginx
+</span></span><span class="line"><span class="cl">sudo systemctl restart nginx
+</span></span></code></pre></div></li>
+<li>
+<p>접속 테스트합니다. <strong>502 Bad Gateway</strong> 오류가 발생하는 지, 그리고 Nginx 에러 로그를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># curl -v http://127.0.0.1
+</span></span><span class="line"><span class="cl">*   Trying 127.0.0.1:80...
+</span></span><span class="line"><span class="cl">* Connected to 127.0.0.1 (127.0.0.1) port 80 (#0)
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">&lt;head&gt;&lt;title&gt;502 Bad Gateway&lt;/title&gt;&lt;/head&gt;
+</span></span><span class="line"><span class="cl">&lt;body&gt;
+</span></span><span class="line"><span class="cl">&lt;center&gt;&lt;h1&gt;502 Bad Gateway&lt;/h1&gt;&lt;/center&gt;
+</span></span><span class="line"><span class="cl">&lt;hr&gt;&lt;center&gt;nginx/1.20.1&lt;/center&gt;
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># tail -n 50 /var/log/nginx/error.log
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">2026/09/17 08:20:25 [crit] 47049#47049: *1 connect() to 127.0.0.1:8501 failed (13: Permission denied) while ...
+</span></span></code></pre></div></li>
+<li>
+<p>위와 같은 오류가 나면, SELinux 관련 설정을 하고, 재시작합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo setsebool -P httpd_can_network_connect 1
+</span></span><span class="line"><span class="cl">sudo systemctl reload nginx
+</span></span></code></pre></div></li>
+<li>
+<p>적용 결과를 확인합니다. on이 나오는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># sudo getsebool httpd_can_network_connect
+</span></span><span class="line"><span class="cl">httpd_can_network_connect --&gt; on
+</span></span></code></pre></div></li>
+<li>
+<p>이제 접속이 잘 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># curl -v http://127.0.0.1
+</span></span><span class="line"><span class="cl">*   Trying 127.0.0.1:80...
+</span></span><span class="line"><span class="cl">* Connected to 127.0.0.1 (127.0.0.1) port 80 (#0)
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">&lt; HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">&lt; Server: nginx/1.20.1
+</span></span></code></pre></div><p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260917173241860.png" alt='image-20260917173241860' onerror="this.onerror=null;this.src='images\/image-20260917173241860.png';" />
+</p>
+</li>
+</ol>
+<h6 id="nginx에서-https로-라우팅하도록-설정">Nginx에서 HTTPS로 라우팅하도록 설정</h6>
+<ol>
+<li>
+<p>먼저 해당 Public IP가 DNS에 등록되어 있어야 합니다. 도메인을 구입한 사이트에 DNS Record로 등록 후 다음을 진행합니다.</p>
+</li>
+<li>
+<p>등록후 잘 조회되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ nslookup streamlit-hello.uno-oci-2026.xyz
+</span></span><span class="line"><span class="cl">Server:		172.20.10.1
+</span></span><span class="line"><span class="cl">Address:	172.20.10.1#53
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Non-authoritative answer:
+</span></span><span class="line"><span class="cl">Name:	streamlit-hello.uno-oci-2026.xyz
+</span></span><span class="line"><span class="cl">Address: 158.xxx.xx.xxx
+</span></span></code></pre></div></li>
+<li>
+<p>다음을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo certbot --version
+</span></span><span class="line"><span class="cl">sudo: certbot: command not found
+</span></span></code></pre></div><ol>
+<li>
+<p>root유저로 certbot 명령이 command not found가 나오면 다음을 순서대로 수행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo visudo
+</span></span></code></pre></div></li>
+<li>
+<p>다음 라인은 변경합니다. 아래아 같이  <code>:/usr/local/sbin:/usr/local/bin</code>을 뒤에 추가하고 저장합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+</span></span></code></pre></div></li>
+<li>
+<p>다시 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo certbot --version
+</span></span><span class="line"><span class="cl">certbot 4.2.0
+</span></span></code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>앞서 설정한 streamline.conf 파일에서 server_name을 사용할 도메인 이름으로 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># /etc/nginx/conf.d/streamlit.conf
+</span></span><span class="line"><span class="cl">server {
+</span></span><span class="line"><span class="cl">    server_name streamlit-hello.uno-oci-2026.xyz;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    ...
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>인증서 발급을 시도합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo certbot --nginx -d streamlit-hello.uno-oci-2026.xyz
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Requesting a certificate for streamlit-hello.uno-oci-2026.xyz
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Deploying certificate
+</span></span><span class="line"><span class="cl">Successfully deployed certificate for streamlit-hello.uno-oci-2026.xyz to /etc/nginx/conf.d/streamlit.conf
+</span></span><span class="line"><span class="cl">Congratulations! You have successfully enabled HTTPS on https://streamlit-hello.uno-oci-2026.xyz
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NEXT STEPS:
+</span></span><span class="line"><span class="cl">- The certificate will need to be renewed before it expires. Certbot can automatically renew the certificate in the background, but you may need to take steps to enable that functionality. See https://certbot.org/renewal-setup for instructions.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+</span></span><span class="line"><span class="cl">If you like Certbot, please consider supporting our work by:
+</span></span><span class="line"><span class="cl"> * Donating to ISRG / Let&#39;s Encrypt:   https://letsencrypt.org/donate
+</span></span><span class="line"><span class="cl"> * Donating to EFF:                    https://eff.org/donate-le
+</span></span><span class="line"><span class="cl">- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+</span></span></code></pre></div></li>
+<li>
+<p>설정 파일을 확인합니다. Certbot에 ssl 관련 설정을 추가한 것을 볼 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ cat /etc/nginx/conf.d/streamlit.conf
+</span></span><span class="line"><span class="cl"># /etc/nginx/conf.d/streamlit.conf
+</span></span><span class="line"><span class="cl">server {
+</span></span><span class="line"><span class="cl">    server_name streamlit-hello.uno-oci-2026.xyz;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    location / {
+</span></span><span class="line"><span class="cl">        ...
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    listen 443 ssl; # managed by Certbot
+</span></span><span class="line"><span class="cl">    ssl_certificate /etc/letsencrypt/live/streamlit-hello.uno-oci-2026.xyz/fullchain.pem; # managed by Certbot
+</span></span><span class="line"><span class="cl">    ssl_certificate_key /etc/letsencrypt/live/streamlit-hello.uno-oci-2026.xyz/privkey.pem; # managed by Certbot
+</span></span><span class="line"><span class="cl">    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+</span></span><span class="line"><span class="cl">    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">server {
+</span></span><span class="line"><span class="cl">    if ($host = streamlit-hello.uno-oci-2026.xyz) {
+</span></span><span class="line"><span class="cl">        return 301 https://$host$request_uri;
+</span></span><span class="line"><span class="cl">    } # managed by Certbot
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    server_name streamlit-hello.uno-oci-2026.xyz;
+</span></span><span class="line"><span class="cl">    listen 80;
+</span></span><span class="line"><span class="cl">    return 404; # managed by Certbot
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>OS레벨에서 443 포트를 오픈합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo firewall-cmd --permanent --add-port=443/tcp
+</span></span><span class="line"><span class="cl">sudo firewall-cmd --reload
+</span></span></code></pre></div></li>
+<li>
+<p>OCI Security Rule에서 Ingress Rule에 443 포트를 추가합니다.</p>
+</li>
+<li>
+<p>브라우저로 접속해 봅니다. https로 잘 접속이 되고, 인증서로 적용된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260917175547875.png" alt='image-20260917175547875' onerror="this.onerror=null;this.src='images\/image-20260917175547875.png';" />
+</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260917175623244.png" alt='image-20260917175623244' onerror="this.onerror=null;this.src='images\/image-20260917175623244.png';" />
+</p>
+</li>
+</ol>
+<h6 id="참고">참고</h6>
+<ul>
+<li><a href="https://forums.oracle.com/ords/apexds/post/install-certbot-5464">https://forums.oracle.com/ords/apexds/post/install-certbot-5464</a></li>
+</ul>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/oci-compute-https-letsencrypt/">2026-09-17 OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">2026-09-11 OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

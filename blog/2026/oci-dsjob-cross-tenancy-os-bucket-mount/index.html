@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/oci-dsjob-cross-tenancy-os-bucket-mount/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/oci-dsjob-cross-tenancy-os-bucket-mount/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기">
+  <meta property="og:description" content="OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기 OCI Data Science에서 Job을 생성할 때 Object Storage를 마운트할 수 있습니다. OCI 콘솔 기준으로 같은 테넌시 내에 있는 Object Storage Bucket을 검색하여, 마운트합니다. 여기서는 다른 테넌시에 있는 Bucket을 마운트하는 방법을 알아봅니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-10-12T00:00:01+09:00">
+    <meta property="article:modified_time" content="2026-10-12T00:00:01+09:00">
+    <meta property="article:tag" content="Data Science">
+    <meta property="article:tag" content="Object Storage">
+    <meta property="article:tag" content="Cross-Tenancy">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-10-12</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="oci-data-science-job에서-cross-tenancy-object-storage-마운트하기">OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기</h2>
+<p>OCI Data Science에서 Job을 생성할 때 Object Storage를 마운트할 수 있습니다. OCI 콘솔 기준으로 같은 테넌시 내에 있는 Object Storage Bucket을 검색하여, 마운트합니다. 여기서는 다른 테넌시에 있는 Bucket을 마운트하는 방법을 알아봅니다.</p>
+<p><a href="https://accelerated-data-science.readthedocs.io/en/latest/user_guide/jobs/data_science_job.html">Oracle Accelerated Data Science (ADS)</a>와 타 테넌시 자원 접근을 위한  <a href="https://docs.oracle.com/en-us/iaas/Content/Identity/policieshow/iam-cross-domain.htm">Cross-Tenancy Access Policies</a>을 이용하여, 주피터 노트북에서 파이썬으로 Job으로 Job을 생성해야 합니다.</p>
+<p><em>단, 서로 테넌시는 다르지만, Data Science Job이 실행되는 리전과 같은 리전에 사용할 Bucket이 있어야 합니다.</em></p>
+<h6 id="data-science-job이-실행되는-테넌시의-정의">Data Science Job이 실행되는 테넌시의 정의</h6>
+<ol>
+<li>
+<p>Dynamic Group을 생성합니다.</p>
+<ul>
+<li>
+<p>Identity Domain: <code>Default</code></p>
+</li>
+<li>
+<p>Name: <code>ds-job-runs-dg</code></p>
+</li>
+<li>
+<p>Rule: 테스트를 위해 Compute VM을 생성하고, 해당 VM의 OCID도 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL {resource.type = &#39;datasciencejobrun&#39;, resource.compartment.id = &#39;&lt;JOB_RUN_COMPARTMENT_OCID&gt;&#39;}
+</span></span></code></pre></div></li>
+<li>
+<p>Rule: Cross-Tenancy 접근 정책이 잘 동작하는 지 테스트하기 위해 Compute VM을 생성하고, 해당 VM의 OCID도 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL {instance.id = &#39;ocid1.instance.oc1....&#39;}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>생성한 Dynamic Group의 OCID를 확인합니다.</p>
+<ul>
+<li><code>DYNAMIC_GROUP_OCID_IN_DSJOB_TENANCY</code> 항목으로 사용</li>
+</ul>
+</li>
+<li>
+<p>Data Science Job을 노트북을 통해 생성하는 OCI IAM User가 속한 Group의 이름과 OCID를 확인합니다.</p>
+<ul>
+<li>Name: 예, <code>data-science-group</code></li>
+<li><code>&lt;GROUP_OCID_IN_DSJOB_TENANCY&gt;</code> 항목으로 사용</li>
+</ul>
+</li>
+<li>
+<p>Data Science Job을 실행하는 테넌시의 OCID를 확인합니다.</p>
+<ul>
+<li><code>&lt;DSJOB_TENANCY_OCID&gt;</code> 항목으로 사용</li>
+</ul>
+</li>
+<li>
+<p>Bucket이 있는 테넌시의 OCID를 확인합니다.</p>
+<ul>
+<li><code>&lt;BUCKET_TENANCY_OCID&gt;</code> 항목으로 사용</li>
+</ul>
+</li>
+<li>
+<p>Cross-Tenancy 접근을 위한 Policy는 Endorse 구문으로 인해 root compartment에 생성합니다.</p>
+<ul>
+<li>
+<p>Name: <code>pcy-ds-job-endorse-cross-tenancy-os-read</code></p>
+</li>
+<li>
+<p>Statments</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Define tenancy BucketTenancy as &lt;BUCKET_TENANCY_OCID&gt;
+</span></span><span class="line"><span class="cl">Endorse dynamic-group &#39;Default&#39;/&#39;ds-job-runs-dg&#39; to read object-family in tenancy BucketTenancy
+</span></span><span class="line"><span class="cl">Endorse group &#39;Default&#39;/&#39;data-science-group&#39; to read object-family in tenancy BucketTenancy
+</span></span></code></pre></div></li>
+<li>
+<p>테스트 편의를 위해 만든 Compute VM의 OCID를 위한 정책도 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow dynamic-group &#39;Default&#39;/&#39;ds-job-runs-dg&#39; to read object-family in tenancy
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="bucket이-있는-테넌시에-정의">Bucket이 있는 테넌시에 정의</h6>
+<ol>
+<li>
+<p>Cross-Tenancy 접근을 허용하기 위한 Policy는 Admit 구문으로 인해 root compartment에 생성합니다.</p>
+<ul>
+<li>
+<p>Name: <code>pcy-os-admit-cross-tenancy-ds-job-read</code></p>
+</li>
+<li>
+<p>Statments</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Define tenancy DSJobTenancy as &lt;DSJOB_TENANCY_OCID&gt;
+</span></span><span class="line"><span class="cl">Define dynamic-group DSJobRuns as &lt;DYNAMIC_GROUP_OCID_IN_DSJOB_TENANCY&gt;
+</span></span><span class="line"><span class="cl">Define group DSJobGroup as &lt;GROUP_OCID_IN_DSJOB_TENANCY&gt;
+</span></span><span class="line"><span class="cl">Admit dynamic-group DSJobRuns of tenancy DSJobTenancy to read object-family in tenancy
+</span></span><span class="line"><span class="cl">Admit group DSJobGroup of tenancy DSJobTenancy to read object-family in tenancy
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="compute-vm에서-cross-tenancy-테스트">Compute VM에서 Cross-Tenancy 테스트</h6>
+<p>Policy 가 잘 적용되었는 지 테스트 해봅니다.</p>
+<ol>
+<li>
+<p>Compute VM에 SSH로 접속합니다.</p>
+</li>
+<li>
+<p>OCI CLI를 설치합니다. Oracle Linux 8, 9 기준</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install python39-oci-cli
+</span></span></code></pre></div></li>
+<li>
+<p>현재 테넌시 내의 Bucket 목록이 조회되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os ns get --auth instance_principal
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">oci os bucket list --auth instance_principal --namespace &lt;current_namespace&gt; --compartment-id &lt;DSJOB_TENANCY_OCID&gt;
+</span></span></code></pre></div></li>
+<li>
+<p>대상 테넌시 내의 Bucket 목록이 조회되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os ns get --auth instance_principal --compartment-id &lt;BUCKET_TENANCY_OCID&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">oci os bucket list --auth instance_principal --namespace &lt;namespace&gt; --compartment-id &lt;BUCKET_TENANCY_OCID&gt;
+</span></span></code></pre></div></li>
+<li>
+<p>대상 Bucket의 오브젝트가 조회되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object list --auth instance_principal --bucket-name &lt;bucket-name&gt; --namespace &lt;namespace&gt;
+</span></span></code></pre></div></li>
+<li>
+<p>모두 잘 조회된다면, Cross-Tenancy 접근 Policy가 잘 적용된 것입니다.</p>
+</li>
+</ol>
+<h6 id="notebook-세션에서-job-생성하기">Notebook 세션에서 Job 생성하기</h6>
+<ol>
+<li>
+<p>Data Science에서 노트북 세션을 실행합니다.</p>
+</li>
+<li>
+<p>ADS에서 <a href="https://accelerated-data-science.readthedocs.io/en/latest/user_guide/jobs/data_science_job.html#define-a-job">Define a Job</a>의 예시를 보면, DataScienceJob 생성시 with_infrastructure 하위에 with_storage_mount 구문에서 마운트할 스토리지를 지정할 수 있습니다.</p>
+<ul>
+<li><code>&lt;namespace&gt;</code>: Bucket이 있는 테넌시의 namespace를 사용
+<ul>
+<li>Cloud Shell에서 <code>oci os ns get</code> 명령으로 확인하거나, OCI 콘솔에서 테넌시 상세 정보에서 <code>Object storage namespace</code>로 확인</li>
+</ul>
+</li>
+<li><code>&lt;bucket_name&gt;</code>: 대상 테넌시내의 Bucket 이름</li>
+<li><code>&lt;prefix&gt;</code>: 필터링한 Object의 prefix 지정</li>
+<li><code>dest</code>에 경로를 지정하면, 설명과 같이 <code>/mnt/&lt;destination_directory_name&gt;</code>에 마운트 됩니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from ads.jobs import Job, DataScienceJob, PythonRuntime, GitPythonRuntime
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">job = (
+</span></span><span class="line"><span class="cl">    Job(name=&#34;My Job&#34;)
+</span></span><span class="line"><span class="cl">    .with_infrastructure(
+</span></span><span class="line"><span class="cl">        DataScienceJob()
+</span></span><span class="line"><span class="cl">        ...
+</span></span><span class="line"><span class="cl">        .with_storage_mount(
+</span></span><span class="line"><span class="cl">          {
+</span></span><span class="line"><span class="cl">            &#34;src&#34; : &#34;oci://&lt;bucket_name&gt;@&lt;namespace&gt;/&lt;prefix&gt;&#34;,
+</span></span><span class="line"><span class="cl">            &#34;dest&#34; : &#34;&lt;destination_directory_name&gt;&#34;
+</span></span><span class="line"><span class="cl">          } # mount oci object storage to path &#34;/mnt/&lt;destination_directory_name&gt;&#34;
+</span></span><span class="line"><span class="cl">        )
+</span></span><span class="line"><span class="cl">    )
+</span></span><span class="line"><span class="cl">    .with_runtime(
+</span></span><span class="line"><span class="cl">        ...
+</span></span><span class="line"><span class="cl">    )
+</span></span><span class="line"><span class="cl">)
+</span></span></code></pre></div></li>
+<li>
+<p>실행 코드를 작성합니다.</p>
+<ol>
+<li>
+<p><code>step1_python.py</code> - 예시에서는 Git Repo에 위치, 마운트된 Bucket내 파일 목록을 조회하는 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">import os
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(&#34;STEP1 Started&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">from pathlib import Path
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">folder = Path(&#34;/mnt/test-oci-bucket&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">try:
+</span></span><span class="line"><span class="cl">    for path in sorted(folder.iterdir()):
+</span></span><span class="line"><span class="cl">        if path.is_file():
+</span></span><span class="line"><span class="cl">            print(path.name)
+</span></span><span class="line"><span class="cl">except FileNotFoundError:
+</span></span><span class="line"><span class="cl">    print(f&#34;Directory does not exist: {folder}&#34;)
+</span></span><span class="line"><span class="cl">except NotADirectoryError:
+</span></span><span class="line"><span class="cl">    print(f&#34;Path is not a directory: {folder}&#34;)
+</span></span><span class="line"><span class="cl">except PermissionError:
+</span></span><span class="line"><span class="cl">    print(f&#34;Permission denied when accessing directory: {folder}&#34;)
+</span></span><span class="line"><span class="cl">except OSError as e:
+</span></span><span class="line"><span class="cl">    print(f&#34;Error listing files: {e}&#34;)
+</span></span></code></pre></div></li>
+<li>
+<p>노트북 세션에 실행한 노트북 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from ads.jobs import Job, DataScienceJob, GitPythonRuntime
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">log_group_id = &#34;ocid1.loggroup.oc1....&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">job = (
+</span></span><span class="line"><span class="cl">    Job(name=&#34;My Job - GitPythonRuntime &amp; Cross-Tenancy Bucket Access&#34;)
+</span></span><span class="line"><span class="cl">    .with_infrastructure(
+</span></span><span class="line"><span class="cl">        DataScienceJob()
+</span></span><span class="line"><span class="cl">        .with_log_group_id(log_group_id)
+</span></span><span class="line"><span class="cl">        .with_shape_name(&#34;VM.Standard.E4.Flex&#34;)
+</span></span><span class="line"><span class="cl">        .with_shape_config_details(ocpus=1, memory_in_gbs=16)
+</span></span><span class="line"><span class="cl">        .with_block_storage_size(50)
+</span></span><span class="line"><span class="cl">        .with_storage_mount(
+</span></span><span class="line"><span class="cl">            {
+</span></span><span class="line"><span class="cl">                &#34;src&#34; : &#34;oci://my-bucket@axzu9ntxxxxx/blueprints/one-oe/main/&#34;,
+</span></span><span class="line"><span class="cl">                &#34;dest&#34; : &#34;test-oci-bucket&#34;
+</span></span><span class="line"><span class="cl">            } # mount oci object storage to path &#34;/mnt/&lt;destination_directory_name&gt;&#34;
+</span></span><span class="line"><span class="cl">        )    
+</span></span><span class="line"><span class="cl">    )
+</span></span><span class="line"><span class="cl">    .with_runtime(
+</span></span><span class="line"><span class="cl">        GitPythonRuntime(skip_metadata_update=True)
+</span></span><span class="line"><span class="cl">        .with_service_conda(&#34;pytorch110_p38_cpu_v1&#34;)
+</span></span><span class="line"><span class="cl">        .with_source(&#34;https://github.com/&lt;GIT_USER&gt;/osdc-test.git&#34;)
+</span></span><span class="line"><span class="cl">        .with_entrypoint(&#34;step1_python.py&#34;)
+</span></span><span class="line"><span class="cl">    )
+</span></span><span class="line"><span class="cl">)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># Create the job on OCI Data Science
+</span></span><span class="line"><span class="cl">job.create()
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># Start a job run
+</span></span><span class="line"><span class="cl">run = job.run()
+</span></span><span class="line"><span class="cl"># Stream the job run outputs
+</span></span><span class="line"><span class="cl">run.watch()
+</span></span></code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>실행이 완료되고 그 로그를 확인해 보면, 잘 마운트 되었고, <code>step1_python.py</code> 에서 파일 목록이 조회된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261012221603303.png" alt='image-20261012221603303' onerror="this.onerror=null;this.src='images\/image-20261012221603303.png';" />
+</p>
+</li>
+<li>
+<p>OCI 콘솔에서 확인한 대상 Bucket내 오브젝트</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261012221816251.png" alt='image-20261012221816251' onerror="this.onerror=null;this.src='images\/image-20261012221816251.png';" />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/oci-dsjob-cross-tenancy-os-bucket-mount/">2026-10-12 OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-compute-https-letsencrypt/">2026-09-17 OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">2026-09-11 OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

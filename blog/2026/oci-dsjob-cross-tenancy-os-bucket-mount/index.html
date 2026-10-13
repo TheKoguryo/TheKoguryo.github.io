@@ -31,7 +31,7 @@
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/oci-dsjob-cross-tenancy-os-bucket-mount/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
   <meta property="og:title" content="OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기">
-  <meta property="og:description" content="OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기 OCI Data Science에서 Job을 생성할 때 Object Storage를 마운트할 수 있습니다. OCI 콘솔 기준으로 같은 테넌시 내에 있는 Object Storage Bucket을 검색하여, 마운트합니다. 여기서는 다른 테넌시에 있는 Bucket을 마운트하는 방법을 알아봅니다.">
+  <meta property="og:description" content="OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기 OCI Data Science에서 Job을 생성할 때 Object Storage를 마운트할 수 있습니다. OCI 콘솔에서는 같은 테넌시 내의 Object Storage Bucket만을 검색하여 마운트합니다. 여기서는 다른 테넌시에 있는 Bucket을 마운트하는 방법을 알아봅니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="blog">
@@ -66,10 +66,10 @@
 </div>
 <div class="content-container">
 <main><h2 id="oci-data-science-job에서-cross-tenancy-object-storage-마운트하기">OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기</h2>
-<p>OCI Data Science에서 Job을 생성할 때 Object Storage를 마운트할 수 있습니다. OCI 콘솔 기준으로 같은 테넌시 내에 있는 Object Storage Bucket을 검색하여, 마운트합니다. 여기서는 다른 테넌시에 있는 Bucket을 마운트하는 방법을 알아봅니다.</p>
-<p><a href="https://accelerated-data-science.readthedocs.io/en/latest/user_guide/jobs/data_science_job.html">Oracle Accelerated Data Science (ADS)</a>와 타 테넌시 자원 접근을 위한  <a href="https://docs.oracle.com/en-us/iaas/Content/Identity/policieshow/iam-cross-domain.htm">Cross-Tenancy Access Policies</a>을 이용하여, 주피터 노트북에서 파이썬으로 Job으로 Job을 생성해야 합니다.</p>
-<p><em>단, 서로 테넌시는 다르지만, Data Science Job이 실행되는 리전과 같은 리전에 사용할 Bucket이 있어야 합니다.</em></p>
-<h6 id="data-science-job이-실행되는-테넌시의-정의">Data Science Job이 실행되는 테넌시의 정의</h6>
+<p>OCI Data Science에서 Job을 생성할 때 Object Storage를 마운트할 수 있습니다. OCI 콘솔에서는 같은 테넌시 내의 Object Storage Bucket만을 검색하여 마운트합니다. 여기서는 다른 테넌시에 있는 Bucket을 마운트하는 방법을 알아봅니다.</p>
+<p><a href="https://accelerated-data-science.readthedocs.io/en/latest/user_guide/jobs/data_science_job.html">Oracle Accelerated Data Science (ADS)</a>와 타 테넌시 자원 접근을 위한  <a href="https://docs.oracle.com/en-us/iaas/Content/Identity/policieshow/iam-cross-domain.htm">Cross-Tenancy Access Policies</a>을 이용하여, 주피터 노트북에서 파이썬으로 Job을 생성해야 합니다.</p>
+<p><em>단, 다른 테넌시의 Bucket도 Data Science Job이 실행되는 리전과 같은 리전에 있어야 합니다.</em></p>
+<h6 id="data-science-job이-실행되는-테넌시-설정">Data Science Job이 실행되는 테넌시 설정</h6>
 <ol>
 <li>
 <p>Dynamic Group을 생성합니다.</p>
@@ -81,11 +81,11 @@
 <p>Name: <code>ds-job-runs-dg</code></p>
 </li>
 <li>
-<p>Rule: 테스트를 위해 Compute VM을 생성하고, 해당 VM의 OCID도 추가합니다.</p>
+<p>Rule:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL {resource.type = &#39;datasciencejobrun&#39;, resource.compartment.id = &#39;&lt;JOB_RUN_COMPARTMENT_OCID&gt;&#39;}
 </span></span></code></pre></div></li>
 <li>
-<p>Rule: Cross-Tenancy 접근 정책이 잘 동작하는 지 테스트하기 위해 Compute VM을 생성하고, 해당 VM의 OCID도 추가합니다.</p>
+<p>Rule: Cross-Tenancy 접근 정책이 잘 동작하는지 테스트하기 위해 Compute VM을 생성하고, 해당 VM의 OCID를 추가합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL {instance.id = &#39;ocid1.instance.oc1....&#39;}
 </span></span></code></pre></div></li>
 </ul>
@@ -93,7 +93,7 @@
 <li>
 <p>생성한 Dynamic Group의 OCID를 확인합니다.</p>
 <ul>
-<li><code>DYNAMIC_GROUP_OCID_IN_DSJOB_TENANCY</code> 항목으로 사용</li>
+<li><code>&lt;DYNAMIC_GROUP_OCID_IN_DSJOB_TENANCY&gt;</code> 항목으로 사용</li>
 </ul>
 </li>
 <li>
@@ -122,19 +122,19 @@
 <p>Name: <code>pcy-ds-job-endorse-cross-tenancy-os-read</code></p>
 </li>
 <li>
-<p>Statments</p>
+<p>Statements</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Define tenancy BucketTenancy as &lt;BUCKET_TENANCY_OCID&gt;
 </span></span><span class="line"><span class="cl">Endorse dynamic-group &#39;Default&#39;/&#39;ds-job-runs-dg&#39; to read object-family in tenancy BucketTenancy
 </span></span><span class="line"><span class="cl">Endorse group &#39;Default&#39;/&#39;data-science-group&#39; to read object-family in tenancy BucketTenancy
 </span></span></code></pre></div></li>
 <li>
-<p>테스트 편의를 위해 만든 Compute VM의 OCID를 위한 정책도 추가합니다.</p>
+<p>테스트용 Compute VM이 속한 Dynamic Group에 현재 테넌시의 Object Storage 읽기 권한을 부여합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow dynamic-group &#39;Default&#39;/&#39;ds-job-runs-dg&#39; to read object-family in tenancy
 </span></span></code></pre></div></li>
 </ul>
 </li>
 </ol>
-<h6 id="bucket이-있는-테넌시에-정의">Bucket이 있는 테넌시에 정의</h6>
+<h6 id="bucket이-있는-테넌시-설정">Bucket이 있는 테넌시 설정</h6>
 <ol>
 <li>
 <p>Cross-Tenancy 접근을 허용하기 위한 Policy는 Admit 구문으로 인해 root compartment에 생성합니다.</p>
@@ -143,7 +143,7 @@
 <p>Name: <code>pcy-os-admit-cross-tenancy-ds-job-read</code></p>
 </li>
 <li>
-<p>Statments</p>
+<p>Statements</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Define tenancy DSJobTenancy as &lt;DSJOB_TENANCY_OCID&gt;
 </span></span><span class="line"><span class="cl">Define dynamic-group DSJobRuns as &lt;DYNAMIC_GROUP_OCID_IN_DSJOB_TENANCY&gt;
 </span></span><span class="line"><span class="cl">Define group DSJobGroup as &lt;GROUP_OCID_IN_DSJOB_TENANCY&gt;
@@ -154,7 +154,7 @@
 </li>
 </ol>
 <h6 id="compute-vm에서-cross-tenancy-테스트">Compute VM에서 Cross-Tenancy 테스트</h6>
-<p>Policy 가 잘 적용되었는 지 테스트 해봅니다.</p>
+<p>Policy가 잘 적용되었는지 테스트해 봅니다.</p>
 <ol>
 <li>
 <p>Compute VM에 SSH로 접속합니다.</p>
@@ -164,19 +164,19 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install python39-oci-cli
 </span></span></code></pre></div></li>
 <li>
-<p>현재 테넌시 내의 Bucket 목록이 조회되는 지 확인합니다.</p>
+<p>현재 테넌시 내의 Bucket 목록이 조회되는지 확인합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os ns get --auth instance_principal
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">oci os bucket list --auth instance_principal --namespace &lt;current_namespace&gt; --compartment-id &lt;DSJOB_TENANCY_OCID&gt;
 </span></span></code></pre></div></li>
 <li>
-<p>대상 테넌시 내의 Bucket 목록이 조회되는 지 확인합니다.</p>
+<p>대상 테넌시 내의 Bucket 목록이 조회되는지 확인합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os ns get --auth instance_principal --compartment-id &lt;BUCKET_TENANCY_OCID&gt;
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">oci os bucket list --auth instance_principal --namespace &lt;namespace&gt; --compartment-id &lt;BUCKET_TENANCY_OCID&gt;
 </span></span></code></pre></div></li>
 <li>
-<p>대상 Bucket의 오브젝트가 조회되는 지 확인합니다.</p>
+<p>대상 Bucket의 오브젝트가 조회되는지 확인합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci os object list --auth instance_principal --bucket-name &lt;bucket-name&gt; --namespace &lt;namespace&gt;
 </span></span></code></pre></div></li>
 <li>
@@ -189,7 +189,7 @@
 <p>Data Science에서 노트북 세션을 실행합니다.</p>
 </li>
 <li>
-<p>ADS에서 <a href="https://accelerated-data-science.readthedocs.io/en/latest/user_guide/jobs/data_science_job.html#define-a-job">Define a Job</a>의 예시를 보면, DataScienceJob 생성시 with_infrastructure 하위에 with_storage_mount 구문에서 마운트할 스토리지를 지정할 수 있습니다.</p>
+<p>ADS의 <a href="https://accelerated-data-science.readthedocs.io/en/latest/user_guide/jobs/data_science_job.html#define-a-job">Define a Job</a> 예시처럼, DataScienceJob 객체의 with_storage_mount() 메서드로 마운트할 스토리지를 지정하고, 이 객체를 Job.with_infrastructure()에 전달합니다. with_storage_mount()에서 Object Storage 마운트를 지원합니다.</p>
 <ul>
 <li><code>&lt;namespace&gt;</code>: Bucket이 있는 테넌시의 namespace를 사용
 <ul>
@@ -198,7 +198,7 @@
 </li>
 <li><code>&lt;bucket_name&gt;</code>: 대상 테넌시내의 Bucket 이름</li>
 <li><code>&lt;prefix&gt;</code>: 필터링한 Object의 prefix 지정</li>
-<li><code>dest</code>에 경로를 지정하면, 설명과 같이 <code>/mnt/&lt;destination_directory_name&gt;</code>에 마운트 됩니다.</li>
+<li><code>dest</code>에 경로를 지정하면, 설명과 같이 <code>/mnt/&lt;destination_directory_name&gt;</code>에 마운트됩니다.</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from ads.jobs import Job, DataScienceJob, PythonRuntime, GitPythonRuntime
 </span></span><span class="line"><span class="cl">
@@ -223,7 +223,7 @@
 <p>실행 코드를 작성합니다.</p>
 <ol>
 <li>
-<p><code>step1_python.py</code> - 예시에서는 Git Repo에 위치, 마운트된 Bucket내 파일 목록을 조회하는 예시</p>
+<p><code>step1_python.py</code> - 실행할 예시 코드입니다. 마운트된 Bucket 내의 파일 목록을 조회합니다.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">import os
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">print(&#34;STEP1 Started&#34;)
@@ -246,7 +246,7 @@
 </span></span><span class="line"><span class="cl">    print(f&#34;Error listing files: {e}&#34;)
 </span></span></code></pre></div></li>
 <li>
-<p>노트북 세션에 실행한 노트북 예시</p>
+<p>노트북 세션에서 실행한 코드 예시</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">from ads.jobs import Job, DataScienceJob, GitPythonRuntime
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">log_group_id = &#34;ocid1.loggroup.oc1....&#34;
@@ -285,7 +285,7 @@
 </ol>
 </li>
 <li>
-<p>실행이 완료되고 그 로그를 확인해 보면, 잘 마운트 되었고, <code>step1_python.py</code> 에서 파일 목록이 조회된 것을 볼 수 있습니다.</p>
+<p>실행이 완료되고 그 로그를 확인해 보면, 잘 마운트되었고, <code>step1_python.py</code>에서 파일 목록이 조회된 것을 볼 수 있습니다.</p>
 <p>
 
 
@@ -298,7 +298,7 @@
 </p>
 </li>
 <li>
-<p>OCI 콘솔에서 확인한 대상 Bucket내 오브젝트</p>
+<p>OCI 콘솔에서 확인한 대상 Bucket 내 오브젝트</p>
 <p>
 
 

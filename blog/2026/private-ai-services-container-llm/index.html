@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Private AI Services Container 시작하기 - Private Large Language Model Service - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-llm/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/private-ai-services-container-llm/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="Private AI Services Container 시작하기 - Private Large Language Model Service">
+  <meta property="og:description" content="Private AI Services Container 시작하기 - Private Large Language Model Service Getting Started with Private Large Language Model Service – Part 1를 기반으로 테스트한 내용입니다.
+설치할 VM 준비 Install the Private AI Services Container 내용중 Vector Indexing Service을 참조하여 설치합니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-10-13T00:00:02+09:00">
+    <meta property="article:modified_time" content="2026-10-13T00:00:02+09:00">
+    <meta property="article:tag" content="Private-Ai-Service-Container">
+    <meta property="article:tag" content="Llm">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-10-14</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="private-ai-services-container-시작하기---private-large-language-model-service">Private AI Services Container 시작하기 - Private Large Language Model Service</h2>
+<p><a href="https://blogs.oracle.com/database/getting-started-private-llm-service-part1">Getting Started with Private Large Language Model Service – Part 1</a>를 기반으로 테스트한 내용입니다.</p>
+<h6 id="설치할-vm-준비">설치할 VM 준비</h6>
+<p><a href="https://docs.oracle.com/en/database/oracle/oracle-database/26/prvai/install-private-ai-services-container.html">Install the Private AI Services Container</a> 내용중 Vector Indexing Service을 참조하여 설치합니다.</p>
+<ol>
+<li>
+<p>OCI에서 VM을 생성합니다. 블로그와 달리 현재 기본 선택인 Oracle Linux 9를 사용하였습니다.</p>
+<ul>
+<li>Name: <strong>privateai-cpuvm</strong></li>
+<li>Shape: <strong>VM.Standard3.Flex</strong></li>
+<li>OS: Oracle Linux 9</li>
+<li>CPU: 8 OCPU</li>
+<li>Memory: 64 GB RAM</li>
+<li>SMT 해제</li>
+<li>Boot volume: 150GB로 설치</li>
+</ul>
+</li>
+<li>
+<p>CPU가 AMX, AVX-512를 지원하는지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateai-cpuvm ~]$ grep -m1 &#39;^flags&#39; /proc/cpuinfo | grep -o &#39;avx512[^ ]*&#39;
+</span></span><span class="line"><span class="cl">avx512f
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">avx512_bf16
+</span></span><span class="line"><span class="cl">...
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="boot-volume-resize">Boot Volume Resize</h6>
+<ol>
+<li>
+<p>다음 명령을 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo /usr/libexec/oci-growfs -y
+</span></span><span class="line"><span class="cl">df -h
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="podman-설치">Podman 설치</h6>
+<ol>
+<li>
+<p>Oracle Linux 9 기준 다음 명령으로 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">sudo dnf install -y container-tools
+</span></span></code></pre></div></li>
+<li>
+<p>설치된 버전을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman version
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman images
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman version
+</span></span><span class="line"><span class="cl">Client:       Podman Engine
+</span></span><span class="line"><span class="cl">Version:      5.6.0
+</span></span><span class="line"><span class="cl">API Version:  5.6.0
+</span></span><span class="line"><span class="cl">Go Version:   go1.25.9 (Red Hat 1.25.9-1.0.1.el9_7)
+</span></span><span class="line"><span class="cl">Built:        Fri May 29 13:42:49 2026
+</span></span><span class="line"><span class="cl">OS/Arch:      linux/amd64
+</span></span><span class="line"><span class="cl">$ podman images
+</span></span><span class="line"><span class="cl">REPOSITORY  TAG         IMAGE ID    CREATED     SIZE
+</span></span><span class="line"><span class="cl">$
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>로그아웃 이웃에도 컨테이너가 계속 실행되도록 Lingering 설정</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ sudo loginctl enable-linger $(whoami)
+</span></span><span class="line"><span class="cl">$ loginctl show-user $(whoami) | grep Linger
+</span></span><span class="line"><span class="cl">Linger=yes
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너를 실행후 로그아웃합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman run -d ghcr.io/oracle/oraclelinux9-nginx:1.20
+</span></span><span class="line"><span class="cl">exit
+</span></span></code></pre></div></li>
+<li>
+<p>VM에 SSH로 재접속하여, 컨테이너가 실행중인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman ps
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oracle-container-registry-ocr에서-이미지-다운로드-받기">Oracle Container Registry (OCR)에서 이미지 다운로드 받기</h6>
+<ol>
+<li>
+<p>Oracle Private AI Services Container 이미지는 <a href="https://container-registry.oracle.com/">OCR(Oracle Container Registry)</a>에서 제공합니다. Oracle Account로 로그인합니다.</p>
+</li>
+<li>
+<p>Access Token이 필요합니다. 없는 경우 오른쪽 상단 유저 정보에서 생성합니다.</p>
+</li>
+<li>
+<p>컨테이너 목록에서 Database &gt; private-ai를 선택합니다.</p>
+</li>
+<li>
+<p>이미지 다운로드를 위해서 라이센스 동의가 필요합니다. 오른쪽 가운데 Oracle AI Database License 경고문구에서 Continue를 클릭하여 동의합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20260402203156561.png" alt='image-20260402203156561' onerror="this.onerror=null;this.src='images\/image-20260402203156561.png';" />
+</p>
+</li>
+<li>
+<p>로그인후 이미지를 가져오는 것이 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman login container-registry.oracle.com
+</span></span><span class="line"><span class="cl">docker pull container-registry.oracle.com/database/private-ai:large-cpu-avx512-infer-26.2.2.0.0
+</span></span></code></pre></div></li>
+<li>
+<p>이미지를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ podman images
+</span></span><span class="line"><span class="cl">REPOSITORY                                         TAG                                IMAGE ID      CREATED      SIZE
+</span></span><span class="line"><span class="cl">container-registry.oracle.com/database/private-ai  large-cpu-avx512-infer-26.2.2.0.0  290b195ce5f9  11 days ago  23.3 GB
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="private-ai-services-container-설치-스크립트-가져오기">Private AI Services Container 설치 스크립트 가져오기</h6>
+<ol>
+<li>
+<p>IMAGEID를 가져옵니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">IMAGEID=`podman create container-registry.oracle.com/database/private-ai:large-cpu-avx512-infer-26.2.2.0.0`
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 이미지 내부에 있는 스크립트 파일을 복사하여 꺼냅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">podman cp $IMAGEID:/privateai/scripts/privateai-setup-large-cpu-avx512-infer-26.2.2.0.0.zip .
+</span></span></code></pre></div></li>
+<li>
+<p>파일을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls -l
+</span></span><span class="line"><span class="cl">total 16
+</span></span><span class="line"><span class="cl">-rw-rw-r--. 1 opc opc 12809 Aug 21 22:58 privateai-setup-large-cpu-avx512-infer-26.2.2.0.0.zip
+</span></span></code></pre></div></li>
+<li>
+<p>압축해제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">unzip privateai-setup-large-cpu-avx512-infer-26.2.2.0.0.zip
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="private-ai-services-container---private-large-language-model-service-설치하기---http">Private AI Services Container - Private Large Language Model Service 설치하기 - HTTP</h6>
+<ol>
+<li>
+<p>필요한 폴더를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd setup
+</span></span><span class="line"><span class="cl">export PRIVATE_DIR=/home/opc/privateai-cpu-avx512-infer-http
+</span></span><span class="line"><span class="cl">export CONFIG_DIR=/home/opc/config
+</span></span><span class="line"><span class="cl">mkdir -p &#34;$PRIVATE_DIR&#34; &#34;$CONFIG_DIR&#34;
+</span></span></code></pre></div></li>
+<li>
+<p><code>/home/opc/config/config.json</code> 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;models&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;google/gemma-3-1b-it&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="s2">&#34;google/gemma-3-1b-it&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;runtime&#34;</span><span class="p">:</span> <span class="s2">&#34;vllm&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;capabilities&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;TEXT_GENERATION&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;startup_timeout&#34;</span><span class="p">:</span> <span class="mi">1200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;runtime_arguments&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;--dtype&#34;</span><span class="p">,</span> <span class="s2">&#34;bfloat16&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;--max-model-len&#34;</span><span class="p">,</span> <span class="s2">&#34;4096&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p><code>google/gemma-3-1b-it</code>은 기본 탑재된 모델이 아닙니다. Hugging Face에서 다운로드 받아올 수 있도록, <code>huggingface-token</code>을 이후 실행시 사용할 수 있도록 저장합니다. <code>hf_xxxxx</code> 자리에 사용한 <code>hugging-face-token</code>을 입력하여 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">printf &#39;%s&#39; &#39;hf_xxxx&#39; &gt; /tmp/huggingface-token
+</span></span><span class="line"><span class="cl">chmod 600 /tmp/huggingface-token
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 설정 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./configSetup.sh -d &#34;$PRIVATE_DIR&#34; -c /home/opc/config/config.json
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./configSetup.sh -d &#34;$PRIVATE_DIR&#34; -c /home/opc/config/config.json
+</span></span><span class="line"><span class="cl">  SUCC: Container UID 2001 maps to Host UID 102000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  WARN: No security directory passed
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Copied PrivateAI config file
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Generated PrivateAI logs directory  
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너를 실행합니다. 앞서 생성한  <code>hugging-face-token</code> 경로를 지정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./containerSetup.sh -d $PRIVATE_DIR -n privateai-cpu-avx512-infer-http -hf /tmp/huggingface-token --http
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./containerSetup.sh -d $PRIVATE_DIR -n privateai-cpu-avx512-infer-http -hf /tmp/huggingface-token --http
+</span></span><span class="line"><span class="cl">Using image version large-cpu-avx512-infer-26.2.2.0.0
+</span></span><span class="line"><span class="cl">HTTPS connection enabled: false
+</span></span><span class="line"><span class="cl">  SUCC: Container started
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 실행을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateai-cpuvm setup]$ podman ps
+</span></span><span class="line"><span class="cl">CONTAINER ID  IMAGE                                                                                COMMAND     CREATED         STATUS                    PORTS                   NAMES
+</span></span><span class="line"><span class="cl">814ed5edd562  container-registry.oracle.com/database/private-ai:large-cpu-avx512-infer-26.2.2.0.0              23 seconds ago  Up 24 seconds (starting)  0.0.0.0:8080-&gt;8080/tcp  privateai-cpu-avx512-infer-http
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[opc@privateai-cpuvm setup]$ podman logs -f privateai-cpu-avx512-infer-http
+</span></span><span class="line"><span class="cl">INFO: Config file set to config.json
+</span></span><span class="line"><span class="cl">WARNING: Disabling authentication because HTTPS has been disabled
+</span></span><span class="line"><span class="cl">INFO: Hugging Face token loaded from secret /run/secrets/huggingface-token
+</span></span><span class="line"><span class="cl">  ____       _            _            _    ___
+</span></span><span class="line"><span class="cl"> |  _ \ _ __(_)_   ____ _| |_ ___     / \  |_ _|
+</span></span><span class="line"><span class="cl"> | |_) | &#39;__| \ \ / / _` | __/ _ \   / _ \  | |
+</span></span><span class="line"><span class="cl"> |  __/| |  | |\ V / (_| | ||  __/  / ___ \ | |
+</span></span><span class="line"><span class="cl"> |_|   |_|  |_| \_/ \__,_|\__\___| /_/   \_\___|
+</span></span><span class="line"><span class="cl">  Private-AI (version small-cpu-infer-26.2.2.0.0, build 2.0.50)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">12:44:22.976 [main] INFO  i.m.l.PropertiesLoggingLevelsConfigurer - Setting log level &#39;ERROR&#39; for logger: &#39;io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics&#39;
+</span></span><span class="line"><span class="cl">12:44:22.978 [main] INFO  i.m.l.PropertiesLoggingLevelsConfigurer - Setting log level &#39;ERROR&#39; for logger: &#39;io.micrometer.core.instrument.binder.cache.caffeine-cache-metrics&#39;
+</span></span><span class="line"><span class="cl">12:44:23.147 [main] INFO  io.micronaut.runtime.Micronaut - Startup completed in 58095ms. Server Running: http://0.0.0.0:8080
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이서 생성시 <code>/run/secrets/huggingface-token</code> 경로로 복사되었으므로, 이제 호스트에서 삭제해도 됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">rm /tmp/huggingface-token
+</span></span></code></pre></div></li>
+<li>
+<p>헬스체크합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export HOST=$(hostname -f); echo $HOST
+</span></span><span class="line"><span class="cl">curl -i http://$HOST:8080/health
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ curl -i http://$HOST:8080/health
+</span></span><span class="line"><span class="cl">HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">date: Sun, 11 Oct 2026 12:33:43 GMT
+</span></span><span class="line"><span class="cl">x-server-id: d1527dd7-965b-432a-8543-8ec54d52a6e7
+</span></span><span class="line"><span class="cl">x-ratelimit-global-limit-requests: 30000
+</span></span><span class="line"><span class="cl">x-ratelimit-global-remaining-requests: 29999
+</span></span><span class="line"><span class="cl">x-ratelimit-global-reset-requests: 1
+</span></span><span class="line"><span class="cl">x-ratelimit-limit-requests: 30000
+</span></span><span class="line"><span class="cl">x-ratelimit-remaining-requests: 29999
+</span></span><span class="line"><span class="cl">x-ratelimit-reset-requests: 1
+</span></span><span class="line"><span class="cl">content-length: 0
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>모델 리스트를 조회합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -s http://localhost:8080/v1/models | jq .
+</span></span></code></pre></div><ul>
+<li>
+<p>결과 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;data&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;id&#34;: &#34;google/gemma-3-1b-it&#34;,
+</span></span><span class="line"><span class="cl">      &#34;modelDeployedTime&#34;: &#34;2026-10-11T12:49:03.860049167Z&#34;,
+</span></span><span class="line"><span class="cl">      &#34;modelSize&#34;: &#34;1.86G&#34;,
+</span></span><span class="line"><span class="cl">      &#34;modelCapabilities&#34;: [
+</span></span><span class="line"><span class="cl">        &#34;TEXT_GENERATION&#34;
+</span></span><span class="line"><span class="cl">      ]
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ]
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>호출이 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -s http://localhost:8080/v1/chat/completions \
+</span></span><span class="line"><span class="cl">  -X POST \
+</span></span><span class="line"><span class="cl">  --header &#39;Content-Type: application/json&#39; \
+</span></span><span class="line"><span class="cl">  --data &#39;{
+</span></span><span class="line"><span class="cl">    &#34;model&#34;: &#34;google/gemma-3-1b-it&#34;,
+</span></span><span class="line"><span class="cl">    &#34;messages&#34;: [
+</span></span><span class="line"><span class="cl">      {
+</span></span><span class="line"><span class="cl">        &#34;role&#34;: &#34;user&#34;,
+</span></span><span class="line"><span class="cl">        &#34;content&#34;: &#34;What is the capital of South Korea?&#34;
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    ]
+</span></span><span class="line"><span class="cl">  }&#39; | jq .
+</span></span></code></pre></div><ul>
+<li>
+<p>결과 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;id&#34;: &#34;chatcmpl-b2ce40fdc7111c70&#34;,
+</span></span><span class="line"><span class="cl">  &#34;object&#34;: &#34;chat.completion&#34;,
+</span></span><span class="line"><span class="cl">  &#34;created&#34;: 1791722161,
+</span></span><span class="line"><span class="cl">  &#34;model&#34;: &#34;google/gemma-3-1b-it&#34;,
+</span></span><span class="line"><span class="cl">  &#34;choices&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;index&#34;: 0,
+</span></span><span class="line"><span class="cl">      &#34;message&#34;: {
+</span></span><span class="line"><span class="cl">        &#34;tool_calls&#34;: [],
+</span></span><span class="line"><span class="cl">        &#34;content&#34;: &#34;The capital of South Korea is **Seoul**.\n&#34;,
+</span></span><span class="line"><span class="cl">        &#34;role&#34;: &#34;assistant&#34;
+</span></span><span class="line"><span class="cl">      },
+</span></span><span class="line"><span class="cl">      ...
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ],
+</span></span><span class="line"><span class="cl">  ...
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="llm-서빙-성능-평가">LLM 서빙 성능 평가</h6>
+<p>여기서는 vllm 프로젝트에서 제공하는 LLM 성능 평가 도구인 GuildeLLM을 사용하여, 성능을 평가합니다.</p>
+<ol>
+<li>
+<p>GuideLLM을 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">pip install guidellm
+</span></span></code></pre></div></li>
+<li>
+<p>Hugging Face에서 Read 권한 토큰을 만든 뒤 로그인 합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">hf auth login
+</span></span></code></pre></div></li>
+<li>
+<p>벤치마크를 위해 다음 명령을 실행합니다.</p>
+<ul>
+<li><code>max_length=100</code> 조건에 맞춰 token 수를 가정</li>
+<li><code>streams</code>로 동시 요청수, 배치 사이즈 지정</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">guidellm run \
+</span></span><span class="line"><span class="cl">  --backend kind=openai_http,target=http://localhost:8080 \
+</span></span><span class="line"><span class="cl">  --profile kind=concurrent,streams=1,warmup=5,cooldown=5 \
+</span></span><span class="line"><span class="cl">  --constraint kind=max_duration,seconds=120 \
+</span></span><span class="line"><span class="cl">  --data kind=synthetic_text,prompt_tokens=16,output_tokens=84
+</span></span></code></pre></div></li>
+<li>
+<p>전체 결과 중 일부 항목입니다.</p>
+<ul>
+<li>요청에 대한 결과까지 시간(Request Latency), 첫 글자가 보이기까지 시간(TTFT), 이후 생성되는 토큰 간 간격(ITL), 출력 처리량(Output Tokens Per Sec)</li>
+<li>전체 응답(Request Latency)까지 5.1초 걸리며, UI가 스트리밍 모드라면, 첫 응답토큰(TTFT)을 받는 데 0.4초가 걸렸습니다.</li>
+<li>VM의 고정비용이 나가지만, 일반적인 LLM 서비스에서는 비용 계산시 사용되는 항목으로 보면 Output Tokens Per Sec로 비용을 산정해 볼 수 있습니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ℹ Request Latency Statistics (Completed Requests)
+</span></span><span class="line"><span class="cl">|============|=========|========|=======|=======|=======|=======|======|======|======|======|
+</span></span><span class="line"><span class="cl">| Benchmark  | Request Latency || TTFT         || TTFOT        || ITL        || TPOT       ||
+</span></span><span class="line"><span class="cl">| Strategy   | Sec             || ms           || ms           || ms         || ms         ||
+</span></span><span class="line"><span class="cl">|            | Mdn     | p95    | Mdn   | p95   | Mdn   | p95   | Mdn  | p95  | Mdn  | p95  |
+</span></span><span class="line"><span class="cl">|------------|---------|--------|-------|-------|-------|-------|------|------|------|------|
+</span></span><span class="line"><span class="cl">| concurrent | 5.1     | 5.3    | 416.6 | 475.6 | 416.6 | 475.6 | 57.1 | 58.6 | 61.6 | 63.2 |
+</span></span><span class="line"><span class="cl">|============|=========|========|=======|=======|=======|=======|======|======|======|======|
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ℹ Server Throughput Statistics (All Requests)
+</span></span><span class="line"><span class="cl">|============|=======|======|=========|==============|===============|==============|
+</span></span><span class="line"><span class="cl">| Benchmark  | Requests             ||| Input Tokens | Output Tokens | Total Tokens |
+</span></span><span class="line"><span class="cl">| Strategy   | Concurrency || Per Sec | Per Sec      | Per Sec       | Per Sec      |
+</span></span><span class="line"><span class="cl">|            | Mdn   | Mean | Mean                                               ||||
+</span></span><span class="line"><span class="cl">|------------|-------|------|---------|--------------|---------------|--------------|
+</span></span><span class="line"><span class="cl">| concurrent | 1.0   | 1.0  | 0.2     | 5.2          | 16.1          | 21.2         |
+</span></span><span class="line"><span class="cl">|============|=======|======|=========|==============|===============|==============|
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="llm-서빙-성능-평가-결과">LLM 서빙 성능 평가 결과</h6>
+<p>테스트 환경에 따라 결과치는 달라질수 있습니다. 단순 참조용입니다.</p>
+<p><strong>google/gemma-3-1b-it</strong></p>
+<ul>
+<li>실요청 Input 토큰: 24</li>
+<li>실응답 Output 토큰: 84</li>
+</ul>
+<table>
+  <thead>
+      <tr>
+          <th>shape</th>
+          <th>streams</th>
+          <th>dtype</th>
+          <th style="text-align: right">p95  Request Latency (초)      <br>(답변 전체 시간)</th>
+          <th style="text-align: right">p95 TTFT  (ms) <br>    (첫 글자가 보이기까지)</th>
+          <th style="text-align: right">p95 ITL (ms)     <br>(생성 중 토큰 간 간격)</th>
+          <th style="text-align: right">Output Tokens  / 초 <br>    (출력 처리량)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>VM.Standard3.Flex</td>
+          <td>1</td>
+          <td>bfloat16(AVX)</td>
+          <td style="text-align: right">5.1</td>
+          <td style="text-align: right">391.5</td>
+          <td style="text-align: right">57.0</td>
+          <td style="text-align: right">16.6</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td></td>
+          <td style="text-align: right">18.2</td>
+          <td style="text-align: right">1506.5</td>
+          <td style="text-align: right">210.9</td>
+          <td style="text-align: right">37.7</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td></td>
+          <td style="text-align: right">62.9</td>
+          <td style="text-align: right">5604.9</td>
+          <td style="text-align: right">738.8</td>
+          <td style="text-align: right">44.2</td>
+      </tr>
+      <tr>
+          <td>VM.Standard4.Ax.Flex</td>
+          <td>1</td>
+          <td>bfloat16(AVX)</td>
+          <td style="text-align: right">3.6</td>
+          <td style="text-align: right">119.6</td>
+          <td style="text-align: right">42.6</td>
+          <td style="text-align: right">24.2</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td></td>
+          <td style="text-align: right">5.2</td>
+          <td style="text-align: right">293.0</td>
+          <td style="text-align: right">60.6</td>
+          <td style="text-align: right">130.9</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td></td>
+          <td style="text-align: right">11.5</td>
+          <td style="text-align: right">689.2</td>
+          <td style="text-align: right">135.5</td>
+          <td style="text-align: right">237.5</td>
+      </tr>
+      <tr>
+          <td>VM.Standard.E6.Flex</td>
+          <td>1</td>
+          <td>bfloat16(AVX)</td>
+          <td style="text-align: right">4.7</td>
+          <td style="text-align: right">117.6</td>
+          <td style="text-align: right">55.8</td>
+          <td style="text-align: right">17.8</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td></td>
+          <td style="text-align: right">6.7</td>
+          <td style="text-align: right">322.8</td>
+          <td style="text-align: right">77.2</td>
+          <td style="text-align: right">102.4</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td></td>
+          <td style="text-align: right">12.7</td>
+          <td style="text-align: right">717.9</td>
+          <td style="text-align: right">148.2</td>
+          <td style="text-align: right">214.4</td>
+      </tr>
+      <tr>
+          <td>VM.Standard.E6.Ax.Flex</td>
+          <td>1</td>
+          <td>bfloat16(AVX)</td>
+          <td style="text-align: right">3.9</td>
+          <td style="text-align: right">93.6</td>
+          <td style="text-align: right">46.3</td>
+          <td style="text-align: right">22.0</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td></td>
+          <td style="text-align: right">5.7</td>
+          <td style="text-align: right">226.8</td>
+          <td style="text-align: right">66.3</td>
+          <td style="text-align: right">121.7</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td></td>
+          <td style="text-align: right">11.3</td>
+          <td style="text-align: right">688.0</td>
+          <td style="text-align: right">133.1</td>
+          <td style="text-align: right">238.7</td>
+      </tr>
+  </tbody>
+</table>
+<table>
+  <thead>
+      <tr>
+          <th>shape</th>
+          <th>streams</th>
+          <th style="text-align: right">Output Tokens  / 초 <br>    (출력 처리량)</th>
+          <th style="text-align: right">OCPU <br>     시간당 단가 ($)</th>
+          <th style="text-align: right">메모리 GB <br/>     시간당 단가 ($)</th>
+          <th style="text-align: right">8 OCPU / 64 GB <br/>     시간당 단가 ($)</th>
+          <th style="text-align: right">$ per 1M token <br> 1백만 토큰 당 비용($)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>VM.Standard3.Flex</td>
+          <td>1</td>
+          <td style="text-align: right">16.6</td>
+          <td style="text-align: right">0.0400</td>
+          <td style="text-align: right">0.0015</td>
+          <td style="text-align: right">0.4160</td>
+          <td style="text-align: right">6.9612</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td style="text-align: right">37.7</td>
+          <td style="text-align: right">0.0400</td>
+          <td style="text-align: right">0.0015</td>
+          <td style="text-align: right">0.4160</td>
+          <td style="text-align: right">3.0651</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td style="text-align: right">44.2</td>
+          <td style="text-align: right">0.0400</td>
+          <td style="text-align: right">0.0015</td>
+          <td style="text-align: right">0.4160</td>
+          <td style="text-align: right">2.6144</td>
+      </tr>
+      <tr>
+          <td>VM.Standard4.Ax.Flex</td>
+          <td>1</td>
+          <td style="text-align: right">24.2</td>
+          <td style="text-align: right">0.0119</td>
+          <td style="text-align: right">0.0114</td>
+          <td style="text-align: right">0.8248</td>
+          <td style="text-align: right">9.4674</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td style="text-align: right">130.9</td>
+          <td style="text-align: right">0.0119</td>
+          <td style="text-align: right">0.0114</td>
+          <td style="text-align: right">0.8248</td>
+          <td style="text-align: right">1.7503</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td style="text-align: right">237.5</td>
+          <td style="text-align: right">0.0119</td>
+          <td style="text-align: right">0.0114</td>
+          <td style="text-align: right">0.8248</td>
+          <td style="text-align: right">0.9647</td>
+      </tr>
+      <tr>
+          <td>VM.Standard.E6.Flex</td>
+          <td>1</td>
+          <td style="text-align: right">17.8</td>
+          <td style="text-align: right">0.0300</td>
+          <td style="text-align: right">0.0020</td>
+          <td style="text-align: right">0.3680</td>
+          <td style="text-align: right">5.7428</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td style="text-align: right">102.4</td>
+          <td style="text-align: right">0.0300</td>
+          <td style="text-align: right">0.0020</td>
+          <td style="text-align: right">0.3680</td>
+          <td style="text-align: right">0.9983</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td style="text-align: right"><strong>214.4</strong></td>
+          <td style="text-align: right">0.0300</td>
+          <td style="text-align: right"><strong>0.0020</strong></td>
+          <td style="text-align: right"><strong>0.3680</strong></td>
+          <td style="text-align: right"><strong>0.4768</strong></td>
+      </tr>
+      <tr>
+          <td>VM.Standard.E6.Ax.Flex</td>
+          <td>1</td>
+          <td style="text-align: right">22.0</td>
+          <td style="text-align: right">0.0138</td>
+          <td style="text-align: right">0.0108</td>
+          <td style="text-align: right">0.8016</td>
+          <td style="text-align: right">1.8296</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>8</td>
+          <td style="text-align: right">121.7</td>
+          <td style="text-align: right">0.0138</td>
+          <td style="text-align: right">0.0108</td>
+          <td style="text-align: right">0.8016</td>
+          <td style="text-align: right">1.8525</td>
+      </tr>
+      <tr>
+          <td></td>
+          <td>32</td>
+          <td style="text-align: right">238.7</td>
+          <td style="text-align: right">0.0138</td>
+          <td style="text-align: right">0.0108</td>
+          <td style="text-align: right">0.8016</td>
+          <td style="text-align: right">0.9328</td>
+      </tr>
+  </tbody>
+</table>
+<ul>
+<li>비용 계산 - $ / 1M output tokens = (8 OCPU / 64 GB 시간당 단가) / (Output Tokens/초 * 3600초) * 1,000,000
+<ul>
+<li>예,  VM.Standard.E6.Flex, stream=32 비용 계산하면 (<strong>0.3680</strong>) / (<strong>258.0</strong> * 3600) * 1,000,000=<strong>0.3962</strong></li>
+</ul>
+</li>
+</ul>
+<h6 id="private-ai-services-container---private-large-language-model-service-설치하기---https">Private AI Services Container - Private Large Language Model Service 설치하기 - HTTPS</h6>
+<p><strong>HTTPS 기반으로 설치하기</strong></p>
+<p>앞서와 동일한데, Self-Signed 인증서를 사용하여 HTTPS로 설치합니다. ADB에서 연동할 때 필요할 수 있어, 기록을 위해 남겨둡니다.</p>
+<ol>
+<li>
+<p>필요한 폴더를 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cd setup
+</span></span><span class="line"><span class="cl">export PRIVATE_DIR=/home/opc/privateai-cpu-avx512-infer-https
+</span></span><span class="line"><span class="cl">export SECRETS_DIR=/home/opc/secrets
+</span></span><span class="line"><span class="cl">export CONFIG_DIR=/home/opc/config
+</span></span><span class="line"><span class="cl">mkdir -p &#34;$PRIVATE_DIR&#34; &#34;$SECRETS_DIR&#34; &#34;$CONFIG_DIR&#34;
+</span></span></code></pre></div></li>
+<li>
+<p>Secret 관련 파일들을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./secretsSetup.sh -s &#34;$SECRETS_DIR&#34;
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시 - keystore password 없으면, 이후 컨테이너 실행이 오류가 발생하니, 반드시 입력합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./secretsSetup.sh -s &#34;$SECRETS_DIR&#34;
+</span></span><span class="line"><span class="cl">Enter keystore password:
+</span></span><span class="line"><span class="cl">Confirm keystore password:
+</span></span><span class="line"><span class="cl">  SUCC: Generated security directory at /home/opc/secrets
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ ls -la $SECRETS_DIR
+</span></span><span class="line"><span class="cl">total 24
+</span></span><span class="line"><span class="cl">drwxr-xr-x.  3 opc opc   98 Oct  8 04:02 .
+</span></span><span class="line"><span class="cl">drwx------. 11 opc opc 4096 Oct  8 04:01 ..
+</span></span><span class="line"><span class="cl">-rw-r--r--.  1 opc opc   64 Oct  8 04:02 api-key
+</span></span><span class="line"><span class="cl">-rw-r--r--.  1 opc opc 1375 Oct  8 04:02 cert.pem
+</span></span><span class="line"><span class="cl">-rw-------.  1 opc opc 1704 Oct  8 04:02 key.pem
+</span></span><span class="line"><span class="cl">-rw-r--r--.  1 opc opc  451 Oct  8 04:02 key.pub
+</span></span><span class="line"><span class="cl">-rw-------.  1 opc opc 2798 Oct  8 04:02 keystore
+</span></span><span class="line"><span class="cl">drwxr-xr-x.  2 opc opc    6 Oct  8 04:02 secrets
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p><code>/home/opc/config/config.json</code> 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;models&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;google/gemma-3-1b-it&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;path&#34;</span><span class="p">:</span> <span class="s2">&#34;google/gemma-3-1b-it&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;runtime&#34;</span><span class="p">:</span> <span class="s2">&#34;vllm&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;capabilities&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;TEXT_GENERATION&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;startup_timeout&#34;</span><span class="p">:</span> <span class="mi">1200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;runtime_arguments&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;--dtype&#34;</span><span class="p">,</span> <span class="s2">&#34;bfloat16&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;--max-model-len&#34;</span><span class="p">,</span> <span class="s2">&#34;4096&#34;</span>
+</span></span><span class="line"><span class="cl">      <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div></li>
+<li>
+<p><code>google/gemma-3-1b-it</code>은 기본 탑재된 모델이 아닙니다. Hugging Face에서 다운로드 받아올 수 있도록, <code>huggingface-token</code>을 이후 실행시 사용할 수 있도록 저장합니다. <code>hf_xxxxx</code> 자리에 사용한 <code>hugging-face-token</code>을 입력하여 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">printf &#39;%s&#39; &#39;hf_xxxx&#39; &gt; /tmp/huggingface-token
+</span></span><span class="line"><span class="cl">chmod 600 /tmp/huggingface-token
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 설정 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./configSetup.sh -d &#34;$PRIVATE_DIR&#34; -s &#34;$SECRETS_DIR&#34; -c /home/opc/config/config.json
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./configSetup.sh -d &#34;$PRIVATE_DIR&#34; -s &#34;$SECRETS_DIR&#34; -c /home/opc/config/config.json
+</span></span><span class="line"><span class="cl">  SUCC: Container UID 2001 maps to Host UID 102000
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Copied PrivateAI security directory
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Copied PrivateAI config file
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  SUCC: Generated PrivateAI logs directory
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너를 실행합니다. 앞서 생성한  <code>hugging-face-token</code> 경로를 지정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">./containerSetup.sh -d $PRIVATE_DIR -n privateai-cpu-avx512-infer-https -hf /tmp/huggingface-token
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ./containerSetup.sh -d $PRIVATE_DIR -n privateai-cpu-avx512-infer-https
+</span></span><span class="line"><span class="cl">Using image version large-cpu-avx512-infer-26.2.2.0.0
+</span></span><span class="line"><span class="cl">HTTPS connection enabled: true
+</span></span><span class="line"><span class="cl">  SUCC: Container started
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>컨테이너 실행을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@privateai-cpuvm setup]$ podman ps
+</span></span><span class="line"><span class="cl">CONTAINER ID  IMAGE                                                                                COMMAND     CREATED         STATUS                    PORTS                   NAMES
+</span></span><span class="line"><span class="cl">094ebf1eafe6  container-registry.oracle.com/database/private-ai:large-cpu-avx512-infer-26.2.2.0.0              10 seconds ago  Up 10 seconds (starting)  0.0.0.0:8443-&gt;8443/tcp  privateai-cpu-avx512-infer-https
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">[opc@privateai-cpuvm setup]$ podman logs -f 094ebf1eafe6
+</span></span><span class="line"><span class="cl">INFO: Config file set to config.json
+</span></span><span class="line"><span class="cl">INFO: Keystore path set to file:/run/secrets/keystore
+</span></span><span class="line"><span class="cl">INFO: API Key path set to /run/secrets/api-key
+</span></span><span class="line"><span class="cl">INFO: Hugging Face token loaded from secret /run/secrets/huggingface-token
+</span></span><span class="line"><span class="cl">  ____       _            _            _    ___
+</span></span><span class="line"><span class="cl"> |  _ \ _ __(_)_   ____ _| |_ ___     / \  |_ _|
+</span></span><span class="line"><span class="cl"> | |_) | &#39;__| \ \ / / _` | __/ _ \   / _ \  | |
+</span></span><span class="line"><span class="cl"> |  __/| |  | |\ V / (_| | ||  __/  / ___ \ | |
+</span></span><span class="line"><span class="cl"> |_|   |_|  |_| \_/ \__,_|\__\___| /_/   \_\___|
+</span></span><span class="line"><span class="cl">  Private-AI (version small-cpu-infer-26.2.2.0.0, build 2.0.50)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">04:29:05.971 [main] INFO  i.m.l.PropertiesLoggingLevelsConfigurer - Setting log level &#39;ERROR&#39; for logger: &#39;io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics&#39;
+</span></span><span class="line"><span class="cl">04:29:05.972 [main] INFO  i.m.l.PropertiesLoggingLevelsConfigurer - Setting log level &#39;ERROR&#39; for logger: &#39;io.micrometer.core.instrument.binder.cache.caffeine-cache-metrics&#39;
+</span></span><span class="line"><span class="cl">04:29:06.234 [main] INFO  io.micronaut.runtime.Micronaut - Startup completed in 157928ms. Server Running: https://0.0.0.0:8443
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이서 생성시 <code>/run/secrets/huggingface-token</code> 경로로 복사되었으므로, 이제 호스트에서 삭제해도 됩니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">rm /tmp/huggingface-token
+</span></span></code></pre></div></li>
+<li>
+<p>헬스체크합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export HOST=$(hostname -f); echo $HOST
+</span></span><span class="line"><span class="cl">curl -i --cacert $SECRETS_DIR/cert.pem https://$HOST:8443/health
+</span></span></code></pre></div><ul>
+<li>
+<p>실행 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ curl -i --cacert $SECRETS_DIR/cert.pem https://$HOST:8443/health
+</span></span><span class="line"><span class="cl">HTTP/1.1 200 OK
+</span></span><span class="line"><span class="cl">date: Thu, 8 Oct 2026 04:45:26 GMT
+</span></span><span class="line"><span class="cl">x-server-id: 277057c5-2e1a-44f6-a9f9-1a54df287133
+</span></span><span class="line"><span class="cl">x-ratelimit-global-limit-requests: 30000
+</span></span><span class="line"><span class="cl">x-ratelimit-global-remaining-requests: 29999
+</span></span><span class="line"><span class="cl">x-ratelimit-global-reset-requests: 1
+</span></span><span class="line"><span class="cl">x-ratelimit-limit-requests: 30000
+</span></span><span class="line"><span class="cl">x-ratelimit-remaining-requests: 29999
+</span></span><span class="line"><span class="cl">x-ratelimit-reset-requests: 1
+</span></span><span class="line"><span class="cl">content-length: 0
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>모델 리스트를 조회합니다. <code>$SECRETS_DIR</code> 하위에 생성된 API_KEY를 확인합니다. LLM 호출시 필요합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export API_KEY=`cat $SECRETS_DIR/api-key`
+</span></span><span class="line"><span class="cl">echo $API_KEY
+</span></span></code></pre></div></li>
+<li>
+<p>모델 리스트를 조회합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -s https://localhost:8443/v1/models \
+</span></span><span class="line"><span class="cl">  --header &#34;Authorization: Bearer $API_KEY&#34; \
+</span></span><span class="line"><span class="cl">  --cacert &#34;$SECRETS_DIR/cert.pem&#34; | jq .
+</span></span></code></pre></div><ul>
+<li>
+<p>결과 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;data&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;id&#34;: &#34;google/gemma-3-1b-it&#34;,
+</span></span><span class="line"><span class="cl">      &#34;modelDeployedTime&#34;: &#34;2026-10-08T05:18:00.691592641Z&#34;,
+</span></span><span class="line"><span class="cl">      &#34;modelSize&#34;: &#34;1.86G&#34;,
+</span></span><span class="line"><span class="cl">      &#34;modelCapabilities&#34;: [
+</span></span><span class="line"><span class="cl">        &#34;TEXT_GENERATION&#34;
+</span></span><span class="line"><span class="cl">      ]
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ]
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>호출이 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">curl -s https://localhost:8443/v1/chat/completions \
+</span></span><span class="line"><span class="cl">  -X POST \
+</span></span><span class="line"><span class="cl">  --header &#39;Content-Type: application/json&#39; \
+</span></span><span class="line"><span class="cl">  --header &#34;Authorization: Bearer $API_KEY&#34; \
+</span></span><span class="line"><span class="cl">  --cacert &#34;$SECRETS_DIR/cert.pem&#34; \
+</span></span><span class="line"><span class="cl">  --data &#39;{
+</span></span><span class="line"><span class="cl">    &#34;model&#34;: &#34;google/gemma-3-1b-it&#34;,
+</span></span><span class="line"><span class="cl">    &#34;messages&#34;: [
+</span></span><span class="line"><span class="cl">      {
+</span></span><span class="line"><span class="cl">        &#34;role&#34;: &#34;user&#34;,
+</span></span><span class="line"><span class="cl">        &#34;content&#34;: &#34;What is the capital of South Korea?&#34;
+</span></span><span class="line"><span class="cl">      }
+</span></span><span class="line"><span class="cl">    ]
+</span></span><span class="line"><span class="cl">  }&#39; | jq .
+</span></span></code></pre></div><ul>
+<li>
+<p>결과 예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;id&#34;: &#34;chatcmpl-a4bb1b0b0a747af1&#34;,
+</span></span><span class="line"><span class="cl">  &#34;object&#34;: &#34;chat.completion&#34;,
+</span></span><span class="line"><span class="cl">  &#34;created&#34;: 1791436948,
+</span></span><span class="line"><span class="cl">  &#34;model&#34;: &#34;google/gemma-3-1b-it&#34;,
+</span></span><span class="line"><span class="cl">  &#34;choices&#34;: [
+</span></span><span class="line"><span class="cl">    {
+</span></span><span class="line"><span class="cl">      &#34;index&#34;: 0,
+</span></span><span class="line"><span class="cl">      &#34;message&#34;: {
+</span></span><span class="line"><span class="cl">        &#34;tool_calls&#34;: [],
+</span></span><span class="line"><span class="cl">        &#34;content&#34;: &#34;The capital of South Korea is **Seoul**.\n&#34;,
+</span></span><span class="line"><span class="cl">        &#34;role&#34;: &#34;assistant&#34;
+</span></span><span class="line"><span class="cl">      },
+</span></span><span class="line"><span class="cl">      ...
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  ],
+</span></span><span class="line"><span class="cl">  ...
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<p><strong>LLM 서빙 성능 평가</strong></p>
+<p>여기서는 vllm 프로젝트에서 제공하는 LLM 성능 평가 도구인 GuildeLLM을 사용하여, 성능을 평가합니다.</p>
+<p>HTTP 기반 호출할때와 차이는, 기 생성한 Self-Signed 인증서와 API Key를 사용하는 방법의 확인후 기록한 내용입니다.</p>
+<ol>
+<li>
+<p>GuideLLM을 설치합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">pip install guidellm
+</span></span></code></pre></div></li>
+<li>
+<p>Hugging Face에서 Read 권한 토큰을 만든 뒤 로그인 합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">hf auth login
+</span></span></code></pre></div></li>
+<li>
+<p>벤치마크를 위해 다음 명령을 실행합니다.</p>
+<ul>
+<li><code>max_length=100</code> 조건에 맞춰 token 수를 가정</li>
+<li><code>streams</code>로 동시 요청수, 배치 사이즈 지정</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">export SECRETS_DIR=/home/opc/secrets
+</span></span><span class="line"><span class="cl">export API_KEY=`cat $SECRETS_DIR/api-key`; echo $API_KEY
+</span></span><span class="line"><span class="cl">export HOST=$(hostname -f); echo $HOST
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># 시스템 CA + Private AI 인증서를 합치기
+</span></span><span class="line"><span class="cl">cat /etc/pki/tls/certs/ca-bundle.crt &#34;$SECRETS_DIR/cert.pem&#34; \
+</span></span><span class="line"><span class="cl">  &gt; &#34;$HOME/privateai-ca-bundle.pem&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">export SSL_CERT_FILE=&#34;$HOME/privateai-ca-bundle.pem&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">guidellm run \
+</span></span><span class="line"><span class="cl">  --backend &#34;kind=openai_http,target=https://$HOST:8443,api_key=$API_KEY,verify=true&#34; \
+</span></span><span class="line"><span class="cl">  --profile kind=concurrent,streams=1,warmup=5,cooldown=5 \
+</span></span><span class="line"><span class="cl">  --constraint kind=max_duration,seconds=120 \
+</span></span><span class="line"><span class="cl">  --data kind=synthetic_text,prompt_tokens=16,output_tokens=84  
+</span></span></code></pre></div></li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-llm/">2026-10-13 Private AI Services Container 시작하기 - Private Large Language Model Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-dsjob-cross-tenancy-os-bucket-mount/">2026-10-12 OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/cpu-based-ai-inference/">2026-10-06 Compute VM에서 CPU 기반 AI 추론 모델 테스트</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-compute-https-letsencrypt/">2026-09-17 OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">2026-09-11 OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

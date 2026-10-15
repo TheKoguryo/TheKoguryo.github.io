@@ -3,7 +3,7 @@
 <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>TheKoguryo&#39;s 기술 블로그</title>
+<title>14.3.8 OCI Native Backend로 Terraform State Files 관리 - TheKoguryo&#39;s 기술 블로그</title>
 <meta name="generator" content="Hugo 0.152.1">
 <link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
 <link rel="canonical" href="https://thekoguryo.github.io/oci/chapter14/3/8/">
@@ -30,20 +30,22 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
      crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oci/chapter14/3/8/">
   <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
-  <meta property="og:title" content="TheKoguryo&#39;s 기술 블로그">
-  <meta property="og:description" content="https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformUsingObjectStore.htm#http
-Bucket 생성 tf-example-tfstate
-PAR(Pre-Authenticated Request) 생성 =&gt; 근데 PAR URL로 접근해야 하면, 이건 인터넷에서 인증 없이 접근됨. Object Storage가 Private Bucket이라 하더라도 해당 PAR URL로는 인증없이 접근됨 par-bucket-tf-example-tfstate Permit object reads and writes">
+  <meta property="og:title" content="14.3.8 OCI Native Backend로 Terraform State Files 관리">
+  <meta property="og:description" content="14.3.8 OCI Native Backend로 Terraform State Files 관리 여러 사용자가 함께 작업할 때 Terraform State Files을 로컬에 관리하지 않고, 별도의 저장소에 관리하게 됩니다. 더불어 이때 여러 사용자가 동시 작업을 할 수 있으므로, 동시성을 제어하기 위한 Terraform State Locking 관련 기능이 필요하게 됩니다.">
   <meta property="og:locale" content="ko">
   <meta property="og:type" content="article">
     <meta property="article:section" content="oci">
+    <meta property="article:published_time" content="2026-10-15T00:00:02+09:00">
+    <meta property="article:modified_time" content="2026-10-15T00:00:02+09:00">
+    <meta property="article:tag" content="Terraform">
+    <meta property="article:tag" content="Oci Native Backend">
 
 </head>
 <body>
 <div class="container"><header>
 <h1>TheKoguryo&#39;s 기술 블로그</h1>
 
- <span class="version">&nbsp;Version 2026-10-14</span>
+ <span class="version">&nbsp;Version 2026-10-15</span>
 <a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
 </header>
 <div class="menu">
@@ -62,67 +64,242 @@ PAR(Pre-Authenticated Request) 생성 =&gt; 근데 PAR URL로 접근해야 하�
 </nav>
 </div>
 <div class="content-container">
-<main><p><a href="https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformUsingObjectStore.htm#http">https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/terraformUsingObjectStore.htm#http</a></p>
+<main><h3 id="1438-oci-native-backend로-terraform-state-files-관리">14.3.8 OCI Native Backend로 Terraform State Files 관리</h3>
+<p>여러 사용자가 함께 작업할 때 Terraform State Files을 로컬에 관리하지 않고, 별도의 저장소에 관리하게 됩니다. 더불어 이때 여러 사용자가 동시 작업을 할 수 있으므로, 동시성을 제어하기 위한 Terraform State Locking 관련 기능이 필요하게 됩니다.</p>
+<p>OCI Resoure Manager를 사용하면, Terraform State File 저장 및 Locking 관련 기능을 제공하지만, 여기서는 순수 Terraform을 사용하고, Terraform State Files을 관리하고 할 때 사용할 수 있는 방법을 알아봅니다.</p>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/dev/terraform/object-storage-state.htm">Using Object Storage for State Files</a> 문서에서 처럼 OCI에서는 S3-Compatible Backend, HTTP Backend 사용하는 방법이 있었습니다. 2025년 5월에 OCI Object Storage를 이용하는 OCI native Backend가 출시되었으며, 현재 권장하는 방법입니다. 자체적으로 State Locking도 지원합니다. 여기서는 관련 문서를 참고하여, 해당 기능을 확인해 보고자 합니다.</p>
+<h6 id="terraform으로-vcn-만들기">Terraform으로 VCN 만들기</h6>
 <ol>
-<li>Bucket 생성</li>
-</ol>
-<p>tf-example-tfstate</p>
-<ol start="2">
-<li>PAR(Pre-Authenticated Request) 생성
-=&gt; 근데 PAR URL로 접근해야 하면, 이건 인터넷에서 인증 없이 접근됨. Object Storage가 Private Bucket이라 하더라도 해당 PAR URL로는 인증없이 접근됨</li>
-</ol>
-<p>par-bucket-tf-example-tfstate
-Permit object reads and writes</p>
-<p>URL
-<a href="https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/">https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/</a></p>
-<ol start="3">
-<li>Terraform Backend로 HTTP 구성</li>
-</ol>
-<p>terraform {
-backend &ldquo;http&rdquo; {
-address = &ldquo;<a href="https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/terraform.tfstate%22">https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/terraform.tfstate"</a>
-update_method = &ldquo;PUT&rdquo;
-}
-}</p>
-<ol start="4">
 <li>
-<p>terraform init</p>
+<p>Terraform 버전 1.12 이상에 지원합니다. 설치된 버전을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ terraform -version
+</span></span><span class="line"><span class="cl">Terraform v1.16.6
+</span></span><span class="line"><span class="cl">on darwin_arm64
+</span></span><span class="line"><span class="cl">+ provider registry.terraform.io/oracle/oci v5.30.0
+</span></span></code></pre></div></li>
+<li>
+<p>OCI Terrafrom Provider는 여러가지 <a href="https://docs.oracle.com/en-us/iaas/Content/dev/terraform/configuring.htm">인증방식</a>을 제공합니다. 기본은 API Key 인증방식입니다. 여기서는 Terraform 공식 예제를 따라 Security Token을 사용하겠습니다. 아래와 같이 대상 리전과 인증후 저장할 프로파일 이름을 지정하여 실행합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">oci session authenticate --region ap-chuncheon-1 --profile-name learn-terraform
+</span></span></code></pre></div><p>실행 후 브라우저가 뜨면, 콘솔을 통해 OCI에 로그인합니다.</p>
+<ul>
+<li>
+<p>예시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ oci session authenticate --region ap-chuncheon-1 --profile-name learn-terraform
+</span></span><span class="line"><span class="cl">    Please switch to newly opened browser window to log in!
+</span></span><span class="line"><span class="cl">    You can also open the following URL in a web browser window to continue:
+</span></span><span class="line"><span class="cl">https://login.ap-chuncheon-1.oraclecloud.com/v1/oauth2/authorize?action=login&amp;client_id=iaas_console&amp;response_type=token+id_token&amp;...
+</span></span><span class="line"><span class="cl">    Completed browser authentication process!
+</span></span><span class="line"><span class="cl">Config written to: /Users/kildong/.oci/config
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    Try out your newly created session credentials with the following example command:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    oci iam region list --config-file /Users/kildong/.oci/config --profile learn-terraform --auth security_token
+</span></span></code></pre></div></li>
+</ul>
 </li>
 <li>
-<p>terraform apply</p>
+<p>토큰이 저장되고, OCI CLI가 잘 실행되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ oci os ns get --profile learn-terraform --auth security_token
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;data&#34;: &#34;axmdbdcxxxxx&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ export OCI_CLI_PROFILE=&#34;learn-terraform&#34;
+</span></span><span class="line"><span class="cl">$ export OCI_CLI_AUTH=&#34;security_token&#34;
+</span></span><span class="line"><span class="cl">$ oci os ns get
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;data&#34;: &#34;axmdbdcxxxxx&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>테라폼 파일을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"> mkdir learn-terraform-oci
+</span></span><span class="line"><span class="cl"> cd learn-terraform-oci
+</span></span><span class="line"><span class="cl"> touch main.tf
+</span></span></code></pre></div></li>
+<li>
+<p><code>main.tf</code> 를 다음과 같이 작성합니다. <code>&lt;your_compartment_OCID_here&gt;</code>에 생성할 VCN이 위치할 Compartment OCID를 입력합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">terraform {
+</span></span><span class="line"><span class="cl">  required_providers {
+</span></span><span class="line"><span class="cl">    oci = {
+</span></span><span class="line"><span class="cl">      source = &#34;oracle/oci&#34;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">provider &#34;oci&#34; {
+</span></span><span class="line"><span class="cl">  region              = &#34;ap-chuncheon-1&#34;
+</span></span><span class="line"><span class="cl">  auth                = &#34;SecurityToken&#34;
+</span></span><span class="line"><span class="cl">  config_file_profile = &#34;learn-terraform&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">resource &#34;oci_core_vcn&#34; &#34;internal&#34; {
+</span></span><span class="line"><span class="cl">  dns_label      = &#34;internal&#34;
+</span></span><span class="line"><span class="cl">  cidr_block     = &#34;172.16.0.0/20&#34;
+</span></span><span class="line"><span class="cl">  compartment_id = &#34;&lt;your_compartment_OCID_here&gt;&#34;
+</span></span><span class="line"><span class="cl">  display_name   = &#34;My internal VCN&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>초기화 후 VCN을 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ terraform init
+</span></span><span class="line"><span class="cl">$ terraform apply
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Plan: 1 to add, 0 to change, 0 to destroy.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Do you want to perform these actions?
+</span></span><span class="line"><span class="cl">  Terraform will perform the actions described above.
+</span></span><span class="line"><span class="cl">  Only &#39;yes&#39; will be accepted to approve.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  Enter a value: yes
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">oci_core_vcn.internal: Creating...
+</span></span><span class="line"><span class="cl">oci_core_vcn.internal: Creation complete after 0s [id=ocid1.vcn.oc1.ap-chuncheon-1.amaaaaaaz236myiaptpc7rvcz2v4ueijtdluwmkxbm2f5fm4n5yzg2kjrqtq]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+</span></span></code></pre></div></li>
+<li>
+<p>Terraform State Files가 로컬에 생성된 걸 볼 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls terraform.tfstate*
+</span></span><span class="line"><span class="cl">terraform.tfstate        terraform.tfstate.backup
+</span></span></code></pre></div></li>
+<li>
+<p>자원을 삭제하고, Terraform State Files을 삭제합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">terraform destroy
+</span></span><span class="line"><span class="cl">rm -rf terraform.tfstate*
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="oci-native-backend-사용하기">OCI Native Backend 사용하기</h6>
+<ol>
+<li>
+<p>Object Storage Namespace를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ oci os ns get --profile learn-terraform --auth security_token
+</span></span><span class="line"><span class="cl">{
+</span></span><span class="line"><span class="cl">  &#34;data&#34;: &#34;axmdbdcxxxxx&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>콘솔에서 Object Storage Bucket을 다음 이름으로 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">tf-remote-state
+</span></span></code></pre></div></li>
+<li>
+<p><code>main.tf</code>에 OCI native backend를 추가합니다. <code>backend &quot;oci&quot;</code>에 만든 bucket 이름과 namespace 값을 지정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">terraform {
+</span></span><span class="line"><span class="cl">  required_providers {
+</span></span><span class="line"><span class="cl">    oci = {
+</span></span><span class="line"><span class="cl">      source = &#34;oracle/oci&#34;
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">  }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  backend &#34;oci&#34; {
+</span></span><span class="line"><span class="cl">    bucket              = &#34;tf-remote-state&#34;
+</span></span><span class="line"><span class="cl">    namespace           = &#34;axmdbdcxxxxx&#34;
+</span></span><span class="line"><span class="cl">    region              = &#34;ap-chuncheon-1&#34;
+</span></span><span class="line"><span class="cl">    auth                = &#34;SecurityToken&#34;
+</span></span><span class="line"><span class="cl">    config_file_profile = &#34;learn-terraform&#34;    
+</span></span><span class="line"><span class="cl">  }  
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">provider &#34;oci&#34; {
+</span></span><span class="line"><span class="cl">  region              = &#34;ap-chuncheon-1&#34;
+</span></span><span class="line"><span class="cl">  auth                = &#34;SecurityToken&#34;
+</span></span><span class="line"><span class="cl">  config_file_profile = &#34;learn-terraform&#34;
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">resource &#34;oci_core_vcn&#34; &#34;internal&#34; {
+</span></span><span class="line"><span class="cl">  dns_label      = &#34;internal&#34;
+</span></span><span class="line"><span class="cl">  cidr_block     = &#34;172.16.0.0/20&#34;
+</span></span><span class="line"><span class="cl">  compartment_id = &#34;&lt;your_compartment_OCID_here&gt;&#34;
+</span></span><span class="line"><span class="cl">  display_name   = &#34;My internal VCN&#34;
+</span></span></code></pre></div></li>
+<li>
+<p>다시 init를 실행합니다. <code>backend &quot;oci&quot;</code>가 오류없이 초기화 되는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ terraform init
+</span></span><span class="line"><span class="cl">Initializing the backend...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Successfully configured the backend &#34;oci&#34;! Terraform will automatically
+</span></span><span class="line"><span class="cl">use this backend unless the backend configuration changes.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Initializing provider plugins...
+</span></span><span class="line"><span class="cl">- Reusing previous version of oracle/oci from the dependency lock file
+</span></span><span class="line"><span class="cl">- Using previously-installed oracle/oci v9.10.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Terraform has been successfully initialized!
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">You may now begin working with Terraform. Try running &#34;terraform plan&#34; to see
+</span></span><span class="line"><span class="cl">any changes that are required for your infrastructure. All Terraform commands
+</span></span><span class="line"><span class="cl">should now work.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">If you ever set or change modules or backend configuration for Terraform,
+</span></span><span class="line"><span class="cl">rerun this command to reinitialize your working directory. If you forget, other
+</span></span><span class="line"><span class="cl">commands will detect it and remind you to do so if necessary.
+</span></span></code></pre></div></li>
+<li>
+<p><code>backend &quot;oci&quot;</code>을 사용하여 VCN을 다시 생성합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ terraform apply
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+</span></span><span class="line"><span class="cl">  + create
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Terraform will perform the following actions:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  # oci_core_vcn.internal will be created
+</span></span><span class="line"><span class="cl">  + resource &#34;oci_core_vcn&#34; &#34;internal&#34; {
+</span></span><span class="line"><span class="cl">      + byoipv6cidr_blocks               = (known after apply)
+</span></span><span class="line"><span class="cl">      ...
+</span></span><span class="line"><span class="cl">    }
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Plan: 1 to add, 0 to change, 0 to destroy.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Do you want to perform these actions?
+</span></span><span class="line"><span class="cl">  Terraform will perform the actions described above.
+</span></span><span class="line"><span class="cl">  Only &#39;yes&#39; will be accepted to approve.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  Enter a value: yes
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">oci_core_vcn.internal: Creating...
+</span></span><span class="line"><span class="cl">oci_core_vcn.internal: Creation complete after 1s [id=ocid1.vcn.oc1.ap-chuncheon-1.amaaaaaaz236myiafzkcn4rsnxxxpijbq7romu5udqgoiod6vb6wfl62hwjq]
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
+</span></span></code></pre></div></li>
+<li>
+<p>Terraform State Files가 로컬에 있는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ ls terraform.tfstate*
+</span></span><span class="line"><span class="cl">zsh: no matches found: terraform.tfstate*
+</span></span></code></pre></div></li>
+<li>
+<p>콘솔에서 <code>tf-remote-state</code>을 확인합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261015171153013.png" alt='image-20261015171153013' onerror="this.onerror=null;this.src='images\/image-20261015171153013.png';" />
+</p>
 </li>
 <li>
-<p>Object Storage 가 보면 tfstate 파일 생성되어 있음.</p>
+<p>OCI Native Backend를 사용하여 Terraform State Files이 OCI Object Storage Bucket로 관리할 수 있습니다.</p>
+</li>
+</ol>
+<h6 id="참고">참고</h6>
+<ul>
+<li>
+<p><a href="https://developer.hashicorp.com/terraform/tutorials/oci-get-started">Developer / Terraform / Tutorial/ OCI / Get Started - OCI</a></p>
 </li>
 <li>
-<p>lock 설정</p>
+<p><a href="https://developer.hashicorp.com/terraform/language/backend/oci">oci backend</a></p>
 </li>
-</ol>
-<p>terraform {
-backend &ldquo;http&rdquo; {
-address = &ldquo;<a href="https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/terraform.tfstate%22">https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/terraform.tfstate"</a>
-update_method = &ldquo;PUT&rdquo;
-lock_address = &ldquo;<a href="https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/lock%22">https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/lock"</a>
-unlock_address = &ldquo;<a href="https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/lock%22">https://objectstorage.ap-seoul-1.oraclecloud.com/p/k5TQIRpJrotyyCVwzQLDw3CqWrI1feMzvPtz7YEwm9I5IdvZwBxDUhGGmAxboJvf/n/cn8wdnkejjgq/b/tf-example-tfstate/o/lock"</a>
-}
-}</p>
-<ol start="8">
-<li>terraform init</li>
-<li>terraform apply
-응답 오류 발생
-Object Storage의 HTTP API가 terraform state locking 지원 안하는 것으로 판단됨.</li>
-</ol>
-<pre tabindex="0"><code>$ terraform apply
-╷
-│ Error: Error acquiring the state lock
-│ 
-│ Error message: Unexpected HTTP response code 404
-│ 
-│ Terraform acquires a state lock to protect the state from being written
-│ by multiple users at the same time. Please resolve the issue above and try
-│ again. For most commands, you can disable locking with the &#34;-lock=false&#34;
-│ flag, but this is not recommended.
-</code></pre><br>
+<li>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/dev/terraform/object-storage-state.htm">Using Object Storage for State Files</a></p>
+</li>
+<li>
+<p><a href="https://blogs.oracle.com/cloud-infrastructure/terraform-oci-state-locking-backend">Solve State Locking and Token-Based Authentication Challenges with the new OCI Backend for Terraform</a></p>
+</li>
+</ul>
+<br>
 <br>
 <div class="panel panel-caution">
     <div class="panel-body" style="text-align: center;">
@@ -130,8 +307,8 @@ Object Storage의 HTTP API가 terraform state locking 지원 안하는 것으로
     </div>
     </div>
 
- <div class="edit-meta">Last updated on 1 Jan 0001<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/3/7/" title="14.3.7 OCI Terraform 사용 예제"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.3.7 OCI Terraform 사용 예제</a>
-<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter15/" title="15. Resource Manager 사용하기">Next - 15. Resource Manager 사용하기 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+ <div class="edit-meta">Last updated on 15 Oct 2026<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oci/chapter14/3/6/" title="14.3.6 예시, list, count를 이용한 유저 만들기"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 14.3.6 예시, list, count를 이용한 유저 만들기</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oci/chapter14/3/7/" title="14.3.7 OCI Terraform 사용 예제">Next - 14.3.7 OCI Terraform 사용 예제 <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
 </nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
 </footer>
 </main><div class="sidebar">
@@ -1355,12 +1532,12 @@ Object Storage의 HTTP API가 terraform state locking 지원 안하는 것으로
     
     
 
+      <li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/3/8/">14.3.8 OCI Native Backend로 Terraform State Files 관리</a></li>
+
+    
+    
+
       <li class=""><a href="https://thekoguryo.github.io/oci/chapter14/3/7/">14.3.7 OCI Terraform 사용 예제</a></li>
-
-    
-    
-
-      <li class="active"><a href="https://thekoguryo.github.io/oci/chapter14/3/8/"></a></li>
             </ul>
               
             </li>

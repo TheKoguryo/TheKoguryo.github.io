@@ -1,0 +1,2468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>3.3 Autoscaling - Karpenter Provider for OCI (KPO) 사용하기 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/3.autoscaling-kpo/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/3.autoscaling-kpo/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="3.3 Autoscaling - Karpenter Provider for OCI (KPO) 사용하기">
+  <meta property="og:description" content="3.3 Autoscaling - Karpenter Provider for OCI (KPO) 사용하기 Cluster Autoscaler를 사용하여 OKE 노드스케일할 수 있습니다. 쿠버네티스 노드스케일을 위해 많이 사용되는 툴로 karpenter가 있습니다. [karpenter-provider-oci]는 OCI를 위한 karpenter 구현체로, OKE 클러스터를 지원합니다. karpenter-provider-oci는 오라클에서 관리하고 있습니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="oracle-cloudnative">
+    <meta property="article:published_time" content="2026-10-28T00:00:01+00:00">
+    <meta property="article:modified_time" content="2026-10-28T00:00:01+00:00">
+    <meta property="article:tag" content="Oke">
+    <meta property="article:tag" content="Enhanced Cluster">
+    <meta property="article:tag" content="Self-Managed Nodes">
+    <meta property="article:tag" content="Karpenter">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-10-28</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="33-autoscaling---karpenter-provider-for-oci-kpo-사용하기">3.3 Autoscaling - Karpenter Provider for OCI (KPO) 사용하기</h2>
+<p>Cluster Autoscaler를 사용하여 OKE 노드스케일할 수 있습니다. 쿠버네티스 노드스케일을 위해 많이 사용되는 툴로 karpenter가 있습니다.  [<a href="https://github.com/oracle/karpenter-provider-oci">karpenter-provider-oci</a>]는 OCI를 위한 karpenter 구현체로, OKE 클러스터를 지원합니다. karpenter-provider-oci는 오라클에서 관리하고 있습니다.</p>
+<h6 id="oke-클러스터-준비하기">OKE 클러스터 준비하기</h6>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/conteng-kpo.htm#conteng-kpo-installation">Karpenter Provider for OCI</a> 설치 요구사항에 맞게 환경을 준비합니다.</p>
+<ul>
+<li>
+<p><strong>OKE Cluster (Kubernetes version &gt;= v1.31)</strong> 필요</p>
+</li>
+<li>
+<p><strong>OKE Managed Node Pool 또는 Self-Managed Nodes</strong>:</p>
+<ul>
+<li>KPO가 실행될 노드 필요</li>
+<li>여기서는 2노드 Node Pool 1개 생성함</li>
+</ul>
+</li>
+<li>
+<p><strong>CNI</strong>:</p>
+<ul>
+<li>OCI VCN IP Native CNI 애드온을 사용하는 경우, 애드온 버전 3.2.0 이상</li>
+<li>본 테스트에서는 Flannel CNI로 설치</li>
+<li><strong>OciIpNativeCNI</strong>: NativePodNetworking을 사용하는 경우, <strong>3.0.0</strong> 이상이면이 필요하지면, 최신 버전 또는 3.2.0 이상 버전을 사용합니다.</li>
+</ul>
+</li>
+<li>
+<p><strong>Helm client</strong>: 설치 필요</p>
+</li>
+<li>
+<p>Enhanced Cluster</p>
+</li>
+</ul>
+<h6 id="oci-iam-dynamic-group-및-policy-만들기">OCI IAM Dynamic Group 및 Policy 만들기</h6>
+<ol>
+<li>
+<p>Workload Identity를 위한 Dynamic Group을 만듭니다</p>
+<ul>
+<li>
+<p>Name: 예, <code>oke-workload-type-dyn-grp</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL { resource.type=&#39;workload&#39; }
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>Self-Managed 노드로 추가할 Compute 인스턴스를 포함하는 Dynamic Group을 만듭니다.</p>
+<ul>
+<li>
+<p>Name: 예, <code>oke-self-managed-node-dyn-grp</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">ALL {instance.compartment.id = &#39;&lt;compartment-ocid&gt;&#39;}
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>생성한 Dynamic Group을 위한 Policy를 만듭니다.</p>
+<ul>
+<li>
+<p>Name: 예, <code>oke-karpenter-policy</code></p>
+<ul>
+<li><code>&lt;compartment-name&gt;</code>는 원하는 값으로 변경</li>
+<li>KPO의 기본 기능을 위한 정책입니다. 추가적인 기능을 사용하는 경우 <a href="https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/conteng-kpo.htm#conteng-kpo-iam">Granting IAM Permissions to Karpenter Provider for OCI</a> 문서를 참조하여 그에 맞는 정책을 추가합니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Allow dynamic-group oke-workload-type-dyn-grp to manage instance-family in compartment &lt;compartment-name&gt; where all {request.principal.namespace = &#39;karpenter&#39;,request.principal.service_account = &#39;karpenter&#39;}
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-workload-type-dyn-grp to manage volumes in compartment &lt;compartment-name&gt; where all {request.principal.namespace = &#39;karpenter&#39;,request.principal.service_account = &#39;karpenter&#39;}
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-workload-type-dyn-grp to manage volume-attachments in compartment &lt;compartment-name&gt; where all {request.principal.namespace = &#39;karpenter&#39;,request.principal.service_account = &#39;karpenter&#39;}
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-workload-type-dyn-grp to manage virtual-network-family in compartment &lt;compartment-name&gt; where all {request.principal.namespace = &#39;karpenter&#39;,request.principal.service_account = &#39;karpenter&#39;}
+</span></span><span class="line"><span class="cl">Allow dynamic-group oke-workload-type-dyn-grp to inspect compartments in compartment &lt;compartment-name&gt; where all {request.principal.namespace = &#39;karpenter&#39;,request.principal.service_account = &#39;karpenter&#39;}
+</span></span></code></pre></div></li>
+<li>
+<p>Name: 예, <code>oke-self-managed-node-policy</code></p>
+<ul>
+<li><code>&lt;compartment-name&gt;</code>는 원하는 값으로 변경</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">Allow dynamic-group oke-self-managed-node-dyn-grp to {CLUSTER_JOIN} in compartment &lt;compartment-name&gt;
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<h6 id="karpenter-설치하기">Karpenter 설치하기</h6>
+<ol>
+<li>
+<p>Helm Repo를 추가하고 사용가능한 버전을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">helm repo add karpenter-provider-oci https://oracle.github.io/karpenter-provider-oci/charts
+</span></span><span class="line"><span class="cl">helm repo update karpenter-provider-oci
+</span></span><span class="line"><span class="cl">helm search repo karpenter-provider-oci/karpenter --versions
+</span></span></code></pre></div></li>
+<li>
+<p>설정 가능한 값을 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">helm show values karpenter-provider-oci/karpenter --version 1.3.0
+</span></span></code></pre></div></li>
+<li>
+<p>Helm values 파일을 작성하거나 설치 파라미터로 설정합니다. 여기서는 파라미터로 차트를 설치합니다.</p>
+<ul>
+<li>
+<p><code>compartmentId</code>, <code>vcnCompartmentId</code>, <code>apiserverEndpoint</code>은 각자 환경에 맞게 변경합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">helm install karpenter karpenter-provider-oci/karpenter \
+</span></span><span class="line"><span class="cl">  --version 1.3.0 \
+</span></span><span class="line"><span class="cl">  --namespace karpenter --create-namespace \
+</span></span><span class="line"><span class="cl">  --set &#34;settings.clusterCompartmentId=ocid1.compartment.oc1..aaaaa...&#34; \
+</span></span><span class="line"><span class="cl">  --set &#34;settings.vcnCompartmentId=ocid1.compartment.oc1..aaaaa...&#34; \
+</span></span><span class="line"><span class="cl">  --set &#34;settings.ociVcnIpNative=false&#34; \
+</span></span><span class="line"><span class="cl">  --set &#34;settings.apiserverEndpoint=10.0.0.3&#34; \
+</span></span><span class="line"><span class="cl">  --set &#34;settings.batchMaxDuration=5s&#34; \
+</span></span><span class="line"><span class="cl">  --set &#34;settings.batchIdleDuration=1s&#34;
+</span></span></code></pre></div></li>
+<li>
+<p><strong>apiserverEndpoint</strong>: OKE 클러스터 상세정보에서 <code>Kubernetes API private IPv4 endpoint</code>에서 IP만</p>
+</li>
+<li>
+<p><strong>batchMaxDuration</strong>: 연속된 배치시 지정된 시간만큼의 단위로 처리합니다.</p>
+</li>
+<li>
+<p><strong>batchIdleDuration</strong>: 배치후 지정된 시간만큼 다음 배치가 없으면, batchMaxDuration에 도달하지 않아도 바로 처리합니다.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>설치를 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get pods --namespace karpenter
+</span></span><span class="line"><span class="cl">NAME                         READY   STATUS    RESTARTS   AGE
+</span></span><span class="line"><span class="cl">karpenter-584454549b-9xnwx   1/1     Running   0          24s
+</span></span><span class="line"><span class="cl">karpenter-584454549b-jrhn8   1/1     Running   0          24s
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="node-pool-만들기">Node Pool 만들기</h6>
+<p>NodePool은 Karpenter가 생성할 수 있는 노드와 해당 노드에서 실행될 수 있는 Pod에 제약 조건을 설정합니다. NodePool은 다음과 같은 작업을 수행하도록 설정할 수 있습니다.</p>
+<ol>
+<li>
+<p>NodeClass 설정</p>
+<ul>
+<li>
+<p>Oracle Linux 예제 - <code>kpo-nodeclass-oracle.yaml</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com/v1beta1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">OCINodeClass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-ocinodeclass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">shapeConfigs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="nt">ocpus</span><span class="p">:</span><span class="w"> </span><span class="m">2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">memoryInGbs</span><span class="p">:</span><span class="w"> </span><span class="m">8</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">volumeConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">bootVolumeConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">imageConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">imageType</span><span class="p">:</span><span class="w"> </span><span class="l">OKEImage</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">imageFilter</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">osFilter</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;Oracle Linux&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">osVersionFilter</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;8&#34;</span><span class="w">       
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">networkConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">primaryVnicConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">subnetConfig</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">subnetId</span><span class="p">:</span><span class="w"> </span><span class="l">ocid1.subnet.oc1.ap-seoul-1.aaaaa...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">sshAuthorizedKeys</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">&#34;ssh-rsa AAA...&#34;</span><span class="w"> </span><span class="p">]</span><span class="w">        
+</span></span></span></code></pre></div></li>
+<li>
+<p><strong>subnetId</strong>: Worker Node가 위치할 서브넷 OCID</p>
+</li>
+<li>
+<p><strong>sshAuthorizedKeys</strong>: Worker Node에 SSH 접속시 사용할 키의 Public Key 입력</p>
+</li>
+</ul>
+</li>
+<li>
+<p>NodePool 설정</p>
+<p>생성될 노드를 정의합니다.</p>
+<ul>
+<li>
+<p>테스트 예제 - <code>kpo-nodepool.yaml</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">karpenter.sh/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">NodePool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-nodepool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">disruption</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">budgets</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="m">100</span><span class="l">%</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consolidateAfter</span><span class="p">:</span><span class="w"> </span><span class="l">1m0s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consolidationPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">WhenEmptyOrUnderutilized</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">limits</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="m">64</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l">256Gi</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">expireAfter</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">nodeClassRef</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">OCINodeClass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-ocinodeclass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">requirements</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">karpenter.sh/capacity-type</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="kc">on</span>-<span class="l">demand</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com/instance-shape</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">VM.Standard.E5.Flex</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">terminationGracePeriod</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>NodeClass 배포합니다. 배포후 describe 명령으로 이미지 등을 포함한 각 항목이 오류가 없는 지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl apply -f kpo-nodeclass-oracle.yaml
+</span></span><span class="line"><span class="cl">ocinodeclass.oci.oraclecloud.com/my-ocinodeclass created
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get ocinodeclass
+</span></span><span class="line"><span class="cl">NAME              READY   AGE
+</span></span><span class="line"><span class="cl">my-ocinodeclass   True    12s
+</span></span></code></pre></div></li>
+<li>
+<p>NodePool을 배포합니다. 배포후 READY=True인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl apply -f kpo-nodepool.yaml
+</span></span><span class="line"><span class="cl">nodepool.karpenter.sh/my-nodepool created
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodepools
+</span></span><span class="line"><span class="cl">NAME          NODECLASS         NODES   READY   AGE
+</span></span><span class="line"><span class="cl">my-nodepool   my-ocinodeclass   0       True    9s
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="테스트-앱-배포">테스트 앱 배포</h6>
+<ol>
+<li>
+<p>테스트 배포할 앱의 yaml을 작성합니다. <code>nodeSelector</code>로 <code>my-nodepool</code>에 배포하도록 지정합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># nginx.yaml
+</span></span><span class="line"><span class="cl">apiVersion: apps/v1
+</span></span><span class="line"><span class="cl">kind: Deployment
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: nginx
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  selector:
+</span></span><span class="line"><span class="cl">    matchLabels:
+</span></span><span class="line"><span class="cl">      app: nginx
+</span></span><span class="line"><span class="cl">  replicas: 2
+</span></span><span class="line"><span class="cl">  template:
+</span></span><span class="line"><span class="cl">    metadata:
+</span></span><span class="line"><span class="cl">      labels:
+</span></span><span class="line"><span class="cl">        app: nginx
+</span></span><span class="line"><span class="cl">    spec:
+</span></span><span class="line"><span class="cl">      containers:
+</span></span><span class="line"><span class="cl">      - name: nginx
+</span></span><span class="line"><span class="cl">        image: docker.io/nginx:latest
+</span></span><span class="line"><span class="cl">        ports:
+</span></span><span class="line"><span class="cl">        - containerPort: 80
+</span></span><span class="line"><span class="cl">        resources:
+</span></span><span class="line"><span class="cl">          requests:
+</span></span><span class="line"><span class="cl">            cpu: 250m
+</span></span><span class="line"><span class="cl">      nodeSelector:
+</span></span><span class="line"><span class="cl">        karpenter.sh/nodepool: my-nodepool  
+</span></span></code></pre></div></li>
+<li>
+<p>현재 상태 확인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get nodes
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE   VERSION
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node    21m   v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node    21m   v1.36.4
+</span></span></code></pre></div></li>
+<li>
+<p>배포하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl apply -f nginx.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>스케일 하기 - Node Provisioning 확인하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get pod -o wide --watch
+</span></span><span class="line"><span class="cl">NAME                                READY   STATUS    RESTARTS   AGE     IP           NODE          NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-deployment-5d6799748d-8nf66   1/1     Running   0          2m28s   10.244.3.3   10.0.10.220   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-deployment-5d6799748d-9brhl   1/1     Running   0          2m28s   10.244.3.2   10.0.10.220   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodes -L karpenter.sh/nodepool
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES    AGE     VERSION   NODEPOOL
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node     108m    v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node     108m    v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.93    Ready    &lt;none&gt;   2m23s   v1.36.4   my-nodepool
+</span></span></code></pre></div><ul>
+<li>새 노드 <code>10.0.10.93</code>이 생성되고 Pod 2개가 해당 노드에 배포되었습니다.</li>
+</ul>
+</li>
+<li>
+<p>스케일 인 하기 - Node Consolidation</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl scale deploy nginx --replicas=0
+</span></span></code></pre></div></li>
+<li>
+<p>노드, Pod 수를 확인합니다. <code>consolidateAfter: 1m0s</code> 로 설정한 값에 따라 Node 삭제까지는 시간이 걸립니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get pod
+</span></span><span class="line"><span class="cl">No resources found in default namespace.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodes -L karpenter.sh/nodepool
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE    VERSION   NODEPOOL
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node    113m   v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node    112m   v1.36.4
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="spot-capacity-oci-preemptible-사용하기">Spot capacity (OCI preemptible) 사용하기</h6>
+<ol>
+<li>
+<p>NodePool 설정을 변경합니다.</p>
+<ul>
+<li>
+<p>테스트 예제</p>
+<ul>
+<li><code>karpenter.sh/capacity-type</code>만 <strong>on-demand</strong>에서 <strong>spot</strong>으로 변경</li>
+<li><code>taints</code> 추가</li>
+<li><code>instance-shape</code>에 preemptible 자원 할당을 원활하기 위해 다른 shape 추가</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">karpenter.sh/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">NodePool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-nodepool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">disruption</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">budgets</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="m">100</span><span class="l">%</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consolidateAfter</span><span class="p">:</span><span class="w"> </span><span class="l">1m0s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consolidationPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">WhenEmptyOrUnderutilized</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">limits</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="m">64</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l">256Gi</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">expireAfter</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">nodeClassRef</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">OCINodeClass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-ocinodeclass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">requirements</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">karpenter.sh/capacity-type</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">spot</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com/instance-shape</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">VM.Standard.E3.Flex          </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">VM.Standard.E4.Flex</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">VM.Standard.E5.Flex</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">VM.Standard.E6.Flex            </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">terminationGracePeriod</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">taints</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com/oke-is-preemptible</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l">NoSchedule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">present          </span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>NodePool을 다시 배포합니다. 배포후 READY=True인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl apply -f kpo-nodepool.yaml
+</span></span><span class="line"><span class="cl">nodepool.karpenter.sh/my-nodepool configured
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodepools
+</span></span><span class="line"><span class="cl">NAME          NODECLASS         NODES   READY   AGE
+</span></span><span class="line"><span class="cl">my-nodepool   my-ocinodeclass   0       True    10m
+</span></span></code></pre></div></li>
+<li>
+<p>테스트 배포할 앱의 yaml에 <code>tolerations</code>을 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl"># nginx.yaml
+</span></span><span class="line"><span class="cl">apiVersion: apps/v1
+</span></span><span class="line"><span class="cl">kind: Deployment
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: nginx
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  selector:
+</span></span><span class="line"><span class="cl">    matchLabels:
+</span></span><span class="line"><span class="cl">      app: nginx
+</span></span><span class="line"><span class="cl">  replicas: 2
+</span></span><span class="line"><span class="cl">  template:
+</span></span><span class="line"><span class="cl">    metadata:
+</span></span><span class="line"><span class="cl">      labels:
+</span></span><span class="line"><span class="cl">        app: nginx
+</span></span><span class="line"><span class="cl">    spec:
+</span></span><span class="line"><span class="cl">      containers:
+</span></span><span class="line"><span class="cl">      - name: nginx
+</span></span><span class="line"><span class="cl">        image: docker.io/nginx:latest
+</span></span><span class="line"><span class="cl">        ports:
+</span></span><span class="line"><span class="cl">        - containerPort: 80
+</span></span><span class="line"><span class="cl">        resources:
+</span></span><span class="line"><span class="cl">          requests:
+</span></span><span class="line"><span class="cl">            cpu: 250m
+</span></span><span class="line"><span class="cl">      nodeSelector:
+</span></span><span class="line"><span class="cl">        karpenter.sh/nodepool: my-nodepool
+</span></span><span class="line"><span class="cl">      tolerations:
+</span></span><span class="line"><span class="cl">      - key: oci.oraclecloud.com/oke-is-preemptible
+</span></span><span class="line"><span class="cl">        operator: Exists
+</span></span><span class="line"><span class="cl">        effect: NoSchedule
+</span></span></code></pre></div></li>
+<li>
+<p>다시 배포하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl apply -f nginx.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>Node Provisioning 확인하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get pod -o wide --watch
+</span></span><span class="line"><span class="cl">NAME                                READY   STATUS    RESTARTS   AGE     IP             NODE         NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-deployment-57b467b795-dhwlb   1/1     Running   0          3m24s   10.244.4.131   10.0.10.27   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-deployment-57b467b795-pspnq   1/1     Running   0          3m24s   10.244.4.130   10.0.10.27   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodes -L karpenter.sh/nodepool -L oci.oraclecloud.com/instance-shape -L oci.oraclecloud.com/oke-is-preemptible
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES    AGE     VERSION   NODEPOOL      INSTANCE-SHAPE        OKE-IS-PREEMPTIBLE
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node     3h6m    v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.27    Ready    &lt;none&gt;   4m39s   v1.36.4   my-nodepool   VM.Standard.E3.Flex   true
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node     3h5m    v1.36.4
+</span></span></code></pre></div><ul>
+<li>
+<p>새 노드 <code>10.0.10.27</code>가 생성되고 Pod 2개가 해당 노드에 배포되었습니다.</p>
+</li>
+<li>
+<p>콘솔에서 생성된 노드를 확인해 보면, Preemptible 타입으로 생성된 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261028104837439.png" alt='image-20261028104837439' onerror="this.onerror=null;this.src='images\/image-20261028104837439.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>스케일 인 하기 - Node Consolidation</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl delete -f nginx.yaml
+</span></span><span class="line"><span class="cl">kubectl get nodes -L karpenter.sh/nodepool
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="arm-cpu-shape-사용하기">Arm CPU Shape 사용하기</h6>
+<p>앞 내용과 이어가기 위해 Spot capacity (OCI preemptible)에서 사용한 설정을 기반으로 설정을 변경하겠습니다.</p>
+<ol>
+<li>
+<p>NodePool 설정을 변경합니다.</p>
+<ul>
+<li>
+<p>테스트 예제</p>
+<ul>
+<li><code>kubernetes.io/arch</code>에 arm64로 하여 추가</li>
+<li><code>instance-shape</code>을 현재 리전에 가용한 Shape인 <code>VM.Standard.A1.Flex</code> 추가</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l">karpenter.sh/v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">NodePool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">metadata</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-nodepool</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">disruption</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">budgets</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="m">100</span><span class="l">%</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consolidateAfter</span><span class="p">:</span><span class="w"> </span><span class="l">1m0s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">consolidationPolicy</span><span class="p">:</span><span class="w"> </span><span class="l">WhenEmptyOrUnderutilized</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">limits</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="m">64</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l">256Gi</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">template</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">spec</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">expireAfter</span><span class="p">:</span><span class="w"> </span><span class="l">Never</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">nodeClassRef</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">group</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l">OCINodeClass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">my-ocinodeclass</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">requirements</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">kubernetes.io/arch</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">arm64      </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">karpenter.sh/capacity-type</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">spot</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com/instance-shape</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l">In</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span>- <span class="l">VM.Standard.A1.Flex          </span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">terminationGracePeriod</span><span class="p">:</span><span class="w"> </span><span class="l">5m</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">taints</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span>- <span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l">oci.oraclecloud.com/oke-is-preemptible</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l">NoSchedule</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l">present          </span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>NodePool을 다시 배포합니다. 배포후 READY=True인지 확인합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl apply -f kpo-nodepool-arm.yaml
+</span></span><span class="line"><span class="cl">nodepool.karpenter.sh/my-nodepool configured
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodepools
+</span></span><span class="line"><span class="cl">NAME          NODECLASS         NODES   READY   AGE
+</span></span><span class="line"><span class="cl">my-nodepool   my-ocinodeclass   0       True    22m
+</span></span></code></pre></div></li>
+<li>
+<p>테스트 배포할 앱은 동일합니다. (<code>tolerations</code> 포함 버전)</p>
+</li>
+<li>
+<p>다시 배포하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl apply -f nginx.yaml
+</span></span></code></pre></div></li>
+<li>
+<p>Node Provisioning 확인하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get nodeclaims
+</span></span><span class="line"><span class="cl">NAME                TYPE                             CAPACITY   ZONE              NODE          READY   AGE
+</span></span><span class="line"><span class="cl">my-nodepool-bwjnl   VM.Standard.A1.Flex.2o.8g.1_1b   spot       AP-SEOUL-1-AD-1   10.0.10.208   True    3m20s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get pod -o wide --watch
+</span></span><span class="line"><span class="cl">NAME                     READY   STATUS    RESTARTS   AGE     IP              NODE          NOMINATED NODE   READINESS GATES
+</span></span><span class="line"><span class="cl">nginx-57b467b795-fqh9r   1/1     Running   0          4m12s   10.244.10.130   10.0.10.208   &lt;none&gt;           &lt;none&gt;
+</span></span><span class="line"><span class="cl">nginx-57b467b795-xgfz2   1/1     Running   0          4m12s   10.244.10.131   10.0.10.208   &lt;none&gt;           &lt;none
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodes -L karpenter.sh/nodepool -L oci.oraclecloud.com/instance-shape -L oci.oraclecloud.com/oke-is-preemptible
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES    AGE     VERSION   NODEPOOL      INSTANCE-SHAPE        OKE-IS-PREEMPTIBLE
+</span></span><span class="line"><span class="cl">10.0.10.208   Ready    &lt;none&gt;   2m50s   v1.36.4   my-nodepool   VM.Standard.A1.Flex   true
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node     20h     v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node     20h     v1.36.4
+</span></span></code></pre></div><ul>
+<li>
+<p>새 노드 <code>10.0.10.208</code>가 <code>VM.Standard.A1.Flex</code>로 생성되고 Pod 2개가 해당 노드에 배포되었습니다.</p>
+</li>
+<li>
+<p>콘솔에서 생성된 노드를 확인해 보면, Preemptible 타입으로 생성된 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261028113147018.png" alt='image-20261028113147018' onerror="this.onerror=null;this.src='images\/image-20261028113147018.png';" />
+</p>
+</li>
+<li>
+<p>OS 이미지도 arm에 맞게 aarch64 이미지를 사용한 것을 알 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261028113259019.png" alt='image-20261028113259019' onerror="this.onerror=null;this.src='images\/image-20261028113259019.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>스케일 인 하기 - Node Consolidation</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">kubectl delete -f nginx.yaml
+</span></span><span class="line"><span class="cl">kubectl get nodes -L karpenter.sh/nodepool
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>VM은 생성되었지만, <code>kubectl get nodes</code> 했을 때 노드 안보이는 경우, 클러스터 조인이 안되는 현상</strong></p>
+<ol>
+<li>
+<p><code>nodeclaims</code>에서 READY가 Unknown</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get nodes -L karpenter.sh/nodepool
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES   AGE   VERSION   NODEPOOL
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node    19h   v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node    19h   v1.36.4
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodeclaims
+</span></span><span class="line"><span class="cl">NAME                TYPE                             CAPACITY   ZONE              NODE   READY     AGE
+</span></span><span class="line"><span class="cl">my-nodepool-bqrhq   VM.Standard.A1.Flex.2o.8g.1_1b   spot       AP-SEOUL-1-AD-1          Unknown   9m13s
+</span></span></code></pre></div></li>
+<li>
+<p>생성된 Worker Node에 SSH 접속해 오류를 확인하면 다음과 같습니다. <code>/opc/v2/identity/cert.pem</code>가 준비 시간이 지연되어 발생하는 것으로 보입니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@my-nodepool-bqrhq ~]$ sudo systemctl status oke.service --no-pager -l
+</span></span><span class="line"><span class="cl">● oke.service - Oracle Container Engine for Kubernetes worker node configuration
+</span></span><span class="line"><span class="cl">   Loaded: loaded (/usr/lib/systemd/system/oke.service; enabled; vendor preset: enabled)
+</span></span><span class="line"><span class="cl">  Drop-In: /etc/systemd/system/oke.service.d
+</span></span><span class="line"><span class="cl">           └─10-args.conf, 10-console-output.conf
+</span></span><span class="line"><span class="cl">   Active: failed (Result: exit-code) since Wed 2026-10-28 02:03:43 GMT; 12min ago
+</span></span><span class="line"><span class="cl"> Main PID: 3925 (code=exited, status=1/FAILURE)
+</span></span><span class="line"><span class="cl">      CPU: 1.001s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">Oct 28 02:03:43 my-nodepool-bqrhq oke[3925]: time=&#34;2026-10-28T02:03:43Z&#34; level=fatal error=&#34;instance principal configuration provider: failed to create a new key provider for instance principal: failed to refresh the leaf certificate: failed to renew certificate: failed to get certificate from http://169.254.169.254/opc/v2/identity/cert.pem: HTTP Get failed: URL: http://169.254.169.254/opc/v2/identity/cert.pem, Status: 404 Not Found, Message: &lt;html&gt;\n&lt;head&gt;&lt;title&gt;404 Not Found&lt;/title&gt;&lt;/head&gt;\n&lt;body bgcolor=\&#34;white\&#34;&gt;\n&lt;center&gt;&lt;h1&gt;404 Not Found&lt;/h1&gt;&lt;/center&gt;\n&lt;/body&gt;\n&lt;/html&gt;\n\nInstance principals authentication can only be used on OCI compute instances. Please confirm this code is running on an OCI compute instance and you have set up the policy properly.\nSee https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm for more info&#34;
+</span></span><span class="line"><span class="cl">Oct 28 02:03:43 my-nodepool-bqrhq systemd[1]: oke.service: Main process exited, code=exited, status=1/FAILURE
+</span></span><span class="line"><span class="cl">Oct 28 02:03:43 my-nodepool-bqrhq systemd[1]: oke.service: Failed with result &#39;exit-code&#39;.
+</span></span><span class="line"><span class="cl">Oct 28 02:03:43 my-nodepool-bqrhq systemd[1]: Failed to start Oracle Container Engine for Kubernetes worker node configuration.
+</span></span><span class="line"><span class="cl">Oct 28 02:03:43 my-nodepool-bqrhq systemd[1]: oke.service: Consumed 1.001s CPU time
+</span></span></code></pre></div></li>
+<li>
+<p>preBootstrapInitScript로 체크과정을 추가합니다.</p>
+<ol>
+<li>
+<p>스크립트 준비</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">cat &gt; wait-imds.sh &lt;&lt;&#39;EOF&#39;
+</span></span><span class="line"><span class="cl">#!/bin/bash
+</span></span><span class="line"><span class="cl">(
+</span></span><span class="line"><span class="cl">  set -eu
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  endpoint=&#34;http://169.254.169.254/opc/v2/identity/cert.pem&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  for attempt in {1..30}; do
+</span></span><span class="line"><span class="cl">    code=$(curl --noproxy &#39;*&#39; \
+</span></span><span class="line"><span class="cl">      --connect-timeout 2 --max-time 5 \
+</span></span><span class="line"><span class="cl">      -sS -o /dev/null -w &#39;%{http_code}&#39; \
+</span></span><span class="line"><span class="cl">      -H &#39;Authorization: Bearer Oracle&#39; \
+</span></span><span class="line"><span class="cl">      &#34;$endpoint&#34;) || code=&#34;curl-error&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    if [ &#34;$code&#34; = &#34;200&#34; ]; then
+</span></span><span class="line"><span class="cl">      echo &#34;[wait-imds] Instance identity certificate is ready&#34;
+</span></span><span class="line"><span class="cl">      exit 0
+</span></span><span class="line"><span class="cl">    fi
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    echo &#34;[wait-imds] attempt=$attempt/30 status=$code&#34;
+</span></span><span class="line"><span class="cl">    if [ &#34;$attempt&#34; -lt 30 ]; then
+</span></span><span class="line"><span class="cl">      sleep 5
+</span></span><span class="line"><span class="cl">    fi
+</span></span><span class="line"><span class="cl">  done
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  echo &#34;[wait-imds] ERROR: certificate endpoint did not become ready&#34; &gt;&amp;2
+</span></span><span class="line"><span class="cl">  exit 1
+</span></span><span class="line"><span class="cl">)
+</span></span><span class="line"><span class="cl">EOF
+</span></span></code></pre></div></li>
+<li>
+<p>OCINodeClass에 추가</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">PRE_BOOTSTRAP_B64=$(base64 &lt; wait-imds.sh | tr -d &#39;\r\n&#39;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">kubectl patch ocinodeclass my-ocinodeclass \
+</span></span><span class="line"><span class="cl">  --type merge \
+</span></span><span class="line"><span class="cl">  -p &#34;{\&#34;spec\&#34;:{\&#34;preBootstrapInitScript\&#34;:\&#34;${PRE_BOOTSTRAP_B64}\&#34;}}&#34;
+</span></span></code></pre></div><ul>
+<li>
+<p>yaml 에 추가시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">apiVersion: oci.oraclecloud.com/v1beta1
+</span></span><span class="line"><span class="cl">kind: OCINodeClass
+</span></span><span class="line"><span class="cl">metadata:
+</span></span><span class="line"><span class="cl">  name: my-ocinodeclass
+</span></span><span class="line"><span class="cl">spec:
+</span></span><span class="line"><span class="cl">  preBootstrapInitScript: &#34;&lt;위 스크립트의 Base64 값&gt;&#34;
+</span></span><span class="line"><span class="cl">  shapeConfigs:
+</span></span><span class="line"><span class="cl">    - ocpus: 2
+</span></span><span class="line"><span class="cl">      memoryInGbs: 8
+</span></span><span class="line"><span class="cl">  # 나머지 기존 설정 유지
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+</li>
+<li>
+<p>앱을 다시 배포합니다.</p>
+</li>
+<li>
+<p>Node Provisioning 확인하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ kubectl get nodeclaims
+</span></span><span class="line"><span class="cl">NAME                TYPE                             CAPACITY   ZONE              NODE          READY   AGE
+</span></span><span class="line"><span class="cl">my-nodepool-bwjnl   VM.Standard.A1.Flex.2o.8g.1_1b   spot       AP-SEOUL-1-AD-1   10.0.10.208   True    3m20s
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">$ kubectl get nodes -L karpenter.sh/nodepool -L oci.oraclecloud.com/instance-shape -L oci.oraclecloud.com/oke-is-preemptible
+</span></span><span class="line"><span class="cl">NAME          STATUS   ROLES    AGE     VERSION   NODEPOOL      INSTANCE-SHAPE        OKE-IS-PREEMPTIBLE
+</span></span><span class="line"><span class="cl">10.0.10.208   Ready    &lt;none&gt;   2m50s   v1.36.4   my-nodepool   VM.Standard.A1.Flex   true
+</span></span><span class="line"><span class="cl">10.0.10.225   Ready    node     20h     v1.36.4
+</span></span><span class="line"><span class="cl">10.0.10.85    Ready    node     20h     v1.36.4
+</span></span></code></pre></div><ul>
+<li>새 노드 <code>10.0.10.208</code>가 생성되고 클러스터에 참여하였습니다.</li>
+</ul>
+</li>
+<li>
+<p>추가로 Worker Node에 SSH로 접속해서 preBootstrapInitScript 실행로그를 확인해 봅니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">[opc@my-nodepool-bwjnl ~]$ cat /var/log/cloud-init-output.log | grep wait-imds
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=1/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=2/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=3/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=4/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=5/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=6/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=7/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=8/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=9/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] attempt=10/30 status=404
+</span></span><span class="line"><span class="cl">[wait-imds] Instance identity certificate is ready
+</span></span></code></pre></div></li>
+</ol>
+<h6 id="주요-설정-항목">주요 설정 항목</h6>
+<ol>
+<li>
+<p>Helm Chart 배포시 설정</p>
+<table>
+  <thead>
+      <tr>
+          <th>Key</th>
+          <th>Description</th>
+          <th>디폴트</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>batchMaxDuration</strong></td>
+          <td>The  maximum length of a batch window. <br />The longer this is, the more pods we can  consider for provisioning <br />at one  time  which usually results in fewer but larger nodes.</td>
+          <td>10s</td>
+      </tr>
+      <tr>
+          <td><strong>batchIdleDuration</strong></td>
+          <td>The  maximum amount of time with no new ending pods that <br />if exceeded ends the  current batching window. If pods arrive faster than this time, <br />the batching  window will be extended up to the maxDuration. <br />If they arrive slower, the pods will be batched separately.</td>
+          <td>1s</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+<li>
+<p>karpenter NodePool 배포 설정</p>
+<table>
+  <thead>
+      <tr>
+          <th>Key</th>
+          <th>Description</th>
+          <th>디폴트</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>disruption.consolidateAfter</strong></td>
+          <td>ConsolidateAfter is the duration the controller will wait <br />before attempting to  terminate nodes that are underutilized</td>
+          <td>0s</td>
+      </tr>
+      <tr>
+          <td><strong>disruption.budgets.nodes</strong></td>
+          <td>Nodes  dictates the maximum number of NodeClaims <br />owned by this NodePool that can be terminating at once</td>
+          <td>10%</td>
+      </tr>
+  </tbody>
+</table>
+</li>
+</ol>
+<ul>
+<li>설정파라미터 참고
+<ul>
+<li><a href="https://github.com/oracle/karpenter-provider-oci/blob/main/chart/values.yaml">https://github.com/oracle/karpenter-provider-oci/blob/main/chart/values.yaml</a></li>
+<li><a href="https://karpenter.sh/docs/concepts/nodepools/">https://karpenter.sh/docs/concepts/nodepools/</a></li>
+<li><a href="https://github.com/oracle/karpenter-provider-oci/blob/main/pkg/apis/crds/karpenter.sh_nodepools.yaml">https://github.com/oracle/karpenter-provider-oci/blob/main/pkg/apis/crds/karpenter.sh_nodepools.yaml</a></li>
+</ul>
+</li>
+</ul>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <div class="edit-meta">Last updated on 28 Oct 2026<br></div><nav class="pagination"><a class="nav nav-prev" href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/2.create-oke-cluster-self-managed-nodes/" title="3.2 OKE 클러스터 만들기 - Self-Managed Nodes"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - 3.2 OKE 클러스터 만들기 - Self-Managed Nodes</a>
+<a class="nav nav-next" href="https://thekoguryo.github.io/oracle-cloudnative/databases/" title="4. Database 서비스 / Database on Kubernetes">Next - 4. Database 서비스 / Database on Kubernetes <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/">
+                Oracle Cloud Native
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/">
+                1. OKE Managed Nodes 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/">
+                1.1 OKE Managed Nodes 생성 및 연결
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/1.oke-managed-nodes/">1.1.1 OKE, OKE Managed Nodes 소개</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/2.create-oke-cluster-in-quick-mode/">1.1.2 OKE 클러스터 만들기 - Quick Create 모드</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/3.access-cluster/">
+                1.1.3 OKE 클러스터 연결하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/3.access-cluster/1.cloudshell-access/">1.1.3.1 Cloud Shell로 클러스터 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/basics/3.access-cluster/2.local-access/">1.1.3.2 로컬 환경에서 클러스터 연결하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/">
+                1.2 OKE Managed Nodes 기본 사용법
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/">
+                1.2.1 Load Balancer
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/1.default-load-balancer/">1.2.1.1 OCI Load Balancer로 서비스하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/2.load-balancer-annotation/">1.2.1.2 OCI Load Balancer 상세 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/load-balancer/3.network-load-balancer-annotation/">1.2.1.3 OCI Network Load Balancer 상세 설정하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/">
+                1.2.2 Ingress
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/">
+                1.2.2.1 OCI Native Ingress Controller
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/1.install-oci-ingress-controller/">1.2.2.1.1 OCI Native Ingress Controller 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/2.ingress-path/">1.2.2.1.2 PATH 기반 라우팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/oci-native-ingress/3.ingress-host/">1.2.2.1.3 HOST 기반 라우팅</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/">
+                1.2.2.2 OSS NGINX Ingress Controller
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/1.install-nginx-ingress-controller/">1.2.2.2.1 NGINX Ingress Controller 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/2.nginx-ingress-path/">1.2.2.2.2 PATH 기반 라우팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/3.nginx-ingress-host/">1.2.2.2.3 HOST 기반 라우팅</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/4.nginx-ingress-preserve-client-ip-lb/">1.2.2.2.4 컨테이너에서 클라이언트 IP 얻기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/5.nginx-ingress-tls-termination-lb/">1.2.2.2.5 TLS termination - OCI LB 레벨</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/ingress/nginx-ingress/lb/6.nginx-ingress-tls-termination-spec-tls-secret/">1.2.2.2.6 TLS Termination - Ingress 레벨</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/">
+                1.2.3 Storage
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/block-volume/1.block-volume/">1.2.3.1 Block Volume 사용하기</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/file-storage-service/">
+                1.2.3.2 File Storage Service 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/file-storage-service/1.file-storage/">1.2.3.2.1 File Storage 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/file-storage-service/2.file-storage-dynamic-provisioning/">1.2.3.2.2 File Storage 사용하기 - Dynamic Provisioning</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/3.volume-snapshot/">1.2.3.3 Kubernetes Volume Snapshot 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/storage/4.volume-clone/">1.2.3.4 Kubernetes Volume Clone 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/management/">
+                1.2.4 Management
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/management/1.supported-version-and-upgrade/">1.2.4.1 Kubernetes 버전 업그레이드</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/nodepool/">
+                1.2.5 Node Pool
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/nodepool/1.arm-node-pool/">1.2.5.1 Ampere (Arm) Node Pool 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/fundamentals/nodepool/2.preemptible-capacity/">1.2.5.2 Preemptible Capacity Node Pool 추가하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/">
+                1.3 Autoscaling
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/1.metric-server/">1.3.1 Metrics Server 설치</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/2.hpa/">1.3.2 Horizontal Pod Autoscaler</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/3.cluster-autoscaler/">1.3.3 Cluster Autoscaler</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/4.cluster-autoscaler-addon/">1.3.4 Cluster Autoscaler (Cluster Add-on)</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/autoscaling/5.cluster-autoscaler-test/">1.3.5 Cluster Autoscaler 테스트</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/">
+                1.4 Container Registry
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/">
+                1.4.1 OCIR(Oracle Cloud Infrastructure Registry)
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/1.deploy-ocir-image/">1.4.1.1 OCIR 이미지 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/2.scan-image/">1.4.1.2 컨테이너 이미지 스캔</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/3.helm-chart/">1.4.1.3 Helm Chart Repository로 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/ocir/4.oke-credential-provider-for-ocir/">1.4.1.4 Image Credential Provider for OKE 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/container-registry/nexus/1.nexus-repository/">1.4.2 Image Registry로 Nexus Repository 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/">
+                1.5 Observability
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/control-plane-logs/">
+                1.5.1 Control Plane Logs
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/control-plane-logs/1.oci-logging/">1.5.1.1 OCI Logging을 사용한 Control Plane 로그 모니터링</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/">
+                1.5.2 Application Logs &amp; Monitoring
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/1.oci-logging/">1.5.2.1 OCI Logging을 사용한 애플리케이션 로그 모니터링</a></li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/logging-analytics/">
+                1.5.2.2 OCI Logging Analytics로 모니터링하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/logging-analytics/1.logging-analytics/">1.5.2.2.1 Logging Analytics로 모니터링 하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/logging-analytics/2.management-agent-manual/">1.5.2.2.2 Management Agent를 사용한 모니터링</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/">
+                1.5.2.3 OpenSearch 기반 OCI Search 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/1.configure-oci-opensearch/">1.5.2.3.1 OpenSearch 사용 환경 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/2.fluentd-to-oci-opensearch/">1.5.2.3.2 FluentD로 OKE 로그 전송하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/oci-opensearch/3.fluentbit-to-oci-opensearch/">1.5.3.3.3 FluentBit로 OKE 로그 전송하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/open-source/">
+                1.5.2.4 Open Source기반 Observability 툴 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/open-source/elasticsearch/1.install-efk/">1.5.2.4.1 EFK(Elasticsearch, Fluentd, kibana)</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/observability/application/open-source/prometheusgrafana/1.install-prometheus-grafana/">1.5.2.4.2 Prometheus&amp;Grafana로 모니터링 하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/security/">
+                1.6 Security
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/security/1.secret-store/">1.6.1 Secret Store로 OCI Vault 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/">
+                1.7 CI/CD(Continuous Integration &amp; Delivery)
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/">
+                1.7.1 OCI DevOps 서비스 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/1.deploy-app-on-oke-using-devops/">1.7.1.1 Spring Boot 앱 배포 자동화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/2.bluegreen-stragtegy/">1.7.1.2 Blue/Green 배포 전략으로 배포하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/3.canary-stragtegy/">1.7.1.3 Canary 배포 전략으로 배포하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/4.deploy-app-with-helm-chart/">1.7.1.4 Helm Chart로 배포 자동화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/cicd/devops/5.detect-vulnerabilities-from-build-pipeline/">1.7.1.5 빌드시 패키지 취약점 검사하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/">
+                1.8 Service Mesh
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/istio/">
+                1.8.1 OSS Istio
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/istio/1.sampleapp-without-istio/">1.8.1.1 Service Mesh 없는 마이크로서비스 앱 배포</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/service-mesh/istio/2.sampleapp-with-istio/">1.8.1.2 마이크로서비스 앱에 Istio 적용하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/">
+                1.9 OKE Enhanced Cluster
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/1.create-enhanced-cluster/">1.9.1 OKE Enhanced Cluster 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/2.workload-identity/">1.9.2 Workload Identity 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/enhanced-cluster/3.node-cycling/">1.9.3 Node Cycling로 Worker Nodes 업데이트 하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/">
+                1.10 커스터마이징
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/1.resize-worker-node/">1.10.1 Worker Node 디스크 사이즈 늘리기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/2.kubelet-options/">1.10.2 cloud-init으로 kubelet 옵션 변경하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/3.custom-node-image/">1.10.3 Worker Node 생성시 Custom Image 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/4.custom-scheduler/">1.10.4 Custom Scheduler 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/customize/5.ubuntu-node-image/">1.10.5 Ubuntu Worker Node 이미지 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/others/">
+                1.11 Other Tips
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-managed-nodes/others/oke-cluster-on-arm/">1.11.1 Arm 기반으로 OKE 사용시 유의할 점</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/">
+                2. OKE Virtual Nodes 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/1.oke-virtual-nodes/">2.1 OKE Virtual Nodes 소개</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/2.create-oke-cluster-virtual-nodes/">2.2 OKE 클러스터 만들기 - Virtual Nodes</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-virtual-nodes/3.deploy-app-on-virtual-nodes/">2.3 Virtual Nodes 앱 배포 및 비용 예시</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/">
+                3. OKE Self-Managed Nodes 사용하기
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/1.oke-self-managed-nodes/">3.1 OKE Self-Managed Nodes 소개</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/2.create-oke-cluster-self-managed-nodes/">3.2 OKE 클러스터 만들기 - Self-Managed Nodes</a></li>
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/oracle-cloudnative/oke-self-managed-nodes/3.autoscaling-kpo/">3.3 Autoscaling - Karpenter Provider for OCI (KPO) 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/">
+                4. Database 서비스 / Database on Kubernetes
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/">
+                4.1 Redis
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/">
+                4.1.1 OCI Cache with Redis
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/1.cache-with-redis/">4.1.1.1 OCI Cache with Redis 클러스터 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/2.cache-with-redis-in-springboot/">4.1.1.2 Spring Boot에서 OCI Cache with Redis 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/redis/cache-with-redis/3.cache-with-redis-mysql-in-springboot/">4.1.1.3 Spring Boot에서 OCI Cache with Redis &#43; MySQL 쓰기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/">
+                4.2 Oracle Database
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/1.adb-free/">4.2.1 Oracle Autonomous Database Free Container Image</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/2.oracle-database-operator/">4.2.2 Oracle Database Operator for Kubernetes</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oracle-database/3.oracle-database-23ai-free/">4.2.3 Oracle Database 23ai Free Container Image</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/databases/oci-services/1.oci-service-operator-1.1.8/">4.3 OKE에서 OCI 자원관리를 위한 Service Operator</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/other-k8s-tools/">
+                5. 추가적인 쿠버네티스 도구들
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/other-k8s-tools/agones/">5.1 게임서비스를 위한 Agones 테스트</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/other-k8s-tools/k8sgpt/">5.2 OCI GenAI와 K8sGPT로 AI기반 OKE 클러스터 장애 분석하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/">
+                6. Container Instances
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/1.use-container-instances/">6.1 Container Instances로 컨테이너 배포하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/2.create-container-instances-by-cli/">6.2 CLI로 Container Instance 만들기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/container-instances/3.image-pull-secrets/">6.3 Private Registry를 위한 image pull secret 사용하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class="">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/functions/">
+                7. OCI Functions
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/">
+                8. 애플리케이션 개발하기
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/1.use-graal-vm/">8.1 GraalVM 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/2.develop-spring-boot-app/">8.2 GraalVM 사용하여 Spring Boot 3 애플리케이션 개발하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/appdev/3.install-graal-vm-for-jdk/">8.3 로컬 환경에 GraalVM for JDK 설치하기</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+      
+        
+          
+          <li class=" has-sub-menu">
+              <a href="https://thekoguryo.github.io/oracle-cloudnative/migration/">
+                9. 마이그레이션
+                <button type="button" class="toggleButton">
+                  <span class="right ">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down  hidden" >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class=" hidden">
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/migration/1.velero/">9.1 Velero로 백업, 복구하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/migration/2.eks-to-oke-os/">9.2 Amazon EKS에서 OKE로 마이그레이션하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/oracle-cloudnative/migration/3.aks-to-oke-os/">9.3 Azure AKS에서 OKE로 마이그레이션하기</a></li>
+            </ul>
+              
+            </li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>

@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>OCI Data Science 주요 기능 테스트 - TheKoguryo&#39;s 기술 블로그</title>
+<meta name="generator" content="Hugo 0.152.1">
+<link href="https://thekoguryo.github.io/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="https://thekoguryo.github.io/blog/2026/oci-ds-pipeline-test-result/">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/theme.min.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/d2coding.css">
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/fontawesome-all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nanum Gothic" >
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Gowun Dodum" >
+<script src="https://use.fontawesome.com/releases/v5.15.4/js/all.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://thekoguryo.github.io/js/functions.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jquery.backtothetop/jquery.backtothetop.min.js"></script>
+<script src="https://thekoguryo.github.io/js/jqcloud/jqcloud.js"></script>
+<link rel="stylesheet" href="https://thekoguryo.github.io/js/jqcloud/jqcloud.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-106207316-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-106207316-1');
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2708881668962858"
+     crossorigin="anonymous"></script><meta property="og:url" content="https://thekoguryo.github.io/blog/2026/oci-ds-pipeline-test-result/">
+  <meta property="og:site_name" content="TheKoguryo&#39;s 기술 블로그">
+  <meta property="og:title" content="OCI Data Science 주요 기능 테스트">
+  <meta property="og:description" content="OCI Data Science 주요 기능 테스트 1. 파이프라인에서 컨테이너 실행하기 Data Science 파이프라인의 각 step에서 컨테이너 이미지가 정상적으로 실행되는지 확인해 봅니다. 이를 위해 컨테이너 이미지 생성, OCIR에 푸시부터 파이프라인에서 실행하는 것까지 테스트해봅니다.">
+  <meta property="og:locale" content="ko">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2026-11-17T00:00:01+09:00">
+    <meta property="article:modified_time" content="2026-11-17T00:00:01+09:00">
+    <meta property="article:tag" content="Data Science">
+
+</head>
+<body>
+<div class="container"><header>
+<h1>TheKoguryo&#39;s 기술 블로그</h1>
+
+ <span class="version">&nbsp;Version 2026-11-17</span>
+<a href="https://github.com/TheKoguryo" class="github"><i class="fab fa-github"></i></a>
+</header>
+<div class="menu">
+<nav>
+<ul>
+<li ><a href="/">Home</a></li>
+<li ><a href="/oci">OCI</a></li>
+<li ><a href="/oracle-cloudnative">OKE/Cloud Native</a></li>
+<li ><a href="/blog">Blog</a></li>
+<li ><a href="/release-notes">OCI Release Notes</a></li>
+<li ><a href="/tags">Tag Cloud</a></li>
+<li ><a href="https://github.com/TheKoguryo/TheKoguryo.github.io/issues/new">Feedback</a></li>
+<li ><a href="/link">Link</a></li>
+
+</ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h2 id="oci-data-science-주요-기능-테스트">OCI Data Science 주요 기능 테스트</h2>
+<h6 id="1-파이프라인에서-컨테이너-실행하기">1. 파이프라인에서 컨테이너 실행하기</h6>
+<p>Data Science 파이프라인의 각 step에서 컨테이너 이미지가 정상적으로 실행되는지 확인해 봅니다. 이를 위해 컨테이너 이미지 생성, OCIR에 푸시부터 파이프라인에서 실행하는 것까지 테스트해봅니다.</p>
+<ul>
+<li>참고 - <a href="https://docs.oracle.com/en-us/iaas/Content/data-science/using/pipelines-v2-byoc-about.htm">Bring Your Own Container (BYOC) for Pipelines</a></li>
+</ul>
+<p><strong>컨테이너 이미지 준비</strong></p>
+<ol>
+<li>
+<p>컨테이너에서 실행할 코드 준비 - <code>simplest.py</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">import datetime
+</span></span><span class="line"><span class="cl">import os
+</span></span><span class="line"><span class="cl">import time
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pipe_id = os.environ.get(&#34;PIPELINE_RUN_OCID&#34;, &#34;LOCAL&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;Starting pipeline run: {pipe_id}&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;Current timestamp in UTC: {datetime.datetime.now(datetime.timezone.utc)}&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(&#34;Waiting for 5 seconds.&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">time.sleep(5)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(&#34;Environment variables:&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">for item, value in os.environ.items():
+</span></span><span class="line"><span class="cl">    print(f&#34;\t {item}: {value}&#34;)
+</span></span></code></pre></div></li>
+<li>
+<p>Dockerfile 작성</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">FROM python:3.12-slim AS base
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">ENV DATASCIENCE_USER=datascience
+</span></span><span class="line"><span class="cl">ENV DATASCIENCE_UID=1000
+</span></span><span class="line"><span class="cl">ENV HOME=/home/$DATASCIENCE_USER
+</span></span><span class="line"><span class="cl">ENV PYTHONUNBUFFERED=1
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">RUN python -m pip install \
+</span></span><span class="line"><span class="cl">        oci \
+</span></span><span class="line"><span class="cl">        ocifs
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">COPY simplest.py .
+</span></span><span class="line"><span class="cl">CMD [&#34;python&#34;, &#34;simplest.py&#34;]
+</span></span></code></pre></div></li>
+<li>
+<p>컨테이너 이미지 빌드</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker buildx build \
+</span></span><span class="line"><span class="cl">  --platform linux/amd64,linux/arm64 \
+</span></span><span class="line"><span class="cl">  -t byoc:1.0.0 \
+</span></span><span class="line"><span class="cl">  .
+</span></span></code></pre></div></li>
+<li>
+<p>로컬 실행 테스트</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">$ docker run byoc:1.0.0
+</span></span><span class="line"><span class="cl">Starting pipeline run: LOCAL
+</span></span><span class="line"><span class="cl">Current timestamp in UTC: 2026-11-12 03:47:41.994358+00:00
+</span></span><span class="line"><span class="cl">Waiting for 5 seconds.
+</span></span><span class="line"><span class="cl">Environment variables:
+</span></span><span class="line"><span class="cl">	 PATH: /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+</span></span><span class="line"><span class="cl">	 HOSTNAME: 69aac9733f28
+</span></span><span class="line"><span class="cl">	 LANG: C.UTF-8
+</span></span><span class="line"><span class="cl">	 GPG_KEY: 7169605F62C751356D054A26A821E680E5FA6305
+</span></span><span class="line"><span class="cl">	 PYTHON_VERSION: 3.12.16
+</span></span><span class="line"><span class="cl">	 PYTHON_SHA256: b5796915dc45ff745cfb4e990a7e7c93d6f546328a102ce31448d69ebc37575c
+</span></span><span class="line"><span class="cl">	 DATASCIENCE_USER: datascience
+</span></span><span class="line"><span class="cl">	 DATASCIENCE_UID: 1000
+</span></span><span class="line"><span class="cl">	 HOME: /home/datascience
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>OCIR에 이미지 푸시하기</strong></p>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/data-science/using/pipelines-v2-byoc-about.htm#pipelines-v2-byoc-supported">Supported Configurations</a>에 ML Pipelines only support container images residing in the OCI Registry.라고 설명하고 있습니다. 파이프라인에서 사용할 컨테이너 이미지를 OCIR에 먼저 푸시합니다.</p>
+<ol>
+<li>
+<p>테넌트 네임스페이스 확인</p>
+<ul>
+<li><a href="https://cloud.oracle.com/tenancy">https://cloud.oracle.com/tenancy</a> 에 접속하여, Object storage namespace 확인</li>
+</ul>
+</li>
+<li>
+<p>Docker Login시 사용할 Auth Token 생성</p>
+<ul>
+<li><a href="https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrygettingauthtoken.htm">https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrygettingauthtoken.htm</a></li>
+</ul>
+</li>
+<li>
+<p>OCIR에 로그인</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker login -u &#39;&lt;tenant_namespace&gt;/&lt;username&gt;&#39; &lt;region&gt;.ocir.io
+</span></span></code></pre></div><ul>
+<li>
+<p>예,</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker login -u &#39;axcfcoiuv3eq/kildong.hong@example.com&#39; ap-seoul-1.ocir.io
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>OCIR를 위해 Tag 하기</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker tag &lt;local_image_name&gt;:&lt;local_version&gt; &lt;region&gt;.ocir.io/&lt;tenancy_namespace&gt;/&lt;repo&gt;:&lt;version&gt;
+</span></span></code></pre></div><ul>
+<li>
+<p>예</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker tag byoc:1.0.0 ap-seoul-1.ocir.io/axcfcoiuv3eq/data-science/byoc:1.0.0
+</span></span></code></pre></div></li>
+</ul>
+</li>
+<li>
+<p>OCIR Repository 생성하기</p>
+<ul>
+<li><a href="https://cloud.oracle.com/compute/registry/containers">https://cloud.oracle.com/compute/registry/containers</a></li>
+<li>Repository name: <code>data-science/byoc</code></li>
+</ul>
+</li>
+<li>
+<p>이미지 푸시</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker push &lt;region&gt;.ocir.io/&lt;tenancy_namespace&gt;/&lt;repo&gt;:&lt;version&gt;
+</span></span></code></pre></div><ul>
+<li>
+<p>예,</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">docker push ap-seoul-1.ocir.io/axcfcoiuv3eq/data-science/byoc:1.0.0
+</span></span></code></pre></div></li>
+</ul>
+</li>
+</ol>
+<p><strong>파이프라인 만들기</strong></p>
+<ol>
+<li>
+<p>파이프라인을 생성</p>
+<ul>
+<li>Name: 예, <code>byoc-test-pipeline</code></li>
+</ul>
+</li>
+<li>
+<p>Add pipeline steps 선택</p>
+</li>
+<li>
+<p>From container 선택</p>
+</li>
+<li>
+<p>Step name: 예, <code>step-1</code>.</p>
+</li>
+<li>
+<p>Container configuration에서 Configure 선택</p>
+</li>
+<li>
+<p>Configure your container environment 설정 화면</p>
+<ul>
+<li>사용할 컨테이너 이미지가 있는 Compartment 선택</li>
+<li>사용할 이미지 선택</li>
+<li>다른 항목은 그대로 두고 Configure 선택</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261111182817890.png" alt='image-20261111182817890' onerror="this.onerror=null;this.src='images\/image-20261111182817890.png';" />
+</p>
+<ul>
+<li>
+<p>선택결과</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261111182837738.png" alt='image-20261111182837738' onerror="this.onerror=null;this.src='images\/image-20261111182837738.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>나머지 항목은 그대로 Save 선택하여 Step 설정 완료함</p>
+</li>
+<li>
+<p>Logging configuration에서 Enable logging 선택후 Log group 설정하여 Pipeline 로그 설정</p>
+</li>
+<li>
+<p>Create pipeline을 클릭하여 파이프라인 생성완료</p>
+</li>
+</ol>
+<p><strong>파이프라인 권한 설정</strong></p>
+<ol>
+<li>
+<p>Data Science를 위한 기본적인 Policy 설정되어 있는 상황에서, 파이프라인 실행시 컨테이너 이미지를 가져올 수 있게 IAM Policy로 권한을 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow any-user to read repos in compartment Sandbox where ALL { request.principal.type = &#39;datasciencepipelinerun&#39; }
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>파이프라인 실행</strong></p>
+<ol>
+<li>
+<p>Pipeline runs 탭으로 이동하여, 파이프라인을 실행</p>
+</li>
+<li>
+<p>파이프라인 실행완료후 로그를 확인하면, 컨테이너가 실행되어  코드내 print 내용이 출력된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112132510387.png" alt='image-20261112132510387' onerror="this.onerror=null;this.src='images\/image-20261112132510387.png';" />
+</p>
+</li>
+</ol>
+<h6 id="2-파이프라인에서-컨테이너-실행하기---실행-코드만-변경하기">2. 파이프라인에서 컨테이너 실행하기 - 실행 코드만 변경하기</h6>
+<p>앞서 작성한 컨테이너 이미지를 재사용하여, 실행 코드만 교체하는 방법을 알아봅니다.</p>
+<p><strong>실행할 코드 준비</strong></p>
+<ol>
+<li>
+<p>컨테이너에서 실행할 코드 준비 - <code>simplest-v2.py</code></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">import datetime
+</span></span><span class="line"><span class="cl">import os
+</span></span><span class="line"><span class="cl">import time
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pipe_id = os.environ.get(&#34;PIPELINE_RUN_OCID&#34;, &#34;LOCAL&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;Starting pipeline run: {pipe_id}&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;Current timestamp in UTC: {datetime.datetime.now(datetime.timezone.utc)}&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(&#34;simplest-v2.py&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(&#34;Waiting for 10 minutes.&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">for minute in range(1, 11):
+</span></span><span class="line"><span class="cl">    time.sleep(60)
+</span></span><span class="line"><span class="cl">    print(f&#34;{minute} minute(s) elapsed.&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(&#34;Resuming execution.&#34;)
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>파이프라인 만들기 &amp; 실행하기</strong></p>
+<ol>
+<li>
+<p>파이프라인을 생성</p>
+<ul>
+<li>Name: 예, <code>byoc-test-pipeline-v2</code></li>
+</ul>
+</li>
+<li>
+<p>Add pipeline steps 선택</p>
+</li>
+<li>
+<p>From container 선택</p>
+</li>
+<li>
+<p>Step name: 예, <code>step-1</code>.</p>
+</li>
+<li>
+<p>Container configuration에서 Configure 선택</p>
+</li>
+<li>
+<p>Configure your container environment 설정 화면</p>
+<ul>
+<li>
+<p>사용할 컨테이너 이미지는 동일하게 선택</p>
+</li>
+<li>
+<p>CMD만 새로 업로드할 파일을 실행할 수 있도록 설정</p>
+<ul>
+<li>이후 설정에서 단일 파일을 업로드하면 <code>/home/datascience/</code> 하위에, 압축 파일은 <code>/home/datascience/decompressed_artifact/</code> 하위에 압축해제 되므로 그에 따라 실행 파일을 지정해 줍니다.</li>
+<li>여기서는 <code>python</code>,  <code>/home/datascience/simplest-v2.py</code> 입력</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112132922921.png" alt='image-20261112132922921' onerror="this.onerror=null;this.src='images\/image-20261112132922921.png';" />
+</p>
+</li>
+</ul>
+</li>
+<li>
+<p>Upload job artifact에서 실행할 코드  <code>simplest-v2.py</code>를 업로드 합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112132831635.png" alt='image-20261112132831635' onerror="this.onerror=null;this.src='images\/image-20261112132831635.png';" />
+</p>
+</li>
+<li>
+<p>나머지는 이전과 동일하게 설정하여 파이프라인 생성을 완료 합니다.</p>
+</li>
+<li>
+<p>파이프라인을 실행하고 로그를 확인합니다. 변경된 코드가 실행된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112134724599.png" alt='image-20261112134724599' onerror="this.onerror=null;this.src='images\/image-20261112134724599.png';" />
+</p>
+</li>
+</ol>
+<p>######3. maximum runtime 테스트**</p>
+<p>파이프라인 설정에 Set the maximum runtime(in minutes) 라는 항목이 있습니다. 파이프라인이 비정상적으로 오래 실행될 때 이 값을 통해 파이프라인 실행을 중지하게 할 수 있는 지 확인해 봅니다.</p>
+<p>| 파이프라인 수준의 실행 시간 제한은 10분마다 동작하는 별도의 모니터가 적용하고, 스텝 수준의 실행 시간 제한은 1시간마다 동작하는 모니터가 적용한다고 합니다.</p>
+<ol>
+<li>
+<p><code>byoc-test-pipeline-v2</code> 파이프라인을 편집합니다. Maximum runtime을 5분으로 변경하고 저장합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112154429976.png" alt='image-20261112154429976' onerror="this.onerror=null;this.src='images\/image-20261112154429976.png';" />
+</p>
+</li>
+<li>
+<p>이제 파이프라인을 실행합니다. 실행코드는 현재 5분 이상 실행되어, 실행시 타임아웃이 발생하게 됩니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112162648008.png" alt='image-20261112162648008' onerror="this.onerror=null;this.src='images\/image-20261112162648008.png';" />
+</p>
+</li>
+<li>
+<p>step과 파이프라인 모두 Canceled 상태로 표시됩니다.</p>
+</li>
+<li>
+<p>코드 로그 상으로도 일정 시간 까지만 로그가 찍힌 것을 볼수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112162719177.png" alt='image-20261112162719177' onerror="this.onerror=null;this.src='images\/image-20261112162719177.png';" />
+</p>
+</li>
+</ol>
+<h6 id="4-pipeline에서-step간-파라미터-전달하기">4. Pipeline에서 Step간 파라미터 전달하기</h6>
+<p>이전 스텝의 결과에 따라 다음 스텝의 진행 흐름을 바꾼다거나, 이전 스텝에서 설정한 값이 필요한 경우에 <em>Step Output Parameters</em>와 Step 환경 변수값을 통해 전달할 수 있습니다. 의존성이 있는 Step간에 값을 전달하는 방법을 알아봅니다.</p>
+<p>이를 통해 이전 Step의 결과값에 따라 이후 Step에서 처리 흐름을 달리할 수 있습니다.</p>
+<ul>
+<li>참고 - <a href="https://docs.oracle.com/en-us/iaas/Content/data-science/using/pipelines-parameters.htm">Pipeline and Step Parameters</a></li>
+</ul>
+<p><strong>실행할 스크립트 코드 준비</strong></p>
+<ol>
+<li>
+<p>step-1 에서 사용할 코드 <code>simplest-step-1.py</code> 를 작성합니다. 다음 스텝으로 결과를 넘길 항목을 여기서는 JSON 형식으로 파일을 만듭니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">import datetime
+</span></span><span class="line"><span class="cl">import os
+</span></span><span class="line"><span class="cl">import time
+</span></span><span class="line"><span class="cl">import json
+</span></span><span class="line"><span class="cl">from pathlib import Path
+</span></span><span class="line"><span class="cl">import oci
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pipe_id = os.environ.get(&#34;PIPELINE_RUN_OCID&#34;, &#34;LOCAL&#34;)
+</span></span><span class="line"><span class="cl">step_name = os.environ.get(&#34;PIPELINE_STEP_NAME&#34;, &#34;UNKNOWN&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] Starting pipeline run: {pipe_id}&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] Current timestamp in UTC: {datetime.datetime.now(datetime.timezone.utc)}&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] simplest-step-1.py&#34;) 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">mock_step_result = os.environ.get(&#34;MOCK_STEP_RESULT&#34;, &#34;SUCCEEDED&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># 다음 STEP에 현재 STEP의 값을 전달하는 방법
+</span></span><span class="line"><span class="cl">data = {
+</span></span><span class="line"><span class="cl">    &#34;pipeline_step_name&#34;: step_name,
+</span></span><span class="line"><span class="cl">    &#34;result&#34;: mock_step_result
+</span></span><span class="line"><span class="cl">}
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">output_path = Path(&#34;/home/datascience/output.json&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if pipe_id == &#34;LOCAL&#34;:
+</span></span><span class="line"><span class="cl">    output_path = Path.cwd() / &#34;output.json&#34;
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">with output_path.open(&#34;w&#34;, encoding=&#34;utf-8&#34;) as f:
+</span></span><span class="line"><span class="cl">    json.dump(data, f, ensure_ascii=False, indent=2)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># STEP 실행 코드내에서 다음 STEP 진행하지 않고, 파이프라인 종료하는 경우
+</span></span><span class="line"><span class="cl">cancel_pipeline_on_failure = os.environ.get(&#34;CANCEL_PIPELINE_ON_FAILURE&#34;, &#34;FALSE&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if pipe_id != &#34;LOCAL&#34;:
+</span></span><span class="line"><span class="cl">    if mock_step_result == &#34;FAILED&#34; and cancel_pipeline_on_failure == &#34;TRUE&#34;:
+</span></span><span class="line"><span class="cl">        signer = oci.auth.signers.get_resource_principals_signer()
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        data_science_client = oci.data_science.DataScienceClient(config={}, signer=signer)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        cancel_pipeline_run_response = data_science_client.cancel_pipeline_run(
+</span></span><span class="line"><span class="cl">            pipeline_run_id=pipe_id,
+</span></span><span class="line"><span class="cl">            terminate_gracefully=True)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        print(f&#34;[{step_name}] {cancel_pipeline_run_response.headers}&#34;)
+</span></span></code></pre></div></li>
+<li>
+<p>step-2 에서 사용할 코드 <code>simplest-step-2.py</code> 를 작성합니다. 환경변수 <code>PRE_STEP_NAME</code>, <code>PRE_STEP_RESULT</code>을 사용하여 이전 스텝의 output을 가져오는 것으로 작성하였습니다. (매핑은 이후 파이프라인 생성시 하게됩니다.) 그리고  <code>PRE_STEP_RESULT</code>의 값에 따라 추가 로직의 수행 여부를 결정하였습니다.</p>
+<ul>
+<li>실제 step 실패나 서비스 차원의 스킵이 아니라, 이전 step에서 전달받은 값에 따른 처리가 생략되는지를 확인하는 테스트입니다.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">import datetime
+</span></span><span class="line"><span class="cl">import os
+</span></span><span class="line"><span class="cl">import time
+</span></span><span class="line"><span class="cl">import sys
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">pipe_id = os.environ.get(&#34;PIPELINE_RUN_OCID&#34;, &#34;LOCAL&#34;)
+</span></span><span class="line"><span class="cl">step_name = os.environ.get(&#34;PIPELINE_STEP_NAME&#34;, &#34;UNKNOWN&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] Starting pipeline run: {pipe_id}&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] Current timestamp in UTC: {datetime.datetime.now(datetime.timezone.utc)}&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] simplest-step-2.py&#34;) 
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># 이전 STEP의 값을 전달받아 사용하는 경우, 여기서는 현재 STEP의 로직 수행 여부 판단하는 예시
+</span></span><span class="line"><span class="cl">pre_step_name = os.environ.get(&#34;PRE_STEP_NAME&#34;, &#34;UNKNOWN&#34;)
+</span></span><span class="line"><span class="cl">pre_step_result = os.environ.get(&#34;PRE_STEP_RESULT&#34;, &#34;UNKNOWN&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] PRE_STEP_NAME: {pre_step_name}&#34;)
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] PRE_STEP_RESULT: {pre_step_result}&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if pre_step_result != &#34;SUCCEEDED&#34;:
+</span></span><span class="line"><span class="cl">    print(f&#34;[{step_name}] SKIPPED: Previous step was not SUCCEEDED.&#34;)
+</span></span><span class="line"><span class="cl">    sys.exit(0)     # 콘솔에는 SUCCEEDED로 표시
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">print(f&#34;[{step_name}] Execute something...&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">time.sleep(5)
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>파이프라인 만들기</strong></p>
+<ol>
+<li>
+<p>파이프라인을 생성</p>
+<ul>
+<li>Name: 예, <code>test-pipeline-v1</code></li>
+</ul>
+</li>
+<li>
+<p>Add pipeline steps 선택</p>
+</li>
+<li>
+<p>Step 1 추가</p>
+<ul>
+<li>
+<p>From script 선택</p>
+</li>
+<li>
+<p>Step name: 예, <code>step-1</code></p>
+</li>
+<li>
+<p>Upload job artifact에서 작성한  <code>simplest-step-1.py</code> 을 업로드</p>
+</li>
+<li>
+<p>Output parameters 설정</p>
+<ul>
+<li>
+<p>코드에서 쓴 파일을 출력 파라미터로 매핑합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">data = {
+</span></span><span class="line"><span class="cl">    &#34;pipeline_step_name&#34;: step_name,
+</span></span><span class="line"><span class="cl">    &#34;result&#34;: mock_step_result
+</span></span><span class="line"><span class="cl">}
+</span></span></code></pre></div></li>
+<li>
+<p>Output parameter type: <code>JSON</code></p>
+</li>
+<li>
+<p>Parameter Name: <code>pipeline_step_name</code></p>
+</li>
+<li>
+<p>Parameter Name: <code>result</code></p>
+</li>
+<li>
+<p>Output file name: <code>/home/datascience/output.json</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112165205618.png" alt='image-20261112165205618' onerror="this.onerror=null;this.src='images\/image-20261112165205618.png';" />
+</p>
+</li>
+<li>
+<p>Step 2 추가</p>
+<ul>
+<li>
+<p>From script 선택</p>
+</li>
+<li>
+<p>Step name: 예, <code>step-2</code></p>
+</li>
+<li>
+<p>Depends on: 선후 관계를 나타내기 위해  <code>step-1</code> 선택</p>
+</li>
+<li>
+<p>Upload job artifact에서 작성한  <code>simplest-step-2.py</code> 을 업로드</p>
+</li>
+<li>
+<p>Custom environment variable key 설정</p>
+<ul>
+<li>
+<p>이전 stepName의 output parameter를 아래 형식으로 사용할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">{{stepParameters.&lt;stepName&gt;.output.&lt;paramName&gt;}}
+</span></span></code></pre></div></li>
+<li>
+<p><code>PRE_STEP_NAME</code>: <code>{{stepParameters.step-1.output.pipeline_step_name}}</code></p>
+</li>
+<li>
+<p><code>PRE_STEP_RESULT</code>: <code>{{stepParameters.step-1.output.result}}</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112165225439.png" alt='image-20261112165225439' onerror="this.onerror=null;this.src='images\/image-20261112165225439.png';" />
+</p>
+</li>
+<li>
+<p>나머지는 이전과 동일하게 설정하여 파이프라인 생성을 완료 합니다.</p>
+</li>
+<li>
+<p>이제 파이프라인을 실행합니다. Pipeline configuration override 로 <code>MOCK_STEP_RESULT</code>=<code>FAILED</code>로 추가 설정하여 실행합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112170635978.png" alt='image-20261112170635978' onerror="this.onerror=null;this.src='images\/image-20261112170635978.png';" />
+</p>
+</li>
+<li>
+<p>step-2 에서 step-1의 Output parameters를 잘 가져오는 것을 알 수 있습니다. <code>PRE_STEP_RESULT</code> 값에 따라 처리된 것을 볼 수 있습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112173107422.png" alt='image-20261112173107422' onerror="this.onerror=null;this.src='images\/image-20261112173107422.png';" />
+</p>
+</li>
+</ol>
+<h6 id="5-pipeline-실행-중-취소하기">5. Pipeline 실행 중 취소하기</h6>
+<p><a href="https://docs.oracle.com/en-us/iaas/Content/data-science/using/pipeline-run-cancel.htm">Canceling a Pipeline Run Gracefully</a>을 지원하여, 콘솔, CLI, API 등으로 실행중인 파이프라인은 취소할 수 있습니다. 파이프라인 내부의 사용자 코드가 더 이상 실행할 필요가 없다고 판단하는 경우,  <code>terminateGracefully</code> 옵션으로 실행을 중단하고 파이프라인은 성공 상태로 기록할 수 있습니다.  이를 통해 모니터링 시 사용자의 의도적인 종료와 자원 부족 등으로 서비스가 취소한 실행을 구분할 수 있습니다.</p>
+<p>조건부로 파이프라인 취소 여부를 판단하기 위해 본 테스트에서는 편의상 환경 변수를 사용하였습니다.</p>
+<p><strong>파이프라인 권한 설정</strong></p>
+<ol>
+<li>
+<p>Data Science를 위한 기본적인 Policy 설정되어 있는 상황에서, 파이프라인 코드내에서 파이프라인 cancel_pipeline_run API를 실행할 수 있게 IAM Policy로 권한을 추가합니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">allow any-user to manage data-science-pipeline-runs in compartment Sandbox where ALL { request.principal.type = &#39;datasciencepipelinerun&#39; }
+</span></span></code></pre></div></li>
+</ol>
+<p><strong>파이프라인 설명 및 테스트</strong></p>
+<ol>
+<li>
+<p>step-1 에서 사용할 코드 <code>simplest-step-1.py</code>  후반 코드와 같이 OCI API  <code>data_science_client.cancel_pipeline_run()</code>를 실행하여, 현재 파이프라인을 취소할 수 있습니다.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-plain" data-lang="plain"><span class="line"><span class="cl">...
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"># STEP 실행 코드내에서 다음 STEP 진행하지 않고, 파이프라인 종료하는 경우
+</span></span><span class="line"><span class="cl">cancel_pipeline_on_failure = os.environ.get(&#34;CANCEL_PIPELINE_ON_FAILURE&#34;, &#34;FALSE&#34;)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">if pipe_id != &#34;LOCAL&#34;:
+</span></span><span class="line"><span class="cl">    if mock_step_result == &#34;FAILED&#34; and cancel_pipeline_on_failure == &#34;TRUE&#34;:
+</span></span><span class="line"><span class="cl">        signer = oci.auth.signers.get_resource_principals_signer()
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        data_science_client = oci.data_science.DataScienceClient(config={}, signer=signer)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        cancel_pipeline_run_response = data_science_client.cancel_pipeline_run(
+</span></span><span class="line"><span class="cl">            pipeline_run_id=pipe_id,
+</span></span><span class="line"><span class="cl">            terminate_gracefully=True)
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        print(f&#34;[{step_name}] {cancel_pipeline_run_response.headers}&#34;)
+</span></span></code></pre></div></li>
+<li>
+<p>이제 파이프라인을 실행합니다. 이번에는 step-1에서 결과에 따라 자체적으로 이후 step 처리없이 파이프라인을 API로 종료하도록 Pipeline configuration override 로 <code>MOCK_STEP_RESULT</code>=<code>FAILED</code> 및 <code>CANCEL_PIPELINE_ON_FAILURE</code>=<code>TRUE</code>을 추가 설정하여 실행합니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112173533844.png" alt='image-20261112173533844' onerror="this.onerror=null;this.src='images\/image-20261112173533844.png';" />
+</p>
+</li>
+<li>
+<p>step-1은 후속 스텝 실행 없이 종료되었고, step-2는 스킵된 것을 볼 수 있습니다.</p>
+<ul>
+<li>step-1은 실행에 따라 Succeeded 또는 Canceled, 파이프라인은 Succeeded 상태로 관찰되었습니다.</li>
+</ul>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112174658624.png" alt='image-20261112174658624' onerror="this.onerror=null;this.src='images\/image-20261112174658624.png';" />
+</p>
+</li>
+<li>
+<p>파이프라인은 Succeeded 상태로 표시됩니다.</p>
+</li>
+<li>
+<p>실행로그에서도 step-1 실행 과정에서  <code>CANCEL_PIPELINE_ON_FAILURE</code>=<code>TRUE</code>값에 따라 OCI API  <code>data_science_client.cancel_pipeline_run()</code> 호출에 대한 응답 헤더가 마지막에 출력되었습니다.</p>
+<p>
+
+
+
+
+
+
+
+<img class="img-fluid1" src="../images/image-20261112174722347.png" alt='image-20261112174722347' onerror="this.onerror=null;this.src='images\/image-20261112174722347.png';" />
+</p>
+</li>
+</ol>
+<br>
+<br>
+<div class="panel panel-caution">
+    <div class="panel-body" style="text-align: center;">
+    <p>이 글은 개인으로서, 개인의 시간을 할애하여 작성된 글입니다. 글의 내용에 오류가 있을 수 있으며, 글 속의 의견은 개인적인 의견입니다.</p>
+    </div>
+    </div>
+
+ <footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://github.com/thingsym/hugo-theme-techdoc">TechDoc</a>. Design by <a href="https://www.thingslabo.com/">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+
+<nav>
+<ul>
+
+
+<li>
+  <form method="get" action="https://thekoguryo.github.io//search">
+    <input type="text" id="search-box" name="q" placeholder="Search"/>
+  </form>
+  
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#search-box').val($('#search-query').val());
+    });
+  </script>
+</li>
+<li><a> </a></li>
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+      
+        
+          
+          <li class="parent has-sub-menu">
+              <a href="https://thekoguryo.github.io/blog/">
+                블로그
+                <button type="button" class="toggleButton">
+                  <span class="right  hidden">
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-right">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="7 4 13 10 7 16"></polyline>
+                    </svg></span>
+                  <span class="down " >
+                    <svg width="16" height="16" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-svg="chevron-down">
+                      <polyline fill="none" stroke="#000" stroke-width="1.03" points="16 7 10 13 4 7"></polyline>
+                    </svg>
+                  </span>
+                </button>
+              </a>
+                 
+            
+             
+            <ul class="sub-menu">
+
+    
+    
+
+      <li class="active"><a href="https://thekoguryo.github.io/blog/2026/oci-ds-pipeline-test-result/">2026-11-17 OCI Data Science 주요 기능 테스트</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-llm/">2026-10-13 Private AI Services Container 시작하기 - Private Large Language Model Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-dsjob-cross-tenancy-os-bucket-mount/">2026-10-12 OCI Data Science Job에서 Cross-Tenancy Object Storage 마운트하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/cpu-based-ai-inference/">2026-10-06 Compute VM에서 CPU 기반 AI 추론 모델 테스트</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-compute-https-letsencrypt/">2026-09-17 OCI Compute VM에 배포한 Streamlit 앱, Let’s Encrypt로 HTTPS 적용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-gen-ai-with-cline/">2026-09-11 OCI Generative AI를 Cline을 통해 VS Code에서 코딩 에이전트로 활용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-indexing/">2026-06-29 Private AI Services Container 시작하기 - Vector Indexing Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/private-ai-services-container-embedding/">2026-06-17 Private AI Services Container 시작하기 - Vector Embedding Service</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/ocifs-oke-and-object-storage/">2026-06-10 OKE 상의 컨테이너에서 OCIFS 유틸리티로 Object Storage 연결하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oci-console-custom-time-zone/">2026-06-01 OCI Console - 커스텀 Time Zone 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/2026/oml4py-onnx/">2026-04-20 OML4Py 설치 후 Embedding 모델 DB에 로드하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/cross-region-oci-genai/">2026-02-06 다른 리전의 OCI Generative AI를 프라이빗하게 호출하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/reset-password-in-windows/">2025-10-25 Windows Server 2025에서 opc 유저 패스워드 초기화하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci-v2/">2025-08-29 OpenAI gpt-oss를 GPU기반 OCI Compute VM, Oracle 23ai로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/gpt-oss-on-oci/">2025-08-08 OpenAI gpt-oss를 GPU기반 OCI Compute VM으로 구성하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/rhel-on-oci/">2024-11-25 OCI에 레드햇 리눅스 사용하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/mfa-settings/">2024-10-15 OCI Console 로그인을 위한 MFA 설정하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-identity-domain-as-idp/">2024-08-29 다른 Cloud Account의 Identity Domain를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/add-active-directory-as-idp/">2024-06-21 Identity Domain에서 MS Active Directory를 인증서버 IdP로 추가하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/lets-encrypt-ssl-certificate/">2024-01-19 Let’s Encrypt로 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/install-vscode-on-oracle-linux-8/">2023-04-04 Oracle Linux 8에 Visual Studio Code 설치하기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/free-ssl-certificate/">2023-02-28 무료 SSL 인증서 발급받기</a></li>
+
+    
+    
+
+      <li class=""><a href="https://thekoguryo.github.io/blog/arm-based-server-performance/">2022-09-27 ARM 기반 서버 성능 비교: OCI vs. AWS</a></li>
+            </ul>
+              
+            </li>
+
+    
+    
+
+    
+    
+</ul>
+</nav>
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop" 
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up" style="color: #74A683;"></i>
+</span></a>
+
+<script src="https://thekoguryo.github.io/js/copy-code-button.js"></script></div>
+</body>
+</html>
